@@ -329,6 +329,7 @@ static int ehci_bus_suspend (struct usb_hcd *hcd)
 
 	end_unlink_async(ehci);
 	unlink_empty_async_suspended(ehci);
+	ehci_handle_start_intr_unlinks(ehci);
 	ehci_handle_intr_unlinks(ehci);
 	end_free_itds(ehci);
 
@@ -348,7 +349,6 @@ static int ehci_bus_suspend (struct usb_hcd *hcd)
 	hrtimer_cancel(&ehci->hrtimer);
 	return 0;
 }
-
 
 /* caller has locked the root hub, and should reset/reinit on error */
 static int ehci_bus_resume (struct usb_hcd *hcd)
@@ -578,7 +578,6 @@ static int check_reset_complete (
 }
 
 /*-------------------------------------------------------------------------*/
-
 
 /* build "status change" packet (one or two bytes) from HC registers */
 

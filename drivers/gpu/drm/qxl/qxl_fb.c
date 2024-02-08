@@ -158,7 +158,6 @@ static void qxl_deferred_io(struct fb_info *info,
 	qxl_fb_dirty_flush(info);
 };
 
-
 static struct fb_deferred_io qxl_defio = {
 	.delay		= QXL_DIRTY_DELAY,
 	.deferred_io	= qxl_deferred_io,
@@ -563,5 +562,3 @@ void qxl_fbdev_fini(struct qxl_device *qdev)
 	kfree(qdev->mode_info.qfbdev);
 	qdev->mode_info.qfbdev = NULL;
 }
-
-

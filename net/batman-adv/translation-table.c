@@ -1128,8 +1128,6 @@ batadv_tt_global_del_roaming(struct batadv_priv *bat_priv,
 						orig_node, message);
 }
 
-
-
 static void batadv_tt_global_del(struct batadv_priv *bat_priv,
 				 struct batadv_orig_node *orig_node,
 				 const unsigned char *addr,
@@ -1176,7 +1174,6 @@ static void batadv_tt_global_del(struct batadv_priv *bat_priv,
 		/* no local entry exists, case 1: check for roaming */
 		batadv_tt_global_del_roaming(bat_priv, tt_global_entry,
 					     orig_node, message);
-
 
 out:
 	if (tt_global_entry)
@@ -1847,7 +1844,6 @@ batadv_send_my_tt_response(struct batadv_priv *bat_priv,
 		   "Received TT_REQUEST from %pM for ttvn: %u (me) [%c]\n",
 		   tt_request->src, tt_request->ttvn,
 		   (tt_request->flags & BATADV_TT_FULL_TABLE ? 'F' : '.'));
-
 
 	my_ttvn = (uint8_t)atomic_read(&bat_priv->tt.vn);
 	req_ttvn = tt_request->ttvn;

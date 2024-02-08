@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /******************************************************************************
  * hypercall.h
  *
@@ -43,6 +46,10 @@
 
 #include <asm/page.h>
 #include <asm/pgtable.h>
+#ifdef MY_DEF_HERE
+#else
+#include <asm/nospec-branch.h>
+#endif	/* MY_DEF_HERE */
 
 #include <xen/interface/xen.h>
 #include <xen/interface/sched.h>
@@ -213,10 +220,17 @@ privcmd_call(unsigned call,
 	__HYPERCALL_DECLS;
 	__HYPERCALL_5ARG(a1, a2, a3, a4, a5);
 
+#ifdef MY_DEF_HERE
 	asm volatile("call *%[call]"
 		     : __HYPERCALL_5PARAM
 		     : [call] "a" (&hypercall_page[call])
 		     : __HYPERCALL_CLOBBER5);
+#else
+	asm volatile(CALL_NOSPEC
+		     : __HYPERCALL_5PARAM
+		     : [thunk_target] "a" (&hypercall_page[call])
+		     : __HYPERCALL_CLOBBER5);
+#endif	/* MY_DEF_HERE */
 
 	return (long)__res;
 }

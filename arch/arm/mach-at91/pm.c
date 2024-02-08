@@ -116,7 +116,6 @@ static int at91_pm_valid_state(suspend_state_t state)
 	}
 }
 
-
 static suspend_state_t target_state;
 
 /*
@@ -188,7 +187,6 @@ int at91_suspend_entering_slow_clock(void)
 	return (target_state == PM_SUSPEND_MEM);
 }
 EXPORT_SYMBOL(at91_suspend_entering_slow_clock);
-
 
 static void (*slow_clock)(void __iomem *pmc, void __iomem *ramc0,
 			  void __iomem *ramc1, int memctrl);
@@ -305,7 +303,6 @@ static void at91_pm_end(void)
 {
 	target_state = PM_SUSPEND_ON;
 }
-
 
 static const struct platform_suspend_ops at91_pm_ops = {
 	.valid	= at91_pm_valid_state,

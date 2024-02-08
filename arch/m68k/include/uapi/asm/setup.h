@@ -23,8 +23,6 @@
 #ifndef _UAPI_M68K_SETUP_H
 #define _UAPI_M68K_SETUP_H
 
-
-
     /*
      *  Linux/m68k Architectures
      */
@@ -43,8 +41,6 @@
 #define MACH_M54XX   12
 
 #define COMMAND_LINE_SIZE 256
-
-
 
     /*
      *  CPU, FPU and MMU types
@@ -98,6 +94,5 @@
 #define MMU_SUN3       (1<<MMUB_SUN3)
 #define MMU_APOLLO     (1<<MMUB_APOLLO)
 #define MMU_COLDFIRE   (1<<MMUB_COLDFIRE)
-
 
 #endif /* _UAPI_M68K_SETUP_H */

@@ -68,7 +68,7 @@ static int to_atmarpd(enum atmarp_ctrl_type type, int itf, __be32 ip)
 
 	sk = sk_atm(atmarpd);
 	skb_queue_tail(&sk->sk_receive_queue, skb);
-	sk->sk_data_ready(sk, skb->len);
+	sk->sk_data_ready(sk);
 	return 0;
 }
 
@@ -590,13 +590,9 @@ static struct notifier_block clip_dev_notifier = {
 	.notifier_call = clip_device_event,
 };
 
-
-
 static struct notifier_block clip_inet_notifier = {
 	.notifier_call = clip_inet_event,
 };
-
-
 
 static void atmarpd_close(struct atm_vcc *vcc)
 {
@@ -615,14 +611,12 @@ static struct atmdev_ops atmarpd_dev_ops = {
 	.close = atmarpd_close
 };
 
-
 static struct atm_dev atmarpd_dev = {
 	.ops =			&atmarpd_dev_ops,
 	.type =			"arpd",
 	.number = 		999,
 	.lock =			__SPIN_LOCK_UNLOCKED(atmarpd_dev.lock)
 };
-
 
 static int atm_init_atmarp(struct atm_vcc *vcc)
 {

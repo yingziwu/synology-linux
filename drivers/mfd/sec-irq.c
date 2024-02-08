@@ -89,7 +89,6 @@ static struct regmap_irq s2mps11_irqs[] = {
 	},
 };
 
-
 static struct regmap_irq s5m8767_irqs[] = {
 	[S5M8767_IRQ_PWRR] = {
 		.reg_offset = 0,

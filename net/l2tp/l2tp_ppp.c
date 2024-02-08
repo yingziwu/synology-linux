@@ -454,7 +454,6 @@ static void pppol2tp_session_close(struct l2tp_session *session)
 
 	BUG_ON(session->magic != L2TP_SESSION_MAGIC);
 
-
 	if (sock) {
 		inet_shutdown(sock, 2);
 		/* Don't let the session go away before our socket does */

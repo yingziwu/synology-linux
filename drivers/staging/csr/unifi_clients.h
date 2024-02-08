@@ -25,7 +25,6 @@
 #define UDI_SENDER_ID_BASE      0xC000
 #define UDI_SENDER_ID_SHIFT     8
 
-
 /* Structure to hold a UDI logged signal */
 typedef struct {
 
@@ -39,8 +38,6 @@ typedef struct {
 
 } udi_log_t;
 
-
-
 typedef struct ul_client ul_client_t;
 
 typedef void (*udi_event_t)(ul_client_t *client,
@@ -53,7 +50,6 @@ void logging_handler(void *ospriv,
                      const bulk_data_param_t *bulkdata,
                      enum udi_log_direction direction);
 
-
 /*
  * Structure describing a bulk data slot.
  * The length field is used to indicate empty/occupied state.
@@ -63,7 +59,6 @@ typedef struct _bulk_data
     unsigned char ptr[2000];
     unsigned int length;
 } bulk_data_t;
-
 
 struct ul_client {
     /* Index of this client in the ul_clients array. */
@@ -100,7 +95,6 @@ struct ul_client {
 
     u16 signal_filter[SIG_FILTER_SIZE];
 
-
     /* ------------------------------------------------------------------- */
     /* Code below here is used by the sme_native configuration only */
 
@@ -124,6 +118,5 @@ struct ul_client {
 
     unifiio_snap_filter_t snap_filter;
 }; /* struct ul_client */
-
 
 #endif /* __LINUX_UNIFI_CLIENTS_H__ */

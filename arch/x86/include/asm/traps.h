@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_TRAPS_H
 #define _ASM_X86_TRAPS_H
 
@@ -69,6 +72,10 @@ dotraplinkage void do_simd_coprocessor_error(struct pt_regs *, long);
 #ifdef CONFIG_X86_32
 dotraplinkage void do_iret_error(struct pt_regs *, long);
 #endif
+#ifdef MY_DEF_HERE
+#else
+dotraplinkage void do_mce(struct pt_regs *, long);
+#endif	/* MY_DEF_HERE */
 
 static inline int get_si_code(unsigned long condition)
 {

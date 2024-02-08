@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Defines x86 CPU feature bits
  */
@@ -88,7 +91,9 @@
 #define X86_FEATURE_SYSCALL32	(3*32+14) /* "" syscall in ia32 userspace */
 #define X86_FEATURE_SYSENTER32	(3*32+15) /* "" sysenter in ia32 userspace */
 #define X86_FEATURE_REP_GOOD	(3*32+16) /* rep microcode works well */
+#ifdef MY_DEF_HERE
 #define X86_FEATURE_MFENCE_RDTSC (3*32+17) /* "" Mfence synchronizes RDTSC */
+#endif	/* MY_DEF_HERE */
 #define X86_FEATURE_LFENCE_RDTSC (3*32+18) /* "" Lfence synchronizes RDTSC */
 #define X86_FEATURE_11AP	(3*32+19) /* "" Bad local APIC aka 11AP */
 #define X86_FEATURE_NOPL	(3*32+20) /* The NOPL (0F 1F) instructions */
@@ -187,6 +192,12 @@
 #define X86_FEATURE_HW_PSTATE	(7*32+ 8) /* AMD HW-PState */
 #define X86_FEATURE_PROC_FEEDBACK (7*32+ 9) /* AMD ProcFeedbackInterface */
 
+#define X86_FEATURE_RETPOLINE_AMD (7*32+13) /* AMD Retpoline mitigation for Spectre variant 2 */
+#define X86_FEATURE_INVPCID_SINGLE ( 7*32+ 7) /* Effectively INVPCID && CR4.PCIDE=1 */
+#define X86_FEATURE_SPEC_CTRL   ( 7*32+19) /* Control Speculation Control */
+#define X86_FEATURE_IBPB_SUPPORT (7*32+20) /* Indirect Branch Prediction Barrier Support */
+#define X86_FEATURE_IBP_DISABLE ( 7*32+21) /* Old AMD Indirect Branch Predictor Disable */
+
 /* Virtualization flags: Linux defined, word 8 */
 #define X86_FEATURE_TPR_SHADOW  (8*32+ 0) /* Intel TPR Shadow */
 #define X86_FEATURE_VNMI        (8*32+ 1) /* Intel Virtual NMI */
@@ -203,7 +214,6 @@
 #define X86_FEATURE_DECODEASSISTS (8*32+12) /* AMD Decode Assists support */
 #define X86_FEATURE_PAUSEFILTER (8*32+13) /* AMD filtered pause intercept */
 #define X86_FEATURE_PFTHRESHOLD (8*32+14) /* AMD pause filter threshold */
-
 
 /* Intel-defined CPU features, CPUID level 0x00000007:0 (ebx), word 9 */
 #define X86_FEATURE_FSGSBASE	(9*32+ 0) /* {RD/WR}{FS/GS}BASE instructions*/

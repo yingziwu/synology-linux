@@ -424,7 +424,6 @@ acpi_get_table_by_index(u32 table_index, struct acpi_table_header **table)
 
 ACPI_EXPORT_SYMBOL(acpi_get_table_by_index)
 
-
 /*******************************************************************************
  *
  * FUNCTION:    acpi_install_table_handler

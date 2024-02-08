@@ -17,7 +17,6 @@
 
 #include <linux/iio/common/st_sensors.h>
 
-
 #define ST_SENSORS_WAI_ADDRESS		0x0f
 
 static int st_sensors_write_data_with_mask(struct iio_dev *indio_dev,

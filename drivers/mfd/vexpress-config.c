@@ -24,7 +24,6 @@
 #include <linux/string.h>
 #include <linux/vexpress.h>
 
-
 #define VEXPRESS_CONFIG_MAX_BRIDGES 2
 
 struct vexpress_config_bridge {
@@ -85,7 +84,6 @@ void vexpress_config_bridge_unregister(struct vexpress_config_bridge *bridge)
 		cpu_relax();
 }
 EXPORT_SYMBOL(vexpress_config_bridge_unregister);
-
 
 struct vexpress_config_func {
 	struct vexpress_config_bridge *bridge;

@@ -29,7 +29,6 @@
 #include "csr_wifi_hip_card_sdio.h"
 #include "csr_wifi_hip_chiphelper.h"
 
-
 /* Time to wait between attempts to read MAILBOX0 */
 #define MAILBOX1_TIMEOUT                10  /* in millisecs */
 #define MAILBOX1_ATTEMPTS               200 /* 2 seconds */
@@ -69,7 +68,6 @@ card_t* unifi_alloc_card(CsrSdioFunction *sdio, void *ospriv)
 {
     card_t *card;
     u32 i;
-
 
     card = kzalloc(sizeof(card_t), GFP_KERNEL);
     if (card == NULL)
@@ -119,7 +117,6 @@ card_t* unifi_alloc_card(CsrSdioFunction *sdio, void *ospriv)
         card->fh_traffic_queue[i].q_length = UNIFI_SOFT_TRAFFIC_Q_LENGTH;
     }
 
-
     /* Initialise mini-coredump pointers in case no coredump buffers
      * are requested by the OS layer.
      */
@@ -149,7 +146,6 @@ card_t* unifi_alloc_card(CsrSdioFunction *sdio, void *ospriv)
     return card;
 } /* unifi_alloc_card() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_init_card
@@ -167,7 +163,6 @@ card_t* unifi_alloc_card(CsrSdioFunction *sdio, void *ospriv)
 CsrResult unifi_init_card(card_t *card, s32 led_mask)
 {
     CsrResult r;
-
 
     if (card == NULL)
     {
@@ -193,7 +188,6 @@ CsrResult unifi_init_card(card_t *card, s32 led_mask)
 
     return CSR_RESULT_SUCCESS;
 }
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -324,7 +318,6 @@ CsrResult unifi_init(card_t *card)
     return r;
 } /* unifi_init() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_download
@@ -375,7 +368,6 @@ CsrResult unifi_download(card_t *card, s32 led_mask)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_download() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -455,7 +447,6 @@ static CsrResult unifi_hip_init(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* unifi_hip_init() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  _build_sdio_config_data
@@ -521,7 +512,6 @@ static void _build_sdio_config_data(sdio_config_data_t *cfg_data,
 
     cfg_data->tohost_signal_padding = CSR_GET_UINT16_FROM_LITTLE_ENDIAN(cfg_data_buf + offset);
 } /* _build_sdio_config_data() */
-
 
 /*
  * - Function ----------------------------------------------------------------
@@ -886,7 +876,6 @@ static CsrResult card_hw_init(card_t *card)
         return CSR_RESULT_FAILURE;
     }
 
-
     /*
      * Now check the UniFi firmware version
      */
@@ -925,7 +914,6 @@ static CsrResult card_hw_init(card_t *card)
 
     return CSR_RESULT_SUCCESS;
 } /* card_hw_init() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1052,7 +1040,6 @@ static CsrResult card_wait_for_unifi_to_reset(card_t *card)
     return r;
 } /* card_wait_for_unifi_to_reset() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_wait_for_unifi_to_disable
@@ -1151,7 +1138,6 @@ static CsrResult card_wait_for_unifi_to_disable(card_t *card)
     return r;
 } /* card_wait_for_unifi_to_reset() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_wait_for_firmware_to_start
@@ -1233,7 +1219,6 @@ CsrResult card_wait_for_firmware_to_start(card_t *card, u32 *paddr)
         return CSR_RESULT_FAILURE;
     }
 
-
     /*
      * Complete the reset handshake by setting MAILBOX2 to 0xFFFF
      */
@@ -1247,7 +1232,6 @@ CsrResult card_wait_for_firmware_to_start(card_t *card, u32 *paddr)
         unifi_error(card->ospriv, "Failed to write f/w startup handshake to MAILBOX2\n");
         return r;
     }
-
 
     /*
      * Read the Symbol Look Up Table (SLUT) offset.
@@ -1269,7 +1253,6 @@ CsrResult card_wait_for_firmware_to_start(card_t *card, u32 *paddr)
 
     return CSR_RESULT_SUCCESS;
 } /* card_wait_for_firmware_to_start() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1310,7 +1293,6 @@ CsrResult unifi_capture_panic(card_t *card)
 
     return CSR_RESULT_SUCCESS;
 }
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1441,7 +1423,6 @@ static CsrResult card_access_panic(card_t *card)
     return r;
 }
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_read_panic
@@ -1508,7 +1489,6 @@ void unifi_read_panic(card_t *card)
 
 }
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_allocate_memory_resources
@@ -1569,7 +1549,6 @@ static CsrResult card_allocate_memory_resources(card_t *card)
     card->th_buffer.ptr = card->th_buffer.buf;
     card->th_buffer.count = 0;
 
-
     /*
      * Allocate memory for the from-host and to-host bulk data slots.
      * This is done as separate kmallocs because lots of smaller
@@ -1607,7 +1586,6 @@ static CsrResult card_allocate_memory_resources(card_t *card)
     {
         card->fh_slot_host_tag_record[i] = CSR_WIFI_HIP_RESERVED_HOST_TAG;
     }
-
 
     /* Allocate memory for the array of pointers */
     n = cfg_data->num_tohost_data_slots;
@@ -1653,7 +1631,6 @@ static CsrResult card_allocate_memory_resources(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* card_allocate_memory_resources() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_free_bulk_data
@@ -1677,7 +1654,6 @@ static void unifi_free_bulk_data(card_t *card, bulk_data_desc_t *bulk_data_slot)
     }
 } /* unifi_free_bulk_data() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_free_memory_resources
@@ -1700,7 +1676,6 @@ static void card_free_memory_resources(card_t *card)
     /* Clear our internal queues */
     unifi_cancel_pending_signals(card);
 
-
     kfree(card->to_host_data);
     card->to_host_data = NULL;
 
@@ -1721,11 +1696,9 @@ static void card_free_memory_resources(card_t *card)
     card->th_buffer.bufsize = 0;
     card->th_buffer.count = 0;
 
-
     card->memory_resources_allocated = 0;
 
 } /* card_free_memory_resources() */
-
 
 static void card_init_soft_queues(card_t *card)
 {
@@ -1748,7 +1721,6 @@ static void card_init_soft_queues(card_t *card)
     unifi_ta_sampling_init(card);
 #endif
 }
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1836,7 +1808,6 @@ void unifi_cancel_pending_signals(card_t *card)
 
 } /* unifi_cancel_pending_signals() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_free_card
@@ -1873,7 +1844,6 @@ void unifi_free_card(card_t *card)
     kfree(card);
 
 } /* unifi_free_card() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1982,7 +1952,6 @@ static CsrResult card_init_slots(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* card_init_slots() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_set_udi_hook
@@ -2012,7 +1981,6 @@ CsrResult unifi_set_udi_hook(card_t *card, udi_func_t udi_fn)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_set_udi_hook() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2044,7 +2012,6 @@ CsrResult unifi_remove_udi_hook(card_t *card, udi_func_t udi_fn)
     return CSR_RESULT_SUCCESS;
 } /* unifi_remove_udi_hook() */
 
-
 static void CardReassignDynamicReservation(card_t *card)
 {
     u8 i;
@@ -2071,7 +2038,6 @@ static void CardReassignDynamicReservation(card_t *card)
 
     card->dynamic_slot_data.total_packets_txed = 0;
 }
-
 
 /* Algorithm to dynamically reserve slots. The logic is based mainly on the outstanding queue
  * length. Slots are reserved for particular queues during an interval and cleared after the interval.
@@ -2205,7 +2171,6 @@ static void CardCheckDynamicReservation(card_t *card, unifi_TrafficQueue queue)
 
 }
 
-
 /*
  * ---------------------------------------------------------------------------
  *  CardClearFromHostDataSlot
@@ -2267,7 +2232,6 @@ void CardClearFromHostDataSlot(card_t *card, const s16 slot)
 
 } /* CardClearFromHostDataSlot() */
 
-
 #ifdef CSR_WIFI_REQUEUE_PACKET_TO_HAL
 /*
  * ---------------------------------------------------------------------------
@@ -2316,14 +2280,12 @@ void CardClearFromHostDataSlotWithoutFreeingBulkData(card_t *card, const s16 slo
     }
 } /* CardClearFromHostDataSlotWithoutFreeingBulkData() */
 
-
 #endif
 
 u16 CardGetDataSlotSize(card_t *card)
 {
     return card->config_data.data_slot_size;
 } /* CardGetDataSlotSize() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2355,7 +2317,6 @@ u16 CardGetFreeFromHostDataSlots(card_t *card)
     return n;
 } /* CardGetFreeFromHostDataSlots() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  CardAreAllFromHostDataSlotsEmpty
@@ -2385,7 +2346,6 @@ u16 CardAreAllFromHostDataSlotsEmpty(card_t *card)
     return 1;
 } /* CardGetFreeFromHostDataSlots() */
 
-
 static CsrResult unifi_identify_hw(card_t *card)
 {
 
@@ -2413,7 +2373,6 @@ static CsrResult unifi_identify_hw(card_t *card)
 
     return CSR_RESULT_SUCCESS;
 } /* unifi_identify_hw() */
-
 
 static CsrResult unifi_prepare_hw(card_t *card)
 {
@@ -2491,7 +2450,6 @@ static CsrResult unifi_prepare_hw(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* unifi_prepare_hw() */
 
-
 static CsrResult unifi_read_chip_version(card_t *card)
 {
     u32 gbl_chip_version;
@@ -2525,7 +2483,6 @@ static CsrResult unifi_read_chip_version(card_t *card)
 
     return r;
 } /* unifi_read_chip_version() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2655,10 +2612,8 @@ static CsrResult unifi_reset_hardware(card_t *card)
         card->sdio_io_block_size = card->sdio_if->blockSize;
     }
 
-
     return r;
 } /* unifi_reset_hardware() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2753,7 +2708,6 @@ static CsrResult card_reset_method_io_enable(card_t *card)
     return r;
 } /* card_reset_method_io_enable() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_reset_method_dbg_reset
@@ -2837,7 +2791,6 @@ static CsrResult card_reset_method_dbg_reset(card_t *card)
     return r;
 } /* card_reset_method_dbg_reset() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_card_hard_reset
@@ -2917,7 +2870,6 @@ CsrResult unifi_card_hard_reset(card_t *card)
     return r;
 } /* unifi_card_hard_reset() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *
@@ -2970,7 +2922,6 @@ CsrResult CardGenInt(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* CardGenInt() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  CardEnableInt
@@ -3017,7 +2968,6 @@ CsrResult CardEnableInt(card_t *card)
 
     return CSR_RESULT_SUCCESS;
 } /* CardEnableInt() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3066,7 +3016,6 @@ CsrResult CardDisableInt(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* CardDisableInt() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  CardPendingInt
@@ -3107,7 +3056,6 @@ CsrResult CardPendingInt(card_t *card, u8 *pintr)
 
     return CSR_RESULT_SUCCESS;
 } /* CardPendingInt() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3166,7 +3114,6 @@ CsrResult CardClearInt(card_t *card)
     return r;
 } /* CardClearInt() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  CardIntEnabled
@@ -3205,7 +3152,6 @@ CsrResult CardIntEnabled(card_t *card, u8 *enabled)
 
     return CSR_RESULT_SUCCESS;
 } /* CardIntEnabled() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3366,7 +3312,6 @@ CsrResult CardWriteBulkData(card_t *card, card_signal_t *csptr, unifi_TrafficQue
     return CSR_RESULT_SUCCESS;
 } /*  CardWriteBulkData() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_find_data_slot
@@ -3401,7 +3346,6 @@ bulk_data_desc_t* card_find_data_slot(card_t *card, s16 slot)
 
     return bd;
 } /* card_find_data_slot() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3465,7 +3409,6 @@ static CsrResult firmware_present_in_flash(card_t *card)
     return CSR_RESULT_SUCCESS;
 } /* firmware_present_in_flash() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  bootstrap_chip_hw
@@ -3504,7 +3447,6 @@ static void bootstrap_chip_hw(card_t *card)
         }
     }
 } /* bootstrap_chip_hw() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3575,7 +3517,6 @@ CsrResult unifi_card_stop_processor(card_t *card, enum unifi_dbg_processors_sele
     return r;
 } /* unifi_card_stop_processor() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  card_start_processor
@@ -3602,7 +3543,6 @@ CsrResult card_start_processor(card_t *card, enum unifi_dbg_processors_select wh
         return r;
     }
 
-
     r = unifi_write_direct_8_or_16(card,
                                    ChipHelper_DBG_EMU_CMD(card->helper) * 2, 8);
     if (r != CSR_RESULT_SUCCESS)
@@ -3619,7 +3559,6 @@ CsrResult card_start_processor(card_t *card, enum unifi_dbg_processors_select wh
 
     return CSR_RESULT_SUCCESS;
 } /* card_start_processor() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3644,7 +3583,6 @@ void unifi_set_interrupt_mode(card_t *card, u32 mode)
     card->intmode = mode;
 } /* unifi_set_interrupt_mode() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_start_processors
@@ -3662,7 +3600,6 @@ CsrResult unifi_start_processors(card_t *card)
 {
     return card_start_processor(card, UNIFI_PROC_BOTH);
 } /* unifi_start_processors() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3683,7 +3620,6 @@ void unifi_request_max_sdio_clock(card_t *card)
 {
     card->request_max_clock = 1;
 } /* unifi_request_max_sdio_clock() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3810,7 +3746,6 @@ CsrResult unifi_set_host_state(card_t *card, enum unifi_host_state state)
     return r;
 } /* unifi_set_host_state() */
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_card_info
@@ -3833,7 +3768,6 @@ void unifi_card_info(card_t *card, card_info_t *card_info)
     card_info->fw_hip_version = card->config_data.version;
     card_info->sdio_block_size = card->sdio_io_block_size;
 } /* unifi_card_info() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -3918,7 +3852,6 @@ CsrResult unifi_check_io_status(card_t *card, s32 *status)
     return r;
 } /* unifi_check_io_status() */
 
-
 void unifi_get_hip_qos_info(card_t *card, unifi_HipQosInfo *hipqosinfo)
 {
     s32 count_fhr;
@@ -3964,8 +3897,6 @@ void unifi_get_hip_qos_info(card_t *card, unifi_HipQosInfo *hipqosinfo)
     hipqosinfo->free_fh_fw_slots = (u16)(card->config_data.num_fromhost_sig_frags - occupied_fh);
 }
 
-
-
 CsrResult ConvertCsrSdioToCsrHipResult(card_t *card, CsrResult csrResult)
 {
     CsrResult r = CSR_RESULT_FAILURE;
@@ -3997,5 +3928,3 @@ CsrResult ConvertCsrSdioToCsrHipResult(card_t *card, CsrResult csrResult)
 
     return r;
 } /* ConvertCsrSdioToCsrHipResult() */
-
-

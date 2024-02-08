@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	HP WatchDog Driver
  *	based on
@@ -102,7 +105,6 @@ struct smbios_proliant_info {
 };
 #define SMBIOS_ICRU_INFORMATION		219
 
-
 struct cmn_registers {
 	union {
 		struct {
@@ -199,7 +201,6 @@ asm(".text                          \n\t"
     "leave                          \n\t"
     "ret                            \n\t"
     ".previous");
-
 
 /*
  *	cru_detect
@@ -368,7 +369,15 @@ asm(".text                      \n\t"
     "movl       16(%r9),%esi    \n\t"
     "movl       20(%r9),%edi    \n\t"
     "movl       (%r9),%eax      \n\t"
+#ifdef MY_DEF_HERE
     "call       *%r12           \n\t"
+#else
+#ifdef CONFIG_RETPOLINE
+    "call	__x86_indirect_thunk_r12\n\t"
+#else /* CONFIG_RETPOLINE */
+    "call       *%r12           \n\t"
+#endif /* CONFIG_RETPOLINE */
+#endif	/* MY_DEF_HERE */
     "pushfq                     \n\t"
     "popq        %r12           \n\t"
     "movl       %eax, (%r9)     \n\t"

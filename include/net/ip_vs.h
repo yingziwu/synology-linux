@@ -329,7 +329,6 @@ static inline const char *ip_vs_dbg_addr(int af, char *buf, size_t buf_len,
 #define LeaveFunction(level)   do {} while (0)
 #endif
 
-
 /*
  *      The port number of FTP service (in network order).
  */
@@ -659,7 +658,6 @@ struct ip_vs_service_user_kern {
 	__be32			netmask;	/* persistent netmask or plen */
 };
 
-
 struct ip_vs_dest_user_kern {
 	/* destination server address */
 	union nf_inet_addr	addr;
@@ -673,7 +671,6 @@ struct ip_vs_dest_user_kern {
 	u32			u_threshold;	/* upper threshold */
 	u32			l_threshold;	/* lower threshold */
 };
-
 
 /*
  *	The information about the virtual service offered to the net
@@ -761,7 +758,6 @@ struct ip_vs_dest {
 	unsigned int		in_rs_table:1;	/* we are in rs_table */
 };
 
-
 /*
  *	The scheduler object
  */
@@ -842,7 +838,6 @@ struct ip_vs_app {
 
 	/* ip_vs_app finish */
 	int (*done_conn)(struct ip_vs_app *, struct ip_vs_conn *);
-
 
 	/* not used now */
 	int (*bind_conn)(struct ip_vs_app *, struct ip_vs_conn *,
@@ -1369,7 +1364,6 @@ extern int ip_vs_leave(struct ip_vs_service *svc, struct sk_buff *skb,
 
 extern void ip_vs_scheduler_err(struct ip_vs_service *svc, const char *msg);
 
-
 /*
  *      IPVS control data and functions (from ip_vs_ctl.c)
  */
@@ -1415,7 +1409,6 @@ extern int start_sync_thread(struct net *net, int state, char *mcast_ifn,
 			     __u8 syncid);
 extern int stop_sync_thread(struct net *net, int state);
 extern void ip_vs_sync_conn(struct net *net, struct ip_vs_conn *cp, int pkts);
-
 
 /*
  *      IPVS rate estimator prototypes (from ip_vs_est.c)

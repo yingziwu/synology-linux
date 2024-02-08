@@ -158,7 +158,6 @@ static int __init boot_alloc_snapshot(char *str)
 }
 __setup("alloc_snapshot", boot_alloc_snapshot);
 
-
 static char trace_boot_options_buf[MAX_TRACER_SIZE] __initdata;
 static char *trace_boot_options __initdata;
 
@@ -2049,7 +2048,6 @@ __trace_array_vprintk(struct ring_buffer *buffer,
 	pc = preempt_count();
 	preempt_disable_notrace();
 
-
 	tbuffer = get_trace_buf();
 	if (!tbuffer) {
 		len = 0;
@@ -3754,7 +3752,6 @@ out:
 	return ret;
 }
 
-
 /**
  * tracing_update_buffers - used by tracing facility to expand ring buffers
  *
@@ -4854,7 +4851,6 @@ static int snapshot_raw_open(struct inode *inode, struct file *filp)
 
 #endif /* CONFIG_TRACER_SNAPSHOT */
 
-
 static const struct file_operations tracing_max_lat_fops = {
 	.open		= tracing_open_generic,
 	.read		= tracing_max_lat_read,
@@ -5640,7 +5636,6 @@ trace_options_write(struct file *filp, const char __user *ubuf, size_t cnt,
 	return cnt;
 }
 
-
 static const struct file_operations trace_options_fops = {
 	.open = tracing_open_generic,
 	.read = trace_options_read,
@@ -5712,7 +5707,6 @@ struct dentry *trace_create_file(const char *name,
 
 	return ret;
 }
-
 
 static struct dentry *trace_options_init_dentry(struct trace_array *tr)
 {
@@ -6409,7 +6403,6 @@ __init static int tracer_alloc_buffers(void)
 {
 	int ring_buf_size;
 	int ret = -ENOMEM;
-
 
 	if (!alloc_cpumask_var(&tracing_buffer_mask, GFP_KERNEL))
 		goto out;

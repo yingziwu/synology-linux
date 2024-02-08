@@ -13,7 +13,6 @@
 #include "csr_msgconv.h"
 #include "csr_macro.h"
 
-
 #ifdef CSR_LOG_ENABLE
 #include "csr_log.h"
 #endif
@@ -177,13 +176,11 @@ CsrMsgConvMsgEntry* CsrWifiSmeConverterLookup(CsrMsgConvMsgEntry *ce, u16 msgTyp
     return NULL;
 }
 
-
 void CsrWifiSmeConverterInit(void)
 {
     CsrMsgConvInsert(CSR_WIFI_SME_PRIM, csrwifisme_conv_lut);
     CsrMsgConvCustomLookupRegister(CSR_WIFI_SME_PRIM, CsrWifiSmeConverterLookup);
 }
-
 
 #ifdef CSR_LOG_ENABLE
 static const CsrLogPrimitiveInformation csrwifisme_conv_info = {
@@ -195,7 +192,6 @@ const CsrLogPrimitiveInformation* CsrWifiSmeTechInfoGet(void)
 {
     return &csrwifisme_conv_info;
 }
-
 
 #endif /* CSR_LOG_ENABLE */
 #endif /* EXCLUDE_CSR_WIFI_SME_MODULE */

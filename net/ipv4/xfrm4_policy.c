@@ -324,4 +324,3 @@ void __init xfrm4_init(void)
 	register_pernet_subsys(&xfrm4_net_ops);
 #endif
 }
-

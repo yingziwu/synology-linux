@@ -63,11 +63,9 @@
 
 #include "savagefb.h"
 
-
 #define SAVAGEFB_VERSION "0.4.0_2.6"
 
 /* --------------------------------------------------------------------- */
-
 
 static char *mode_option = NULL;
 
@@ -78,7 +76,6 @@ MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("FBDev driver for S3 Savage PCI/AGP Chips");
 
 #endif
-
 
 /* --------------------------------------------------------------------- */
 
@@ -226,7 +223,6 @@ static void vgaHWInit(struct fb_var_screeninfo *var,
 	reg->Graphics[0x06] = 0x05;   /* only map 64k VGA memory !!!! */
 	reg->Graphics[0x07] = 0x0F;
 	reg->Graphics[0x08] = 0xFF;
-
 
 	reg->Attribute[0x00]  = 0x00; /* standard colormap translation */
 	reg->Attribute[0x01]  = 0x01;
@@ -969,7 +965,6 @@ static int savagefb_check_var(struct fb_var_screeninfo   *var,
 	return 0;
 }
 
-
 static int savagefb_decode_var(struct fb_var_screeninfo   *var,
 			       struct savagefb_par        *par,
 			       struct savage_reg          *reg)
@@ -998,7 +993,6 @@ static int savagefb_decode_var(struct fb_var_screeninfo   *var,
 	timings.VSyncEnd = timings.VSyncStart + var->vsync_len;
 	timings.VTotal = timings.VSyncEnd + var->upper_margin;
 	timings.sync = var->sync;
-
 
 	par->depth  = var->bits_per_pixel;
 	par->vwidth = var->xres_virtual;
@@ -1485,7 +1479,6 @@ static void savagefb_update_start(struct savagefb_par *par, int base)
 	vga_out8(0x3d5, (base & 0x7f0000) >> 16, par);
 }
 
-
 static void savagefb_set_fix(struct fb_info *info)
 {
 	info->fix.line_length = info->var.xres_virtual *
@@ -1700,7 +1693,6 @@ static void savage_enable_mmio(struct savagefb_par *par)
 	}
 }
 
-
 static void savage_disable_mmio(struct savagefb_par *par)
 {
 	unsigned char val;
@@ -1713,7 +1705,6 @@ static void savage_disable_mmio(struct savagefb_par *par)
 		vga_out8(0x3d5, val | 1, par);
 	}
 }
-
 
 static int savage_map_mmio(struct fb_info *info)
 {
@@ -1908,7 +1899,6 @@ static int savage_init_hw(struct savagefb_par *par)
 	vga_out8(0x3d4, 0x66, par);
 	vga_out8(0x3d5, cr66 & ~0x02, par);	/* clear reset flag */
 	mdelay(10);
-
 
 	/*
 	 * reset memory interface, 3D engine, AGP master, PCI master,
@@ -2301,7 +2291,6 @@ static int savagefb_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	       info->var.xres, info->var.yres,
 	       h_sync / 1000, h_sync % 1000, v_sync);
 
-
 	fb_destroy_modedb(info->monspecs.modedb);
 	info->monspecs.modedb = NULL;
 
@@ -2445,7 +2434,6 @@ static int savagefb_resume(struct pci_dev* dev)
 	return 0;
 }
 
-
 static struct pci_device_id savagefb_devices[] = {
 	{PCI_VENDOR_ID_S3, PCI_CHIP_SUPSAV_MX128,
 	 PCI_ANY_ID, PCI_ANY_ID, 0, 0, FB_ACCEL_SUPERSAVAGE},
@@ -2537,7 +2525,6 @@ static void __exit savage_done(void)
 	DBG("savage_done");
 	pci_unregister_driver(&savagefb_driver);
 }
-
 
 /* ************************* init in-kernel code ************************** */
 

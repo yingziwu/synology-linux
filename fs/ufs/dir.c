@@ -84,7 +84,6 @@ ino_t ufs_inode_by_name(struct inode *dir, const struct qstr *qstr)
 	return res;
 }
 
-
 /* Releases the page */
 void ufs_set_link(struct inode *dir, struct ufs_dir_entry *de,
 		  struct page *page, struct inode *inode)
@@ -106,7 +105,6 @@ void ufs_set_link(struct inode *dir, struct ufs_dir_entry *de,
 	dir->i_mtime = dir->i_ctime = CURRENT_TIME_SEC;
 	mark_inode_dirty(dir);
 }
-
 
 static void ufs_check_page(struct page *page)
 {
@@ -425,7 +423,6 @@ ufs_validate_entry(struct super_block *sb, char *base,
 	return (char *)p - base;
 }
 
-
 /*
  * This is blatantly stolen from ext2fs
  */
@@ -506,7 +503,6 @@ ufs_readdir(struct file *filp, void *dirent, filldir_t filldir)
 	}
 	return 0;
 }
-
 
 /*
  * ufs_delete_entry deletes a directory entry by merging it with the

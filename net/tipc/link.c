@@ -581,7 +581,6 @@ void tipc_link_reset(struct tipc_link *l_ptr)
 	link_reset_statistics(l_ptr);
 }
 
-
 static void link_activate(struct tipc_link *l_ptr)
 {
 	l_ptr->next_in_no = l_ptr->stats.recv_info = 1;
@@ -1089,7 +1088,6 @@ int tipc_send_buf_fast(struct sk_buff *buf, u32 destnode)
 	return res;
 }
 
-
 /*
  * tipc_link_send_sections_fast: Entry for messages where the
  * destination processor is known and the header is complete,
@@ -1151,7 +1149,6 @@ exit:
 			sender->max_pkt = l_ptr->max_pkt;
 			tipc_node_unlock(node);
 			read_unlock_bh(&tipc_net_lock);
-
 
 			if ((msg_hdr_sz(hdr) + res) <= sender->max_pkt)
 				goto again;
@@ -2139,7 +2136,6 @@ exit:
 	kfree_skb(buf);
 }
 
-
 /*
  * tipc_link_tunnel(): Send one message via a link belonging to
  * another bearer. Owner node is locked.
@@ -2168,8 +2164,6 @@ static void tipc_link_tunnel(struct tipc_link *l_ptr,
 	skb_copy_to_linear_data_offset(buf, INT_H_SIZE, msg, length);
 	tipc_link_send_buf(tunnel, buf);
 }
-
-
 
 /*
  * changeover(): Send whole message queue via the remaining link

@@ -267,7 +267,6 @@ int wil_reset(struct wil6210_priv *wil)
 	return rc;
 }
 
-
 void wil_link_on(struct wil6210_priv *wil)
 {
 	struct net_device *ndev = wil_to_ndev(wil);

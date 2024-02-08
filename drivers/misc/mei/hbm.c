@@ -100,7 +100,6 @@ bool mei_hbm_cl_addr_equal(struct mei_cl *cl, void *buf)
 		cl->me_client_id == cmd->me_addr;
 }
 
-
 /**
  * is_treat_specially_client - checks if the message belongs
  * to the file private data.
@@ -227,7 +226,6 @@ static int mei_hbm_prop_req(struct mei_device *dev)
 	unsigned long next_client_index;
 	unsigned long client_num;
 
-
 	client_num = dev->me_client_presentation_num;
 
 	next_client_index = find_next_bit(dev->me_clients_map, MEI_CLIENTS_MAX,
@@ -248,7 +246,6 @@ static int mei_hbm_prop_req(struct mei_device *dev)
 	prop_req = (struct hbm_props_request *)dev->wr_msg.data;
 
 	memset(prop_req, 0, sizeof(struct hbm_props_request));
-
 
 	prop_req->hbm_cmd = HOST_CLIENT_PROPERTIES_REQ_CMD;
 	prop_req->address = next_client_index;
@@ -368,7 +365,6 @@ static void mei_hbm_cl_flow_control_res(struct mei_device *dev,
 		}
 	}
 }
-
 
 /**
  * mei_hbm_cl_disconnect_req - sends disconnect message to fw.
@@ -503,7 +499,6 @@ static void mei_hbm_cl_connect_res(struct mei_device *dev,
 	}
 }
 
-
 /**
  * mei_hbm_fw_disconnect_req - disconnect request initiated by me
  *  host sends disoconnect response
@@ -537,7 +532,6 @@ static void mei_hbm_fw_disconnect_req(struct mei_device *dev,
 		}
 	}
 }
-
 
 /**
  * mei_hbm_dispatch - bottom half read routine after ISR to
@@ -693,4 +687,3 @@ void mei_hbm_dispatch(struct mei_device *dev, struct mei_msg_hdr *hdr)
 
 	}
 }
-

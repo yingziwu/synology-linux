@@ -31,7 +31,6 @@ void __init early_init_devtree(void *params)
 	of_scan_flat_dt(early_init_dt_scan_memory, NULL);
 }
 
-
 #ifdef CONFIG_BLK_DEV_INITRD
 void __init early_init_dt_setup_initrd_arch(unsigned long start,
 		unsigned long end)

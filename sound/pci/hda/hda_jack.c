@@ -537,4 +537,3 @@ void snd_hda_jack_poll_all(struct hda_codec *codec)
 		snd_hda_jack_report_sync(codec);
 }
 EXPORT_SYMBOL_HDA(snd_hda_jack_poll_all);
-

@@ -96,7 +96,6 @@ xfs_calc_buf_res(
  * register overflow from temporaries in the calculations.
  */
 
-
 /*
  * In a write transaction we can allocate a maximum of 2
  * extents.  This gives:
@@ -1665,7 +1664,6 @@ xfs_trans_roll(
 	 * reference that we gained in xfs_trans_dup()
 	 */
 	xfs_log_ticket_put(trans->t_ticket);
-
 
 	/*
 	 * Reserve space in the log for th next transaction.

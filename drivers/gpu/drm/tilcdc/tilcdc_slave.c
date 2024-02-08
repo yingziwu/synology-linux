@@ -41,7 +41,6 @@ static const struct tilcdc_panel_info slave_info = {
 		.raster_order           = 0,
 };
 
-
 /*
  * Encoder:
  */

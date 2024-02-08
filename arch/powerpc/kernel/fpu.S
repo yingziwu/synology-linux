@@ -87,7 +87,6 @@ _GLOBAL(do_load_up_fpu)
 	mtlr	r0
 	blr
 
-
 /* void do_load_up_transact_fpu(struct thread_struct *thread)
  *
  * This is similar to load_up_fpu but for the transactional version of the FP

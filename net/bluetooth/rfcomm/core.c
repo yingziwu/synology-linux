@@ -48,7 +48,6 @@ static DEFINE_MUTEX(rfcomm_mutex);
 #define rfcomm_lock()	mutex_lock(&rfcomm_mutex)
 #define rfcomm_unlock()	mutex_unlock(&rfcomm_mutex)
 
-
 static LIST_HEAD(session_list);
 
 static int rfcomm_send_frame(struct rfcomm_session *s, u8 *data, int len);
@@ -186,9 +185,9 @@ static void rfcomm_l2state_change(struct sock *sk)
 	rfcomm_schedule();
 }
 
-static void rfcomm_l2data_ready(struct sock *sk, int bytes)
+static void rfcomm_l2data_ready(struct sock *sk)
 {
-	BT_DBG("%p bytes %d", sk, bytes);
+	BT_DBG("%p", sk);
 	rfcomm_schedule();
 }
 

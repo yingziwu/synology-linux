@@ -18,7 +18,6 @@
 #include <linux/nsproxy.h>
 #include <net/net_namespace.h>
 
-
 #include <linux/ceph/ceph_features.h>
 #include <linux/ceph/libceph.h>
 #include <linux/ceph/debugfs.h>
@@ -26,7 +25,6 @@
 #include <linux/ceph/mon_client.h>
 #include <linux/ceph/auth.h>
 #include "crypto.h"
-
 
 /*
  * Module compatibility interface.  For now it doesn't do anything,
@@ -169,7 +167,6 @@ int ceph_compare_options(struct ceph_options *new_opt,
 	return -1;
 }
 EXPORT_SYMBOL(ceph_compare_options);
-
 
 static int parse_fsid(const char *str, struct ceph_fsid *fsid)
 {
@@ -573,7 +570,6 @@ int __ceph_open_session(struct ceph_client *client, unsigned long started)
 }
 EXPORT_SYMBOL(__ceph_open_session);
 
-
 int ceph_open_session(struct ceph_client *client)
 {
 	int ret;
@@ -588,7 +584,6 @@ int ceph_open_session(struct ceph_client *client)
 	return ret;
 }
 EXPORT_SYMBOL(ceph_open_session);
-
 
 static int __init init_ceph_lib(void)
 {

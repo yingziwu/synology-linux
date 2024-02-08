@@ -75,7 +75,6 @@
 
 #define BRCMF_VNDR_IE_P2PAF_SHIFT	12
 
-
 /**
  * enum brcmf_scan_status - scan engine status
  *

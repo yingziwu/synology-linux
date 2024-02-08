@@ -49,7 +49,6 @@ static int pgcnt;
 static int goodebcnt;
 static struct timeval start, finish;
 
-
 static int erase_eraseblock(int ebnum)
 {
 	int err;

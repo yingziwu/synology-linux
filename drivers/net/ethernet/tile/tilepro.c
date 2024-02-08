@@ -43,7 +43,6 @@
 #include <linux/ip.h>
 #include <linux/tcp.h>
 
-
 /*
  * First, "tile_net_init_module()" initializes all four "devices" which
  * can be used by linux.
@@ -81,7 +80,6 @@
  * problems.  The "egress_timer" helps prevent this from happening.
  */
 
-
 /* HACK: Allow use of "jumbo" packets. */
 /* This should be 1500 if "jumbo" is not set in LIPP. */
 /* This should be at most 10226 (10240 - 14) if "jumbo" is set in LIPP. */
@@ -107,7 +105,6 @@
 /* Define to enable debug spew (all PDEBUG's are enabled). */
 /* #define TILE_NET_DEBUG */
 
-
 /* Define to activate paranoia checks. */
 /* #define TILE_NET_PARANOIA */
 
@@ -120,13 +117,10 @@
 /* Number of ports (xgbe0, xgbe1, gbe0, gbe1). */
 #define TILE_NET_DEVS 4
 
-
-
 /* Paranoia. */
 #if NET_IP_ALIGN != LIPP_PACKET_PADDING
 #error "NET_IP_ALIGN must match LIPP_PACKET_PADDING."
 #endif
-
 
 /* Debug print. */
 #ifdef TILE_NET_DEBUG
@@ -135,10 +129,8 @@
 #define PDEBUG(fmt, args...)
 #endif
 
-
 MODULE_AUTHOR("Tilera");
 MODULE_LICENSE("GPL");
-
 
 /*
  * Queue of incoming packets for a specific cpu and device.
@@ -151,7 +143,6 @@ struct tile_netio_queue {
 
 };
 
-
 /*
  * Statistics counters for a specific cpu and device.
  */
@@ -161,7 +152,6 @@ struct tile_net_stats_t {
 	u32 tx_packets;
 	u32 tx_bytes;
 };
-
 
 /*
  * Info for a specific cpu and device.
@@ -190,7 +180,6 @@ struct tile_net_cpu {
 	/* A timer for handling egress completions. */
 	struct timer_list egress_timer;
 };
-
 
 /*
  * Info for a specific device.
@@ -244,7 +233,6 @@ static DEFINE_PER_CPU(struct tile_net_cpu, hv_xgbe1);
 static DEFINE_PER_CPU(struct tile_net_cpu, hv_gbe0);
 static DEFINE_PER_CPU(struct tile_net_cpu, hv_gbe1);
 
-
 /*
  * True if "network_cpus" was specified.
  */
@@ -254,8 +242,6 @@ static bool network_cpus_used;
  * The actual cpus in "network_cpus".
  */
 static struct cpumask network_cpus_map;
-
-
 
 #ifdef TILE_NET_DEBUG
 /*
@@ -278,7 +264,6 @@ static void net_printk(char *fmt, ...)
 	pr_notice(buf);
 }
 #endif
-
 
 #ifdef TILE_NET_DUMP_PACKETS
 /*
@@ -310,7 +295,6 @@ static void dump_packet(unsigned char *data, unsigned long length, char *s)
 }
 #endif
 
-
 /*
  * Provide support for the __netio_fastio1() swint
  * (see <hv/drv_xgbe_intf.h> for how it is used).
@@ -341,7 +325,6 @@ inline int __netio_fastio1(u32 fastio_index, u32 arg0)
 	return result;
 }
 
-
 static void tile_net_return_credit(struct tile_net_cpu *info)
 {
 	struct tile_netio_queue *queue = &info->queue;
@@ -354,8 +337,6 @@ static void tile_net_return_credit(struct tile_net_cpu *info)
 		__netio_fastio_return_credits(qup->__fastio_index, interval);
 	}
 }
-
-
 
 /*
  * Provide a linux buffer to LIPP.
@@ -370,7 +351,6 @@ static void tile_net_provide_linux_buffer(struct tile_net_cpu *info,
 
 	__netio_fastio_free_buffer(queue->__user_part.__fastio_index, buffer);
 }
-
 
 /*
  * Provide a linux buffer for LIPP.
@@ -496,7 +476,6 @@ static bool tile_net_provide_needed_buffer(struct tile_net_cpu *info,
 	return true;
 }
 
-
 /*
  * Provide linux buffers for LIPP.
  */
@@ -521,7 +500,6 @@ oops:
 	/* Add a description to the page allocation failure dump. */
 	pr_notice("Could not provide a linux buffer to LIPP.\n");
 }
-
 
 /*
  * Grab some LEPP completions, and store them in "comps", of size
@@ -550,7 +528,6 @@ static unsigned int tile_net_lepp_grab_comps(lepp_queue_t *eq,
 
 	return n;
 }
-
 
 /*
  * Free some comps, and return true iff there are still some pending.
@@ -583,7 +560,6 @@ static bool tile_net_lepp_free_comps(struct net_device *dev, bool all)
 	return pending;
 }
 
-
 /*
  * Make sure the egress timer is scheduled.
  *
@@ -597,7 +573,6 @@ static void tile_net_schedule_egress_timer(struct tile_net_cpu *info)
 		info->egress_timer_scheduled = true;
 	}
 }
-
 
 /*
  * The "function" for "info->egress_timer".
@@ -625,7 +600,6 @@ static void tile_net_handle_egress_timer(unsigned long arg)
 	if (tile_net_lepp_free_comps(dev, false))
 		tile_net_schedule_egress_timer(info);
 }
-
 
 #ifdef IGNORE_DUP_ACKS
 
@@ -698,8 +672,6 @@ static bool is_dup_ack(char *s1, char *s2, unsigned int len)
 
 #endif
 
-
-
 static void tile_net_discard_aux(struct tile_net_cpu *info, int index)
 {
 	struct tile_netio_queue *queue = &info->queue;
@@ -730,7 +702,6 @@ static void tile_net_discard_aux(struct tile_net_cpu *info, int index)
 	qup->__packet_receive_read = index2;
 }
 
-
 /*
  * Like "tile_net_poll()", but just discard packets.
  */
@@ -749,7 +720,6 @@ static void tile_net_discard_packets(struct net_device *dev)
 		tile_net_discard_aux(info, index);
 	}
 }
-
 
 /*
  * Handle the next packet.  Return true if "processed", false if "filtered".
@@ -891,7 +861,6 @@ static bool tile_net_poll_aux(struct tile_net_cpu *info, int index)
 	return !filter;
 }
 
-
 /*
  * Handle some packets for the given device on the current CPU.
  *
@@ -951,7 +920,6 @@ done:
 	return work;
 }
 
-
 /*
  * Handle an ingress interrupt for the given device on the current cpu.
  *
@@ -981,7 +949,6 @@ static irqreturn_t tile_net_handle_ingress_interrupt(int irq, void *dev_ptr)
 
 	return IRQ_HANDLED;
 }
-
 
 /*
  * One time initialization per interface.
@@ -1044,7 +1011,6 @@ static int tile_net_open_aux(struct net_device *dev)
 
 	return 0;
 }
-
 
 /*
  * Register with hypervisor on the current CPU.
@@ -1157,7 +1123,6 @@ static void tile_net_register(void *dev_ptr)
 	info->registered = true;
 }
 
-
 /*
  * Deregister with hypervisor on the current CPU.
  *
@@ -1188,7 +1153,6 @@ static void tile_net_deregister(void *dev_ptr)
 		__netio_fastio_return_credits(qup->__fastio_index, -1);
 	}
 }
-
 
 /*
  * Unregister with hypervisor on the current CPU.
@@ -1230,7 +1194,6 @@ static void tile_net_unregister(void *dev_ptr)
 	info->egress_timer_scheduled = false;
 }
 
-
 /*
  * Helper function for "tile_net_stop()".
  *
@@ -1266,7 +1229,6 @@ static void tile_net_stop_aux(struct net_device *dev)
 	priv->partly_opened = false;
 }
 
-
 /*
  * Disable NAPI for the given device on the current cpu.
  */
@@ -1283,7 +1245,6 @@ static void tile_net_stop_disable(void *dev_ptr)
 		info->napi_enabled = false;
 	}
 }
-
 
 /*
  * Enable NAPI and the ingress interrupt for the given device
@@ -1305,7 +1266,6 @@ static void tile_net_open_enable(void *dev_ptr)
 	/* Enable the ingress interrupt. */
 	enable_percpu_irq(priv->intr_id, 0);
 }
-
 
 /*
  * tile_net_open_inner does most of the work of bringing up the interface.
@@ -1425,7 +1385,6 @@ static int tile_net_open_inner(struct net_device *dev)
 	return 0;
 }
 
-
 /*
  * Called periodically to retry bringing up the NetIO interface,
  * if it doesn't come up cleanly during tile_net_open().
@@ -1449,7 +1408,6 @@ static void tile_net_open_retry(struct work_struct *w)
 	else
 		netif_carrier_on(priv->dev);
 }
-
 
 /*
  * Called when a network interface is made active.
@@ -1495,7 +1453,6 @@ static int tile_net_open(struct net_device *dev)
 				     &network_cpus_map);
 		else
 			cpumask_copy(&priv->network_cpus_map, cpu_online_mask);
-
 
 		count = cpumask_weight(&priv->network_cpus_map);
 
@@ -1543,7 +1500,6 @@ static int tile_net_open(struct net_device *dev)
 	return 0;
 }
 
-
 static int tile_net_drain_lipp_buffers(struct tile_net_priv *priv)
 {
 	int n = 0;
@@ -1577,7 +1533,6 @@ static int tile_net_drain_lipp_buffers(struct tile_net_priv *priv)
 
 	return n;
 }
-
 
 /*
  * Disables a network interface.
@@ -1672,7 +1627,6 @@ static int tile_net_stop(struct net_device *dev)
 	return 0;
 }
 
-
 /*
  * Prepare the "frags" info for the resulting LEPP command.
  *
@@ -1727,7 +1681,6 @@ static unsigned int tile_net_tx_frags(lepp_frag_t *frags,
 
 	return n;
 }
-
 
 /*
  * This function takes "skb", consisting of a header template and a
@@ -1822,7 +1775,6 @@ static int tile_net_tx_tso(struct sk_buff *skb, struct net_device *dev)
 	unsigned int cmd_head, cmd_tail, cmd_next;
 	unsigned int comp_tail;
 
-
 	/* Paranoia. */
 	BUG_ON(skb->protocol != htons(ETH_P_IP));
 	BUG_ON(ih->protocol != IPPROTO_TCP);
@@ -1830,7 +1782,6 @@ static int tile_net_tx_tso(struct sk_buff *skb, struct net_device *dev)
 	BUG_ON(num_frags > LEPP_MAX_FRAGS);
 	/*--BUG_ON(num_segs != (d_len + (p_len - 1)) / p_len); */
 	BUG_ON(num_segs <= 1);
-
 
 	/* Finish preparing the command. */
 
@@ -1840,12 +1791,10 @@ static int tile_net_tx_tso(struct sk_buff *skb, struct net_device *dev)
 	/* Copy the "header". */
 	memcpy(&cmd->frags[num_frags], data, sh_len);
 
-
 	/* Prefetch and wait, to minimize time spent holding the spinlock. */
 	prefetch_L1(&eq->comp_tail);
 	prefetch_L1(&eq->cmd_tail);
 	mb();
-
 
 	/* Enqueue the command. */
 
@@ -1916,7 +1865,6 @@ busy:
 	return NETDEV_TX_OK;
 }
 
-
 /*
  * Transmit a packet (called by the kernel via "hard_start_xmit" hook).
  */
@@ -1953,7 +1901,6 @@ static int tile_net_tx(struct sk_buff *skb, struct net_device *dev)
 
 	lepp_cmd_t cmds[LEPP_MAX_FRAGS];
 
-
 	/*
 	 * This is paranoia, since we think that if the link doesn't come
 	 * up, telling Linux we have no carrier will keep it from trying
@@ -1963,10 +1910,8 @@ static int tile_net_tx(struct sk_buff *skb, struct net_device *dev)
 	if (!info->registered)
 		return NETDEV_TX_BUSY;
 
-
 	/* Save the timestamp. */
 	dev->trans_start = jiffies;
-
 
 #ifdef TILE_NET_PARANOIA
 #if CHIP_HAS_CBOX_HOME_MAP()
@@ -1979,16 +1924,13 @@ static int tile_net_tx(struct sk_buff *skb, struct net_device *dev)
 #endif
 #endif
 
-
 #ifdef TILE_NET_DUMP_PACKETS
 	/* ISSUE: Does not dump the "frags". */
 	dump_packet(data, skb_headlen(skb), "tx");
 #endif /* TILE_NET_DUMP_PACKETS */
 
-
 	if (sh->gso_size != 0)
 		return tile_net_tx_tso(skb, dev);
-
 
 	/* Prepare the commands. */
 
@@ -2018,12 +1960,10 @@ static int tile_net_tx(struct sk_buff *skb, struct net_device *dev)
 		cmds[i] = cmd;
 	}
 
-
 	/* Prefetch and wait, to minimize time spent holding the spinlock. */
 	prefetch_L1(&eq->comp_tail);
 	prefetch_L1(&eq->cmd_tail);
 	mb();
-
 
 	/* Enqueue the commands. */
 
@@ -2098,7 +2038,6 @@ busy:
 	return NETDEV_TX_OK;
 }
 
-
 /*
  * Deal with a transmit timeout.
  */
@@ -2112,7 +2051,6 @@ static void tile_net_tx_timeout(struct net_device *dev)
 	netif_wake_queue(dev);
 }
 
-
 /*
  * Ioctl commands.
  */
@@ -2120,7 +2058,6 @@ static int tile_net_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
 	return -EOPNOTSUPP;
 }
-
 
 /*
  * Get System Network Statistics.
@@ -2153,7 +2090,6 @@ static struct net_device_stats *tile_net_get_stats(struct net_device *dev)
 	return &priv->stats;
 }
 
-
 /*
  * Change the "mtu".
  *
@@ -2173,7 +2109,6 @@ static int tile_net_change_mtu(struct net_device *dev, int new_mtu)
 
 	return 0;
 }
-
 
 /*
  * Change the Ethernet Address of the NIC.
@@ -2198,7 +2133,6 @@ static int tile_net_set_mac_address(struct net_device *dev, void *p)
 
 	return 0;
 }
-
 
 /*
  * Obtain the MAC address from the hypervisor.
@@ -2265,7 +2199,6 @@ static int tile_net_get_mac(struct net_device *dev)
 	return 0;
 }
 
-
 #ifdef CONFIG_NET_POLL_CONTROLLER
 /*
  * Polling 'interrupt' - used by things like netconsole to send skbs
@@ -2281,7 +2214,6 @@ static void tile_net_netpoll(struct net_device *dev)
 }
 #endif
 
-
 static const struct net_device_ops tile_net_ops = {
 	.ndo_open = tile_net_open,
 	.ndo_stop = tile_net_stop,
@@ -2295,7 +2227,6 @@ static const struct net_device_ops tile_net_ops = {
 	.ndo_poll_controller = tile_net_netpoll,
 #endif
 };
-
 
 /*
  * The setup function.
@@ -2339,7 +2270,6 @@ static void tile_net_setup(struct net_device *dev)
 
 	dev->mtu = TILE_NET_MTU;
 }
-
 
 /*
  * Allocate the device structure, register the device, and obtain the
@@ -2404,7 +2334,6 @@ static struct net_device *tile_net_dev_init(const char *name)
 	return dev;
 }
 
-
 /*
  * Module cleanup.
  *
@@ -2427,7 +2356,6 @@ static void tile_net_cleanup(void)
 	}
 }
 
-
 /*
  * Module initialization.
  */
@@ -2443,10 +2371,8 @@ static int tile_net_init_module(void)
 	return 0;
 }
 
-
 module_init(tile_net_init_module);
 module_exit(tile_net_cleanup);
-
 
 #ifndef MODULE
 
@@ -2469,7 +2395,6 @@ static int __init network_cpus_setup(char *str)
 		/* Remove dedicated cpus. */
 		cpumask_and(&network_cpus_map, &network_cpus_map,
 			    cpu_possible_mask);
-
 
 		if (cpumask_empty(&network_cpus_map)) {
 			pr_warning("Ignoring network_cpus='%s'.\n",

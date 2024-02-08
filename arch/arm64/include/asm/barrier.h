@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Based on arch/arm/include/asm/barrier.h
  *
@@ -30,6 +33,10 @@
 #define mb()		dsb()
 #define rmb()		asm volatile("dsb ld" : : : "memory")
 #define wmb()		asm volatile("dsb st" : : : "memory")
+#ifdef MY_DEF_HERE
+#else
+#define gmb()		do { } while (0)
+#endif	/* MY_DEF_HERE */
 
 #ifndef CONFIG_SMP
 #define smp_mb()	barrier()

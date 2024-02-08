@@ -45,12 +45,9 @@
 #define SIOCIWSSTACKSTART                   SIOCIWFIRSTPRIV + 18
 #define SIOCIWSSTACKSTOP                    SIOCIWFIRSTPRIV + 20
 
-
-
 #define IWPRIV_POWER_SAVE_MAX_STRING 32
 #define IWPRIV_SME_DEBUG_MAX_STRING 32
 #define IWPRIV_SME_MAX_STRING 120
-
 
 /* Private configuration commands */
 #define UNIFI_CFG               _IOWR('u',  5, unsigned char *)
@@ -76,7 +73,6 @@
  * followed by 0 - n tclas_t structures. The length of the tclas_t
  * structures is obtained by uf_cfg_bcast_packet_filter_t::tclas_ies_length.
  */
-
 
 #define UNIFI_PUTEST            _IOWR('u',  6, unsigned char *)
 /*
@@ -125,7 +121,6 @@
 
 #define UNIFI_COREDUMP_GET_REG  _IOWR('u', 0x23, unifiio_coredump_req_t)
 
-
 /*
  * Following reset, f/w may only be downloaded using CMD52.
  * This is slow, so there is a facility to download a secondary
@@ -149,7 +144,6 @@ typedef struct {
     /* Pointer to image data. */
     unsigned char *img_data;
 
-
     /* Number of bytes in the loader image */
     int loader_len;
 
@@ -157,7 +151,6 @@ typedef struct {
     unsigned char *loader_data;
 
 } unifiio_img_t;
-
 
 /* Structure of data read from the unifi device. */
 typedef struct
@@ -181,7 +174,6 @@ typedef struct
 
 } udi_msg_t;
 
-
 typedef enum
 {
     UfSigFil_AllOn = 0,         /* Log all signal IDs */
@@ -201,15 +193,12 @@ typedef struct {
 
 } unifiio_filter_t;
 
-
 typedef struct {
     /* Number of 16-bit ints in the protocols array */
     u16 count;
     /* List of protocol ids to pass */
     u16 *protocols;
 } unifiio_snap_filter_t;
-
-
 
 typedef u8 unifi_putest_command_t;
 
@@ -225,13 +214,11 @@ typedef u8 unifi_putest_command_t;
 #define UNIFI_PUTEST_GP_READ16 9
 #define UNIFI_PUTEST_GP_WRITE16 10
 
-
 struct unifi_putest_cmd52 {
     int funcnum;
     unsigned long addr;
     unsigned char data;
 };
-
 
 struct unifi_putest_block_cmd52_r {
     int           funcnum;
@@ -297,7 +284,6 @@ typedef enum unifi_cfg_get {
 #define UNIFI_CFG_FILTER_CUPS            0x0010
 #define UNIFI_CFG_FILTER_ALL             0xFFFF
 
-
 typedef struct uf_cfg_bcast_packet_filter
 {
     unsigned long filter_mode;     //as defined by HIP protocol
@@ -347,7 +333,6 @@ typedef struct tclas {
     __u8 user_priority;
     tcpip_clsfr_t tcp_ip_cls_fr;
 } __attribute__ ((packed)) tclas_t;
-
 
 #define CONFIG_IND_ERROR            0x01
 #define CONFIG_IND_EXIT             0x02

@@ -398,7 +398,6 @@ static struct omap_board_mux board_mux[] __initdata = {
 #define board_mux	NULL
 #endif
 
-
 static void omap4_panda_init_rev(void)
 {
 	if (cpu_is_omap443x()) {

@@ -403,7 +403,6 @@ static void ceph_x_validate_tickets(struct ceph_auth_client *ac, int *pneed)
 	}
 }
 
-
 static int ceph_x_build_request(struct ceph_auth_client *ac,
 				void *buf, void *end)
 {
@@ -627,7 +626,6 @@ static void ceph_x_destroy_authorizer(struct ceph_auth_client *ac,
 	kfree(au);
 }
 
-
 static void ceph_x_reset(struct ceph_auth_client *ac)
 {
 	struct ceph_x_info *xi = ac->private;
@@ -668,7 +666,6 @@ static void ceph_x_invalidate_authorizer(struct ceph_auth_client *ac,
 		memset(&th->validity, 0, sizeof(th->validity));
 }
 
-
 static const struct ceph_auth_client_ops ceph_x_ops = {
 	.name = "x",
 	.is_authenticated = ceph_x_is_authenticated,
@@ -683,7 +680,6 @@ static const struct ceph_auth_client_ops ceph_x_ops = {
 	.reset =  ceph_x_reset,
 	.destroy = ceph_x_destroy,
 };
-
 
 int ceph_x_init(struct ceph_auth_client *ac)
 {
@@ -721,5 +717,3 @@ out_nomem:
 out:
 	return ret;
 }
-
-

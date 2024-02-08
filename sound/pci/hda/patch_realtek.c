@@ -343,7 +343,6 @@ static void alc_auto_init_amp(struct hda_codec *codec, int type)
 	}
 }
 
-
 /*
  * Realtek SSID verification
  */
@@ -751,7 +750,6 @@ static void alc_fixup_inv_dmic_0x12(struct hda_codec *codec,
 		alc_add_inv_dmic_mixer(codec, 0x12);
 }
 
-
 #ifdef CONFIG_SND_HDA_INPUT_BEEP
 /* additional beep mixers; the actual parameters are overwritten at build */
 static const struct snd_kcontrol_new alc_beep_mixer[] = {
@@ -796,7 +794,6 @@ static int alc_build_controls(struct hda_codec *codec)
 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_BUILD);
 	return 0;
 }
-
 
 /*
  * Common callbacks
@@ -875,7 +872,6 @@ static const struct hda_codec_ops alc_patch_ops = {
 	.reboot_notify = alc_shutup,
 };
 
-
 /* replace the codec chip_name with the given string */
 static int alc_codec_rename(struct hda_codec *codec, const char *name)
 {
@@ -929,7 +925,6 @@ static int alc_codec_rename_from_preset(struct hda_codec *codec)
 	}
 	return 0;
 }
-
 
 /*
  * Digital-beep handlers
@@ -1432,7 +1427,6 @@ static const struct hda_model_fixup alc880_fixup_models[] = {
 	{}
 };
 
-
 /*
  * OK, here we have finally the patch for ALC880
  */
@@ -1464,7 +1458,6 @@ static int patch_alc880(struct hda_codec *codec)
 	codec->patch_ops = alc_patch_ops;
 	codec->patch_ops.unsol_event = alc880_unsol_event;
 
-
 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PROBE);
 
 	return 0;
@@ -1473,7 +1466,6 @@ static int patch_alc880(struct hda_codec *codec)
 	alc_free(codec);
 	return err;
 }
-
 
 /*
  * ALC260 support
@@ -1725,7 +1717,6 @@ static int patch_alc260(struct hda_codec *codec)
 	return err;
 }
 
-
 /*
  * ALC882/883/885/888/889 support
  *
@@ -1802,7 +1793,6 @@ static void alc882_gpio_mute(struct hda_codec *codec, int pin, int muted)
 	gpiodir = snd_hda_codec_read(codec, codec->afg, 0,
 				     AC_VERB_GET_GPIO_DIRECTION, 0);
 	gpiodir |= (1 << pin);
-
 
 	snd_hda_codec_write(codec, codec->afg, 0,
 			    AC_VERB_SET_GPIO_MASK, gpiomask);
@@ -2297,7 +2287,6 @@ static int patch_alc882(struct hda_codec *codec)
 	alc_free(codec);
 	return err;
 }
-
 
 /*
  * ALC262 support
@@ -2862,7 +2851,6 @@ static void alc269_fixup_x101_headset_mic(struct hda_codec *codec,
 	}
 }
 
-
 /* update mute-LED according to the speaker mute state via mic VREF pin */
 static void alc269_fixup_mic_mute_hook(void *private_data, int enabled)
 {
@@ -3030,7 +3018,6 @@ static void alc_headset_mode_unplugged(struct hda_codec *codec)
 	}
 	snd_printdd("Headset jack set to unplugged mode.\n");
 }
-
 
 static void alc_headset_mode_mic_in(struct hda_codec *codec, hda_nid_t hp_pin,
 				    hda_nid_t mic_pin)
@@ -3842,7 +3829,6 @@ static const struct hda_model_fixup alc269_fixup_models[] = {
 	{.id = ALC269_FIXUP_DELL2_MIC_NO_PRESENCE, .name = "dell-headset-dock"},
 	{}
 };
-
 
 static void alc269_fill_coef(struct hda_codec *codec)
 {

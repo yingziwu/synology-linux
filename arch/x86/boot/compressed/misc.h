@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef BOOT_COMPRESSED_MISC_H
 #define BOOT_COMPRESSED_MISC_H
 
@@ -7,6 +10,10 @@
  * we just keep it from happening
  */
 #undef CONFIG_PARAVIRT
+#ifdef MY_DEF_HERE
+#else
+#undef CONFIG_KAISER
+#endif	/* MY_DEF_HERE */
 #ifdef CONFIG_X86_32
 #define _ASM_X86_DESC_H 1
 #endif

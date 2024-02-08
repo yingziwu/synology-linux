@@ -136,7 +136,6 @@ int kvm_arch_init_vm(struct kvm *kvm, unsigned long type)
 		on_each_cpu(kvm_mips_init_vm_percpu, kvm, 1);
 	}
 
-
 	return 0;
 }
 

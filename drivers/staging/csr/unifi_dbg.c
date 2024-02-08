@@ -46,8 +46,6 @@ debug_string_indication(unifi_priv_t *priv, const unsigned char *extra, unsigned
 
 } /* debug_string_indication() */
 
-
-
 void
 debug_word16_indication(unifi_priv_t *priv, const CSR_SIGNAL *sigptr)
 {
@@ -92,7 +90,6 @@ debug_word16_indication(unifi_priv_t *priv, const CSR_SIGNAL *sigptr)
 
 } /* debug_word16_indication() */
 
-
 void
 debug_generic_indication(unifi_priv_t *priv, const CSR_SIGNAL *sigptr)
 {
@@ -107,4 +104,3 @@ debug_generic_indication(unifi_priv_t *priv, const CSR_SIGNAL *sigptr)
                sigptr->u.DebugGenericIndication.DebugWords[7]);
 
 } /* debug_generic_indication() */
-

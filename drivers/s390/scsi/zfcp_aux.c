@@ -141,7 +141,6 @@ static int __init zfcp_module_init(void)
 	scsi_transport_reserve_device(zfcp_scsi_transport_template,
 				      sizeof(struct zfcp_scsi_dev));
 
-
 	retval = misc_register(&zfcp_cfdc_misc);
 	if (retval) {
 		pr_err("Registering the misc device zfcp_cfdc failed\n");

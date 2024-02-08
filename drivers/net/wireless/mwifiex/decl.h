@@ -28,7 +28,6 @@
 #include <linux/ieee80211.h>
 #include <net/mac80211.h>
 
-
 #define MWIFIEX_MAX_BSS_NUM         (3)
 
 #define MWIFIEX_MIN_DATA_HEADER_LEN 36	/* sizeof(mwifiex_txpd)

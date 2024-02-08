@@ -103,7 +103,6 @@ xfs_find_handle(
 	    !S_ISLNK(inode->i_mode))
 		goto out_put;
 
-
 	memcpy(&handle.ha_fsid, ip->i_mount->m_fixedfsid, sizeof(xfs_fsid_t));
 
 	if (cmd == XFS_IOC_PATH_TO_FSHANDLE) {
@@ -300,7 +299,6 @@ do_readlink(
  out:
 	return len;
 }
-
 
 int
 xfs_readlink_by_handle(
@@ -1052,7 +1050,6 @@ xfs_ioctl_setattr(
 			}
 		}
 	}
-
 
 	if (mask & FSX_XFLAGS) {
 		/*

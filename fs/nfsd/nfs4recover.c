@@ -473,7 +473,6 @@ nfsd4_init_recdir(struct net *net)
 	return status;
 }
 
-
 static int
 nfs4_legacy_state_init(struct net *net)
 {

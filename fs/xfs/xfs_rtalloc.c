@@ -40,11 +40,9 @@
 #include "xfs_buf.h"
 #include "xfs_icache.h"
 
-
 /*
  * Prototypes for internal functions.
  */
-
 
 STATIC int xfs_rtallocate_range(xfs_mount_t *, xfs_trans_t *, xfs_rtblock_t,
 		xfs_extlen_t, xfs_buf_t **, xfs_fsblock_t *);

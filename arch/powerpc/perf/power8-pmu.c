@@ -14,7 +14,6 @@
 #include <linux/perf_event.h>
 #include <asm/firmware.h>
 
-
 /*
  * Some power8 event codes.
  */
@@ -24,7 +23,6 @@
 #define PM_INST_CMPL			0x00002
 #define PM_BRU_FIN			0x10068
 #define PM_BR_MPRED_CMPL		0x400f6
-
 
 /*
  * Raw event encoding for POWER8:
@@ -189,7 +187,6 @@
 	CNST_PMC_VAL(1) | CNST_PMC_VAL(2) | CNST_PMC_VAL(3) | \
 	CNST_PMC_VAL(4) | CNST_PMC_VAL(5) | CNST_PMC_VAL(6) | CNST_NC_VAL
 
-
 /* Bits in MMCR1 for POWER8 */
 #define MMCR1_UNIT_SHIFT(pmc)		(60 - (4 * ((pmc) - 1)))
 #define MMCR1_COMBINE_SHIFT(pmc)	(35 - ((pmc) - 1))
@@ -205,7 +202,6 @@
 #define MMCRA_THR_SEL_SHIFT		16
 #define MMCRA_THR_CMP_SHIFT		32
 #define MMCRA_SDAR_MODE_TLB		(1ull << 42)
-
 
 static inline bool event_is_fab_match(u64 event)
 {

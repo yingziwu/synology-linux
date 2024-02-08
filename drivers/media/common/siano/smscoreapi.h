@@ -235,7 +235,6 @@ enum sms_bandwidth_mode {
 	BW_UNKNOWN = 0xffff
 };
 
-
 #define MSG_HDR_FLAG_SPLIT_MSG				4
 
 #define MAX_GPIO_PIN_NUMBER					31
@@ -892,7 +891,6 @@ struct sms_isdbt_stats_ex {
 	u32 reserved4[4];
 };
 
-
 struct sms_pid_stats_data {
 	struct PID_BURST_S {
 		u32 size;
@@ -1002,7 +1000,6 @@ struct sms_rx_stats_ex {
 	s32 mrc_in_band_pwr;	/* In band power in dBM */
 };
 
-
 /* statistics information returned as response for
  * SmsHostApiGetstatisticsEx_Req for DVB applications, SMS1100 and up */
 struct sms_stats_dvb {
@@ -1059,7 +1056,6 @@ struct sms_i2c_res {
 	u32	read_count; /* number of bytes read */
 	u8	Data[1];
 };
-
 
 struct smscore_config_gpio {
 #define SMS_GPIO_DIRECTION_INPUT  0
@@ -1165,7 +1161,6 @@ int smscore_get_board_id(struct smscore_device_t *core);
 
 int smscore_led_state(struct smscore_device_t *core, int led);
 
-
 /* ------------------------------------------------------------------------ */
 
 #define DBG_INFO 1
@@ -1187,6 +1182,5 @@ int smscore_led_state(struct smscore_device_t *core, int led);
 	dprintk(KERN_INFO, DBG_INFO, fmt, ##arg)
 #define sms_debug(fmt, arg...) \
 	dprintk(KERN_DEBUG, DBG_ADV, fmt, ##arg)
-
 
 #endif /* __SMS_CORE_API_H__ */

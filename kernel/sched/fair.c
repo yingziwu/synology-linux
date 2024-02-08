@@ -215,7 +215,6 @@ calc_delta_mine(unsigned long delta_exec, unsigned long weight,
 	return (unsigned long)min(tmp, (u64)(unsigned long)LONG_MAX);
 }
 
-
 const struct sched_class fair_sched_class;
 
 /**************************************************************
@@ -2014,7 +2013,6 @@ entity_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr, int queued)
 		check_preempt_tick(cfs_rq, curr);
 }
 
-
 /**************************************************
  * CFS bandwidth control machinery
  */
@@ -2997,7 +2995,6 @@ static unsigned long cpu_avg_load_per_task(int cpu)
 
 	return 0;
 }
-
 
 static void task_waking_fair(struct task_struct *p)
 {
@@ -6144,7 +6141,6 @@ int alloc_fair_sched_group(struct task_group *tg, struct task_group *parent)
 void unregister_fair_sched_group(struct task_group *tg, int cpu) { }
 
 #endif /* CONFIG_FAIR_GROUP_SCHED */
-
 
 static unsigned int get_rr_interval_fair(struct rq *rq, struct task_struct *task)
 {

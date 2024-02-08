@@ -189,7 +189,6 @@ static struct usb_driver usb_pcwd_driver = {
 	.id_table =	usb_pcwd_table,
 };
 
-
 static void usb_pcwd_intr_done(struct urb *urb)
 {
 	struct usb_pcwd_private *usb_pcwd =
@@ -777,7 +776,6 @@ error:
 	usb_pcwd_device = NULL;
 	return retval;
 }
-
 
 /**
  *	usb_pcwd_disconnect

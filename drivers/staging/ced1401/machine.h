@@ -118,7 +118,6 @@
 #endif
 #endif /* _IS_WINDOWS_ */
 
-    
 #ifndef TRUE
    #define TRUE 1
    #define FALSE 0

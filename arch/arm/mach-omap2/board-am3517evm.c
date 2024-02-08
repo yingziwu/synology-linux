@@ -239,7 +239,6 @@ static struct omap_board_mux board_mux[] __initdata = {
 };
 #endif
 
-
 static struct resource am3517_hecc_resources[] = {
 	{
 		.start	= AM35XX_IPSS_HECC_BASE,

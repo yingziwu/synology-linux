@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_BITOPS_H
 #define _ASM_X86_BITOPS_H
 
@@ -321,7 +324,11 @@ static __always_inline int constant_test_bit(unsigned int nr, const volatile uns
 		(addr[nr / BITS_PER_LONG])) != 0;
 }
 
+#ifdef MY_DEF_HERE
 static inline int variable_test_bit(int nr, volatile const unsigned long *addr)
+#else
+static __always_inline int variable_test_bit(int nr, volatile const unsigned long *addr)
+#endif	/* MY_DEF_HERE */
 {
 	int oldbit;
 

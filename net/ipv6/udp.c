@@ -100,7 +100,6 @@ static unsigned int udp6_portaddr_hash(struct net *net,
 	return hash ^ port;
 }
 
-
 int udp_v6_get_port(struct sock *sk, unsigned short snum)
 {
 	unsigned int hash2_nulladdr =
@@ -194,7 +193,6 @@ static inline int compute_score2(struct sock *sk, struct net *net,
 	}
 	return score;
 }
-
 
 /* called with read_rcu_lock() */
 static struct sock *udp6_lib_lookup2(struct net *net,
@@ -352,7 +350,6 @@ struct sock *udp6_lib_lookup(struct net *net, const struct in6_addr *saddr, __be
 	return __udp6_lib_lookup(net, saddr, sport, daddr, dport, dif, &udp_table);
 }
 EXPORT_SYMBOL_GPL(udp6_lib_lookup);
-
 
 /*
  * 	This should be easy, if there is something there we
@@ -1214,9 +1211,6 @@ do_udp_sendmsg:
 	if (tclass < 0)
 		tclass = np->tclass;
 
-	if (dontfrag < 0)
-		dontfrag = np->dontfrag;
-
 	if (msg->msg_flags&MSG_CONFIRM)
 		goto do_confirm;
 back_from_confirm:
@@ -1235,6 +1229,8 @@ back_from_confirm:
 	up->pending = AF_INET6;
 
 do_append_data:
+	if (dontfrag < 0)
+		dontfrag = np->dontfrag;
 	up->len += ulen;
 	getfrag  =  is_udplite ?  udplite_getfrag : ip_generic_getfrag;
 	err = ip6_append_data(sk, getfrag, msg->msg_iov, ulen,
@@ -1484,7 +1480,6 @@ static struct inet_protosw udpv6_protosw = {
 	.no_check =  UDP_CSUM_DEFAULT,
 	.flags =     INET_PROTOSW_PERMANENT,
 };
-
 
 int __init udpv6_init(void)
 {

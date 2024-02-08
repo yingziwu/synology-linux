@@ -541,7 +541,6 @@ static struct scsi_host_template hpsa_driver_template = {
 	.no_write_same = 1,
 };
 
-
 /* Enqueuing and dequeuing functions for cmdlists. */
 static inline void addQ(struct list_head *list, struct CommandList *c)
 {
@@ -1289,7 +1288,6 @@ static void complete_scsi_command(struct CommandList *cp)
 					cmd->cmnd[14], cmd->cmnd[15]);
 			break;
 		}
-
 
 		/* Problem was not a check condition
 		 * Pass it up to the upper layers...
@@ -2145,7 +2143,6 @@ sglist_finished:
 	return 0;
 }
 
-
 static int hpsa_scsi_queue_command_lck(struct scsi_cmnd *cmd,
 	void (*done)(struct scsi_cmnd *))
 {
@@ -2696,7 +2693,6 @@ static int hpsa_eh_abort_handler(struct scsi_cmnd *sc)
 		msg, ABORT_COMPLETE_WAIT_SECS);
 	return FAILED;
 }
-
 
 /*
  * For operations that cannot sleep, a command block is allocated at init,
@@ -3500,7 +3496,6 @@ static inline u32 hpsa_tag_to_index(u32 tag)
 {
 	return tag >> DIRECT_LOOKUP_SHIFT;
 }
-
 
 static inline u32 hpsa_tag_discard_error_bits(struct ctlr_info *h, u32 tag)
 {

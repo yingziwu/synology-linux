@@ -46,7 +46,6 @@
 
 #define EPROM_PAGE_SIZE		64
 
-
 /* different hardware types */
 #define HARDWARE_TYPE_930	0
 #define HARDWARE_TYPE_TIUMP	1
@@ -66,7 +65,6 @@
 #define EDGE_CLOSING_WAIT	4000	/* in .01 sec */
 
 #define EDGE_OUT_BUF_SIZE	1024
-
 
 /* Product information read from the Edgeport */
 struct product_info {
@@ -106,7 +104,6 @@ struct edgeport_serial {
 	int num_ports_open;
 	struct usb_serial *serial;
 };
-
 
 /* Devices that this driver supports */
 static const struct usb_device_id edgeport_1port_id_table[] = {
@@ -212,7 +209,6 @@ static void edge_send(struct usb_serial_port *port, struct tty_struct *tty);
 /* sysfs attributes */
 static int edge_create_sysfs_attrs(struct usb_serial_port *port);
 static int edge_remove_sysfs_attrs(struct usb_serial_port *port);
-
 
 static int ti_vread_sync(struct usb_device *dev, __u8 request,
 				__u16 value, __u16 index, u8 *data, int size)
@@ -396,7 +392,6 @@ static int write_boot_mem(struct edgeport_serial *serial,
 
 	return status;
 }
-
 
 /* Write edgeport I2C memory to TI chip	*/
 static int write_i2c_mem(struct edgeport_serial *serial,
@@ -585,8 +580,6 @@ static int write_rom(struct edgeport_serial *serial, int start_address,
 						serial->TI_I2C_Type, buffer);
 	return -EINVAL;
 }
-
-
 
 /* Read a descriptor header from I2C based on type */
 static int get_descriptor_addr(struct edgeport_serial *serial,
@@ -1405,7 +1398,6 @@ stayinbootmode:
 	return 0;
 }
 
-
 static int ti_do_config(struct edgeport_port *port, int feature, int on)
 {
 	int port_number = port->port->number - port->port->serial->minor;
@@ -1414,7 +1406,6 @@ static int ti_do_config(struct edgeport_port *port, int feature, int on)
 			feature, (__u8)(UMPM_UART1_PORT + port_number),
 			on, NULL, 0);
 }
-
 
 static int restore_mcr(struct edgeport_port *port, __u8 mcr)
 {
@@ -1524,7 +1515,6 @@ static void handle_new_lsr(struct edgeport_port *edge_port, int lsr_data,
 	if (new_lsr & LSR_FRM_ERR)
 		icount->frame++;
 }
-
 
 static void edge_interrupt_callback(struct urb *urb)
 {
@@ -2359,7 +2349,6 @@ static int edge_tiocmget(struct tty_struct *tty)
 		  | ((msr & EDGEPORT_MSR_RI)	? TIOCM_RI:  0)   /* 0x080 */
 		  | ((msr & EDGEPORT_MSR_DSR)	? TIOCM_DSR: 0);  /* 0x100 */
 
-
 	dev_dbg(&port->dev, "%s -- %x\n", __func__, result);
 	spin_unlock_irqrestore(&edge_port->ep_lock, flags);
 
@@ -2549,7 +2538,6 @@ static int edge_remove_sysfs_attrs(struct usb_serial_port *port)
 	device_remove_file(&port->dev, &dev_attr_uart_mode);
 	return 0;
 }
-
 
 static struct usb_serial_driver edgeport_1port_device = {
 	.driver = {

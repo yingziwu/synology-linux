@@ -262,7 +262,6 @@ static long ioctl_rio(struct file *file, unsigned int cmd, unsigned long arg)
 		break;
 	}
 
-
 err_out:
 	mutex_unlock(&(rio->lock));
 	return retval;
@@ -292,8 +291,6 @@ write_rio(struct file *file, const char __user *buffer,
 		mutex_unlock(&(rio->lock));
 		return -ENODEV;
 	}
-
-
 
 	do {
 		unsigned long thistime;
@@ -384,7 +381,6 @@ read_rio(struct file *file, char __user *buffer, size_t count, loff_t * ppos)
 	ibuf = rio->ibuf;
 
 	read_count = 0;
-
 
 	while (count > 0) {
 		if (signal_pending(current)) {
@@ -551,4 +547,3 @@ module_usb_driver(rio_driver);
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
 MODULE_LICENSE("GPL");
-

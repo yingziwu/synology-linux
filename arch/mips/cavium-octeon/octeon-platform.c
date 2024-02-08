@@ -365,7 +365,6 @@ int __init octeon_prune_device_tree(void)
 		return -EINVAL;
 	}
 
-
 	mac_addr_base =
 		((octeon_bootinfo->mac_addr_base[0] & 0xffull)) << 40 |
 		((octeon_bootinfo->mac_addr_base[1] & 0xffull)) << 32 |

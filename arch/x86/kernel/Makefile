@@ -104,6 +104,11 @@ obj-$(CONFIG_UPROBES)			+= uprobes.o
 
 obj-$(CONFIG_PERF_EVENTS)		+= perf_regs.o
 
+ifdef CONFIG_SYNO_SKIP_LK3_10_KPTI_RETPOLINE
+else
+obj-$(CONFIG_TRACING)			+= tracepoint.o
+endif
+
 ###
 # 64 bit specific files
 ifeq ($(CONFIG_X86_64),y)
@@ -114,4 +119,9 @@ ifeq ($(CONFIG_X86_64),y)
 
 	obj-$(CONFIG_PCI_MMCONFIG)	+= mmconf-fam10h_64.o
 	obj-y				+= vsmp_64.o
+endif
+
+ifdef CONFIG_SYNO_SKIP_LK3_10_KPTI_RETPOLINE
+else
+obj-y                           += spec_ctrl.o
 endif

@@ -284,7 +284,6 @@ static int spdif_in_remove(struct platform_device *pdev)
 	return 0;
 }
 
-
 static struct platform_driver spdif_in_driver = {
 	.probe		= spdif_in_probe,
 	.remove		= spdif_in_remove,

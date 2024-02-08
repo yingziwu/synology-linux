@@ -72,7 +72,6 @@ struct digi_node {
 
 #define DIGI_GETNODE      (('d'<<8) | 249)	/* get board info */
 
-
 struct digi_chan {
 	uint	ch_port;	/* Port number to get info on */
 	uint	ch_open;	/* 1 if open, 0 if not */
@@ -89,7 +88,6 @@ struct digi_chan {
 
 #define DIGI_GETCHAN      (('d'<<8) | 248)	/* get channel info */
 
-
 struct digi_vpd {
 	int vpd_len;
 	char vpd_data[VPDSIZE];
@@ -97,14 +95,12 @@ struct digi_vpd {
 
 #define DIGI_GETVPD       (('d'<<8) | 246)	/* get VPD info */
 
-
 struct digi_debug {
 	int onoff;
 	int port;
 };
 
 #define DIGI_SETDEBUG      (('d'<<8) | 247)	/* set debug info */
-
 
 /*
  * dgrp_dpa_open -- open the DPA device for a particular PortServer
@@ -384,7 +380,6 @@ static long dgrp_dpa_ioctl(struct file *file, unsigned int cmd,
 			return -EFAULT;
 		break;
 
-
 	case DIGI_GETNODE:
 		getnode.nd_state = (nd->nd_state & NS_READY) ? 1 : 0;
 		getnode.nd_chan_count = nd->nd_chan_count;
@@ -398,7 +393,6 @@ static long dgrp_dpa_ioctl(struct file *file, unsigned int cmd,
 			return -EFAULT;
 		break;
 
-
 	case DIGI_SETDEBUG:
 		if (copy_from_user(&setdebug, uarg, sizeof(struct digi_debug)))
 			return -EFAULT;
@@ -406,7 +400,6 @@ static long dgrp_dpa_ioctl(struct file *file, unsigned int cmd,
 		nd->nd_dpa_debug = setdebug.onoff;
 		nd->nd_dpa_port = setdebug.port;
 		break;
-
 
 	case DIGI_GETVPD:
 		memset(&vpd, 0, sizeof(vpd));

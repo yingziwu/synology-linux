@@ -54,7 +54,6 @@ struct mc146818 {
         unsigned char month, year;
 };
 
-
 #define IO_BASE 0x80000000
 
 extern u_long sio01_physaddr;

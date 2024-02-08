@@ -993,7 +993,6 @@ static void create_adc_command(unsigned int chan,
 		(*muxsg1) = (*muxsg1) | (1 << (chan-8));
 }
 
-
 /* bulk transfers to usbdux */
 
 #define SENDADCOMMANDS            0
@@ -1309,9 +1308,6 @@ static int usbdux_ai_insn_read(struct comedi_device *dev,
 	return i;
 }
 
-
-
-
 static int usbdux_getstatusinfo(struct comedi_device *dev, int chan)
 {
 	struct usbduxsub *this_usbduxsub = dev->private;
@@ -1376,11 +1372,6 @@ static int usbdux_getstatusinfo(struct comedi_device *dev, int chan)
 
 	return (int)one;
 }
-
-
-
-
-
 
 /************************************/
 /* analog out */

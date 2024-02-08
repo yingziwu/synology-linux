@@ -226,7 +226,6 @@ static struct atari_floppy_struct {
 #define	SUD	unit[SelectedDrive]
 #define	SUDT	unit[SelectedDrive].disktype
 
-
 #define FDC_READ(reg) ({			\
     /* unsigned long __flags; */		\
     unsigned short __val;			\
@@ -249,7 +248,6 @@ static struct atari_floppy_struct {
 	MFPDELAY();				\
         /* local_irq_restore(__flags); */	\
     } while(0)
-
 
 /* Buffering variables:
  * First, there is a DMA buffer in ST-RAM that is used for floppy DMA
@@ -315,7 +313,6 @@ static unsigned long changed_floppies = 0xff, fake_change = 0;
 #define MAX_ERRORS		8	/* After this many errors the driver
 					 * will give up. */
 
-
 /*
  * The driver is trying to determine the correct media format
  * while Probing is set. fd_rwsec_done() clears it after a
@@ -327,7 +324,6 @@ static int Probing = 0;
  * status bit accessible.
  */
 static int NeedSeek = 0;
-
 
 #ifdef DEBUG
 #define DPRINT(a)	printk a
@@ -419,7 +415,6 @@ static void fd_select_side( int side )
 	local_irq_restore(flags);
 }
 
-
 /* Select a drive, update the FDC's track register and set the correct
  * clock speed for this disk's type.
  */
@@ -452,7 +447,6 @@ static void fd_select_drive( int drive )
 	SelectedDrive = drive;
 }
 
-
 /* Deselect both drives. */
 
 static void fd_deselect( void )
@@ -470,7 +464,6 @@ static void fd_deselect( void )
 	SelectedDrive = -1;
 	local_irq_restore(flags);
 }
-
 
 /* This timer function deselects the drives when the FDC switched the
  * motor off. The deselection cannot happen earlier because the FDC
@@ -507,7 +500,6 @@ static void fd_motor_off_timer( unsigned long dummy )
 	mod_timer(&motor_off_timer,
 		  jiffies + (MotorOffTrys++ < FD_MOTOR_OFF_MAXTRY ? HZ/20 : HZ/2));
 }
-
 
 /* This function is repeatedly called to detect disk changes (as good
  * as possible) and keep track of the current state of the write protection.
@@ -546,7 +538,6 @@ static void check_change( unsigned long dummy )
 	start_check_change_timer();
 }
 
- 
 /* Handling of the Head Settling Flag: This flag should be set after each
  * seek operation, because we don't use seeks with verify.
  */
@@ -572,9 +563,6 @@ static inline void copy_buffer(void *from, void *to)
 		*p2++ = *p1++;
 }
 
-  
-  
-
 /* General Interrupt Handling */
 
 static void (*FloppyIRQHandler)( int status ) = NULL;
@@ -597,7 +585,6 @@ static irqreturn_t floppy_irq (int irq, void *dummy)
 	}
 	return IRQ_HANDLED;
 }
-
 
 /* Error handling: If some error happened, retry some times, then
  * recalibrate, then try again, and fail after MAX_ERRORS.
@@ -628,10 +615,7 @@ static void fd_error( void )
 	redo_fd_request();
 }
 
-
-
 #define	SET_IRQ_HANDLER(proc) do { FloppyIRQHandler = (proc); } while(0)
-
 
 /* ---------- Formatting ---------- */
 
@@ -712,7 +696,6 @@ static int do_format(int drive, int type, struct atari_format_descr *desc)
 	return( FormatError ? -EIO : 0 );	
 }
 
-
 /* do_fd_action() is the general procedure for a fd request: All
  * required parameter settings (drive select, side select, track
  * position) are checked and set if needed. For each of these
@@ -764,7 +747,6 @@ static void do_fd_action( int drive )
 		fd_rwsec();
 }
 
-
 /* Seek to track 0 if the current track is unknown */
 
 static void fd_calibrate( void )
@@ -787,7 +769,6 @@ static void fd_calibrate( void )
 	/* wait for IRQ */
 }
 
-
 static void fd_calibrate_done( int status )
 {
 	DPRINT(("fd_calibrate_done()\n"));
@@ -805,7 +786,6 @@ static void fd_calibrate_done( int status )
 		fd_seek();
 	}
 }
-  
   
 /* Seek the drive to the requested track. The drive must have been
  * calibrated at some point before this.
@@ -835,7 +815,6 @@ static void fd_seek( void )
 	/* wait for IRQ */
 }
 
-
 static void fd_seek_done( int status )
 {
 	DPRINT(("fd_seek_done()\n"));
@@ -861,13 +840,11 @@ static void fd_seek_done( int status )
 	}
 }
 
-
 /* This does the actual reading/writing after positioning the head
  * over the correct track.
  */
 
 static int MultReadInProgress = 0;
-
 
 static void fd_rwsec( void )
 {
@@ -964,7 +941,6 @@ static void fd_rwsec( void )
 	start_timeout();
 }
 
-    
 static void fd_readtrack_check( unsigned long dummy )
 {
 	unsigned long flags, addr, addr2;
@@ -1021,7 +997,6 @@ static void fd_readtrack_check( unsigned long dummy )
 		mod_timer(&readtrack_timer, jiffies + HZ/5/10);
 	}
 }
-
 
 static void fd_rwsec_done( int status )
 {
@@ -1153,7 +1128,6 @@ static void fd_rwsec_done1(int status)
 	fd_error();
 }
 
-
 static void fd_writetrack( void )
 {
 	unsigned long paddr, flags;
@@ -1212,7 +1186,6 @@ static void fd_writetrack( void )
 	/* wait for interrupt */
 }
 
-
 static void fd_writetrack_done( int status )
 {
 	DPRINT(("fd_writetrack_done()\n"));
@@ -1256,7 +1229,6 @@ static void fd_times_out( unsigned long dummy )
 	atari_enable_irq( IRQ_MFP_FDC );
 }
 
-
 /* The (noop) seek operation here is needed to make the WP bit in the
  * FDC status register accessible for check_change. If the last disk
  * operation would have been a RDSEC, this bit would always read as 0
@@ -1281,7 +1253,6 @@ static void finish_fdc( void )
 		   may be delivered to the wrong driver. */
 	  }
 }
-
 
 static void finish_fdc_done( int dummy )
 {
@@ -1371,7 +1342,6 @@ static int floppy_revalidate(struct gendisk *disk)
 	return 0;
 }
 
-
 /* This sets up the global variables describing the current request. */
 
 static void setup_req_params( int drive )
@@ -1415,7 +1385,6 @@ static struct request *set_next_request(void)
 
 	return rq;
 }
-
 
 static void redo_fd_request(void)
 {
@@ -1492,7 +1461,6 @@ repeat:
   the_end:
 	finish_fdc();
 }
-
 
 void do_fd_request(struct request_queue * q)
 {
@@ -1738,7 +1706,6 @@ static void __init fd_probe( int drive )
 	MotorOn = 1;	/* from probe restore operation! */
 }
 
-
 /* This function tests the physical presence of a floppy drive (not
  * whether a disk is inserted). This is done by issuing a restore
  * command, waiting max. 2 seconds (that should be enough to move the
@@ -1789,7 +1756,6 @@ static int __init fd_test_drive_present( int drive )
 	atari_turnon_irq( IRQ_MFP_FDC );
 	return( ok );
 }
-
 
 /* Look how many and which kind of drives are connected. If there are
  * floppies, additionally start the disk-change and motor-off timers.

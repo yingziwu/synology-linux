@@ -94,7 +94,6 @@ struct bfin_crypto_crc_ctx {
 	u32			key;
 };
 
-
 /*
  * derive number of elements in scatterlist
  */

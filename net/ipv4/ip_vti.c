@@ -18,7 +18,6 @@
    For comments look at net/ipv4/ip_gre.c --ANK
  */
 
-
 #include <linux/capability.h>
 #include <linux/module.h>
 #include <linux/types.h>
@@ -80,7 +79,6 @@ static int vti_tunnel_bind_dev(struct net_device *dev);
 		(stats2)->tx_aborted_errors++;			\
 	}							\
 } while (0)
-
 
 static struct ip_tunnel *vti_tunnel_lookup(struct net *net,
 					   __be32 remote, __be32 local)
@@ -287,7 +285,6 @@ static int vti_rcv(struct sk_buff *skb)
 		struct pcpu_tstats *tstats;
 		u32 oldmark = skb->mark;
 		int ret;
-
 
 		/* temporarily mark the skb with the tunnel o_key, to
 		 * only match policies with this mark.

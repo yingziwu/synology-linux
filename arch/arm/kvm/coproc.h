@@ -144,7 +144,6 @@ static inline int cmp_reg(const struct coproc_reg *i1,
 	return i1->Op2 - i2->Op2;
 }
 
-
 #define CRn(_x)		.CRn = _x
 #define CRm(_x) 	.CRm = _x
 #define CRm64(_x)       .CRn = _x, .CRm = 0

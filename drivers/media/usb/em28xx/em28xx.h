@@ -185,7 +185,6 @@ enum em28xx_mode {
 	EM28XX_DIGITAL_MODE,
 };
 
-
 struct em28xx;
 
 struct em28xx_usb_bufs {
@@ -474,7 +473,6 @@ struct em28xx_i2c_bus {
 	unsigned bus;
 	enum em28xx_i2c_algo_type algo_type;
 };
-
 
 /* main device struct */
 struct em28xx {

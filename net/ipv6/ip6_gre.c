@@ -56,7 +56,6 @@
 #include <net/ip6_route.h>
 #include <net/ip6_tunnel.h>
 
-
 static bool log_ecn_error = true;
 module_param(log_ecn_error, bool, 0644);
 MODULE_PARM_DESC(log_ecn_error, "Log packets received with corrupted ECN");
@@ -362,7 +361,6 @@ static void ip6gre_tunnel_uninit(struct net_device *dev)
 	ip6_tnl_dst_reset(netdev_priv(dev));
 	dev_put(dev);
 }
-
 
 static void ip6gre_err(struct sk_buff *skb, struct inet6_skb_parm *opt,
 		u8 type, u8 code, int offset, __be32 info)
@@ -1398,7 +1396,6 @@ static int ip6gre_tap_validate(struct nlattr *tb[], struct nlattr *data[])
 out:
 	return ip6gre_tunnel_validate(tb, data);
 }
-
 
 static void ip6gre_netlink_parms(struct nlattr *data[],
 				struct __ip6_tnl_parm *parms)

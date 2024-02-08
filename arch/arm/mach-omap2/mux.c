@@ -35,7 +35,6 @@
 #include <linux/irq.h>
 #include <linux/interrupt.h>
 
-
 #include "omap_hwmod.h"
 
 #include "soc.h"
@@ -1156,4 +1155,3 @@ int __init omap_mux_init(const char *name, u32 flags,
 
 	return 0;
 }
-

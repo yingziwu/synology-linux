@@ -230,7 +230,6 @@ static struct it913xset set_solo_fe[] = {
 	{0xff, 0x0000, {0x00}, 0x00}, /* Terminating Entry */
 };
 
-
 static struct it913xset init_1[] = {
 	{PRO_LINK, LOCK3_OUT, {0x01}, 0x01},
 	{PRO_LINK, PADMISCDRSR, {0x01}, 0x01},
@@ -240,7 +239,6 @@ static struct it913xset init_1[] = {
 	{PRO_LINK, PADMISCDR8, {0x00}, 0x01},
 	{0xff, 0x0000, {0x00}, 0x00} /* Terminating Entry */
 };
-
 
 /* Version 1 types */
 static struct it913xset it9135_v1[] = {

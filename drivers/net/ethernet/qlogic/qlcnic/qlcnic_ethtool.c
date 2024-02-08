@@ -198,7 +198,6 @@ static const u32 diag_registers[] = {
 	-1
 };
 
-
 static const u32 ext_diag_registers[] = {
 	CRB_XG_STATE_P3P,
 	ISR_INT_STATE_REG,

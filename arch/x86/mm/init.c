@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/gfp.h>
 #include <linux/initrd.h>
 #include <linux/ioport.h>
@@ -17,6 +20,11 @@
 #include <asm/proto.h>
 #include <asm/dma.h>		/* for MAX_DMA_PFN */
 #include <asm/microcode.h>
+#ifdef MY_DEF_HERE
+#else
+#include <asm/cpufeature.h>
+#include <asm/mmu_context.h>
+#endif	/* MY_DEF_HERE */
 
 #include "mm_internal.h"
 
@@ -145,6 +153,50 @@ static void __init probe_page_size_mask(void)
 		__supported_pte_mask |= _PAGE_GLOBAL;
 	}
 }
+
+#ifdef MY_DEF_HERE
+#else
+static void setup_pcid(void)
+{
+#ifdef CONFIG_X86_64
+	if (boot_cpu_has(X86_FEATURE_PCID)) {
+		if (boot_cpu_has(X86_FEATURE_PGE)) {
+			/*
+			 * This can't be cr4_set_bits_and_update_boot() --
+			 * the trampoline code can't handle CR4.PCIDE and
+			 * it wouldn't do any good anyway.  Despite the name,
+			 * cr4_set_bits_and_update_boot() doesn't actually
+			 * cause the bits in question to remain set all the
+			 * way through the secondary boot asm.
+			 *
+			 * Instead, we brute-force it and set CR4.PCIDE
+			 * manually in start_secondary().
+			 */
+			set_in_cr4(X86_CR4_PCIDE);
+			/*
+			 * INVPCID's single-context modes (2/3) only work
+			 * if we set X86_CR4_PCIDE, *and* we INVPCID
+			 * support.  It's unusable on systems that have
+			 * X86_CR4_PCIDE clear, or that have no INVPCID
+			 * support at all.
+			 */
+			if (boot_cpu_has(X86_FEATURE_INVPCID))
+				setup_force_cpu_cap(X86_FEATURE_INVPCID_SINGLE);
+		} else {
+			/*
+			 * flush_tlb_all(), as currently implemented, won't
+			 * work if PCID is on but PGE is not.  Since that
+			 * combination doesn't exist on real hardware, there's
+			 * no reason to try to fully support it, but it's
+			 * polite to avoid corrupting data if we're on
+			 * an improperly configured VM.
+			 */
+			setup_clear_cpu_cap(X86_FEATURE_PCID);
+		}
+	}
+#endif
+}
+#endif	/* MY_DEF_HERE */
 
 #ifdef CONFIG_X86_32
 #define NR_RANGE_MR 3
@@ -410,6 +462,10 @@ void __init init_mem_mapping(void)
 	unsigned long new_mapped_ram_size;
 
 	probe_page_size_mask();
+#ifdef MY_DEF_HERE
+#else
+	setup_pcid();
+#endif	/* MY_DEF_HERE */
 
 #ifdef CONFIG_X86_64
 	end = max_pfn << PAGE_SHIFT;
@@ -589,4 +645,3 @@ void __init zone_sizes_init(void)
 
 	free_area_init_nodes(max_zone_pfns);
 }
-

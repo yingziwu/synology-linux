@@ -117,7 +117,6 @@ static int __cpuidle_register_all_cpu_driver(struct cpuidle_driver *drv)
 			__cpuidle_unregister_driver(drv, i);
 		}
 
-
 	return ret;
 }
 

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Performance events x86 architecture header
  *
@@ -410,12 +413,23 @@ struct x86_pmu {
 			bts_active	:1,
 			pebs		:1,
 			pebs_active	:1,
+#ifdef MY_DEF_HERE
 			pebs_broken	:1;
 	int		pebs_record_size;
+#else
+			pebs_broken	:1,
+			pebs_prec_dist	:1;
+	int		pebs_record_size;
+	int		pebs_buffer_size;
+#endif	/* MY_DEF_HERE */
 	void		(*drain_pebs)(struct pt_regs *regs);
 	struct event_constraint *pebs_constraints;
 	void		(*pebs_aliases)(struct perf_event *event);
 	int 		max_pebs_events;
+#ifdef MY_DEF_HERE
+#else
+	unsigned long	free_running_flags;
+#endif	/* MY_DEF_HERE */
 
 	/*
 	 * Intel LBR

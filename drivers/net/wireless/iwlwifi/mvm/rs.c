@@ -159,7 +159,6 @@ static void rs_fill_link_cmd(struct iwl_mvm *mvm,
 			     struct iwl_lq_sta *lq_sta, u32 rate_n_flags);
 static void rs_stay_in_table(struct iwl_lq_sta *lq_sta, bool force_search);
 
-
 #ifdef CONFIG_MAC80211_DEBUGFS
 static void rs_dbgfs_set_mcs(struct iwl_lq_sta *lq_sta,
 			     u32 *rate_n_flags, int index);
@@ -2739,7 +2738,6 @@ static void rs_fill_link_cmd(struct iwl_mvm *mvm,
 		rs_get_tbl_info_from_mcs(new_rate, lq_sta->band, &tbl_type,
 					 &rate_idx);
 
-
 		/* Indicate to uCode which entries might be MIMO.
 		 * If initial rate was MIMO, this will finally end up
 		 * as (IWL_HT_NUMBER_TRY * 2), after 2nd pass, otherwise 0. */
@@ -2842,7 +2840,6 @@ static ssize_t rs_sta_dbgfs_scale_table_write(struct file *file,
 	char buf[64];
 	size_t buf_size;
 	u32 parsed_rate;
-
 
 	mvm = lq_sta->drv;
 	memset(buf, 0, sizeof(buf));

@@ -91,7 +91,6 @@ struct acpiphp_bridge {
 	struct pci_dev *pci_dev;
 };
 
-
 /*
  * struct acpiphp_slot - PCI slot information
  *
@@ -110,7 +109,6 @@ struct acpiphp_slot {
 	unsigned long long sun;		/* ACPI _SUN (slot unique number) */
 	u32		flags;		/* see below */
 };
-
 
 /*
  * struct acpiphp_func - PCI function information

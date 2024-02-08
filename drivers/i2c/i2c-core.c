@@ -46,7 +46,6 @@
 
 #include "i2c-core.h"
 
-
 /* core_lock protects i2c_adapter_idr, and guarantees
    that device detection, deletion of detected devices, and attach_adapter
    calls are serialized */
@@ -92,7 +91,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
 
 	return 0;
 }
-
 
 /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
 static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
@@ -458,7 +456,6 @@ static struct device_type i2c_client_type = {
 	.release	= i2c_client_dev_release,
 };
 
-
 /**
  * i2c_verify_client - return parameter as i2c_client, or NULL
  * @dev: device, probably from some driver model iterator
@@ -475,7 +472,6 @@ struct i2c_client *i2c_verify_client(struct device *dev)
 			: NULL;
 }
 EXPORT_SYMBOL(i2c_verify_client);
-
 
 /* This is a permissive address validity check, I2C address map constraints
  * are purposely not enforced, except for the general call address. */
@@ -692,7 +688,6 @@ out_err_silent:
 }
 EXPORT_SYMBOL_GPL(i2c_new_device);
 
-
 /**
  * i2c_unregister_device - reverse effect of i2c_new_device()
  * @client: value returned from i2c_new_device()
@@ -703,7 +698,6 @@ void i2c_unregister_device(struct i2c_client *client)
 	device_unregister(&client->dev);
 }
 EXPORT_SYMBOL_GPL(i2c_unregister_device);
-
 
 static const struct i2c_device_id dummy_id[] = {
 	{ "dummy", 0 },
@@ -1284,7 +1278,6 @@ void i2c_del_adapter(struct i2c_adapter *adap)
 	memset(&adap->dev, 0, sizeof(adap->dev));
 }
 EXPORT_SYMBOL(i2c_del_adapter);
-
 
 /* ------------------------------------------------------------------------- */
 
