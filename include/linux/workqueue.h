@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* SPDX-License-Identifier: GPL-2.0 */
 /*
  * workqueue.h --- work queue handling for Linux.
@@ -663,6 +666,10 @@ static inline void wq_watchdog_touch(int cpu) { }
 int workqueue_prepare_cpu(unsigned int cpu);
 int workqueue_online_cpu(unsigned int cpu);
 int workqueue_offline_cpu(unsigned int cpu);
+#endif
+
+#ifdef MY_ABC_HERE
+void update_kwork_stat_ratelimited(gfp_t gfp);
 #endif
 
 void __init workqueue_init_early(void);

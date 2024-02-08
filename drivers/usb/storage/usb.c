@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0+
 /*
  * Driver for USB Mass Storage compliant devices
@@ -859,6 +862,12 @@ static void quiesce_and_remove_host(struct us_data *us)
 	/* Balance autopm calls if scanning was cancelled */
 	if (test_bit(US_FLIDX_SCAN_PENDING, &us->dflags))
 		usb_autopm_put_interface_no_suspend(us->pusb_intf);
+
+#ifdef MY_ABC_HERE
+	scsi_lock(host);
+	usb_stor_stop_transport(us);
+	scsi_unlock(host);
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * Removing the host will perform an orderly shutdown: caches

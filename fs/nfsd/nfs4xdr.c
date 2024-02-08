@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Server-side XDR for NFSv4
  *
@@ -1801,6 +1804,19 @@ nfsd4_decode_copy(struct nfsd4_compoundargs *argp, struct nfsd4_copy *copy)
 	struct nl4_server *ns_dummy;
 	int i, count;
 
+#ifdef MY_ABC_HERE
+	/*
+	 * NOTE:
+	 *   1. copy->cp_src must be allocated early, or it may cause null ptr
+	 *      dereference in op_func (e.g., intra ssc dup fields).
+	 *   2. copy->cp_src will be freed by op_release, so we don't have to
+	 *      free it in below error handling.
+	 */
+	copy->cp_src = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
+	if (copy->cp_src == NULL)
+		return nfserrno(-ENOMEM);
+#endif /* MY_ABC_HERE */
+
 	status = nfsd4_decode_stateid(argp, &copy->cp_src_stateid);
 	if (status)
 		return status;
@@ -1824,7 +1840,11 @@ nfsd4_decode_copy(struct nfsd4_compoundargs *argp, struct nfsd4_copy *copy)
 	}
 
 	/* decode all the supplied server addresses but use first */
+#ifdef MY_ABC_HERE
+	status = nfsd4_decode_nl4_server(argp, copy->cp_src);
+#else /* MY_ABC_HERE */
 	status = nfsd4_decode_nl4_server(argp, &copy->cp_src);
+#endif /* MY_ABC_HERE */
 	if (status)
 		return status;
 
@@ -1857,10 +1877,24 @@ nfsd4_decode_copy_notify(struct nfsd4_compoundargs *argp,
 {
 	__be32 status;
 
+#ifdef MY_ABC_HERE
+	cn->cpn_src = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
+	if (!cn->cpn_src)
+		return nfserrno(-ENOMEM);
+	cn->cpn_dst = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
+	if (!cn->cpn_dst)
+		return nfserrno(-ENOMEM);
+#endif /* MY_ABC_HERE */
+
 	status = nfsd4_decode_stateid(argp, &cn->cpn_src_stateid);
 	if (status)
 		return status;
+
+#ifdef MY_ABC_HERE
+	return nfsd4_decode_nl4_server(argp, cn->cpn_dst);
+#else /* MY_ABC_HERE */
 	return nfsd4_decode_nl4_server(argp, &cn->cpn_dst);
+#endif /* MY_ABC_HERE */
 }
 
 static __be32
@@ -2653,6 +2687,10 @@ static int get_parent_attributes(struct svc_export *exp, struct kstat *stat)
 			break;
 	}
 	err = vfs_getattr(&path, stat, STATX_BASIC_STATS, AT_STATX_SYNC_AS_STAT);
+#ifdef MY_ABC_HERE
+	if (!err)
+		nfsd_update_root_attr(path.dentry, stat);
+#endif /* MY_ABC_HERE */
 	path_put(&path);
 	return err;
 }
@@ -2741,6 +2779,11 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
 	err = vfs_getattr(&path, &stat, STATX_BASIC_STATS, AT_STATX_SYNC_AS_STAT);
 	if (err)
 		goto out_nfserr;
+
+#ifdef MY_ABC_HERE
+	nfsd_update_root_attr(dentry, &stat);
+#endif /* MY_ABC_HERE */
+
 	if ((bmval0 & (FATTR4_WORD0_FILES_AVAIL | FATTR4_WORD0_FILES_FREE |
 			FATTR4_WORD0_FILES_TOTAL | FATTR4_WORD0_MAXNAME)) ||
 	    (bmval1 & (FATTR4_WORD1_SPACE_AVAIL | FATTR4_WORD1_SPACE_FREE |
@@ -4781,7 +4824,11 @@ nfsd4_encode_copy_notify(struct nfsd4_compoundres *resp, __be32 nfserr,
 
 	*p++ = cpu_to_be32(1);
 
+#ifdef MY_ABC_HERE
+	return nfsd42_encode_nl4_server(resp, cn->cpn_src);
+#else /* MY_ABC_HERE */
 	return nfsd42_encode_nl4_server(resp, &cn->cpn_src);
+#endif /* MY_ABC_HERE */
 }
 
 static __be32
@@ -5192,8 +5239,11 @@ nfsd4_encode_operation(struct nfsd4_compoundres *resp, struct nfsd4_op *op)
 	       !nfsd4_enc_ops[op->opnum]);
 	encoder = nfsd4_enc_ops[op->opnum];
 	op->status = encoder(resp, op->status, &op->u);
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	if (opdesc && opdesc->op_release)
 		opdesc->op_release(&op->u);
+#endif /* MY_ABC_HERE */
 	xdr_commit_encode(xdr);
 
 	/* nfsd4_check_resp_size guarantees enough room for error status */
@@ -5269,6 +5319,26 @@ nfs4svc_encode_voidres(struct svc_rqst *rqstp, __be32 *p)
 void nfsd4_release_compoundargs(struct svc_rqst *rqstp)
 {
 	struct nfsd4_compoundargs *args = rqstp->rq_argp;
+#ifdef MY_ABC_HERE
+	struct nfsd4_op *op;
+	int i;
+
+	if (!args->ops || !args->opcnt ||
+		args->opcnt > NFSD_MAX_OPS_PER_COMPOUND) {
+		/*
+		 * Because nfsd4_decode_compound will keep invalid args->opcnt
+		 * that > NFSD_MAX_OPS_PER_COMPOUND for 'BETTER' error code,
+		 * we have to do check here to prevent invalid memory access.
+		 */
+		goto skip_op_release;
+	}
+	for (i = 0; i < args->opcnt; i++) {
+		op = &args->ops[i];
+		if (op->opdesc && op->opdesc->op_release)
+			op->opdesc->op_release(&op->u);
+	}
+skip_op_release:
+#endif /* MY_ABC_HERE */
 
 	if (args->ops != args->iops) {
 		kfree(args->ops);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * "splice": joining two ropes together by interweaving their strands.
@@ -756,20 +759,34 @@ static int warn_unsupported(struct file *file, const char *op)
 /*
  * Attempt to initiate a splice from pipe to file.
  */
+#ifdef MY_ABC_HERE
+long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
+		    loff_t *ppos, size_t len, unsigned int flags)
+#else
 static long do_splice_from(struct pipe_inode_info *pipe, struct file *out,
 			   loff_t *ppos, size_t len, unsigned int flags)
+#endif /* MY_ABC_HERE */
 {
 	if (unlikely(!out->f_op->splice_write))
 		return warn_unsupported(out, "write");
 	return out->f_op->splice_write(pipe, out, ppos, len, flags);
 }
+#ifdef MY_ABC_HERE
+EXPORT_SYMBOL_GPL(do_splice_from);
+#endif /* MY_ABC_HERE */
 
 /*
  * Attempt to initiate a splice from a file to a pipe.
  */
+#ifdef MY_ABC_HERE
+long do_splice_to(struct file *in, loff_t *ppos,
+		  struct pipe_inode_info *pipe, size_t len,
+		  unsigned int flags)
+#else
 static long do_splice_to(struct file *in, loff_t *ppos,
 			 struct pipe_inode_info *pipe, size_t len,
 			 unsigned int flags)
+#endif /* MY_ABC_HERE */
 {
 	int ret;
 
@@ -787,6 +804,9 @@ static long do_splice_to(struct file *in, loff_t *ppos,
 		return warn_unsupported(in, "read");
 	return in->f_op->splice_read(in, ppos, pipe, len, flags);
 }
+#ifdef MY_ABC_HERE
+EXPORT_SYMBOL_GPL(do_splice_to);
+#endif /* MY_ABC_HERE */
 
 /**
  * splice_direct_to_actor - splices data directly between two non-pipes

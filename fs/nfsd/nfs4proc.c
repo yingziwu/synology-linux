@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  Server-side procedures for NFSv4.
  *
@@ -1106,6 +1109,9 @@ void nfs4_put_copy(struct nfsd4_copy *copy)
 {
 	if (!refcount_dec_and_test(&copy->refcount))
 		return;
+#ifdef MY_ABC_HERE
+	kfree(copy->cp_src);
+#endif /* MY_ABC_HERE */
 	kfree(copy);
 }
 
@@ -1277,7 +1283,11 @@ nfsd4_setup_inter_ssc(struct svc_rqst *rqstp,
 	if (status)
 		goto out;
 
+#ifdef MY_ABC_HERE
+	status = nfsd4_interssc_connect(copy->cp_src, rqstp, mount);
+#else /* MY_ABC_HERE */
 	status = nfsd4_interssc_connect(&copy->cp_src, rqstp, mount);
+#endif /* MY_ABC_HERE */
 	if (status)
 		goto out;
 
@@ -1440,7 +1450,11 @@ static void dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
 		dst->nf_src = nfsd_file_get(src->nf_src);
 
 	memcpy(&dst->cp_stateid, &src->cp_stateid, sizeof(src->cp_stateid));
+#ifdef MY_ABC_HERE
+	memcpy(dst->cp_src, src->cp_src, sizeof(struct nl4_server));
+#else /* MY_ABC_HERE */
 	memcpy(&dst->cp_src, &src->cp_src, sizeof(struct nl4_server));
+#endif /* MY_ABC_HERE */
 	memcpy(&dst->stateid, &src->stateid, sizeof(src->stateid));
 	memcpy(&dst->c_fh, &src->c_fh, sizeof(src->c_fh));
 	dst->ss_mnt = src->ss_mnt;
@@ -1532,6 +1546,11 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 		async_copy = kzalloc(sizeof(struct nfsd4_copy), GFP_KERNEL);
 		if (!async_copy)
 			goto out_err;
+#ifdef MY_ABC_HERE
+		async_copy->cp_src = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
+		if (!async_copy->cp_src)
+			goto out_err;
+#endif /* MY_ABC_HERE */
 		if (!nfs4_init_copy_state(nn, copy))
 			goto out_err;
 		refcount_set(&async_copy->refcount, 1);
@@ -1561,6 +1580,15 @@ out_err:
 		nfsd4_interssc_disconnect(copy->ss_mnt);
 	goto out;
 }
+
+#ifdef MY_ABC_HERE
+static void
+nfsd4_copy_release(union nfsd4_op_u *u)
+{
+	struct nfsd4_copy *copy = &u->copy;
+	kfree(copy->cp_src);
+}
+#endif /* MY_ABC_HERE */
 
 struct nfsd4_copy *
 find_async_copy(struct nfs4_client *clp, stateid_t *stateid)
@@ -1630,9 +1658,15 @@ nfsd4_copy_notify(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
 	/* For now, only return one server address in cpn_src, the
 	 * address used by the client to connect to this server.
 	 */
+#ifdef MY_ABC_HERE
+	cn->cpn_src->nl4_type = NL4_NETADDR;
+	status = nfsd4_set_netaddr((struct sockaddr *)&rqstp->rq_daddr,
+				 &cn->cpn_src->u.nl4_addr);
+#else /* MY_ABC_HERE */
 	cn->cpn_src.nl4_type = NL4_NETADDR;
 	status = nfsd4_set_netaddr((struct sockaddr *)&rqstp->rq_daddr,
 				 &cn->cpn_src.u.nl4_addr);
+#endif /* MY_ABC_HERE */
 	WARN_ON_ONCE(status);
 	if (status) {
 		nfs4_put_cpntf_state(nn, cps);
@@ -1642,6 +1676,16 @@ out:
 	nfs4_put_stid(stid);
 	return status;
 }
+
+#ifdef MY_ABC_HERE
+static void
+nfsd4_copy_notify_release(union nfsd4_op_u *u)
+{
+	struct nfsd4_copy_notify *cn = &u->copy_notify;
+	kfree(cn->cpn_src);
+	kfree(cn->cpn_dst);
+}
+#endif /* MY_ABC_HERE */
 
 static __be32
 nfsd4_fallocate(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
@@ -2371,6 +2415,10 @@ nfsd4_proc_compound(struct svc_rqst *rqstp)
 
 	trace_nfsd_compound(rqstp, args->opcnt);
 	while (!status && resp->opcnt < args->opcnt) {
+#ifdef MY_ABC_HERE
+		ktime_t stime = ktime_get();
+#endif /* MY_ABC_HERE */
+
 		op = &args->ops[resp->opcnt++];
 
 		/*
@@ -2453,6 +2501,10 @@ encode_op:
 
 		nfsd4_cstate_clear_replay(cstate);
 		nfsd4_increment_op_stats(op->opnum);
+#ifdef MY_ABC_HERE
+		if (op->opnum >= FIRST_NFS4_OP && op->opnum <= LAST_NFS4_OP)
+			svc_update_lat(&nfsdstats.nfs4_oplatency[op->opnum], stime);
+#endif /* MY_ABC_HERE */
 	}
 
 	fh_put(current_fh);
@@ -3170,6 +3222,9 @@ static const struct nfsd4_operation nfsd4_ops[] = {
 	},
 	[OP_COPY] = {
 		.op_func = nfsd4_copy,
+#ifdef MY_ABC_HERE
+		.op_release = nfsd4_copy_release,
+#endif /* MY_ABC_HERE */
 		.op_flags = OP_MODIFIES_SOMETHING,
 		.op_name = "OP_COPY",
 		.op_rsize_bop = nfsd4_copy_rsize,
@@ -3199,6 +3254,9 @@ static const struct nfsd4_operation nfsd4_ops[] = {
 	},
 	[OP_COPY_NOTIFY] = {
 		.op_func = nfsd4_copy_notify,
+#ifdef MY_ABC_HERE
+		.op_release = nfsd4_copy_notify_release,
+#endif /* MY_ABC_HERE */
 		.op_flags = OP_MODIFIES_SOMETHING,
 		.op_name = "OP_COPY_NOTIFY",
 		.op_rsize_bop = nfsd4_copy_notify_rsize,
@@ -3317,11 +3375,17 @@ static const struct svc_procedure nfsd_procedures4[2] = {
 };
 
 static unsigned int nfsd_count3[ARRAY_SIZE(nfsd_procedures4)];
+#ifdef MY_ABC_HERE
+static struct svc_lat nfsd_latency4[ARRAY_SIZE(nfsd_procedures4)];
+#endif /* MY_ABC_HERE */
 const struct svc_version nfsd_version4 = {
 	.vs_vers		= 4,
 	.vs_nproc		= 2,
 	.vs_proc		= nfsd_procedures4,
 	.vs_count		= nfsd_count3,
+#ifdef MY_ABC_HERE
+	.vs_latency		= nfsd_latency4,
+#endif /* MY_ABC_HERE */
 	.vs_dispatch		= nfsd_dispatch,
 	.vs_xdrsize		= NFS4_SVC_XDRSIZE,
 	.vs_rpcb_optnl		= true,

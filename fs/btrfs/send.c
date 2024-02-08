@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2012 Alexander Block.  All rights reserved.
@@ -15,6 +18,9 @@
 #include <linux/string.h>
 #include <linux/compat.h>
 #include <linux/crc32c.h>
+#ifdef MY_ABC_HERE
+#include <linux/sched/mm.h>
+#endif /* MY_ABC_HERE */
 
 #include "send.h"
 #include "backref.h"
@@ -25,6 +31,16 @@
 #include "compression.h"
 #include "xattr.h"
 
+#ifdef MY_ABC_HERE
+#include <linux/syno_acl.h>
+#include "syno_acl.h"
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#include <linux/time.h>
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 /*
  * Maximum number of references an extent can have in order for us to attempt to
  * issue clone operations instead of write operations. This currently exists to
@@ -32,6 +48,7 @@
  * time and using too much memory for extents with large number of references).
  */
 #define SEND_MAX_EXTENT_REFS	64
+#endif /* MY_ABC_HERE */
 
 /*
  * A fs_path is a helper to dynamically build path names with unknown size.
@@ -75,6 +92,21 @@ struct clone_root {
 #define SEND_CTX_MAX_NAME_CACHE_SIZE 128
 #define SEND_CTX_NAME_CACHE_CLEAN_SIZE (SEND_CTX_MAX_NAME_CACHE_SIZE * 2)
 
+#ifdef MY_ABC_HERE
+enum btrfs_send_phase {
+	SEND_PHASE_STREAM_CHANGES,
+	SEND_PHASE_COMPUTE_DATA_SIZE,
+};
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+enum archive_bit_act_enum {
+	archive_bit_act_set             = 1 << 0,
+	archive_bit_act_set_owner_group = 1 << 1,
+	archive_bit_act_set_acl         = 1 << 2,
+};
+#endif /* MY_ABC_HERE */
+
 struct send_ctx {
 	struct file *send_filp;
 	loff_t send_off;
@@ -104,6 +136,9 @@ struct send_ctx {
 	int cur_inode_new;
 	int cur_inode_new_gen;
 	int cur_inode_deleted;
+#ifdef MY_ABC_HERE
+	int cur_inode_skip_clone:1;
+#endif /* MY_ABC_HERE */
 	u64 cur_inode_size;
 	u64 cur_inode_mode;
 	u64 cur_inode_rdev;
@@ -112,6 +147,21 @@ struct send_ctx {
 	bool ignore_cur_inode;
 
 	u64 send_progress;
+
+#ifdef MY_ABC_HERE
+	enum btrfs_send_phase phase;
+	struct timespec64 write_timeval;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	u32 subvol_flags;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	u64 skip_cmd_count;
+	u64 current_cmd_pos;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	u32 archive_bit_act;
+#endif /* MY_ABC_HERE */
 
 	struct list_head new_refs;
 	struct list_head deleted_refs;
@@ -238,6 +288,9 @@ struct waiting_dir_move {
 	u64 rmdir_ino;
 	u64 rmdir_gen;
 	bool orphanized;
+#ifdef MY_ABC_HERE
+	u64 gen;
+#endif /* MY_ABC_HERE */
 };
 
 struct orphan_dir_info {
@@ -268,8 +321,11 @@ struct name_cache_entry {
 	char name[];
 };
 
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 #define ADVANCE							1
 #define ADVANCE_ONLY_NEXT					-1
+#endif /* MY_ABC_HERE */
 
 enum btrfs_compare_tree_result {
 	BTRFS_COMPARE_TREE_NEW,
@@ -312,6 +368,9 @@ static void inconsistent_snapshot_error(struct send_ctx *sctx,
 		   sctx->parent_root->root_key.objectid : 0));
 }
 
+#ifdef MY_ABC_HERE
+static int send_fallocate(struct send_ctx *sctx, u32 flags, u64 offset, u64 len);
+#endif /* MY_ABC_HERE */
 static int is_waiting_for_move(struct send_ctx *sctx, u64 ino);
 
 static struct waiting_dir_move *
@@ -546,7 +605,11 @@ static struct btrfs_path *alloc_path_for_send(void)
 	return path;
 }
 
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+int write_buf(struct file *filp, const void *buf, u32 len, loff_t *off)
+#else /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 static int write_buf(struct file *filp, const void *buf, u32 len, loff_t *off)
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 {
 	int ret;
 	u32 pos = 0;
@@ -595,6 +658,9 @@ static int tlv_put(struct send_ctx *sctx, u16 attr, const void *data, int len)
 	}
 
 TLV_PUT_DEFINE_INT(64)
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+TLV_PUT_DEFINE_INT(32)
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 
 static int tlv_put_string(struct send_ctx *sctx, u16 attr,
 			  const char *str, int len)
@@ -618,6 +684,15 @@ static int tlv_put_btrfs_timespec(struct send_ctx *sctx, u16 attr,
 	read_extent_buffer(eb, &bts, (unsigned long)ts, sizeof(bts));
 	return tlv_put(sctx, attr, &bts, sizeof(bts));
 }
+
+#ifdef MY_ABC_HERE
+static int tlv_put_btrfs_subvol_timespec(struct send_ctx *sctx, u16 attr,
+				  struct btrfs_timespec *ts)
+{
+	return tlv_put(sctx, attr, ts, sizeof(struct btrfs_timespec));
+}
+#endif /* MY_ABC_HERE */
+
 
 
 #define TLV_PUT(sctx, attrtype, data, attrlen) \
@@ -663,6 +738,14 @@ static int tlv_put_btrfs_timespec(struct send_ctx *sctx, u16 attr,
 		if (ret < 0) \
 			goto tlv_put_failure; \
 	} while (0)
+#ifdef MY_ABC_HERE
+#define TLV_PUT_BTRFS_SUBVOL_TIMESPEC(sctx, attrtype, ts) \
+    do { \
+		ret = tlv_put_btrfs_subvol_timespec(sctx, attrtype, ts); \
+		if (ret < 0) \
+			goto tlv_put_failure; \
+	} while (0)
+#endif /* MY_ABC_HERE */
 
 static int send_header(struct send_ctx *sctx)
 {
@@ -694,6 +777,30 @@ static int begin_cmd(struct send_ctx *sctx, int cmd)
 	return 0;
 }
 
+#ifdef MY_ABC_HERE
+static int write_calculate_size_if_needed(struct send_ctx *sctx)
+{
+	int ret = 0;
+	struct timespec64 now;
+	unsigned long val;
+	char *buf_skip_hdr;
+	u32 buf_max_size;
+
+	ktime_get_ts64(&now);
+	// Get milliseconds
+	val = ((now.tv_sec - sctx->write_timeval.tv_sec) * 1000);
+	val += ((now.tv_nsec - sctx->write_timeval.tv_nsec) / 1000000);
+	if (val > 800) {
+		buf_skip_hdr = sctx->send_buf + sizeof(struct btrfs_cmd_header);
+		buf_max_size = sctx->send_max_size - sizeof(struct btrfs_cmd_header);
+		snprintf(buf_skip_hdr, buf_max_size, "About:%llu\n", sctx->total_send_size);
+		ret = write_buf(sctx->send_filp, buf_skip_hdr, strlen(buf_skip_hdr), &sctx->send_off);
+		sctx->write_timeval = now;
+	}
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 static int send_cmd(struct send_ctx *sctx)
 {
 	int ret;
@@ -701,6 +808,25 @@ static int send_cmd(struct send_ctx *sctx)
 	u32 crc;
 
 	hdr = (struct btrfs_cmd_header *)sctx->send_buf;
+
+#ifdef MY_ABC_HERE
+	if (sctx->current_cmd_pos < sctx->skip_cmd_count &&
+	    (le16_to_cpu(hdr->cmd) != BTRFS_SEND_C_SUBVOL) &&
+	    (le16_to_cpu(hdr->cmd) != BTRFS_SEND_C_SNAPSHOT)) {
+		sctx->current_cmd_pos++;
+		sctx->send_size = 0;
+		return 0;
+	}
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	if (sctx->phase == SEND_PHASE_COMPUTE_DATA_SIZE) {
+		sctx->total_send_size += sctx->send_size;
+		sctx->cmd_send_size[get_unaligned_le16(&hdr->cmd)] += sctx->send_size;
+		sctx->send_size = 0; // reset send_buf
+		return write_calculate_size_if_needed(sctx);
+	}
+#endif /* MY_ABC_HERE */
+
 	put_unaligned_le32(sctx->send_size - sizeof(*hdr), &hdr->len);
 	put_unaligned_le32(0, &hdr->crc);
 
@@ -1314,7 +1440,10 @@ static int find_extent_clone(struct send_ctx *sctx,
 	struct clone_root *cur_clone_root;
 	struct btrfs_key found_key;
 	struct btrfs_path *tmp_path;
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	struct btrfs_extent_item *ei;
+#endif /* MY_ABC_HERE */
 	int compressed;
 	u32 i;
 
@@ -1362,6 +1491,10 @@ static int find_extent_clone(struct send_ctx *sctx,
 	ret = extent_from_logical(fs_info, disk_byte, tmp_path,
 				  &found_key, &flags);
 	up_read(&fs_info->commit_root_sem);
+#ifdef MY_ABC_HERE
+	btrfs_release_path(tmp_path);
+#else /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
 	if (ret < 0)
 		goto out;
@@ -1370,6 +1503,8 @@ static int find_extent_clone(struct send_ctx *sctx,
 		goto out;
 	}
 
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	ei = btrfs_item_ptr(tmp_path->nodes[0], tmp_path->slots[0],
 			    struct btrfs_extent_item);
 	/*
@@ -1384,6 +1519,7 @@ static int find_extent_clone(struct send_ctx *sctx,
 		goto out;
 	}
 	btrfs_release_path(tmp_path);
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * Setup the clone roots.
@@ -1851,6 +1987,9 @@ static int will_overwrite_ref(struct send_ctx *sctx, u64 dir, u64 dir_gen,
 	u64 gen;
 	u64 other_inode = 0;
 	u8 other_type = 0;
+#ifdef MY_ABC_HERE
+	struct waiting_dir_move *dm = NULL;
+#endif /* MY_ABC_HERE */
 
 	if (!sctx->parent_root)
 		goto out;
@@ -1892,11 +2031,22 @@ static int will_overwrite_ref(struct send_ctx *sctx, u64 dir, u64 dir_gen,
 	 * overwrite anything at this point in time.
 	 */
 	if (other_inode > sctx->send_progress ||
-	    is_waiting_for_move(sctx, other_inode)) {
+#ifdef MY_ABC_HERE
+	    ((dm = get_waiting_dir_move(sctx, other_inode)) != NULL)
+#else /* MY_ABC_HERE */
+	    is_waiting_for_move(sctx, other_inode)
+#endif /* MY_ABC_HERE */
+		) {
 		ret = get_inode_info(sctx->parent_root, other_inode, NULL,
 				who_gen, who_mode, NULL, NULL, NULL);
 		if (ret < 0)
 			goto out;
+#ifdef MY_ABC_HERE
+		if (dm && dm->gen != *who_gen) {
+			ret = 0;
+			goto out;
+		}
+#endif /* MY_ABC_HERE */
 
 		ret = 1;
 		*who_ino = other_inode;
@@ -2355,6 +2505,9 @@ static int send_subvol_begin(struct send_ctx *sctx)
 	struct extent_buffer *leaf;
 	char *name = NULL;
 	int namelen;
+#ifdef MY_ABC_HERE
+	struct btrfs_fs_info *fs_info = sctx->send_root->fs_info;
+#endif /* MY_ABC_HERE */
 
 	path = btrfs_alloc_path();
 	if (!path)
@@ -2412,6 +2565,10 @@ static int send_subvol_begin(struct send_ctx *sctx)
 
 	TLV_PUT_U64(sctx, BTRFS_SEND_A_CTRANSID,
 		    le64_to_cpu(sctx->send_root->root_item.ctransid));
+#ifdef MY_ABC_HERE
+	if (likely(sctx->flags & BTRFS_SEND_FLAG_SYNO_FEATURES))
+		TLV_PUT_BTRFS_SUBVOL_TIMESPEC(sctx, BTRFS_SEND_A_OTIME, &sctx->send_root->root_item.otime);
+#endif /* MY_ABC_HERE */
 	if (parent_root) {
 		if (!btrfs_is_empty_uuid(parent_root->root_item.received_uuid))
 			TLV_PUT_UUID(sctx, BTRFS_SEND_A_CLONE_UUID,
@@ -2424,6 +2581,20 @@ static int send_subvol_begin(struct send_ctx *sctx)
 	}
 
 	ret = send_cmd(sctx);
+
+#ifdef MY_ABC_HERE
+	if (!ret && !parent_root &&
+		likely(sctx->flags & BTRFS_SEND_FLAG_SYNO_FEATURES)) {
+		ret = begin_cmd(sctx, BTRFS_SEND_C_SUBVOL_FLAG);
+		if (ret < 0)
+			goto out;
+		btrfs_debug(fs_info, "btrfs: send_flag %u\n", sctx->subvol_flags);
+		TLV_PUT_U32(sctx, BTRFS_SEND_A_FLAG, sctx->subvol_flags);
+		ret = send_cmd(sctx);
+		if (ret < 0)
+			goto out;
+	}
+#endif /* MY_ABC_HERE */
 
 tlv_put_failure:
 out:
@@ -3036,7 +3207,11 @@ static int is_waiting_for_move(struct send_ctx *sctx, u64 ino)
 	return entry != NULL;
 }
 
-static int add_waiting_dir_move(struct send_ctx *sctx, u64 ino, bool orphanized)
+static int add_waiting_dir_move(struct send_ctx *sctx, u64 ino, bool orphanized
+#ifdef MY_ABC_HERE
+		, u64 gen
+#endif /* MY_ABC_HERE */
+		)
 {
 	struct rb_node **p = &sctx->waiting_dir_moves.rb_node;
 	struct rb_node *parent = NULL;
@@ -3049,6 +3224,9 @@ static int add_waiting_dir_move(struct send_ctx *sctx, u64 ino, bool orphanized)
 	dm->rmdir_ino = 0;
 	dm->rmdir_gen = 0;
 	dm->orphanized = orphanized;
+#ifdef MY_ABC_HERE
+	dm->gen = gen;
+#endif /* MY_ABC_HERE */
 
 	while (*p) {
 		parent = *p;
@@ -3144,7 +3322,11 @@ static int add_pending_dir_move(struct send_ctx *sctx,
 			goto out;
 	}
 
+#ifdef MY_ABC_HERE
+	ret = add_waiting_dir_move(sctx, pm->ino, is_orphan, pm->gen);
+#else /* MY_ABC_HERE */
 	ret = add_waiting_dir_move(sctx, pm->ino, is_orphan);
+#endif /* MY_ABC_HERE */
 	if (ret)
 		goto out;
 
@@ -4630,6 +4812,21 @@ out:
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+#define SYNO_SZK_BTRFS_COMPRESSION XATTR_BTRFS_PREFIX "compression"
+#define SYNO_SZV_ZSTD "zstd"
+#define SYNO_SZV_LZO "lzo"
+inline static int syno_is_zstd_compression(const char *name, int name_len,
+					  const char *data, int data_len)
+{
+	// check length before compare non-zero end string
+	return strlen(SYNO_SZK_BTRFS_COMPRESSION) == name_len &&
+		   strlen(SYNO_SZV_ZSTD) == data_len &&
+		   0 == strncmp(SYNO_SZK_BTRFS_COMPRESSION, name, strlen(SYNO_SZK_BTRFS_COMPRESSION)) &&
+		   0 == strncmp(SYNO_SZV_ZSTD, data, strlen(SYNO_SZV_ZSTD));
+}
+
+#endif /* MY_ABC_HERE */
 static int send_set_xattr(struct send_ctx *sctx,
 			  struct fs_path *path,
 			  const char *name, int name_len,
@@ -4643,7 +4840,16 @@ static int send_set_xattr(struct send_ctx *sctx,
 
 	TLV_PUT_PATH(sctx, BTRFS_SEND_A_PATH, path);
 	TLV_PUT_STRING(sctx, BTRFS_SEND_A_XATTR_NAME, name, name_len);
+#ifdef MY_ABC_HERE
+	if ((sctx->flags & BTRFS_SEND_FLAG_FALLBACK_COMPRESSION) &&
+		syno_is_zstd_compression(name, name_len, data, data_len)) {
+		TLV_PUT(sctx, BTRFS_SEND_A_XATTR_DATA, SYNO_SZV_LZO, strlen(SYNO_SZV_LZO));
+	} else {
+		TLV_PUT(sctx, BTRFS_SEND_A_XATTR_DATA, data, data_len);
+	}
+#else /* MY_ABC_HERE */
 	TLV_PUT(sctx, BTRFS_SEND_A_XATTR_DATA, data, data_len);
+#endif /* MY_ABC_HERE */
 
 	ret = send_cmd(sctx);
 
@@ -4686,6 +4892,51 @@ static int __process_new_xattr(int num, struct btrfs_key *di_key,
 	if (!strncmp(name, XATTR_NAME_CAPS, name_len))
 		return 0;
 
+#ifdef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+	if (!(sctx->flags & BTRFS_SEND_FLAG_SYNO_FEATURES) &&
+		name_len >= XATTR_SYNO_PREFIX_LEN &&
+		!strncmp(name, XATTR_SYNO_PREFIX, XATTR_SYNO_PREFIX_LEN))
+		return 0;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/*
+	 * chmod and chown will clear archive bit acl-related bits
+	 * and acl entries, so we handle these at inode-finishing
+	 * step to avoid losing syno archive bit and acl entries.
+	 * please refer to <FS Snapshot> #264.
+	 */
+	if (XATTR_SYNO_ARCHIVE_BIT_LEN == name_len &&
+	    !strncmp(name, XATTR_SYNO_ARCHIVE_BIT, name_len)) {
+		sctx->archive_bit_act |= archive_bit_act_set;
+		return 0;
+	}
+#ifdef MY_ABC_HERE
+	if (!strncmp(name, SYNO_ACL_XATTR_ACCESS, name_len)) {
+		sctx->archive_bit_act |= archive_bit_act_set_acl;
+		return 0;
+	}
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/*
+	 * Since inode's archive version would be updated every time
+	 * when it's created or modified as super block's archive
+	 * version + 1. So sending this xattr is unnecessary.
+	 */
+	if (XATTR_SYNO_ARCHIVE_VERSION_LEN == name_len &&
+	    !strncmp(name, XATTR_SYNO_ARCHIVE_VERSION, name_len)) {
+		return 0;
+	}
+	if (XATTR_SYNO_ARCHIVE_VERSION_VOLUME_LEN == name_len &&
+	    !strncmp(name, XATTR_SYNO_ARCHIVE_VERSION_VOLUME, name_len)) {
+		return 0;
+	}
+#endif /* MY_ABC_HERE */
+
 	p = fs_path_alloc();
 	if (!p)
 		return -ENOMEM;
@@ -4725,6 +4976,15 @@ static int __process_deleted_xattr(int num, struct btrfs_key *di_key,
 	int ret;
 	struct send_ctx *sctx = ctx;
 	struct fs_path *p;
+
+#ifdef MY_ABC_HERE
+#ifdef MY_ABC_HERE
+	if (!(sctx->flags & BTRFS_SEND_FLAG_SYNO_FEATURES) &&
+		name_len >= XATTR_SYNO_PREFIX_LEN &&
+		!strncmp(name, XATTR_SYNO_PREFIX, XATTR_SYNO_PREFIX_LEN))
+		return 0;
+#endif /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
 
 	p = fs_path_alloc();
 	if (!p)
@@ -4969,6 +5229,13 @@ static int put_file_data(struct send_ctx *sctx, u64 offset, u32 len)
 	if (ret)
 		return ret;
 
+#ifdef MY_ABC_HERE
+	if (sctx->phase == SEND_PHASE_COMPUTE_DATA_SIZE) {
+		sctx->send_size += len;
+		return 0;
+	}
+#endif /* MY_ABC_HERE */
+
 	inode = btrfs_iget(fs_info->sb, sctx->cur_ino, root);
 	if (IS_ERR(inode))
 		return PTR_ERR(inode);
@@ -5171,6 +5438,40 @@ out:
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+static int send_fallocate(struct send_ctx *sctx, u32 flags,
+						u64 offset, u64 len)
+{
+	struct fs_path *p = NULL;
+	int ret = 0;
+	struct btrfs_fs_info *fs_info = sctx->send_root->fs_info;
+
+	ASSERT(sctx->flags & BTRFS_SEND_FLAG_SUPPORT_FALLOCATE);
+
+	btrfs_debug(fs_info, "send_fallocate flags=%u offset=%llu, len=%llu", flags, offset, len);
+
+	p = fs_path_alloc();
+	if (!p)
+		return -ENOMEM;
+	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, p);
+	if (ret < 0)
+		goto tlv_put_failure;
+
+	ret = begin_cmd(sctx, BTRFS_SEND_C_FALLOCATE);
+	if (ret < 0)
+		goto tlv_put_failure;
+	TLV_PUT_PATH(sctx, BTRFS_SEND_A_PATH, p);
+	TLV_PUT_U32(sctx, BTRFS_SEND_A_FALLOCATE_FLAGS, flags);
+	TLV_PUT_U64(sctx, BTRFS_SEND_A_FILE_OFFSET, offset);
+	TLV_PUT_U64(sctx, BTRFS_SEND_A_SIZE, len);
+	ret = send_cmd(sctx);
+
+tlv_put_failure:
+	fs_path_free(p);
+	return ret;
+}
+#endif /* MY_ABC_HERE */
+
 static int send_hole(struct send_ctx *sctx, u64 end)
 {
 	struct fs_path *p = NULL;
@@ -5192,6 +5493,13 @@ static int send_hole(struct send_ctx *sctx, u64 end)
 	 * after the i_size.
 	 */
 	end = min_t(u64, end, sctx->cur_inode_size);
+
+#ifdef MY_ABC_HERE
+	if (sctx->flags & BTRFS_SEND_FLAG_SUPPORT_FALLOCATE) {
+		return send_fallocate(sctx,
+					BTRFS_SEND_PUNCH_HOLE_FALLOC_FLAGS, offset,	end - offset);
+	}
+#endif /* MY_ABC_HERE */
 
 	if (sctx->flags & BTRFS_SEND_FLAG_NO_FILE_DATA)
 		return send_update_extent(sctx, offset, end - offset);
@@ -5240,7 +5548,17 @@ static int send_extent_data(struct send_ctx *sctx,
 		u64 size = min(len - sent, read_size);
 		int ret;
 
+#ifdef MY_ABC_HERE
+		if (sctx->current_cmd_pos < sctx->skip_cmd_count) {
+			ret = begin_cmd(sctx, BTRFS_SEND_C_WRITE);
+			if (!ret)
+				ret = send_cmd(sctx);
+		} else {
+			ret = send_write(sctx, offset + sent, size);
+		}
+#else /* MY_ABC_HERE */
 		ret = send_write(sctx, offset + sent, size);
+#endif /* MY_ABC_HERE */
 		if (ret < 0)
 			return ret;
 		sent += size;
@@ -5577,10 +5895,38 @@ static int send_write_or_clone(struct send_ctx *sctx,
 		data_offset = btrfs_file_extent_offset(path->nodes[0], ei);
 		ret = clone_range(sctx, clone_root, disk_byte, data_offset,
 				  offset, end - offset);
+#ifdef MY_ABC_HERE
+	} else if (sctx->flags & BTRFS_SEND_FLAG_SUPPORT_FALLOCATE) {
+		struct btrfs_file_extent_item *ei;
+		u8 type;
+		u64 disk_byte;
+
+		ei = btrfs_item_ptr(path->nodes[0], path->slots[0],
+						 struct btrfs_file_extent_item);
+		type = btrfs_file_extent_type(path->nodes[0], ei);
+		if (type != BTRFS_FILE_EXTENT_INLINE)
+			disk_byte = btrfs_file_extent_disk_bytenr(path->nodes[0], ei);
+
+		if (type == BTRFS_FILE_EXTENT_REG && disk_byte == 0) {
+			ret = send_fallocate(sctx,
+						BTRFS_SEND_PUNCH_HOLE_FALLOC_FLAGS, offset, end - offset);
+		} else if (type == BTRFS_FILE_EXTENT_PREALLOC) {
+			ret = send_fallocate(sctx,
+						BTRFS_SEND_PUNCH_HOLE_FALLOC_FLAGS, offset, end - offset);
+			if (ret)
+				goto out;
+			ret = send_fallocate(sctx, 0, offset, end - offset);
+		} else {
+			ret = send_extent_data(sctx, offset, end - offset);
+		}
+#endif /* MY_ABC_HERE */
 	} else {
 		ret = send_extent_data(sctx, offset, end - offset);
 	}
 	sctx->cur_inode_next_write_offset = end;
+#ifdef MY_ABC_HERE
+out:
+#endif /* MY_ABC_HERE */
 	return ret;
 }
 
@@ -5940,13 +6286,25 @@ static int process_extent(struct send_ctx *sctx,
 		type = btrfs_file_extent_type(path->nodes[0], ei);
 		if (type == BTRFS_FILE_EXTENT_PREALLOC ||
 		    type == BTRFS_FILE_EXTENT_REG) {
-			/*
-			 * The send spec does not have a prealloc command yet,
-			 * so just leave a hole for prealloc'ed extents until
-			 * we have enough commands queued up to justify rev'ing
-			 * the send spec.
-			 */
 			if (type == BTRFS_FILE_EXTENT_PREALLOC) {
+#ifdef MY_ABC_HERE
+				if (sctx->flags & BTRFS_SEND_FLAG_SUPPORT_FALLOCATE) {
+					u64 len;
+					u32 flags = 0;
+
+					len = btrfs_file_extent_num_bytes(path->nodes[0], ei);
+					if (key->offset >= sctx->cur_inode_size)
+						flags |= BTRFS_SEND_A_FALLOCATE_FLAG_KEEP_SIZE;
+					ret = send_fallocate(sctx, flags, key->offset, len);
+					goto out;
+				}
+#endif /* MY_ABC_HERE */
+				/*
+				 * The send spec does not have a prealloc command yet,
+				 * so just leave a hole for prealloc'ed extents until
+				 * we have enough commands queued up to justify rev'ing
+				 * the send spec.
+				 */
 				ret = 0;
 				goto out;
 			}
@@ -5959,11 +6317,19 @@ static int process_extent(struct send_ctx *sctx,
 		}
 	}
 
+#ifdef MY_ABC_HERE
+	if ((sctx->flags & BTRFS_SEND_FLAG_SKIP_FIND_CLONE) || sctx->cur_inode_skip_clone)
+		goto skip_clone;
+#endif /* MY_ABC_HERE */
+
 	ret = find_extent_clone(sctx, path, key->objectid, key->offset,
 			sctx->cur_inode_size, &found_clone);
 	if (ret != -ENOENT && ret < 0)
 		goto out;
 
+#ifdef MY_ABC_HERE
+skip_clone:
+#endif /* MY_ABC_HERE */
 	ret = send_write_or_clone(sctx, path, key, found_clone);
 	if (ret)
 		goto out;
@@ -6052,6 +6418,112 @@ static int process_recorded_refs_if_needed(struct send_ctx *sctx, int at_end,
 out:
 	return ret;
 }
+
+#ifdef MY_ABC_HERE
+/*
+ * Handle syno archive bit and syno acl here
+ */
+static int syno_attribute_handler(struct send_ctx *sctx)
+{
+	int ret = 0;
+	struct inode *inode;
+	struct btrfs_root *root = sctx->send_root;
+	struct btrfs_fs_info *fs_info = root->fs_info;
+	struct fs_path *p = NULL;
+	__le32 archive_bit_le32;
+#ifdef MY_ABC_HERE
+	size_t data_len = 0;
+	void* data = NULL;
+	struct syno_acl *acl = NULL;
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	if (!(sctx->flags & BTRFS_SEND_FLAG_SYNO_FEATURES))
+		goto out;
+#endif /* MY_ABC_HERE */
+
+	if (!sctx->archive_bit_act)
+		goto out;
+
+	inode = btrfs_iget(fs_info->sb, sctx->cur_ino, root);
+	if (IS_ERR(inode)) {
+		ret = PTR_ERR(inode);
+		goto out;
+	}
+	archive_bit_le32 = cpu_to_le32(inode->i_archive_bit);
+
+#ifdef MY_ABC_HERE
+	if ((sctx->archive_bit_act & archive_bit_act_set_owner_group) &&
+	    !(inode->i_archive_bit & S2_SYNO_ACL_IS_OWNER_GROUP))
+		sctx->archive_bit_act &= ~archive_bit_act_set_owner_group;
+
+	if ((sctx->archive_bit_act & archive_bit_act_set_acl) &&
+	    (inode->i_archive_bit & ALL_SYNO_ACL_ARCHIVE)) {
+		acl = btrfs_get_syno_acl(inode);
+		if (IS_ERR(acl)) {
+			ret = PTR_ERR(acl);
+			goto out_iput;
+		}
+
+		data_len = syno_acl_to_xattr(acl, NULL, 0);
+		if (data_len < 0) {
+			ret = data_len;
+			goto out_iput;
+		}
+
+
+		data = kmalloc(data_len, GFP_NOFS);
+		if (!data) {
+			ret = -ENOMEM;
+			goto out_iput;
+		}
+
+		data_len = syno_acl_to_xattr(acl, data, data_len);
+		if (data_len < 0) {
+			ret = data_len;
+			goto out_iput;
+		}
+	}
+#endif /* MY_ABC_HERE */
+
+	p = fs_path_alloc();
+	if (!p) {
+		ret = -ENOMEM;
+		goto out_iput;
+	}
+	ret = get_cur_path(sctx, sctx->cur_ino, sctx->cur_inode_gen, p);
+	if (ret < 0)
+		goto out_iput;
+	ret = send_set_xattr(sctx, p, XATTR_SYNO_ARCHIVE_BIT,
+			XATTR_SYNO_ARCHIVE_BIT_LEN,
+			(const char *)&archive_bit_le32,
+			sizeof(archive_bit_le32));
+	if (ret < 0)
+		goto out_iput;
+
+#ifdef MY_ABC_HERE
+	if (data_len > 0) {
+		ret = send_set_xattr(sctx, p, SYNO_ACL_XATTR_ACCESS,
+		                     strlen(SYNO_ACL_XATTR_ACCESS), data, data_len);
+		if (ret < 0)
+			goto out_iput;
+	}
+#endif /* MY_ABC_HERE */
+
+out_iput:
+	iput(inode);
+
+out:
+	fs_path_free(p);
+#ifdef MY_ABC_HERE
+	if (!IS_ERR(acl))
+		syno_acl_release(acl);
+	kfree(data);
+#endif /* MY_ABC_HERE */
+
+	return ret;
+}
+#endif /* MY_ABC_HERE */
 
 static int finish_inode_if_needed(struct send_ctx *sctx, int at_end)
 {
@@ -6152,17 +6624,29 @@ static int finish_inode_if_needed(struct send_ctx *sctx, int at_end)
 	}
 
 	if (need_chown) {
+#ifdef MY_ABC_HERE
+		sctx->archive_bit_act |= archive_bit_act_set_owner_group;
+#endif /* MY_ABC_HERE */
 		ret = send_chown(sctx, sctx->cur_ino, sctx->cur_inode_gen,
 				left_uid, left_gid);
 		if (ret < 0)
 			goto out;
 	}
 	if (need_chmod) {
+#ifdef MY_ABC_HERE
+		sctx->archive_bit_act |= archive_bit_act_set_acl;
+#endif /* MY_ABC_HERE */
 		ret = send_chmod(sctx, sctx->cur_ino, sctx->cur_inode_gen,
 				left_mode);
 		if (ret < 0)
 			goto out;
 	}
+
+#ifdef MY_ABC_HERE
+	ret = syno_attribute_handler(sctx);
+	if (ret < 0)
+		goto out;
+#endif /* MY_ABC_HERE */
 
 	ret = send_capabilities(sctx);
 	if (ret < 0)
@@ -6280,6 +6764,46 @@ out:
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+static int syno_send_check_skip_xattr(struct btrfs_root *root, u64 ino, const char* name)
+{
+	int ret;
+	struct btrfs_dir_item *di;
+	struct btrfs_path *path;
+
+	path = btrfs_alloc_path();
+	if (!path)
+		return -ENOMEM;
+
+	/* lookup the xattr by name */
+	di = btrfs_lookup_xattr(NULL, root, path, ino, name, strlen(name), 0);
+	if (!di) {
+		ret = 0;
+		goto out;
+	} else if (IS_ERR(di)) {
+		ret = PTR_ERR(di);
+		goto out;
+	}
+	/*
+	 * DSM#126656 Workaround for ABB set C++ bool true to xattr.
+	 * C++'s sizeof(bool) is implementation-defined and bool's binary
+	 * representation is not specified, so string and bool are mixed up.
+	 * Therefore we let this function return 1 if the xattr is set to simplify
+	 * the flow.
+	 */
+	ret = 1;
+out:
+	btrfs_free_path(path);
+	return ret;
+}
+
+#define SYNO_SEND_SKIP_CLONE "btrfs_send_skip_clone"
+static int syno_send_skip_clone(struct btrfs_root *root, u64 ino)
+{
+	return syno_send_check_skip_xattr(root, ino, XATTR_SYNO_PREFIX SYNO_SEND_SKIP_CLONE);
+}
+#endif /* MY_ABC_HERE */
+
 static int changed_inode(struct send_ctx *sctx,
 			 enum btrfs_compare_tree_result result)
 {
@@ -6289,12 +6813,21 @@ static int changed_inode(struct send_ctx *sctx,
 	struct btrfs_inode_item *right_ii = NULL;
 	u64 left_gen = 0;
 	u64 right_gen = 0;
+#ifdef MY_ABC_HERE
+	u64 mode;
+#endif /* MY_ABC_HERE */
 
 	sctx->cur_ino = key->objectid;
 	sctx->cur_inode_new_gen = 0;
 	sctx->cur_inode_last_extent = (u64)-1;
 	sctx->cur_inode_next_write_offset = 0;
 	sctx->ignore_cur_inode = false;
+#ifdef MY_ABC_HERE
+	sctx->archive_bit_act = 0;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	sctx->cur_inode_skip_clone = 0;
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * Set send_progress to current inode. This will tell all get_cur_xxx
@@ -6310,6 +6843,16 @@ static int changed_inode(struct send_ctx *sctx,
 				struct btrfs_inode_item);
 		left_gen = btrfs_inode_generation(sctx->left_path->nodes[0],
 				left_ii);
+#ifdef MY_ABC_HERE
+		mode = btrfs_inode_mode(sctx->left_path->nodes[0], left_ii);
+		if (S_ISREG(mode)) {
+			ret = syno_send_skip_clone(sctx->send_root, sctx->cur_ino);
+			if (ret < 0)
+				goto out;
+			sctx->cur_inode_skip_clone = ret;
+			ret = 0;
+		}
+#endif /* MY_ABC_HERE */
 	} else {
 		right_ii = btrfs_item_ptr(sctx->right_path->nodes[0],
 				sctx->right_path->slots[0],
@@ -6623,6 +7166,18 @@ static int changed_cb(struct btrfs_path *left_path,
 	int ret = 0;
 	struct send_ctx *sctx = ctx;
 
+#ifdef MY_ABC_HERE
+	if (fatal_signal_pending(current)) {
+		ret = -EINTR;
+		goto out;
+	}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	if (key->objectid == BTRFS_SYNO_SUBVOL_USAGE_OBJECTID)
+		return 0;
+#endif /* MY_ABC_HERE */
+
 	if (result == BTRFS_COMPARE_TREE_SAME) {
 		if (key->type == BTRFS_INODE_REF_KEY ||
 		    key->type == BTRFS_INODE_EXTREF_KEY) {
@@ -6677,14 +7232,24 @@ static int full_send_tree(struct send_ctx *sctx)
 	struct btrfs_path *path;
 	struct extent_buffer *eb;
 	int slot;
+#ifdef MY_ABC_HERE
+	struct btrfs_key last_key;
+#endif /* MY_ABC_HERE */
 
 	path = alloc_path_for_send();
 	if (!path)
 		return -ENOMEM;
+	path->reada = READA_FORWARD_ALWAYS;
 
 	key.objectid = BTRFS_FIRST_FREE_OBJECTID;
 	key.type = BTRFS_INODE_ITEM_KEY;
 	key.offset = 0;
+
+#ifdef MY_ABC_HERE
+	last_key.objectid = BTRFS_LAST_FREE_OBJECTID + 1;
+	last_key.type = 0;
+	last_key.offset = 0;
+#endif /* MY_ABC_HERE */
 
 	ret = btrfs_search_slot_for_read(send_root, &key, path, 1, 0);
 	if (ret < 0)
@@ -6696,6 +7261,13 @@ static int full_send_tree(struct send_ctx *sctx)
 		eb = path->nodes[0];
 		slot = path->slots[0];
 		btrfs_item_key_to_cpu(eb, &key, slot);
+
+#ifdef MY_ABC_HERE
+		if (btrfs_comp_cpu_keys(&key, &last_key) >= 0) {
+			ret = 0;
+			break;
+		}
+#endif /* MY_ABC_HERE */
 
 		ret = changed_cb(path, NULL, &key,
 				 BTRFS_COMPARE_TREE_NEW, sctx);
@@ -6719,14 +7291,34 @@ out:
 	return ret;
 }
 
-static int tree_move_down(struct btrfs_path *path, int *level)
+static int tree_move_down(struct btrfs_path *path, int *level, u64 reada_min_gen)
 {
 	struct extent_buffer *eb;
+	struct extent_buffer *parent = path->nodes[*level];
+	int slot = path->slots[*level];
+	const int nritems = btrfs_header_nritems(parent);
+	u64 reada_max;
+	u64 reada_done = 0;
 
 	BUG_ON(*level == 0);
-	eb = btrfs_read_node_slot(path->nodes[*level], path->slots[*level]);
+	eb = btrfs_read_node_slot(parent, slot);
 	if (IS_ERR(eb))
 		return PTR_ERR(eb);
+
+	/*
+	 * Trigger readahead for the next leaves we will process, so that it is
+	 * very likely that when we need them they are already in memory and we
+	 * will not block on disk IO. For nodes we only do readahead for one,
+	 * since the time window between processing nodes is typically larger.
+	 */
+	reada_max = (*level == 1 ? SZ_128K : eb->fs_info->nodesize);
+
+	for (slot++; slot < nritems && reada_done < reada_max; slot++) {
+		if (btrfs_node_ptr_generation(parent, slot) > reada_min_gen) {
+			readahead_tree_block(eb->fs_info, btrfs_node_blockptr(parent, slot));
+			reada_done += eb->fs_info->nodesize;
+		}
+	}
 
 	path->nodes[*level - 1] = eb;
 	path->slots[*level - 1] = 0;
@@ -6767,14 +7359,18 @@ static int tree_move_next_or_upnext(struct btrfs_path *path,
 static int tree_advance(struct btrfs_path *path,
 			int *level, int root_level,
 			int allow_down,
-			struct btrfs_key *key)
+			struct btrfs_key *key,
+			u64 reada_min_gen)
 {
 	int ret;
+#ifdef MY_ABC_HERE
+	struct btrfs_key last_key;
+#endif /* MY_ABC_HERE */
 
 	if (*level == 0 || !allow_down) {
 		ret = tree_move_next_or_upnext(path, level, root_level);
 	} else {
-		ret = tree_move_down(path, level);
+		ret = tree_move_down(path, level, reada_min_gen);
 	}
 	if (ret >= 0) {
 		if (*level == 0)
@@ -6783,6 +7379,14 @@ static int tree_advance(struct btrfs_path *path,
 		else
 			btrfs_node_key_to_cpu(path->nodes[*level], key,
 					path->slots[*level]);
+
+#ifdef MY_ABC_HERE
+		last_key.objectid = BTRFS_LAST_FREE_OBJECTID + 1;
+		last_key.type = 0;
+		last_key.offset = 0;
+		if (btrfs_comp_cpu_keys(key, &last_key) >= 0)
+			ret = -1;
+#endif /* MY_ABC_HERE */
 	}
 	return ret;
 }
@@ -6848,6 +7452,7 @@ static int btrfs_compare_trees(struct btrfs_root *left_root,
 	u64 right_blockptr;
 	u64 left_gen;
 	u64 right_gen;
+	u64 reada_min_gen;
 
 	left_path = btrfs_alloc_path();
 	if (!left_path) {
@@ -6927,6 +7532,14 @@ static int btrfs_compare_trees(struct btrfs_root *left_root,
 		ret = -ENOMEM;
 		goto out;
 	}
+	/*
+	 * Our right root is the parent root, while the left root is the "send"
+	 * root. We know that all new nodes/leaves in the left root must have
+	 * a generation greater than the right root's generation, so we trigger
+	 * readahead for those nodes and leaves of the left root, as we know we
+	 * will need to read them at some point.
+	 */
+	reada_min_gen = btrfs_header_generation(right_root->commit_root);
 	up_read(&fs_info->commit_root_sem);
 
 	if (left_level == 0)
@@ -6951,7 +7564,7 @@ static int btrfs_compare_trees(struct btrfs_root *left_root,
 			ret = tree_advance(left_path, &left_level,
 					left_root_level,
 					advance_left != ADVANCE_ONLY_NEXT,
-					&left_key);
+					&left_key, reada_min_gen);
 			if (ret == -1)
 				left_end_reached = ADVANCE;
 			else if (ret < 0)
@@ -6962,7 +7575,7 @@ static int btrfs_compare_trees(struct btrfs_root *left_root,
 			ret = tree_advance(right_path, &right_level,
 					right_root_level,
 					advance_right != ADVANCE_ONLY_NEXT,
-					&right_key);
+					&right_key, reada_min_gen);
 			if (ret == -1)
 				right_end_reached = ADVANCE;
 			else if (ret < 0)
@@ -7077,6 +7690,7 @@ out:
 	kvfree(tmp_buf);
 	return ret;
 }
+
 
 static int send_subvol(struct send_ctx *sctx)
 {
@@ -7221,6 +7835,9 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
 	int clone_sources_to_rollback = 0;
 	size_t alloc_size;
 	int sort_clone_roots = 0;
+#ifdef MY_ABC_HERE
+	unsigned nofs_flag;
+#endif /* MY_ABC_HERE */
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
@@ -7275,6 +7892,10 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
 	INIT_LIST_HEAD(&sctx->name_cache_list);
 
 	sctx->flags = arg->flags;
+#ifdef MY_ABC_HERE
+	if (unlikely(!(sctx->flags & BTRFS_SEND_FLAG_SYNO_FEATURES)))
+		sctx->flags &= ~BTRFS_SEND_GEN_SYNO_CMD_FLAG_MASK;
+#endif /* MY_ABC_HERE */
 
 	sctx->send_filp = fget(arg->send_fd);
 	if (!sctx->send_filp) {
@@ -7283,6 +7904,14 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
 	}
 
 	sctx->send_root = send_root;
+
+#ifdef MY_ABC_HERE
+	sctx->subvol_flags = BTRFS_I(file_inode(mnt_file))->flags;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	sctx->skip_cmd_count = arg->skip_cmd_count;
+	sctx->current_cmd_pos = 0;
+#endif /* MY_ABC_HERE */
 	/*
 	 * Unlikely but possible, if the subvolume is marked for deletion but
 	 * is slow to remove the directory entry, send can still be started
@@ -7420,9 +8049,35 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
 	fs_info->send_in_progress++;
 	mutex_unlock(&fs_info->balance_mutex);
 
+#ifdef MY_ABC_HERE
+	/*
+	 * When journal_info is not NULL, we don't use __GFP_FS,
+	 * otherwise it may cause BUG_ON in evict_inode.
+	 */
+	nofs_flag = memalloc_nofs_save();
+#endif /* MY_ABC_HERE */
 	current->journal_info = BTRFS_SEND_TRANS_STUB;
+
+#ifdef MY_ABC_HERE
+	if (sctx->flags & BTRFS_SEND_FLAG_CALCULATE_DATA_SIZE) {
+		sctx->total_send_size = arg->total_data_size;
+		ktime_get_ts64(&sctx->write_timeval);
+		sctx->phase = SEND_PHASE_COMPUTE_DATA_SIZE;
+	} else {
+		sctx->phase = SEND_PHASE_STREAM_CHANGES;
+	}
+#endif /* MY_ABC_HERE */
+
 	ret = send_subvol(sctx);
+
+#ifdef MY_ABC_HERE
+	arg->total_data_size = sctx->total_send_size;
+#endif /* MY_ABC_HERE */
+
 	current->journal_info = NULL;
+#ifdef MY_ABC_HERE
+	memalloc_nofs_restore(nofs_flag);
+#endif /* MY_ABC_HERE */
 	mutex_lock(&fs_info->balance_mutex);
 	fs_info->send_in_progress--;
 	mutex_unlock(&fs_info->balance_mutex);
@@ -7513,3 +8168,61 @@ out:
 
 	return ret;
 }
+
+#ifdef MY_ABC_HERE
+static int tree_move_upnext(struct btrfs_path *path,
+			    int *level, int root_level)
+{
+	int nritems;
+
+	nritems = btrfs_header_nritems(path->nodes[*level]);
+	do {
+		if (*level == root_level)
+			return -1;
+		path->slots[*level] = 0;
+		free_extent_buffer(path->nodes[*level]);
+		path->nodes[*level] = NULL;
+		(*level)++;
+
+		path->slots[*level]++;
+
+		nritems = btrfs_header_nritems(path->nodes[*level]);
+	} while (path->slots[*level] >= nritems);
+
+	return 0;
+}
+
+int tree_advance_with_mode(struct btrfs_path *path, int *level,
+			   int root_level, int mode, struct btrfs_key *key)
+{
+	int ret;
+#ifdef MY_ABC_HERE
+	struct btrfs_key last_key;
+#endif /* MY_ABC_HERE */
+
+	if (mode == ADVANCE_ONLY_UPNEXT)
+		ret = tree_move_upnext(path, level, root_level);
+	else if (*level == 0 || mode == ADVANCE_ONLY_NEXT)
+		ret = tree_move_next_or_upnext(path, level, root_level);
+	else
+		ret = tree_move_down(path, level, 0);
+
+	if (ret >= 0) {
+		if (*level == 0)
+			btrfs_item_key_to_cpu(path->nodes[*level], key,
+					path->slots[*level]);
+		else
+			btrfs_node_key_to_cpu(path->nodes[*level], key,
+					path->slots[*level]);
+
+#ifdef MY_ABC_HERE
+		last_key.objectid = BTRFS_LAST_FREE_OBJECTID + 1;
+		last_key.type = 0;
+		last_key.offset = 0;
+		if (btrfs_comp_cpu_keys(key, &last_key) >= 0)
+			ret = -1;
+#endif /* MY_ABC_HERE */
+	}
+	return ret;
+}
+#endif /* MY_ABC_HERE */

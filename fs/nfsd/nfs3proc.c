@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Process version 3 NFS requests.
@@ -14,6 +17,11 @@
 #include "vfs.h"
 
 #define NFSDDBG_FACILITY		NFSDDBG_PROC
+
+#ifdef MY_ABC_HERE
+extern u32 nfs_udp_f_rtpref;
+extern u32 nfs_udp_f_wtpref;
+#endif /* MY_ABC_HERE */
 
 static int	nfs3_ftypes[] = {
 	0,			/* NF3NON */
@@ -590,6 +598,23 @@ nfsd3_proc_fsinfo(struct svc_rqst *rqstp)
 	resp->f_maxfilesize = ~(u32) 0;
 	resp->f_properties = NFS3_FSF_DEFAULT;
 
+#ifdef MY_ABC_HERE
+	if (unlikely(IPPROTO_UDP == rqstp->rq_prot)) {
+		if (CONFIG_SYNO_NFSD_UDP_MIN_PACKET_SIZE <= nfs_udp_f_rtpref && CONFIG_SYNO_NFSD_UDP_MAX_PACKET_SIZE >= nfs_udp_f_rtpref) {
+			resp->f_rtpref = nfs_udp_f_rtpref;
+		} else {
+			resp->f_rtpref = CONFIG_SYNO_NFSD_UDP_DEF_PACKET_SIZE;
+			dprintk("nfsd: FSINFO(3) nfs_udp_f_rtpref value is not correct %d\n", nfs_udp_f_rtpref);
+		}
+		if (CONFIG_SYNO_NFSD_UDP_MIN_PACKET_SIZE <= nfs_udp_f_wtpref && CONFIG_SYNO_NFSD_UDP_MAX_PACKET_SIZE >= nfs_udp_f_wtpref) {
+			resp->f_wtpref = nfs_udp_f_wtpref;
+		} else {
+			resp->f_wtpref = CONFIG_SYNO_NFSD_UDP_DEF_PACKET_SIZE;
+			dprintk("nfsd: FSINFO(3) nfs_udp_f_wtpref value is not correct %d\n", nfs_udp_f_wtpref);
+		}
+	}
+#endif /* MY_ABC_HERE */
+
 	resp->status = fh_verify(rqstp, &argp->fh, 0,
 				 NFSD_MAY_NOP | NFSD_MAY_BYPASS_GSS_ON_ROOT);
 
@@ -920,11 +945,17 @@ static const struct svc_procedure nfsd_procedures3[22] = {
 };
 
 static unsigned int nfsd_count3[ARRAY_SIZE(nfsd_procedures3)];
+#ifdef MY_ABC_HERE
+static struct svc_lat nfsd_latency3[ARRAY_SIZE(nfsd_procedures3)];
+#endif /* MY_ABC_HERE */
 const struct svc_version nfsd_version3 = {
 	.vs_vers	= 3,
 	.vs_nproc	= 22,
 	.vs_proc	= nfsd_procedures3,
 	.vs_dispatch	= nfsd_dispatch,
 	.vs_count	= nfsd_count3,
+#ifdef MY_ABC_HERE
+	.vs_latency	= nfsd_latency3,
+#endif /* MY_ABC_HERE */
 	.vs_xdrsize	= NFS3_SVC_XDRSIZE,
 };
