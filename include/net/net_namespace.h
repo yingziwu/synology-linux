@@ -50,6 +50,7 @@ struct net {
 						 */
 #endif
 	spinlock_t		rules_mod_lock;
+	u32			hash_mix;
 
 	struct list_head	list;		/* list of network namespaces */
 	struct list_head	cleanup_list;	/* namespaces on death row */
@@ -118,6 +119,7 @@ struct net {
 	struct netns_ipvs	*ipvs;
 	struct sock		*diag_nlsk;
 	atomic_t		rt_genid;
+	atomic_t		fnhe_genid;
 };
 
 /*
@@ -338,6 +340,16 @@ static inline int rt_genid(struct net *net)
 static inline void rt_genid_bump(struct net *net)
 {
 	atomic_inc(&net->rt_genid);
+}
+
+static inline int fnhe_genid(struct net *net)
+{
+	return atomic_read(&net->fnhe_genid);
+}
+
+static inline void fnhe_genid_bump(struct net *net)
+{
+	atomic_inc(&net->fnhe_genid);
 }
 
 #endif /* __NET_NET_NAMESPACE_H */

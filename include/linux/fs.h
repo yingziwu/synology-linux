@@ -1597,6 +1597,13 @@ int fiemap_fill_next_extent(struct fiemap_extent_info *info, u64 logical,
 			    u64 phys, u64 len, u32 flags);
 int fiemap_check_flags(struct fiemap_extent_info *fieinfo, u32 fs_flags);
 
+#ifdef MY_ABC_HERE
+/*
+ * VFS space_usage helper definitions.
+ */
+extern int vfs_syno_space_usage(struct file *file, struct syno_space_usage_info *info);
+#endif /* MY_ABC_HERE */
+
 /*
  * File types
  *
@@ -1680,6 +1687,9 @@ struct file_operations {
 #endif
 #ifdef MY_ABC_HERE
 	int (*quota_query) (struct file *file, u64 *used, u64 *reserved, u64 *limit);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	int (*syno_space_usage) (struct file *file, struct syno_space_usage_info *info);
 #endif /* MY_ABC_HERE */
 };
 

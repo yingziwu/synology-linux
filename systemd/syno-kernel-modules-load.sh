@@ -49,5 +49,7 @@ fi
 SUPPORT_ACM=`get_key_value $SYNOINFO_DEF support_acm`
 if [ "$SUPPORT_ACM" == "yes" ]; then
 	modprobe cdc-acm
-	mknod /dev/ttyACM0 c 166 0
+	if [ ! -e /dev/ttyACM0 ]; then
+		/bin/mknod /dev/ttyACM0 c 166 0
+	fi
 fi

@@ -18,6 +18,9 @@
 #include <linux/sunrpc/gss_krb5_enctypes.h>
 #include <linux/sunrpc/rpc_pipe_fs.h>
 #include <linux/module.h>
+#ifdef MY_ABC_HERE
+#include <backport.h>
+#endif /* MY_ABC_HERE */
 
 #include "idmap.h"
 #include "nfsd.h"
@@ -58,6 +61,9 @@ enum {
 #ifdef MY_ABC_HERE
 	NFSD_UNIX_PRI,
 #endif /*MY_ABC_HERE*/
+#ifdef MY_ABC_HERE
+	NFSD_SYNO_FILE_STATS,
+#endif /* MY_ABC_HERE */
 };
 
 /*
@@ -82,6 +88,9 @@ static ssize_t write_udp_size(struct file *file, char *buf, size_t size);
 #ifdef MY_ABC_HERE
 static ssize_t write_unix_enable(struct file *file, char *buf, size_t size);
 #endif /*MY_ABC_HERE*/
+#ifdef MY_ABC_HERE
+static ssize_t write_syno_file_stats(struct file *file, char *buf, size_t size);
+#endif /* MY_ABC_HERE */
 
 static ssize_t (*write_op[])(struct file *, char *, size_t) = {
 	[NFSD_Fh] = write_filehandle,
@@ -103,6 +112,9 @@ static ssize_t (*write_op[])(struct file *, char *, size_t) = {
 #ifdef MY_ABC_HERE
 	[NFSD_UNIX_PRI] = write_unix_enable,
 #endif /*MY_ABC_HERE*/
+#ifdef MY_ABC_HERE
+	[NFSD_SYNO_FILE_STATS] = write_syno_file_stats,
+#endif /* MY_ABC_HERE */
 };
 
 static ssize_t nfsctl_transaction_write(struct file *file, const char __user *buf, size_t size, loff_t *pos)
@@ -625,6 +637,253 @@ End:
 	}
 }
 #endif /*MY_ABC_HERE*/
+
+#ifdef MY_ABC_HERE
+struct syno_file_stats *syno_file_stats;
+
+/**
+ * strcpy in lower case
+ */
+static inline char *strcpy_lower_case(char *dst, char *src)
+{
+	char *tmp = dst;
+
+	while ((*dst++ = tolower(*src++)) != '\0')
+		/* nothing */;
+	return tmp;
+}
+
+static int show_syno_file_stats(char *buf, size_t len,
+                                struct syno_file_stats *stats)
+{
+	int i;
+	int ret;
+	char *buf_tail = buf;
+	size_t size = SIMPLE_TRANSACTION_LIMIT;
+
+	if (!stats || stats->nr_keys == 0) {
+		ret = 0;
+		goto out;
+	}
+
+	ret = scnprintf(buf_tail, size, "freq=%d, opt=%d, nr_keys=%d\n",
+				 stats->freq, stats->opt, stats->nr_keys);
+
+	if (ret <= 0)
+		goto out;
+	buf_tail += ret;
+	size -= ret;
+
+	/* key:cnter */
+	for (i = 0; i < stats->nr_keys; i++) {
+		ret = scnprintf(buf_tail, size, "%s:%llu\n", stats->keys[i], stats->cnters[i]);
+		if (ret <= 0)
+			goto out;
+		buf_tail += ret;
+		size -= ret;
+	}
+
+	ret = (buf_tail - buf);
+out:
+	return ret;
+}
+
+static void free_syno_file_stats(struct syno_file_stats *stats)
+{
+	int i;
+
+	if (!stats)
+		return;
+
+	for (i = 0; i < stats->nr_keys; i++) {
+		if (!stats->keys || !stats->keys[i])
+			break;
+		kfree(stats->keys[i]);
+	}
+
+	kfree(stats->keys);
+	kfree(stats->cnters);
+	kfree(stats);
+}
+
+static void __update_syno_file_stats(struct syno_file_stats *stats,
+                                     struct dentry *dentry)
+{
+	int i;
+	size_t dlen;
+	char *buf = NULL;
+	struct name_snapshot d_name_snap;
+	const char *target = NULL;
+	ktime_t now = ktime_get();
+
+	if (!stats || !dentry)
+		return;
+	if (ktime_before(now, stats->next_update_time))
+		return;
+
+	take_dentry_name_snapshot(&d_name_snap, dentry);
+	dlen = strlen(d_name_snap.name);
+	if (dlen == 0)
+		goto out_update_time;
+	if (dlen == 1 && d_name_snap.name[0] == '/')
+		goto out_update_time; /* skip if dentry is '/' (root or disconnected) */
+
+	if (stats->opt & NFSD_SYNO_FILE_STATS_OPTION_CASE_INSENSITIVE) {
+		buf = (char *) kmalloc(dlen + 1, GFP_KERNEL);
+		if (!buf)
+			goto out_update_time; /* update next time, don't retry */
+		target = (const char *) strcpy_lower_case(buf, (char *) d_name_snap.name);
+	} else {
+		target = d_name_snap.name;
+	}
+
+	for (i = 0; i < stats->nr_keys; i++)
+		if (strstr(target, stats->keys[i]))
+			stats->cnters[i]++;
+
+out_update_time:
+	stats->next_update_time = ktime_add_us(now, (u64)stats->freq*1000000);
+	release_dentry_name_snapshot(&d_name_snap);
+	kfree(buf);
+}
+
+void update_syno_file_stats(struct dentry *dentry)
+{
+	if (!mutex_trylock(&nfsd_mutex))
+		return;
+	__update_syno_file_stats(syno_file_stats, dentry);
+	mutex_unlock(&nfsd_mutex);
+}
+
+static int parse_syno_file_stats(char *buf, size_t len,
+                                 struct syno_file_stats *stats)
+{
+	int ret, nr, word_len;
+	char *word;
+	char *mesg = buf;
+
+	ret = get_int(&mesg, &stats->freq);
+	if (ret)
+		goto out;
+
+	if (stats->freq == 0) {
+		ret = 0; // if we get freq == 0, clean syno_file_stats outside
+		goto out;
+	}
+
+	if (stats->freq < 10) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ret = get_int(&mesg, &stats->opt);
+	if (ret)
+		goto out;
+
+	if (syno_file_stats_has_unknown_option(stats->opt)) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ret = get_int(&mesg, &stats->nr_keys);
+	if (ret)
+		goto out;
+
+	if (stats->nr_keys <= 0 ||
+		stats->nr_keys > NFSD_SYNO_FILE_STATS_KEY_MAX) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	stats->cnters = (u64 *) kzalloc(sizeof(u64)*stats->nr_keys, GFP_KERNEL);
+	if (!stats->cnters) {
+		ret = -ENOMEM;
+		goto out;
+	}
+	stats->keys = (char **) kzalloc(sizeof(char *)*stats->nr_keys, GFP_KERNEL);
+	if (!stats->keys) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	nr = 0;
+	word = buf;
+	while ((word_len = qword_get(&mesg, word, len)) > 0) {
+		stats->keys[nr] = (char *) kmalloc(word_len + 1, GFP_KERNEL);
+		if (!stats->keys[nr]) {
+			ret = -ENOMEM;
+			goto out;
+		}
+
+		if (stats->opt & NFSD_SYNO_FILE_STATS_OPTION_CASE_INSENSITIVE)
+			strcpy_lower_case(stats->keys[nr], word);
+		else
+			strcpy(stats->keys[nr], word);
+		nr++;
+	}
+	if (nr != stats->nr_keys) {
+		ret = -EINVAL;
+		goto out;
+	}
+
+	ret = 0;
+out:
+	return ret;
+}
+
+static ssize_t __write_syno_file_stats(struct file *file, char *buf, size_t size)
+{
+	int ret;
+	struct syno_file_stats *tmp_stats = NULL;
+
+	if (size <= 0)
+		goto out_show;
+
+	if (buf[size - 1] != '\n') {
+		ret = -EINVAL;
+		goto out;
+	}
+	buf[size - 1] = 0;
+
+	tmp_stats = (struct syno_file_stats *)
+                kzalloc(sizeof(struct syno_file_stats), GFP_KERNEL);
+	if (!tmp_stats) {
+		ret = -ENOMEM;
+		goto out;
+	}
+
+	ret = parse_syno_file_stats(buf, size, tmp_stats);
+	if (ret)
+		goto out;
+
+	if (syno_file_stats)
+		free_syno_file_stats(syno_file_stats);
+
+	if (tmp_stats->freq == 0) {
+		syno_file_stats = NULL;
+	} else {
+		syno_file_stats = tmp_stats;
+		tmp_stats = NULL;
+	}
+
+out_show:
+	ret = show_syno_file_stats(buf, size, syno_file_stats);
+out:
+	if (tmp_stats)
+		free_syno_file_stats(tmp_stats);
+	return ret;
+}
+
+static ssize_t write_syno_file_stats(struct file *file, char *buf, size_t size)
+{
+	ssize_t ret;
+
+	mutex_lock(&nfsd_mutex);
+	ret = __write_syno_file_stats(file, buf, size);
+	mutex_unlock(&nfsd_mutex);
+	return ret;
+}
+#endif /* MY_ABC_HERE */
 
 static ssize_t __write_versions(struct file *file, char *buf, size_t size)
 {
@@ -1174,6 +1433,9 @@ static int nfsd_fill_super(struct super_block * sb, void * data, int silent)
 #ifdef MY_ABC_HERE
 		[NFSD_UNIX_PRI] = {"unix_privilege_enable", &transaction_ops, S_IWUSR|S_IRUGO},
 #endif /*MY_ABC_HERE*/
+#ifdef MY_ABC_HERE
+		[NFSD_SYNO_FILE_STATS] = {"syno_file_stats", &transaction_ops, S_IWUSR|S_IRUGO},
+#endif /* MY_ABC_HERE */
 		/* last one */ {""}
 	};
 	struct net *net = data;
@@ -1280,6 +1542,9 @@ static int __init init_nfsd(void)
 #ifdef MY_ABC_HERE
 	bl_unix_pri_enable = 1;
 #endif /*MY_ABC_HERE*/
+#ifdef MY_ABC_HERE
+	syno_file_stats = NULL;
+#endif /* MY_ABC_HERE */
 
 	retval = register_cld_notifier();
 	if (retval)
@@ -1326,6 +1591,10 @@ out_unregister_notifier:
 
 static void __exit exit_nfsd(void)
 {
+#ifdef MY_ABC_HERE
+	free_syno_file_stats(syno_file_stats);
+	syno_file_stats = NULL;
+#endif /* MY_ABC_HERE */
 	nfsd_reply_cache_shutdown();
 	remove_proc_entry("fs/nfs/exports", NULL);
 	remove_proc_entry("fs/nfs", NULL);

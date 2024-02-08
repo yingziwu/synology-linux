@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Public API and common code for kernel->userspace relay file support.
  *
@@ -182,6 +185,10 @@ static struct rchan_buf *relay_create_buf(struct rchan *chan)
 
 	buf->chan = chan;
 	kref_get(&buf->chan->kref);
+#ifdef MY_ABC_HERE
+	spin_lock_init(&buf->lock);
+#endif /* MY_ABC_HERE */
+
 	return buf;
 
 free_buf:
@@ -1137,6 +1144,9 @@ static ssize_t relay_file_read_subbufs(struct file *filp, loff_t *ppos,
 		return 0;
 
 	mutex_lock(&file_inode(filp)->i_mutex);
+#ifdef MY_ABC_HERE
+	spin_lock_irq(&buf->lock);
+#endif /* MY_ABC_HERE */
 	do {
 		if (!relay_file_read_avail(buf, *ppos))
 			break;
@@ -1147,7 +1157,13 @@ static ssize_t relay_file_read_subbufs(struct file *filp, loff_t *ppos,
 			break;
 
 		avail = min(desc->count, avail);
+#ifdef MY_ABC_HERE
+		spin_unlock_irq(&buf->lock);
 		ret = subbuf_actor(read_start, buf, avail, desc);
+		spin_lock_irq(&buf->lock);
+#else
+		ret = subbuf_actor(read_start, buf, avail, desc);
+#endif /* MY_ABC_HERE */
 		if (desc->error < 0)
 			break;
 
@@ -1156,6 +1172,9 @@ static ssize_t relay_file_read_subbufs(struct file *filp, loff_t *ppos,
 			*ppos = relay_file_read_end_pos(buf, read_start, ret);
 		}
 	} while (desc->count && ret);
+#ifdef MY_ABC_HERE
+	spin_unlock_irq(&buf->lock);
+#endif /* MY_ABC_HERE */
 	mutex_unlock(&file_inode(filp)->i_mutex);
 
 	return desc->written;

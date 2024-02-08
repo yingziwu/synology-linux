@@ -389,11 +389,11 @@ static void raid1_end_read_request(struct bio *bio, int error)
 		if (!IsDeviceDisappear(conf->mirrors[mirror].rdev->bdev)) {
 #ifdef MY_ABC_HERE
 			if (bio_flagged(bio, BIO_AUTO_REMAP)) {
-				SynoReportBadSector(bio->bi_sector, READ,
+				SynoReportBadSector(r1_bio->sector + conf->mirrors[mirror].rdev->data_offset, READ,
 								conf->mddev->md_minor, conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
 			}
 #else /* MY_ABC_HERE */
-			SynoReportBadSector(bio->bi_sector, READ,
+			SynoReportBadSector(r1_bio->sector + conf->mirrors[mirror].rdev->data_offset, READ,
 								conf->mddev->md_minor, conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
 #endif /* MY_ABC_HERE */
 
@@ -486,8 +486,8 @@ static void raid1_end_write_request(struct bio *bio, int error)
 	if (!uptodate) {
 #ifdef MY_ABC_HERE
 		if (!IsDeviceDisappear(conf->mirrors[mirror].rdev->bdev)) {
-			SynoReportBadSector(bio->bi_sector, WRITE, conf->mddev->md_minor,
-					conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
+			SynoReportBadSector(r1_bio->sector + conf->mirrors[mirror].rdev->data_offset,
+				WRITE, conf->mddev->md_minor, conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
 		}
 #endif /* MY_ABC_HERE */
 		set_bit(WriteErrorSeen,
@@ -498,6 +498,10 @@ static void raid1_end_write_request(struct bio *bio, int error)
 				conf->mddev->recovery);
 
 		set_bit(R1BIO_WriteError, &r1_bio->state);
+#ifdef MY_ABC_HERE
+		if (conf->mirrors[mirror].rdev->badblocks.shift < 0)
+			md_error(conf->mddev, conf->mirrors[mirror].rdev);
+#endif /* MY_ABC_HERE */
 	} else {
 		/*
 		 * Set R1BIO_Uptodate in our master bio, so that we
@@ -588,7 +592,7 @@ static int read_assign_target(struct r1conf *conf, struct r1bio *r1_bio, int *ma
 	rcu_read_lock();
 	read_target = conf->read_target;
 
-	if (read_target >= 0) {
+	if (read_target >= 0 && read_target < conf->raid_disks * 2) {
 		rdev = rcu_dereference(conf->mirrors[read_target].rdev);
 		if (r1_bio->bios[read_target] == IO_BLOCKED
 				|| rdev == NULL
@@ -603,6 +607,7 @@ static int read_assign_target(struct r1conf *conf, struct r1bio *r1_bio, int *ma
 			goto end;
 		}
 		best_disk = read_target;
+		atomic_inc(&rdev->nr_pending);
 		goto end;
 	}
 	if (best_disk >= 0) {
@@ -1228,6 +1233,13 @@ static void syno_raid1_self_heal_set_and_submit_read_bio(struct r1conf *conf, st
 		goto ERR;
 	}
 
+	read_bio = bio_clone_mddev(master_bio, GFP_NOIO, mddev);
+	if (!read_bio) {
+		pr_err("%s: [Self Heal] Retry sector [%llu] round [%d/%d] error: Failed to clone bio master bio\n",
+				mdname(mddev), (u64)master_bio->bi_sector, heal_record->retry_cnt, heal_record->max_retry_cnt);
+		goto ERR;
+	}
+
 	rcu_read_lock();
 	for (disk = heal_record->retry_cnt - 1; disk < conf->raid_disks * 2; ++disk) {
 		rdev = rcu_dereference(conf->mirrors[disk].rdev);
@@ -1254,14 +1266,6 @@ static void syno_raid1_self_heal_set_and_submit_read_bio(struct r1conf *conf, st
 			mdname(mddev), (u64)master_bio->bi_sector, heal_record->retry_cnt, heal_record->max_retry_cnt,
 			disk, syno_raid1_get_bdevname(rdev, d_buf));
 
-	read_bio = bio_clone_mddev(master_bio, GFP_NOIO, mddev);
-	if (!read_bio) {
-		pr_err("%s: [Self Heal] Retry sector [%llu] round [%d/%d] error: Failed to clone bio master bio\n",
-				mdname(mddev), (u64)master_bio->bi_sector, heal_record->retry_cnt, heal_record->max_retry_cnt);
-		rcu_read_unlock();
-		goto ERR;
-	}
-
 	r1_bio->read_disk = disk;
 	r1_bio->bios[disk] = read_bio;
 	set_bit(BIO_CORRECTION_RETRY, &read_bio->bi_flags);
@@ -1277,6 +1281,8 @@ static void syno_raid1_self_heal_set_and_submit_read_bio(struct r1conf *conf, st
 
 	return;
 ERR:
+	if (read_bio)
+		bio_put(read_bio);
 	set_bit(BIO_CORRECTION_ERR, &master_bio->bi_flags);
 	syno_self_heal_find_and_del_record(mddev, master_bio);
 	bio_endio(master_bio, 0);
@@ -2189,8 +2195,8 @@ static void end_sync_read(struct bio *bio, int error)
 			 * No need prepare for end_sync_read retry, because it not going here
 			 * Please refer sync_request_write
 			 */
-			SynoReportBadSector(bio->bi_sector, READ, conf->mddev->md_minor,
-								conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
+			SynoReportBadSector(r1_bio->sector + conf->mirrors[mirror].rdev->data_offset,
+				READ, conf->mddev->md_minor, conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
 #endif /* MY_ABC_HERE */
 		}
 	}
@@ -2228,8 +2234,8 @@ static void end_sync_write(struct bio *bio, int error)
 		} while (sectors_to_go > 0);
 #ifdef MY_ABC_HERE
 		if (!IsDeviceDisappear(conf->mirrors[mirror].rdev->bdev)) {
-			SynoReportBadSector(bio->bi_sector, WRITE,
-								conf->mddev->md_minor, conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
+			SynoReportBadSector(r1_bio->sector + conf->mirrors[mirror].rdev->data_offset,
+				WRITE, conf->mddev->md_minor, conf->mirrors[mirror].rdev->bdev, __FUNCTION__);
 		}
 #endif /* MY_ABC_HERE */
 		set_bit(WriteErrorSeen,
@@ -3043,6 +3049,21 @@ static int init_resync(struct r1conf *conf)
 	return 0;
 }
 
+#ifdef MY_ABC_HERE
+static void raid1_align_chunk_addr_virt_to_dev(struct mddev *mddev,
+    sector_t virt_start, sector_t virt_end, sector_t* dev_start,
+    sector_t* dev_end)
+{
+	if (!dev_start && !dev_end)
+		return;
+
+	if (dev_start)
+		*dev_start = virt_start;
+	if (dev_end)
+		*dev_end = virt_end;
+}
+#endif /* MY_ABC_HERE */
+
 /*
  * perform a "sync" on one "block"
  *
@@ -3067,6 +3088,9 @@ static sector_t sync_request(struct mddev *mddev, sector_t sector_nr, int *skipp
 	int still_degraded = 0;
 	int good_sectors = RESYNC_SECTORS;
 	int min_bad = 0; /* number of sectors that are bad in all devices */
+#ifdef MY_ABC_HERE
+	sector_t skipped_sectors = 0;
+#endif /* MY_ABC_HERE */
 
 	if (!conf->r1buf_pool)
 		if (init_resync(conf))
@@ -3131,6 +3155,14 @@ static sector_t sync_request(struct mddev *mddev, sector_t sector_nr, int *skipp
 		*skipped = 1;
 		return sync_blocks;
 	}
+
+#ifdef MY_ABC_HERE
+	skipped_sectors = md_speedup_rebuild(mddev, sector_nr);
+	if (skipped_sectors) {
+		*skipped = 1;
+		return skipped_sectors;
+	}
+#endif /* MY_ABC_HERE */
 
 	/*
 	 * If there is non-resync activity waiting for a turn,
@@ -3516,7 +3548,11 @@ read_target_store(struct mddev *mddev, const char *page, size_t len)
 		return -EINVAL;
 	}
 
-	conf->read_target = min;
+	if (min < conf->raid_disks * 2)
+		conf->read_target = min;
+	else
+		return -EINVAL;
+
 	return len;
 }
 
@@ -3661,6 +3697,9 @@ static int run(struct mddev *mddev)
 #endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
+	mddev->syno_allow_fast_rebuild = true;
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 #else /* MY_ABC_HERE */
 	mddev->thread = conf->thread;
 	conf->thread = NULL;
@@ -3680,6 +3719,9 @@ static int run(struct mddev *mddev)
 		else
 			queue_flag_clear_unlocked(QUEUE_FLAG_DISCARD,
 						  mddev->queue);
+#ifdef MY_ABC_HERE
+		queue_flag_set_unlocked(QUEUE_FLAG_UNUSED_HINT, mddev->queue);
+#endif /* MY_ABC_HERE */
 	}
 
 	ret =  md_integrity_register(mddev);
@@ -3934,6 +3976,9 @@ static struct md_personality raid1_personality =
 	.takeover	= raid1_takeover,
 #ifdef MY_ABC_HERE
 	.ismaxdegrade = SynoIsRaidReachMaxDegrade,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.align_chunk_addr_virt_to_dev = raid1_align_chunk_addr_virt_to_dev,
 #endif /* MY_ABC_HERE */
 };
 

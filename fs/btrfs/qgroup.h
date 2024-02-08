@@ -126,7 +126,7 @@ void btrfs_qgroup_release_delayed_free(struct btrfs_root *root, u64 num_bytes);
 #endif
 
 #ifdef MY_ABC_HERE
-void btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
+int btrfs_qgroup_query(struct btrfs_fs_info *fs_info, u64 qgroupid,
                         struct btrfs_ioctl_qgroup_query_args *qqa);
 #endif /* MY_ABC_HERE */
 void assert_qgroups_uptodate(struct btrfs_trans_handle *trans);
@@ -135,6 +135,5 @@ void assert_qgroups_uptodate(struct btrfs_trans_handle *trans);
 int btrfs_verify_qgroup_counts(struct btrfs_fs_info *fs_info, u64 qgroupid,
 			       u64 rfer, u64 excl);
 #endif
-
 
 #endif /* __BTRFS_QGROUP__ */
