@@ -11,7 +11,6 @@
 
 #include <uapi/linux/uio.h>
 
-
 struct kvec {
 	void *iov_base; /* and that should *never* hold a userland pointer */
 	size_t iov_len;

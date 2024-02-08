@@ -923,12 +923,17 @@ EXPORT_SYMBOL(add_timer);
  */
 void add_timer_on(struct timer_list *timer, int cpu)
 {
+#if defined(CONFIG_SYNO_HI3536)
 	struct tvec_base *new_base = per_cpu(tvec_bases, cpu);
 	struct tvec_base *base;
+#else /* CONFIG_SYNO_HI3536 */
+	struct tvec_base *base = per_cpu(tvec_bases, cpu);
+#endif /* CONFIG_SYNO_HI3536 */
 	unsigned long flags;
 
 	timer_stats_timer_set_start_info(timer);
 	BUG_ON(timer_pending(timer) || !timer->function);
+#if defined(CONFIG_SYNO_HI3536)
 
 	/*
 	 * If @timer was on a different CPU, it should be migrated with the
@@ -943,6 +948,11 @@ void add_timer_on(struct timer_list *timer, int cpu)
 		spin_lock(&base->lock);
 		timer_set_base(timer, base);
 	}
+#else /* CONFIG_SYNO_HI3536 */
+	spin_lock_irqsave(&base->lock, flags);
+	timer_set_base(timer, base);
+#endif /* CONFIG_SYNO_HI3536 */
+
 	debug_activate(timer, timer->expires);
 	internal_add_timer(base, timer);
 	/*
@@ -1560,7 +1570,6 @@ static int __cpuinit init_timers_cpu(int cpu)
 		base = per_cpu(tvec_bases, cpu);
 	}
 
-
 	for (j = 0; j < TVN_SIZE; j++) {
 		INIT_LIST_HEAD(base->tv5.vec + j);
 		INIT_LIST_HEAD(base->tv4.vec + j);
@@ -1651,7 +1660,6 @@ static int __cpuinit timer_cpu_notify(struct notifier_block *self,
 static struct notifier_block __cpuinitdata timers_nb = {
 	.notifier_call	= timer_cpu_notify,
 };
-
 
 void __init init_timers(void)
 {

@@ -169,7 +169,6 @@ static int dn_process_ack(struct sock *sk, struct sk_buff *skb, int oth)
 	return len;
 }
 
-
 /**
  * dn_check_idf - Check an image data field format is correct.
  * @pptr: Pointer to pointer to image data
@@ -327,7 +326,6 @@ err_out:
 	*reason = ci_err_table[err].reason;
 	return NULL;
 }
-
 
 static void dn_nsp_conn_init(struct sock *sk, struct sk_buff *skb)
 {
@@ -585,7 +583,6 @@ out:
 static __inline__ int dn_queue_skb(struct sock *sk, struct sk_buff *skb, int sig, struct sk_buff_head *queue)
 {
 	int err;
-	int skb_len;
 
 	/* Cast skb->rcvbuf to unsigned... It's pointless, but reduces
 	   number of warnings when compiling with -W --ANK
@@ -600,12 +597,11 @@ static __inline__ int dn_queue_skb(struct sock *sk, struct sk_buff *skb, int sig
 	if (err)
 		goto out;
 
-	skb_len = skb->len;
 	skb_set_owner_r(skb, sk);
 	skb_queue_tail(queue, skb);
 
 	if (!sock_flag(sk, SOCK_DEAD))
-		sk->sk_data_ready(sk, skb_len);
+		sk->sk_data_ready(sk);
 out:
 	return err;
 }
@@ -915,4 +911,3 @@ free_out:
 
 	return NET_RX_SUCCESS;
 }
-

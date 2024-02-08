@@ -8,6 +8,11 @@ obj-$(CONFIG_MTD_NAND_BCH)		+= nand_bch.o
 obj-$(CONFIG_MTD_NAND_IDS)		+= nand_ids.o
 obj-$(CONFIG_MTD_SM_COMMON) 		+= sm_common.o
 
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+obj-$(CONFIG_MTD_NAND_HISNFC100)	+= hisnfc100/
+obj-$(CONFIG_MTD_NAND_HINFC610)		+= hinfc610/
+obj-$(CONFIG_HIFMC_SPI_NAND)		+= hifmc100/
+endif # CONFIG_SYNO_LSP_HI3536
 obj-$(CONFIG_MTD_NAND_CAFE)		+= cafe_nand.o
 obj-$(CONFIG_MTD_NAND_AMS_DELTA)	+= ams-delta.o
 obj-$(CONFIG_MTD_NAND_DENALI)		+= denali.o
@@ -47,8 +52,22 @@ obj-$(CONFIG_MTD_NAND_NUC900)		+= nuc900_nand.o
 obj-$(CONFIG_MTD_NAND_MPC5121_NFC)	+= mpc5121_nfc.o
 obj-$(CONFIG_MTD_NAND_RICOH)		+= r852.o
 obj-$(CONFIG_MTD_NAND_JZ4740)		+= jz4740_nand.o
+ifeq ($(CONFIG_SYNO_MONACO), y)
+obj-$(CONFIG_OF)			+= stm_nand_dt.o
+endif
+obj-$(CONFIG_MTD_NAND_STM_BCH)		+= stm_nand_bch.o
+obj-$(CONFIG_MTD_NAND_STM_FLEX)		+= stm_nand_flex.o stm_nand_ecc.o
+obj-$(CONFIG_MTD_NAND_STM_AFM)		+= stm_nand_afm.o stm_nand_ecc.o
 obj-$(CONFIG_MTD_NAND_GPMI_NAND)	+= gpmi-nand/
 obj-$(CONFIG_MTD_NAND_XWAY)		+= xway_nand.o
 obj-$(CONFIG_MTD_NAND_BCM47XXNFLASH)	+= bcm47xxnflash/
+obj-$(CONFIG_MTD_NAND_AL)		+= al/
+ifeq ($(CONFIG_SYNO_LSP_ARMADA),y)
+obj-$(CONFIG_MTD_NAND_MVEBU_NFC)	+= mvebu_nfc/
+endif
 
+ifeq ($(CONFIG_SYNO_LSP_HI3536),y)
+nand-objs := nand_base.o nand_bbt.o hinfc_gen.o hinfc_spl_ids.o match_table.o
+else # CONFIG_SYNO_LSP_HI3536
 nand-objs := nand_base.o nand_bbt.o
+endif # CONFIG_SYNO_LSP_HI3536

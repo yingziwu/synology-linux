@@ -24,4 +24,3 @@
 #define CSR_WIFI_INTERFACE_IN_USE      (u16)0x0
 
 #endif /* CSR_WIFI_VIF_UTILS_H */
-

@@ -49,7 +49,6 @@
 		     ((slave)->link == BOND_LINK_UP) && \
 		     bond_is_active_slave(slave))
 
-
 #define USES_PRIMARY(mode)				\
 		(((mode) == BOND_MODE_ACTIVEBACKUP) ||	\
 		 ((mode) == BOND_MODE_TLB)          ||	\
@@ -110,7 +109,6 @@
  */
 #define bond_for_each_slave(bond, pos, cnt)	\
 		bond_for_each_slave_from(bond, pos, cnt, (bond)->first_slave)
-
 
 #ifdef CONFIG_NET_POLL_CONTROLLER
 extern atomic_t netpoll_block_tx;

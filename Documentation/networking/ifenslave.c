@@ -1102,4 +1102,3 @@ static int set_if_addr(char *master_ifname, char *slave_ifname)
  *  compile-command: "gcc -Wall -Wstrict-prototypes -O -I/usr/src/linux/include ifenslave.c -o ifenslave"
  * End:
  */
-

@@ -1194,7 +1194,6 @@ static void iwl_mvm_mac_update_tkip_key(struct ieee80211_hw *hw,
 	iwl_mvm_update_tkip_key(mvm, vif, keyconf, sta, iv32, phase1key);
 }
 
-
 static int iwl_mvm_roc(struct ieee80211_hw *hw,
 		       struct ieee80211_vif *vif,
 		       struct ieee80211_channel *channel,

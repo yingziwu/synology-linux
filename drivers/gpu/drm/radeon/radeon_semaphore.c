@@ -30,7 +30,6 @@
 #include <drm/drmP.h>
 #include "radeon.h"
 
-
 int radeon_semaphore_create(struct radeon_device *rdev,
 			    struct radeon_semaphore **semaphore)
 {

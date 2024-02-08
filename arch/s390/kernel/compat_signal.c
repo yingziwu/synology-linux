@@ -276,7 +276,6 @@ badframe:
  * Set up a signal frame.
  */
 
-
 /*
  * Determine which stack to use..
  */
@@ -449,4 +448,3 @@ void handle_signal32(unsigned long sig, struct k_sigaction *ka,
 	signal_delivered(sig, info, ka, regs,
 				 test_thread_flag(TIF_SINGLE_STEP));
 }
-

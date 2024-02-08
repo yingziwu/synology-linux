@@ -617,7 +617,6 @@ UNUSUAL_DEV(  0x054c, 0x0010, 0x0500, 0x0610,
 		USB_SC_8070, USB_PR_DEVICE, NULL,
 		US_FL_SINGLE_LUN ),
 
-
 /* Reported by wim@geeks.nl */
 UNUSUAL_DEV(  0x054c, 0x0025, 0x0100, 0x0100,
 		"Sony",
@@ -1419,7 +1418,6 @@ UNUSUAL_DEV( 0x0dd8, 0xd202, 0x0000, 0x9999,
 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
 		US_FL_IGNORE_RESIDUE ),
 
-
 /* Patch by Stephan Walter <stephan.walter@epfl.ch>
  * I don't know why, but it works... */
 UNUSUAL_DEV( 0x0dda, 0x0001, 0x0012, 0x0012,
@@ -1608,6 +1606,13 @@ UNUSUAL_DEV(  0x1210, 0x0003, 0x0100, 0x0100,
 /* Reported by fangxiaozhi <huananhu@huawei.com>
  * This brings the HUAWEI data card devices into multi-port mode
  */
+#if defined(CONFIG_SYNO_LSP_HI3536)
+UNUSUAL_VENDOR_INTF(0x12d1, 0x08, 0x06, 0x50,
+		"HUAWEI MOBILE",
+		"Mass Storage",
+		USB_SC_DEVICE, USB_PR_DEVICE, usb_stor_huawei_init,
+		0),
+#else /* CONFIG_SYNO_LSP_HI3536 */
 UNUSUAL_DEV(  0x12d1, 0x1001, 0x0000, 0x0000,
 		"HUAWEI MOBILE",
 		"Mass Storage",
@@ -1938,6 +1943,7 @@ UNUSUAL_DEV(  0x12d1, 0x143F, 0x0000, 0x0000,
 		"Mass Storage",
 		USB_SC_DEVICE, USB_PR_DEVICE, usb_stor_huawei_e220_init,
 		0),
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 /* Reported by Vilius Bilinkevicius <vilisas AT xxx DOT lt) */
 UNUSUAL_DEV(  0x132b, 0x000b, 0x0001, 0x0001,

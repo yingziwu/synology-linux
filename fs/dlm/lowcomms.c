@@ -165,7 +165,6 @@ static struct kmem_cache *con_cache;
 static void process_recv_sockets(struct work_struct *work);
 static void process_send_sockets(struct work_struct *work);
 
-
 /* This is deliberately very simple because most clusters have simple
    sequential nodeids, so we should be able to go straight to a connection
    struct in the array */
@@ -412,7 +411,7 @@ int dlm_lowcomms_addr(int nodeid, struct sockaddr_storage *addr, int len)
 }
 
 /* Data available on socket or listen socket received a connect */
-static void lowcomms_data_ready(struct sock *sk, int count_unused)
+static void lowcomms_data_ready(struct sock *sk)
 {
 	struct connection *con = sock2con(sk);
 	if (con && !test_and_set_bit(CF_READ_PENDING, &con->flags))
@@ -1351,8 +1350,6 @@ static int tcp_listen_for_all(void)
 	return result;
 }
 
-
-
 static struct writequeue_entry *new_writequeue_entry(struct connection *con,
 						     gfp_t allocation)
 {
@@ -1588,7 +1585,6 @@ static void process_send_sockets(struct work_struct *work)
 	if (test_and_clear_bit(CF_WRITE_PENDING, &con->flags))
 		send_to_sock(con);
 }
-
 
 /* Discard all entries on the write queues */
 static void clean_writequeues(void)

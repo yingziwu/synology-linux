@@ -326,7 +326,6 @@ acpi_video_device_lcd_query_levels(struct acpi_video_device *device,
 	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
 	union acpi_object *obj;
 
-
 	*levels = NULL;
 
 	status = acpi_evaluate_object(device->dev->handle, "_BCL", NULL, &buffer);
@@ -580,7 +579,6 @@ acpi_video_device_EDID(struct acpi_video_device *device,
 	union acpi_object arg0 = { ACPI_TYPE_INTEGER };
 	struct acpi_object_list args = { 1, &arg0 };
 
-
 	*edid = NULL;
 
 	if (!device)
@@ -712,7 +710,6 @@ static int acpi_video_bqc_quirk(struct acpi_video_device *device,
 
 	return 0;
 }
-
 
 /*
  *  Arg:	
@@ -1852,7 +1849,6 @@ static int acpi_video_bus_add(struct acpi_device *device)
 static int acpi_video_bus_remove(struct acpi_device *device)
 {
 	struct acpi_video_bus *video = NULL;
-
 
 	if (!device || !acpi_driver_data(device))
 		return -EINVAL;

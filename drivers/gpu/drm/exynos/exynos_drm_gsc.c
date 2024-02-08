@@ -484,7 +484,6 @@ static void gsc_handle_irq(struct gsc_context *ctx, bool enable,
 	gsc_write(cfg, GSC_IRQ);
 }
 
-
 static int gsc_src_set_fmt(struct device *dev, u32 fmt)
 {
 	struct gsc_context *ctx = get_gsc_context(dev);
@@ -1514,7 +1513,6 @@ err_property:
 	return -EINVAL;
 }
 
-
 static int gsc_ippdrv_reset(struct device *dev)
 {
 	struct gsc_context *ctx = get_gsc_context(dev);
@@ -1827,4 +1825,3 @@ struct platform_driver gsc_driver = {
 		.pm	= &gsc_pm_ops,
 	},
 };
-

@@ -44,7 +44,6 @@ typedef struct unifi_port_config
     unifi_port_cfg_t port_cfg[UNIFI_MAX_CONNECTIONS];
 } unifi_port_config_t;
 
-
 enum sme_request_status {
     SME_REQUEST_EMPTY,
     SME_REQUEST_PENDING,
@@ -75,13 +74,11 @@ typedef struct {
     CsrWifiSmeConnectionConfig connectionConfig;
     CsrWifiSmeConnectionStats connectionStats;
 
-
     /* SME's reply to a scan request */
     u16 reply_scan_results_count;
     CsrWifiSmeScanResult* reply_scan_results;
 
 } sme_reply_t;
-
 
 typedef struct {
     u16 appHandle;
@@ -90,7 +87,6 @@ typedef struct {
     u8 oui[3];
     u8 in_use;
 } sme_ma_unidata_ind_filter_t;
-
 
 CsrWifiRouterCtrlPortAction uf_sme_port_state(unifi_priv_t *priv,
                                           unsigned char *address,
@@ -101,8 +97,6 @@ unifi_port_cfg_t *uf_sme_port_config_handle(unifi_priv_t *priv,
                                             int queue,
                                             u16 interfaceTag);
 
-
-
 /* Callback for event logging to SME clients */
 void sme_log_event(ul_client_t *client, const u8 *signal, int signal_len,
                    const bulk_data_param_t *bulkdata, int dir);
@@ -112,7 +106,6 @@ void uf_multicast_list_wq(struct work_struct *work);
 
 /* The workqueue task to execute the TA module */
 void uf_ta_wq(struct work_struct *work);
-
 
 /*
  * SME blocking helper functions
@@ -126,13 +119,11 @@ void uf_ta_wq(struct work_struct *work);
 void uf_sme_complete_request(unifi_priv_t *priv, CsrResult reply_status, const char *func);
 void uf_sme_cancel_request(unifi_priv_t *priv, CsrResult reply_status);
 
-
 /*
  * Blocking functions using the SME SYS API.
  */
 int sme_sys_suspend(unifi_priv_t *priv);
 int sme_sys_resume(unifi_priv_t *priv);
-
 
 /*
  * Traffic Analysis workqueue jobs
@@ -192,7 +183,6 @@ int sme_mgt_connection_stats_get(unifi_priv_t *priv, CsrWifiSmeConnectionStats *
 
 int sme_mgt_versions_get(unifi_priv_t *priv, CsrWifiSmeVersions *versions);
 
-
 int sme_mgt_scan_full(unifi_priv_t *priv, CsrWifiSsid *specific_ssid,
                       int num_channels, unsigned char *channel_list);
 int sme_mgt_scan_results_get_async(unifi_priv_t *priv,
@@ -237,9 +227,6 @@ int unifi_cfg_enable_okc(unifi_priv_t *priv, unsigned char *arg);
 int unifi_cfg_set_ap_config(unifi_priv_t * priv,unsigned char* arg);
 #endif
 
-
-
 int convert_sme_error(CsrResult error);
-
 
 #endif /* __LINUX_UNIFI_SME_H__ */

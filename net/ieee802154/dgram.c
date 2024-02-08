@@ -469,4 +469,3 @@ struct proto ieee802154_dgram_prot = {
 	.getsockopt	= dgram_getsockopt,
 	.setsockopt	= dgram_setsockopt,
 };
-

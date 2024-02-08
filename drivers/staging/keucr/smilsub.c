@@ -32,7 +32,6 @@ BYTE   _Check_D_DevCode(BYTE);
 void   _Set_D_ECCdata(BYTE, BYTE *);
 void   _Calc_D_ECCdata(BYTE *);
 
-
 struct SSFDCTYPE                Ssfdc;
 struct ADDRESS                  Media;
 struct CIS_AREA                 CisArea;
@@ -44,11 +43,8 @@ extern DWORD                    ErrXDCode;
 extern WORD  ReadBlock;
 extern WORD  WriteBlock;
 
-
-
 #define EVEN                    0             /* Even Page for 256byte/page */
 #define ODD                     1             /* Odd Page for 256byte/page */
-
 
 /* SmartMedia Redundant buffer data Control Subroutine
  *----- Check_D_DataBlank() --------------------------------------------
@@ -302,7 +298,6 @@ int Ssfdc_D_ReadBlock(struct us_data *us, WORD count, BYTE *buf, BYTE *redundant
 	return USB_STOR_TRANSPORT_GOOD;
 }
 
-
 /* ----- Ssfdc_D_CopyBlock() -------------------------------------------- */
 int Ssfdc_D_CopyBlock(struct us_data *us, WORD count, BYTE *buf, BYTE *redundant)
 {
@@ -361,7 +356,6 @@ int Ssfdc_D_WriteSectForCopy(struct us_data *us, BYTE *buf, BYTE *redundant)
 		printk("Load SM RW Code Fail !!\n");
 		return USB_STOR_TRANSPORT_ERROR;
 	}
-
 
 	addr = (WORD)Media.Zone*Ssfdc.MaxBlocks + Media.PhyBlock;
 	addr = addr*(WORD)Ssfdc.MaxSectors + Media.Sector;
@@ -502,8 +496,6 @@ int Ssfdc_D_CheckStatus(void)
 	return SMSUCCESS;
 }
 
-
-
 /* SmartMedia ID Code Check & Mode Set Subroutine
  * ----- Set_D_SsfdcModel() ---------------------------------------------
  */
@@ -639,9 +631,6 @@ BYTE _Check_D_DevCode(BYTE dcode)
 	}
 }
 
-
-
-
 /* SmartMedia ECC Control Subroutine
  * ----- Check_D_ReadError() ----------------------------------------------
  */
@@ -689,5 +678,3 @@ void Set_D_RightECC(BYTE *redundant)
     /* Driver ECC Check */
     return;
 }
-
-

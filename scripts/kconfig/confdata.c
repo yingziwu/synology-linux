@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2002 Roman Zippel <zippel@linux-m68k.org>
  * Released under the terms of the GNU GPL v2.0.
@@ -945,6 +948,9 @@ int conf_write_autoconf(void)
 	const char *name;
 	FILE *out, *tristate, *out_h;
 	int i;
+#ifdef MY_ABC_HERE
+	FILE *syno_h;
+#endif
 
 	sym_clear_all_valid();
 
@@ -970,6 +976,19 @@ int conf_write_autoconf(void)
 		return 1;
 	}
 
+#ifdef MY_ABC_HERE
+	syno_h = fopen(".tmpsynoconfig.h", "w");
+	if (!syno_h) {
+		fclose(out);
+		fclose(tristate);
+		fclose(out_h);
+		return 1;
+	}
+	conf_write_heading(syno_h, &header_printer_cb, NULL);
+	fprintf(syno_h, "#ifndef __SYNO_AUTOCONF_H__\n"
+			"#define __SYNO_AUTOCONF_H__\n");
+#endif
+
 	conf_write_heading(out, &kconfig_printer_cb, NULL);
 
 	conf_write_heading(tristate, &tristate_printer_cb, NULL);
@@ -987,11 +1006,22 @@ int conf_write_autoconf(void)
 		conf_write_symbol(tristate, sym, &tristate_printer_cb, (void *)1);
 
 		conf_write_symbol(out_h, sym, &header_printer_cb, NULL);
+#ifdef MY_ABC_HERE
+		if (strncmp(sym->name, "SYNO", 4) == 0) {
+			conf_write_symbol(syno_h, sym, &header_printer_cb, NULL);
+		}
+#endif
 	}
 	fclose(out);
 	fclose(tristate);
 	fclose(out_h);
 
+#ifdef MY_ABC_HERE
+	fprintf(syno_h, "#endif /* __SYNO_AUTOCONF_H__ */");
+	fclose(syno_h);
+	if (rename(".tmpsynoconfig.h", "include/linux/syno_autoconf.h"))
+		return 1;
+#endif
 	name = getenv("KCONFIG_AUTOHEADER");
 	if (!name)
 		name = "include/generated/autoconf.h";
@@ -1083,7 +1113,11 @@ static void randomize_choice_values(struct symbol *csym)
 	csym->flags &= ~(SYMBOL_VALID);
 }
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+void set_all_choice_values(struct symbol *csym)
+#else /* CONFIG_SYNO_LSP_HI3536 */
 static void set_all_choice_values(struct symbol *csym)
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 {
 	struct property *prop;
 	struct symbol *sym;
@@ -1100,7 +1134,11 @@ static void set_all_choice_values(struct symbol *csym)
 	}
 	csym->flags |= SYMBOL_DEF_USER;
 	/* clear VALID to get value calculated */
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	csym->flags &= ~(SYMBOL_VALID | SYMBOL_NEED_SET_CHOICE_VALUES);
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	csym->flags &= ~(SYMBOL_VALID);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 }
 
 void conf_set_all_new_symbols(enum conf_def_mode mode)
@@ -1202,6 +1240,16 @@ void conf_set_all_new_symbols(enum conf_def_mode mode)
 	 * selected in a choice block and we set it to yes,
 	 * and the rest to no.
 	 */
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	if (mode != def_random) {
+		for_all_symbols(i, csym) {
+			if ((sym_is_choice(csym) && !sym_has_value(csym)) ||
+			    sym_is_choice_value(csym))
+				csym->flags |= SYMBOL_NEED_SET_CHOICE_VALUES;
+		}
+	}
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 	for_all_symbols(i, csym) {
 		if (sym_has_value(csym) || !sym_is_choice(csym))
 			continue;
@@ -1209,7 +1257,11 @@ void conf_set_all_new_symbols(enum conf_def_mode mode)
 		sym_calc_value(csym);
 		if (mode == def_random)
 			randomize_choice_values(csym);
+#if defined(CONFIG_SYNO_LSP_HI3536)
+		// do nothing
+#else /* CONFIG_SYNO_LSP_HI3536 */
 		else
 			set_all_choice_values(csym);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	}
 }

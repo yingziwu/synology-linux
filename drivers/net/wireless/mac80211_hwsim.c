@@ -372,7 +372,6 @@ struct mac80211_hwsim_data {
 	u64 abs_bcn_ts;
 };
 
-
 struct hwsim_radiotap_hdr {
 	struct ieee80211_radiotap_header hdr;
 	__le64 rt_tsft;
@@ -494,7 +493,6 @@ static void mac80211_hwsim_monitor_rx(struct ieee80211_hw *hw,
 	netif_rx(skb);
 }
 
-
 static void mac80211_hwsim_monitor_ack(struct ieee80211_channel *chan,
 				       const u8 *addr)
 {
@@ -537,7 +535,6 @@ static void mac80211_hwsim_monitor_ack(struct ieee80211_channel *chan,
 	netif_rx(skb);
 }
 
-
 static bool hwsim_ps_rx_ok(struct mac80211_hwsim_data *data,
 			   struct sk_buff *skb)
 {
@@ -565,7 +562,6 @@ static bool hwsim_ps_rx_ok(struct mac80211_hwsim_data *data,
 	return true;
 }
 
-
 struct mac80211_hwsim_addr_match_data {
 	bool ret;
 	const u8 *addr;
@@ -578,7 +574,6 @@ static void mac80211_hwsim_addr_iter(void *data, u8 *mac,
 	if (memcmp(mac, md->addr, ETH_ALEN) == 0)
 		md->ret = true;
 }
-
 
 static bool mac80211_hwsim_addr_match(struct mac80211_hwsim_data *data,
 				      const u8 *addr)
@@ -932,7 +927,6 @@ static void mac80211_hwsim_tx(struct ieee80211_hw *hw,
 	ieee80211_tx_status_irqsafe(hw, skb);
 }
 
-
 static int mac80211_hwsim_start(struct ieee80211_hw *hw)
 {
 	struct mac80211_hwsim_data *data = hw->priv;
@@ -941,7 +935,6 @@ static int mac80211_hwsim_start(struct ieee80211_hw *hw)
 	return 0;
 }
 
-
 static void mac80211_hwsim_stop(struct ieee80211_hw *hw)
 {
 	struct mac80211_hwsim_data *data = hw->priv;
@@ -949,7 +942,6 @@ static void mac80211_hwsim_stop(struct ieee80211_hw *hw)
 	tasklet_hrtimer_cancel(&data->beacon_timer);
 	wiphy_debug(hw->wiphy, "%s\n", __func__);
 }
-
 
 static int mac80211_hwsim_add_interface(struct ieee80211_hw *hw,
 					struct ieee80211_vif *vif)
@@ -967,7 +959,6 @@ static int mac80211_hwsim_add_interface(struct ieee80211_hw *hw,
 
 	return 0;
 }
-
 
 static int mac80211_hwsim_change_interface(struct ieee80211_hw *hw,
 					   struct ieee80211_vif *vif,
@@ -1151,7 +1142,6 @@ static int mac80211_hwsim_config(struct ieee80211_hw *hw, u32 changed)
 
 	return 0;
 }
-
 
 static void mac80211_hwsim_configure_filter(struct ieee80211_hw *hw,
 					    unsigned int changed_flags,
@@ -1698,7 +1688,6 @@ static struct ieee80211_ops mac80211_hwsim_ops =
 	.set_tsf = mac80211_hwsim_set_tsf,
 };
 
-
 static void mac80211_hwsim_free(void)
 {
 	struct list_head tmplist, *i, *tmp;
@@ -1747,7 +1736,6 @@ static void hwsim_mon_setup(struct net_device *dev)
 	memset(dev->dev_addr, 0, ETH_ALEN);
 	dev->dev_addr[0] = 0x12;
 }
-
 
 static void hwsim_send_ps_poll(void *dat, u8 *mac, struct ieee80211_vif *vif)
 {
@@ -1812,7 +1800,6 @@ static void hwsim_send_nullfunc(struct mac80211_hwsim_data *data, u8 *mac,
 	rcu_read_unlock();
 }
 
-
 static void hwsim_send_nullfunc_ps(void *dat, u8 *mac,
 				   struct ieee80211_vif *vif)
 {
@@ -1820,14 +1807,12 @@ static void hwsim_send_nullfunc_ps(void *dat, u8 *mac,
 	hwsim_send_nullfunc(data, mac, vif, 1);
 }
 
-
 static void hwsim_send_nullfunc_no_ps(void *dat, u8 *mac,
 				      struct ieee80211_vif *vif)
 {
 	struct mac80211_hwsim_data *data = dat;
 	hwsim_send_nullfunc(data, mac, vif, 0);
 }
-
 
 static int hwsim_fops_ps_read(void *dat, u64 *val)
 {
@@ -1870,7 +1855,6 @@ static int hwsim_fops_ps_write(void *dat, u64 val)
 
 DEFINE_SIMPLE_ATTRIBUTE(hwsim_fops_ps, hwsim_fops_ps_read, hwsim_fops_ps_write,
 			"%llu\n");
-
 
 static int hwsim_fops_group_read(void *dat, u64 *val)
 {
@@ -2534,7 +2518,6 @@ static int __init init_mac80211_hwsim(void)
 	err = dev_alloc_name(hwsim_mon, hwsim_mon->name);
 	if (err < 0)
 		goto failed_mon;
-
 
 	err = register_netdevice(hwsim_mon);
 	if (err < 0)

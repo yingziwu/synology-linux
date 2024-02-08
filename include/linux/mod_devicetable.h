@@ -22,7 +22,6 @@ struct pci_device_id {
 	kernel_ulong_t driver_data;	/* Data private to the driver */
 };
 
-
 #define IEEE1394_MATCH_VENDOR_ID	0x0001
 #define IEEE1394_MATCH_MODEL_ID		0x0002
 #define IEEE1394_MATCH_SPECIFIER_ID	0x0004
@@ -36,7 +35,6 @@ struct ieee1394_device_id {
 	__u32 version;
 	kernel_ulong_t driver_data;
 };
-
 
 /*
  * Device table entry for "new style" table-driven USB drivers.
@@ -206,7 +204,6 @@ struct pnp_card_device_id {
 		__u8 id[PNP_ID_LEN];
 	} devs[PNP_MAX_DEVICES];
 };
-
 
 #define SERIO_ANY	0xff
 
@@ -568,6 +565,17 @@ struct x86_cpu_id {
 #define X86_FAMILY_ANY 0
 #define X86_MODEL_ANY  0
 #define X86_FEATURE_ANY 0	/* Same as FPU, you can't test for that */
+
+#if defined(CONFIG_SYNO_LSP_HI3536)
+/*
+ * Generic table type for matching CPU features.
+ * @feature:	the bit number of the feature (0 - 65535)
+ */
+
+struct cpu_feature {
+	__u16	feature;
+};
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 #define IPACK_ANY_FORMAT 0xff
 #define IPACK_ANY_ID (~0)

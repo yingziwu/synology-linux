@@ -33,7 +33,6 @@
 #include <linux/mtd/blktrans.h>
 #include <linux/mutex.h>
 
-
 struct mtdblk_dev {
 	struct mtd_blktrans_dev mbd;
 	int count;
@@ -110,7 +109,6 @@ static int erase_write (struct mtd_info *mtd, unsigned long pos,
 	return 0;
 }
 
-
 static int write_cached_data (struct mtdblk_dev *mtdblk)
 {
 	struct mtd_info *mtd = mtdblk->mbd.mtd;
@@ -138,7 +136,6 @@ static int write_cached_data (struct mtdblk_dev *mtdblk)
 	mtdblk->cache_state = STATE_EMPTY;
 	return 0;
 }
-
 
 static int do_cached_write (struct mtdblk_dev *mtdblk, unsigned long pos,
 			    int len, const char *buf)
@@ -208,7 +205,6 @@ static int do_cached_write (struct mtdblk_dev *mtdblk, unsigned long pos,
 
 	return 0;
 }
-
 
 static int do_cached_read (struct mtdblk_dev *mtdblk, unsigned long pos,
 			   int len, char *buf)
@@ -398,7 +394,6 @@ static void __exit cleanup_mtdblock(void)
 
 module_init(init_mtdblock);
 module_exit(cleanup_mtdblock);
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Nicolas Pitre <nico@fluxnic.net> et al.");

@@ -303,7 +303,6 @@ static ssize_t snd_compr_write(struct file *f, const char __user *buf,
 	return retval;
 }
 
-
 static ssize_t snd_compr_read(struct file *f, char __user *buf,
 		size_t count, loff_t *offset)
 {
@@ -499,8 +498,12 @@ static int snd_compress_check_input(struct snd_compr_params *params)
 	if (params->codec.ch_in == 0 || params->codec.ch_out == 0)
 		return -EINVAL;
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	// do nothing
+#else /* CONFIG_SYNO_LSP_HI3536 */
 	if (!(params->codec.sample_rate & SNDRV_PCM_RATE_8000_192000))
 		return -EINVAL;
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 	return 0;
 }
@@ -711,7 +714,6 @@ static int snd_compress_wait_for_drain(struct snd_compr_stream *stream)
 		pr_debug("wait aborted by a signal");
 	else if (ret)
 		pr_debug("wait for drain failed with %d\n", ret);
-
 
 	wake_up(&stream->runtime->sleep);
 	mutex_lock(&stream->device->lock);

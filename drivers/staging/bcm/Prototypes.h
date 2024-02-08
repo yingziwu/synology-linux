@@ -37,7 +37,6 @@ bool MatchSrcPort(struct bcm_classifier_rule *pstClassifierRule,USHORT ushSrcPor
 bool MatchDestPort(struct bcm_classifier_rule *pstClassifierRule,USHORT ushSrcPort);
 bool MatchProtocol(struct bcm_classifier_rule *pstClassifierRule,UCHAR ucProtocol);
 
-
 INT SetupNextSend(struct bcm_mini_adapter *Adapter, /**<Logical Adapter*/
 					struct sk_buff *Packet, /**<data buffer*/
 					USHORT Vcid)	;
@@ -49,7 +48,6 @@ VOID transmit_packets(struct bcm_mini_adapter *Adapter);
 INT SendControlPacket(struct bcm_mini_adapter *Adapter, /**<Logical Adapter*/
 							char *pControlPacket/**<Control Packet*/
 							);
-
 
 int register_networkdev(struct bcm_mini_adapter *Adapter);
 void unregister_networkdev(struct bcm_mini_adapter *Adapter);
@@ -68,7 +66,6 @@ int run_card_proc(struct bcm_mini_adapter *Adapter );
 
 int InitCardAndDownloadFirmware(struct bcm_mini_adapter *ps_adapter);
 
-
 INT ReadMacAddressFromNVM(struct bcm_mini_adapter *Adapter);
 
 int register_control_device_interface(struct bcm_mini_adapter *ps_adapter);
@@ -86,7 +83,6 @@ int rdmalt (struct bcm_mini_adapter *Adapter, UINT uiAddress, unsigned int *pucB
 int get_dsx_sf_data_to_application(struct bcm_mini_adapter *Adapter, UINT uiSFId, void __user * user_buffer);
 
 void SendIdleModeResponse(struct bcm_mini_adapter *Adapter);
-
 
 int  ProcessGetHostMibs(struct bcm_mini_adapter *Adapter, struct bcm_host_stats_mibs *buf);
 void GetDroppedAppCntrlPktMibs(struct bcm_host_stats_mibs *ioBuffer, struct bcm_tarang_data *pTarang);
@@ -113,12 +109,9 @@ void update_per_sf_desc_cnts( struct bcm_mini_adapter *Adapter);
 
 void ClearTargetDSXBuffer(struct bcm_mini_adapter *Adapter,B_UINT16 TID,BOOLEAN bFreeAll);
 
-
 void flush_queue(struct bcm_mini_adapter *Adapter, UINT iQIndex);
 
-
 INT flushAllAppQ(VOID);
-
 
 INT BeceemEEPROMBulkRead(
 	struct bcm_mini_adapter *Adapter,
@@ -126,12 +119,9 @@ INT BeceemEEPROMBulkRead(
 	UINT uiOffset,
 	UINT uiNumBytes);
 
-
-
 INT WriteBeceemEEPROM(struct bcm_mini_adapter *Adapter,UINT uiEEPROMOffset, UINT uiData);
 
 INT PropagateCalParamsFromFlashToMemory(struct bcm_mini_adapter *Adapter);
-
 
 INT BeceemEEPROMBulkWrite(
 	struct bcm_mini_adapter *Adapter,
@@ -140,9 +130,7 @@ INT BeceemEEPROMBulkWrite(
 	UINT uiNumBytes,
 	BOOLEAN bVerify);
 
-
 INT ReadBeceemEEPROM(struct bcm_mini_adapter *Adapter,UINT dwAddress, UINT *pdwData);
-
 
 INT BeceemNVMRead(
 	struct bcm_mini_adapter *Adapter,
@@ -156,7 +144,6 @@ INT BeceemNVMWrite(
 	UINT uiOffset,
 	UINT uiNumBytes,
 	BOOLEAN bVerify);
-
 
 INT BcmInitNVM(struct bcm_mini_adapter *Adapter);
 
@@ -197,9 +184,7 @@ INT	BcmCopySection(struct bcm_mini_adapter *Adapter,
 						UINT offset,
 						UINT numOfBytes);
 
-
 BOOLEAN IsNonCDLessDevice(struct bcm_mini_adapter *Adapter);
-
 
 VOID OverrideServiceFlowParams(struct bcm_mini_adapter *Adapter,PUINT puiBuffer);
 
@@ -210,13 +195,7 @@ int wrmWithLock(struct bcm_mini_adapter *Adapter, UINT uiAddress, PCHAR pucBuff,
 INT buffDnldVerify(struct bcm_mini_adapter *Adapter, unsigned char *mappedbuffer, unsigned int u32FirmwareLength,
 		unsigned long u32StartingAddress);
 
-
 VOID putUsbSuspend(struct work_struct *work);
 BOOLEAN IsReqGpioIsLedInNVM(struct bcm_mini_adapter *Adapter, UINT gpios);
 
-
 #endif
-
-
-
-

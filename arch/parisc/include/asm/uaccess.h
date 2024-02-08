@@ -179,7 +179,6 @@ struct exception_data {
 		: "r"(ptr), "r"(x), "0"(__pu_err)	    \
 		: "r1")
 
-
 #if !defined(CONFIG_64BIT)
 
 #define __put_kernel_asm64(__val,ptr) do {		    \
@@ -205,7 +204,6 @@ struct exception_data {
 } while (0)
 
 #endif /* !defined(CONFIG_64BIT) */
-
 
 /*
  * Complex access routines -- external declarations

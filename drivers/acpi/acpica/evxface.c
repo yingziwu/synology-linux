@@ -51,7 +51,6 @@
 #define _COMPONENT          ACPI_EVENTS
 ACPI_MODULE_NAME("evxface")
 
-
 /*******************************************************************************
  *
  * FUNCTION:    acpi_install_notify_handler

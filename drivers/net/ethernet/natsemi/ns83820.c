@@ -422,7 +422,6 @@ struct rx_info {
 	dma_addr_t	phy_descs;
 };
 
-
 struct ns83820 {
 	u8			__iomem *base;
 
@@ -2278,7 +2277,6 @@ static struct pci_driver driver = {
 	.resume		= ,
 #endif
 };
-
 
 static int __init ns83820_init(void)
 {

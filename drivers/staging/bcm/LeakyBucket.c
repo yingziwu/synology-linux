@@ -62,7 +62,6 @@ static VOID UpdateTokenCount(register struct bcm_mini_adapter *Adapter)
 
 }
 
-
 /*********************************************************************
 * Function    - IsPacketAllowedForFlow()
 *
@@ -165,7 +164,6 @@ static VOID CheckAndSendPacketFromIndex(struct bcm_mini_adapter *Adapter, struct
 	INT				Status=0;
 	int				iPacketLen=0;
 
-
 	BCM_DEBUG_PRINT(Adapter,DBG_TYPE_TX, TX_PACKETS, DBG_LVL_ALL, "%zd ====>", (psSF-Adapter->PackInfo));
 	if((psSF != &Adapter->PackInfo[HiPriority]) && Adapter->LinkUpStatus && atomic_read(&psSF->uiPerSFTxResourceCount))//Get data packet
   	{
@@ -263,7 +261,6 @@ static VOID CheckAndSendPacketFromIndex(struct bcm_mini_adapter *Adapter, struct
 	   	}
 	}
 }
-
 
 /*******************************************************************
 * Function    - transmit_packets()

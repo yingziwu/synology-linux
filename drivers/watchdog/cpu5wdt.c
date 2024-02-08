@@ -246,7 +246,6 @@ static int cpu5wdt_init(void)
 		goto no_misc;
 	}
 
-
 	pr_info("init success\n");
 	return 0;
 

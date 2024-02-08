@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef __NETNS_CONNTRACK_H
 #define __NETNS_CONNTRACK_H
 
@@ -32,6 +35,9 @@ struct nf_tcp_net {
 	unsigned int tcp_loose;
 	unsigned int tcp_be_liberal;
 	unsigned int tcp_max_retrans;
+#if defined(MY_ABC_HERE)
+	unsigned int tcp_window_tracking;
+#endif  
 };
 
 enum udp_conntrack {
@@ -80,7 +86,7 @@ struct netns_ct {
 	int			sysctl_acct;
 	int			sysctl_tstamp;
 	int			sysctl_checksum;
-	unsigned int		sysctl_log_invalid; /* Log invalid packets */
+	unsigned int		sysctl_log_invalid;  
 	int			sysctl_auto_assign_helper;
 	bool			auto_assign_helper_warned;
 	struct nf_ip_net	nf_ct_proto;

@@ -61,14 +61,12 @@
 #include <asm/irq.h>
 #include <asm/unaligned.h>
 
-
 #define	DRIVER_DESC		"PLX NET228x USB Peripheral Controller"
 #define	DRIVER_VERSION		"2005 Sept 27"
 
 #define	EP_DONTUSE		13	/* nonzero */
 
 #define USE_RDK_LEDS		/* GPIO pins control three LEDs */
-
 
 static const char driver_name [] = "net2280";
 static const char driver_desc [] = DRIVER_DESC;
@@ -94,7 +92,6 @@ static bool use_dma_chaining = 0;
 /* "modprobe net2280 use_dma=n" etc */
 module_param (use_dma, bool, S_IRUGO);
 module_param (use_dma_chaining, bool, S_IRUGO);
-
 
 /* mode 0 == ep-{a,b,c,d} 1K fifo each
  * mode 1 == ep-{a,b} 2K fifo each, ep-{c,d} unavailable
@@ -1692,7 +1689,6 @@ done:
 }
 static DEVICE_ATTR (queues, S_IRUGO, show_queues, NULL);
 
-
 #else
 
 #define device_create_file(a,b)	(0)
@@ -2850,7 +2846,6 @@ static void net2280_shutdown (struct pci_dev *pdev)
 	/* Disable full-speed test mode */
 	writel(0, &dev->usb->xcvrdiag);
 }
-
 
 /*-------------------------------------------------------------------------*/
 

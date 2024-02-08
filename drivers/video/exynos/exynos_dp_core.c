@@ -1136,7 +1136,6 @@ static int exynos_dp_remove(struct platform_device *pdev)
 
 	clk_disable_unprepare(dp->clock);
 
-
 	return 0;
 }
 

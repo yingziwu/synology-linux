@@ -244,7 +244,6 @@ struct sched {
 };
 static void restart_sched(unsigned long);
 
-
 /*
  * Main SGE data structure
  *
@@ -2096,7 +2095,6 @@ struct sge *t1_sge_create(struct adapter *adapter, struct sge_params *p)
 		if (adapter->params.nports > 1)
 			sge->espibug_timeout = HZ/100;
 	}
-
 
 	p->cmdQ_size[0] = SGE_CMDQ0_E_N;
 	p->cmdQ_size[1] = SGE_CMDQ1_E_N;

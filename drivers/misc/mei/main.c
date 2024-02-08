@@ -150,7 +150,6 @@ static int mei_release(struct inode *inode, struct file *file)
 	}
 	mei_cl_unlink(cl);
 
-
 	/* free read cb */
 	cb = NULL;
 	if (cl->read_cb) {
@@ -176,7 +175,6 @@ out:
 	return rets;
 }
 
-
 /**
  * mei_read - the read function.
  *
@@ -197,7 +195,6 @@ static ssize_t mei_read(struct file *file, char __user *ubuf,
 	int i;
 	int rets;
 	int err;
-
 
 	if (WARN_ON(!cl || !cl->dev))
 		return -ENODEV;
@@ -402,7 +399,6 @@ static ssize_t mei_write(struct file *file, const char __user *ubuf,
 	} else if (cl->reading_state == MEI_IDLE)
 		*offset = 0;
 
-
 	write_cb = mei_io_cb_init(cl, file);
 	if (!write_cb) {
 		dev_err(&dev->pdev->dev, "write cb allocation failed\n");
@@ -529,20 +525,17 @@ static int mei_ioctl_connect_client(struct file *file,
 		goto end;
 	}
 
-
 	/* prepare the output buffer */
 	client = &data->out_client_properties;
 	client->max_msg_length = dev->me_clients[i].props.max_msg_length;
 	client->protocol_version = dev->me_clients[i].props.protocol_version;
 	dev_dbg(&dev->pdev->dev, "Can connect?\n");
 
-
 	rets = mei_cl_connect(cl, file);
 
 end:
 	return rets;
 }
-
 
 /**
  * mei_ioctl - the IOCTL function
@@ -629,7 +622,6 @@ static long mei_compat_ioctl(struct file *file,
 }
 #endif
 
-
 /**
  * mei_poll - the poll function
  *
@@ -653,7 +645,6 @@ static unsigned int mei_poll(struct file *file, poll_table *wait)
 
 	if (dev->dev_state != MEI_DEV_ENABLED)
 		goto out;
-
 
 	if (cl == &dev->iamthif_cl) {
 		mask = mei_amthif_poll(dev, file, wait);
@@ -697,7 +688,6 @@ static struct miscdevice  mei_misc_device = {
 		.minor = MISC_DYNAMIC_MINOR,
 };
 
-
 int mei_register(struct mei_device *dev)
 {
 	int ret;
@@ -737,4 +727,3 @@ module_exit(mei_exit);
 MODULE_AUTHOR("Intel Corporation");
 MODULE_DESCRIPTION("Intel(R) Management Engine Interface");
 MODULE_LICENSE("GPL v2");
-

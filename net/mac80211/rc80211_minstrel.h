@@ -13,7 +13,6 @@
 #define EWMA_DIV	128
 #define SAMPLE_COLUMNS	10	/* number of columns in sample table */
 
-
 /* scaled fraction values */
 #define MINSTREL_SCALE  16
 #define MINSTREL_FRAC(val, div) (((val) << MINSTREL_SCALE) / div)
@@ -30,7 +29,6 @@ minstrel_ewma(int old, int new, int weight)
 {
 	return (new * (EWMA_DIV - weight) + old * weight) / EWMA_DIV;
 }
-
 
 struct minstrel_rate {
 	int bitrate;

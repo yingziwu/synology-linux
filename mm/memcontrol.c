@@ -84,7 +84,6 @@ static int really_do_swap_account __initdata = 0;
 #define do_swap_account		0
 #endif
 
-
 /*
  * Statistics for memory cgroup.
  */
@@ -770,7 +769,6 @@ mem_cgroup_remove_exceeded(struct mem_cgroup *memcg,
 	__mem_cgroup_remove_exceeded(memcg, mz, mctz);
 	spin_unlock(&mctz->lock);
 }
-
 
 static void mem_cgroup_update_tree(struct mem_cgroup *memcg, struct page *page)
 {
@@ -2587,7 +2585,6 @@ static int __cpuinit memcg_cpu_hotplug_callback(struct notifier_block *nb,
 	return NOTIFY_OK;
 }
 
-
 /* See __mem_cgroup_try_charge() for details */
 enum {
 	CHARGE_OK,		/* success */
@@ -3697,7 +3694,6 @@ void __memcg_kmem_uncharge_pages(struct page *page, int order)
 {
 	struct mem_cgroup *memcg = NULL;
 	struct page_cgroup *pc;
-
 
 	pc = lookup_page_cgroup(page);
 	/*
@@ -5008,7 +5004,6 @@ static int mem_cgroup_force_empty_write(struct cgroup *cont, unsigned int event)
 	return ret;
 }
 
-
 static u64 mem_cgroup_hierarchy_read(struct cgroup *cont, struct cftype *cft)
 {
 	return mem_cgroup_from_cont(cont)->use_hierarchy;
@@ -5052,7 +5047,6 @@ out:
 
 	return retval;
 }
-
 
 static unsigned long mem_cgroup_recursive_stat(struct mem_cgroup *memcg,
 					       enum mem_cgroup_stat_index idx)
@@ -6176,7 +6170,6 @@ static void __mem_cgroup_free(struct mem_cgroup *memcg)
 		vfree(memcg);
 }
 
-
 /*
  * Helpers for freeing a kmalloc()ed/vzalloc()ed mem_cgroup by RCU,
  * but in process context.  The work_freeing structure is overlaid
@@ -6796,6 +6789,14 @@ static int mem_cgroup_can_attach(struct cgroup *cgroup,
 	return ret;
 }
 
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static int mem_cgroup_allow_attach(struct cgroup *cgroup,
+				   struct cgroup_taskset *tset)
+{
+	return subsys_cgroup_allow_attach(cgroup, tset);
+}
+#endif /* CONFIG_SYNO_LSP_HI3536 */
+
 static void mem_cgroup_cancel_attach(struct cgroup *cgroup,
 				     struct cgroup_taskset *tset)
 {
@@ -6964,6 +6965,13 @@ static int mem_cgroup_can_attach(struct cgroup *cgroup,
 {
 	return 0;
 }
+#if defined(CONFIG_SYNO_LSP_HI3536)
+static int mem_cgroup_allow_attach(struct cgroup *cgroup,
+				   struct cgroup_taskset *tset)
+{
+	return 0;
+}
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 static void mem_cgroup_cancel_attach(struct cgroup *cgroup,
 				     struct cgroup_taskset *tset)
 {
@@ -6999,6 +7007,9 @@ struct cgroup_subsys mem_cgroup_subsys = {
 	.can_attach = mem_cgroup_can_attach,
 	.cancel_attach = mem_cgroup_cancel_attach,
 	.attach = mem_cgroup_move_task,
+#if defined(CONFIG_SYNO_LSP_HI3536)
+	.allow_attach = mem_cgroup_allow_attach,
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 	.bind = mem_cgroup_bind,
 	.base_cftypes = mem_cgroup_files,
 	.early_init = 0,

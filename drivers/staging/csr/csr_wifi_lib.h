@@ -24,7 +24,6 @@
     (evt)->destination = p_dst; \
     (evt)->source = p_src
 
-
 /*----------------------------------------------------------------------------*
  *  CsrWifiEvent_struct
  *

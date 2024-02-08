@@ -7,6 +7,9 @@ obj-y				:= dma-mapping.o extable.o fault.o init.o \
 
 obj-$(CONFIG_MMU)		+= fault-armv.o flush.o idmap.o ioremap.o \
 				   mmap.o pgd.o mmu.o
+#if defined(CONFIG_SYNO_LSP_HI3536)
+obj-$(CONFIG_DEBUG_RODATA)	+= rodata.o
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 ifneq ($(CONFIG_MMU),y)
 obj-y				+= nommu.o
@@ -16,6 +19,9 @@ obj-$(CONFIG_MODULES)		+= proc-syms.o
 
 obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
 obj-$(CONFIG_HIGHMEM)		+= highmem.o
+ifeq ($(CONFIG_ARCH_ALPINE),y)
+obj-$(CONFIG_HUGETLB_PAGE)	+= hugetlbpage.o
+endif
 
 obj-$(CONFIG_CPU_ABRT_NOMMU)	+= abort-nommu.o
 obj-$(CONFIG_CPU_ABRT_EV4)	+= abort-ev4.o

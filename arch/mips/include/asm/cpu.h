@@ -277,7 +277,6 @@ enum cpu_type_enum {
 	CPU_LAST
 };
 
-
 /*
  * ISA Level encodings
  *

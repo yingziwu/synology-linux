@@ -49,7 +49,6 @@
 
 #define DRIVER_VERSION		"22-Aug-2005"
 
-
 /*-------------------------------------------------------------------------*/
 
 /*
@@ -344,7 +343,6 @@ void usbnet_skb_return (struct usbnet *dev, struct sk_buff *skb)
 }
 EXPORT_SYMBOL_GPL(usbnet_skb_return);
 
-
 /*-------------------------------------------------------------------------
  *
  * Network Device Driver (peer link to "Host Device", from USB host)
@@ -502,7 +500,6 @@ static int rx_submit (struct usbnet *dev, struct urb *urb, gfp_t flags)
 	}
 	return retval;
 }
-
 
 /*-------------------------------------------------------------------------*/
 
@@ -1392,7 +1389,6 @@ static void usbnet_bh (unsigned long param)
 			netif_wake_queue (dev->net);
 	}
 }
-
 
 /*-------------------------------------------------------------------------
  *

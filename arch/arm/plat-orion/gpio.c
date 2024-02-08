@@ -88,7 +88,6 @@ static void __iomem *GPIO_LEVEL_MASK(struct orion_gpio_chip *ochip)
 	return ochip->base + ochip->mask_offset + GPIO_LEVEL_MASK_OFF;
 }
 
-
 static struct orion_gpio_chip orion_gpio_chips[2];
 static int orion_gpio_chip_count;
 
@@ -325,7 +324,6 @@ int orion_gpio_led_blink_set(unsigned gpio, int state,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(orion_gpio_led_blink_set);
-
 
 /*****************************************************************************
  * Orion GPIO IRQ

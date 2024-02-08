@@ -28,7 +28,6 @@
 #include "11n.h"
 #include "sdio.h"
 
-
 #define SDIO_VERSION	"1.0"
 
 /* The mwifiex_sdio_remove() callback function is called when

@@ -52,7 +52,6 @@ struct vmw_user_stream {
 	struct vmw_stream stream;
 };
 
-
 static uint64_t vmw_user_stream_size;
 
 static const struct vmw_res_func vmw_stream_func = {
@@ -85,7 +84,6 @@ struct vmw_resource *vmw_resource_reference(struct vmw_resource *res)
 	kref_get(&res->kref);
 	return res;
 }
-
 
 /**
  * vmw_resource_release_id - release a resource id to the id manager.
@@ -159,7 +157,6 @@ void vmw_resource_unreference(struct vmw_resource **p_res)
 	kref_put(&res->kref, vmw_resource_release);
 	write_unlock(&dev_priv->resource_lock);
 }
-
 
 /**
  * vmw_resource_alloc_id - release a resource id to the id manager.
@@ -648,7 +645,6 @@ int vmw_stream_unref_ioctl(struct drm_device *dev, void *data,
 	struct idr *idr = &dev_priv->res_idr[vmw_res_stream];
 	int ret = 0;
 
-
 	res = vmw_resource_lookup(dev_priv, idr, arg->stream_id);
 	if (unlikely(res == NULL))
 		return -EINVAL;
@@ -703,7 +699,6 @@ int vmw_stream_claim_ioctl(struct drm_device *dev, void *data,
 				  " creation.\n");
 		goto out_unlock;
 	}
-
 
 	stream = kmalloc(sizeof(*stream), GFP_KERNEL);
 	if (unlikely(stream == NULL)) {
@@ -773,7 +768,6 @@ err_ref:
 	vmw_resource_unreference(&res);
 	return ret;
 }
-
 
 int vmw_dumb_create(struct drm_file *file_priv,
 		    struct drm_device *dev,
@@ -1116,7 +1110,6 @@ out_no_unbind:
 
 	return ret;
 }
-
 
 /**
  * vmw_resource_validate - Make a resource up-to-date and visible

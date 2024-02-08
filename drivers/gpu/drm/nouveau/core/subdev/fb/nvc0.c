@@ -34,7 +34,6 @@ struct nvc0_fb_priv {
 
 extern const u8 nvc0_pte_storage_type_map[256];
 
-
 static bool
 nvc0_fb_memtype_valid(struct nouveau_fb *pfb, u32 tile_flags)
 {
@@ -233,7 +232,6 @@ nvc0_fb_ctor(struct nouveau_object *parent, struct nouveau_object *engine,
 
 	return nouveau_fb_preinit(&priv->base);
 }
-
 
 struct nouveau_oclass
 nvc0_fb_oclass = {

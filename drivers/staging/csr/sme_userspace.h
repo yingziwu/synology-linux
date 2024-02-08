@@ -20,7 +20,6 @@ int uf_sme_init(unifi_priv_t *priv);
 void uf_sme_deinit(unifi_priv_t *priv);
 int uf_sme_queue_message(unifi_priv_t *priv, u8 *buffer, int length);
 
-
 #include "csr_wifi_router_lib.h"
 #include "csr_wifi_router_sef.h"
 #include "csr_wifi_router_ctrl_lib.h"

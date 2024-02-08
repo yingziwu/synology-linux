@@ -338,7 +338,6 @@ static void htb_safe_rb_erase(struct rb_node *rb, struct rb_root *root)
 	}
 }
 
-
 /**
  * htb_remove_class_from_row - removes class from its row
  *
@@ -456,7 +455,6 @@ static inline s64 htb_hiwater(const struct htb_class *cl)
 	else
 		return 0;
 }
-
 
 /**
  * htb_class_mode - computes and returns current class mode

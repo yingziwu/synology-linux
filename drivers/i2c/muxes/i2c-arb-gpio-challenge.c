@@ -26,7 +26,6 @@
 #include <linux/platform_device.h>
 #include <linux/slab.h>
 
-
 /**
  * struct i2c_arbitrator_data - Driver data for I2C arbitrator
  *
@@ -54,7 +53,6 @@ struct i2c_arbitrator_data {
 	unsigned int wait_retry_us;
 	unsigned int wait_free_us;
 };
-
 
 /**
  * i2c_arbitrator_select - claim the I2C bus

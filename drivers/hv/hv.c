@@ -249,7 +249,6 @@ int hv_post_message(union hv_connection_id connection_id,
 	return status;
 }
 
-
 /*
  * hv_signal_event -
  * Signal an event on the specified connection using the hypervisor event IPC.

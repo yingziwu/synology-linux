@@ -1194,7 +1194,6 @@ static int perf_stat_init_aggr_mode(void)
 	return 0;
 }
 
-
 /*
  * Add default attributes, if there were no attributes specified or
  * if -d/--detailed, -d -d or -d -d -d is used:

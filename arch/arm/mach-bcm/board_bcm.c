@@ -22,7 +22,6 @@
 #include <asm/mach/time.h>
 #include <asm/hardware/cache-l2x0.h>
 
-
 #include "bcm_kona_smc.h"
 
 static int __init kona_l2_cache_init(void)

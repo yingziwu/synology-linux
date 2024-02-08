@@ -211,7 +211,6 @@ static int s3c24xx_serial_rx_fifocnt(struct s3c24xx_uart_port *ourport,
 	return (ufstat & info->rx_fifomask) >> info->rx_fifoshift;
 }
 
-
 /* ? - where has parity gone?? */
 #define S3C2410_UERSTAT_PARITY (0x1000)
 
@@ -885,7 +884,6 @@ s3c24xx_serial_verify_port(struct uart_port *port, struct serial_struct *ser)
 	return 0;
 }
 
-
 #ifdef CONFIG_SERIAL_SAMSUNG_CONSOLE
 
 static struct console s3c24xx_serial_console;
@@ -1020,7 +1018,6 @@ static void s3c24xx_serial_resetport(struct uart_port *port,
 	/* some delay is required after fifo reset */
 	udelay(1);
 }
-
 
 #ifdef CONFIG_CPU_FREQ
 

@@ -1,13 +1,7 @@
-/*
- * arch/arm/mach-kirkwood/common.c
- *
- * Core functions for Marvell Kirkwood SoCs
- *
- * This file is licensed under the terms of the GNU General Public
- * License version 2.  This program is licensed "as is" without any
- * warranty of any kind, whether express or implied.
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/platform_device.h>
@@ -36,9 +30,14 @@
 #include <linux/platform_data/dma-mv_xor.h>
 #include "common.h"
 
-/*****************************************************************************
- * I/O Address Mapping
- ****************************************************************************/
+#if defined(MY_DEF_HERE)
+ 
+#define KIRKWOOD_MBUS_NAND_TARGET 0x01
+#define KIRKWOOD_MBUS_NAND_ATTR   0x2f
+#define KIRKWOOD_MBUS_SRAM_TARGET 0x03
+#define KIRKWOOD_MBUS_SRAM_ATTR   0x01
+#endif  
+
 static struct map_desc kirkwood_io_desc[] __initdata = {
 	{
 		.virtual	= (unsigned long) KIRKWOOD_REGS_VIRT_BASE,
@@ -53,39 +52,35 @@ void __init kirkwood_map_io(void)
 	iotable_init(kirkwood_io_desc, ARRAY_SIZE(kirkwood_io_desc));
 }
 
-/*****************************************************************************
- * CLK tree
- ****************************************************************************/
-
 static void enable_sata0(void)
 {
-	/* Enable PLL and IVREF */
+	 
 	writel(readl(SATA0_PHY_MODE_2) | 0xf, SATA0_PHY_MODE_2);
-	/* Enable PHY */
+	 
 	writel(readl(SATA0_IF_CTRL) & ~0x200, SATA0_IF_CTRL);
 }
 
 static void disable_sata0(void)
 {
-	/* Disable PLL and IVREF */
+	 
 	writel(readl(SATA0_PHY_MODE_2) & ~0xf, SATA0_PHY_MODE_2);
-	/* Disable PHY */
+	 
 	writel(readl(SATA0_IF_CTRL) | 0x200, SATA0_IF_CTRL);
 }
 
 static void enable_sata1(void)
 {
-	/* Enable PLL and IVREF */
+	 
 	writel(readl(SATA1_PHY_MODE_2) | 0xf, SATA1_PHY_MODE_2);
-	/* Enable PHY */
+	 
 	writel(readl(SATA1_IF_CTRL) & ~0x200, SATA1_IF_CTRL);
 }
 
 static void disable_sata1(void)
 {
-	/* Disable PLL and IVREF */
+	 
 	writel(readl(SATA1_PHY_MODE_2) & ~0xf, SATA1_PHY_MODE_2);
-	/* Disable PHY */
+	 
 	writel(readl(SATA1_IF_CTRL) | 0x200, SATA1_IF_CTRL);
 }
 
@@ -113,9 +108,6 @@ static void disable_pcie1(void)
 	}
 }
 
-/* An extended version of the gated clk. This calls fn_en()/fn_dis
- * before enabling/disabling the clock.  We use this to turn on/off
- * PHYs etc.  */
 struct clk_gate_fn {
 	struct clk_gate gate;
 	void (*fn_en)(void);
@@ -174,7 +166,6 @@ static struct clk __init *clk_register_gate_fn(struct device *dev,
 	init.parent_names = (parent_name ? &parent_name : NULL);
 	init.num_parents = (parent_name ? 1 : 0);
 
-	/* struct clk_gate assignments */
 	gate_fn->gate.reg = reg;
 	gate_fn->gate.bit_idx = bit_idx;
 	gate_fn->gate.flags = clk_gate_flags;
@@ -183,7 +174,6 @@ static struct clk __init *clk_register_gate_fn(struct device *dev,
 	gate_fn->fn_en = fn_en;
 	gate_fn->fn_dis = fn_dis;
 
-	/* ops is the gate ops, but with our enable/disable functions */
 	if (clk_gate_fn_ops.enable != clk_gate_fn_enable ||
 	    clk_gate_fn_ops.disable != clk_gate_fn_disable) {
 		clk_gate_fn_ops = clk_gate_ops;
@@ -247,7 +237,6 @@ void __init kirkwood_clk_init(void)
 	kirkwood_register_gate("tdm",    CGC_BIT_TDM);
 	kirkwood_register_gate("tsu",    CGC_BIT_TSU);
 
-	/* clkdev entries, mapping clks to devices */
 	orion_clkdev_add(NULL, "orion_spi.0", runit);
 	orion_clkdev_add(NULL, "orion_spi.1", runit);
 	orion_clkdev_add(NULL, MV643XX_ETH_NAME ".0", ge0);
@@ -263,42 +252,31 @@ void __init kirkwood_clk_init(void)
 	orion_clkdev_add(NULL, MV_XOR_NAME ".1", xor1);
 	orion_clkdev_add("0", "pcie", pex0);
 	orion_clkdev_add("1", "pcie", pex1);
+#if defined(MY_DEF_HERE)
+	orion_clkdev_add(NULL, "mvebu-audio", audio);
+#else  
 	orion_clkdev_add(NULL, "kirkwood-i2s", audio);
+#endif  
 	orion_clkdev_add(NULL, MV64XXX_I2C_CTLR_NAME ".0", runit);
 	orion_clkdev_add(NULL, MV64XXX_I2C_CTLR_NAME ".1", runit);
 
-	/* Marvell says runit is used by SPI, UART, NAND, TWSI, ...,
-	 * so should never be gated.
-	 */
 	clk_prepare_enable(runit);
 }
 
-/*****************************************************************************
- * EHCI0
- ****************************************************************************/
 void __init kirkwood_ehci_init(void)
 {
 	orion_ehci_init(USB_PHYS_BASE, IRQ_KIRKWOOD_USB, EHCI_PHY_NA);
 }
 
-
-/*****************************************************************************
- * GE00
- ****************************************************************************/
 void __init kirkwood_ge00_init(struct mv643xx_eth_platform_data *eth_data)
 {
 	orion_ge00_init(eth_data,
 			GE00_PHYS_BASE, IRQ_KIRKWOOD_GE00_SUM,
 			IRQ_KIRKWOOD_GE00_ERR, 1600);
-	/* The interface forgets the MAC address assigned by u-boot if
-	the clock is turned off, so claim the clk now. */
+	 
 	clk_prepare_enable(ge0);
 }
 
-
-/*****************************************************************************
- * GE01
- ****************************************************************************/
 void __init kirkwood_ge01_init(struct mv643xx_eth_platform_data *eth_data)
 {
 	orion_ge01_init(eth_data,
@@ -307,19 +285,11 @@ void __init kirkwood_ge01_init(struct mv643xx_eth_platform_data *eth_data)
 	clk_prepare_enable(ge1);
 }
 
-
-/*****************************************************************************
- * Ethernet switch
- ****************************************************************************/
 void __init kirkwood_ge00_switch_init(struct dsa_platform_data *d, int irq)
 {
 	orion_ge00_switch_init(d, irq);
 }
 
-
-/*****************************************************************************
- * NAND flash
- ****************************************************************************/
 static struct resource kirkwood_nand_resource = {
 	.flags		= IORESOURCE_MEM,
 	.start		= KIRKWOOD_NAND_MEM_PHYS_BASE,
@@ -361,27 +331,16 @@ void __init kirkwood_nand_init_rnb(struct mtd_partition *parts, int nr_parts,
 	platform_device_register(&kirkwood_nand_flash);
 }
 
-/*****************************************************************************
- * SoC RTC
- ****************************************************************************/
 static void __init kirkwood_rtc_init(void)
 {
 	orion_rtc_init(RTC_PHYS_BASE, IRQ_KIRKWOOD_RTC);
 }
 
-
-/*****************************************************************************
- * SATA
- ****************************************************************************/
 void __init kirkwood_sata_init(struct mv_sata_platform_data *sata_data)
 {
 	orion_sata_init(sata_data, SATA_PHYS_BASE, IRQ_KIRKWOOD_SATA);
 }
 
-
-/*****************************************************************************
- * SD/SDIO/MMC
- ****************************************************************************/
 static struct resource mvsdio_resources[] = {
 	[0] = {
 		.start	= SDIO_PHYS_BASE,
@@ -413,7 +372,7 @@ void __init kirkwood_sdio_init(struct mvsdio_platform_data *mvsdio_data)
 	u32 dev, rev;
 
 	kirkwood_pcie_id(&dev, &rev);
-	if (rev == 0 && dev != MV88F6282_DEV_ID) /* catch all Kirkwood Z0's */
+	if (rev == 0 && dev != MV88F6282_DEV_ID)  
 		mvsdio_data->clock = 100000000;
 	else
 		mvsdio_data->clock = 200000000;
@@ -421,28 +380,15 @@ void __init kirkwood_sdio_init(struct mvsdio_platform_data *mvsdio_data)
 	platform_device_register(&kirkwood_sdio);
 }
 
-
-/*****************************************************************************
- * SPI
- ****************************************************************************/
 void __init kirkwood_spi_init(void)
 {
 	orion_spi_init(SPI_PHYS_BASE);
 }
 
-
-/*****************************************************************************
- * I2C
- ****************************************************************************/
 void __init kirkwood_i2c_init(void)
 {
 	orion_i2c_init(I2C_PHYS_BASE, IRQ_KIRKWOOD_TWSI, 8);
 }
-
-
-/*****************************************************************************
- * UART0
- ****************************************************************************/
 
 void __init kirkwood_uart0_init(void)
 {
@@ -450,57 +396,35 @@ void __init kirkwood_uart0_init(void)
 			 IRQ_KIRKWOOD_UART_0, tclk);
 }
 
-
-/*****************************************************************************
- * UART1
- ****************************************************************************/
 void __init kirkwood_uart1_init(void)
 {
 	orion_uart1_init(UART1_VIRT_BASE, UART1_PHYS_BASE,
 			 IRQ_KIRKWOOD_UART_1, tclk);
 }
 
-/*****************************************************************************
- * Cryptographic Engines and Security Accelerator (CESA)
- ****************************************************************************/
 void __init kirkwood_crypto_init(void)
 {
 	orion_crypto_init(CRYPTO_PHYS_BASE, KIRKWOOD_SRAM_PHYS_BASE,
 			  KIRKWOOD_SRAM_SIZE, IRQ_KIRKWOOD_CRYPTO);
 }
 
-
-/*****************************************************************************
- * XOR0
- ****************************************************************************/
 void __init kirkwood_xor0_init(void)
 {
 	orion_xor0_init(XOR0_PHYS_BASE, XOR0_HIGH_PHYS_BASE,
 			IRQ_KIRKWOOD_XOR_00, IRQ_KIRKWOOD_XOR_01);
 }
 
-
-/*****************************************************************************
- * XOR1
- ****************************************************************************/
 void __init kirkwood_xor1_init(void)
 {
 	orion_xor1_init(XOR1_PHYS_BASE, XOR1_HIGH_PHYS_BASE,
 			IRQ_KIRKWOOD_XOR_10, IRQ_KIRKWOOD_XOR_11);
 }
 
-
-/*****************************************************************************
- * Watchdog
- ****************************************************************************/
 void __init kirkwood_wdt_init(void)
 {
 	orion_wdt_init();
 }
 
-/*****************************************************************************
- * CPU idle
- ****************************************************************************/
 static struct resource kirkwood_cpuidle_resource[] = {
 	{
 		.flags	= IORESOURCE_MEM,
@@ -521,16 +445,17 @@ void __init kirkwood_cpuidle_init(void)
 	platform_device_register(&kirkwood_cpuidle);
 }
 
-/*****************************************************************************
- * Time handling
- ****************************************************************************/
 void __init kirkwood_init_early(void)
 {
 	orion_time_set_base(TIMER_VIRT_BASE);
 
+#if defined(MY_DEF_HERE)
+	 
+#else  
 	mvebu_mbus_init("marvell,kirkwood-mbus",
 			BRIDGE_WINS_BASE, BRIDGE_WINS_SZ,
 			DDR_WINDOW_CPU_BASE, DDR_WINDOW_CPU_SZ, 0);
+#endif  
 }
 
 int kirkwood_tclk;
@@ -556,10 +481,11 @@ void __init kirkwood_timer_init(void)
 			IRQ_KIRKWOOD_BRIDGE, kirkwood_tclk);
 }
 
-/*****************************************************************************
- * Audio
- ****************************************************************************/
+#if defined(MY_DEF_HERE)
+static struct resource kirkwood_audio_resources[] = {
+#else  
 static struct resource kirkwood_i2s_resources[] = {
+#endif  
 	[0] = {
 		.start  = AUDIO_PHYS_BASE,
 		.end    = AUDIO_PHYS_BASE + SZ_16K - 1,
@@ -572,10 +498,30 @@ static struct resource kirkwood_i2s_resources[] = {
 	},
 };
 
+#if defined(MY_DEF_HERE)
+static struct kirkwood_asoc_platform_data kirkwood_audio_data = {
+#else  
 static struct kirkwood_asoc_platform_data kirkwood_i2s_data = {
+#endif  
 	.burst       = 128,
 };
 
+#if defined(MY_DEF_HERE)
+static struct platform_device kirkwood_audio_device = {
+	.name		= "mvebu-audio",
+	.id		= -1,
+	.num_resources	= ARRAY_SIZE(kirkwood_audio_resources),
+	.resource	= kirkwood_audio_resources,
+	.dev		= {
+		.platform_data	= &kirkwood_audio_data,
+	},
+};
+
+void __init kirkwood_audio_init(void)
+{
+	platform_device_register(&kirkwood_audio_device);
+}
+#else  
 static struct platform_device kirkwood_i2s_device = {
 	.name		= "kirkwood-i2s",
 	.id		= -1,
@@ -596,13 +542,8 @@ void __init kirkwood_audio_init(void)
 	platform_device_register(&kirkwood_i2s_device);
 	platform_device_register(&kirkwood_pcm_device);
 }
+#endif  
 
-/*****************************************************************************
- * General
- ****************************************************************************/
-/*
- * Identify device ID and revision.
- */
 char * __init kirkwood_id(void)
 {
 	u32 dev, rev;
@@ -648,10 +589,17 @@ char * __init kirkwood_id(void)
 
 void __init kirkwood_setup_wins(void)
 {
-	/*
-	 * The PCIe windows will no longer be statically allocated
-	 * here once Kirkwood is migrated to the pci-mvebu driver.
-	 */
+#if defined(MY_DEF_HERE)
+	mvebu_mbus_add_window_by_id(KIRKWOOD_MBUS_NAND_TARGET,
+				    KIRKWOOD_MBUS_NAND_ATTR,
+				    KIRKWOOD_NAND_MEM_PHYS_BASE,
+				    KIRKWOOD_NAND_MEM_SIZE);
+	mvebu_mbus_add_window_by_id(KIRKWOOD_MBUS_SRAM_TARGET,
+				    KIRKWOOD_MBUS_SRAM_ATTR,
+				    KIRKWOOD_SRAM_PHYS_BASE,
+				    KIRKWOOD_SRAM_SIZE);
+#else  
+	 
 	mvebu_mbus_add_window_remap_flags("pcie0.0",
 					  KIRKWOOD_PCIE_IO_PHYS_BASE,
 					  KIRKWOOD_PCIE_IO_SIZE,
@@ -676,6 +624,7 @@ void __init kirkwood_setup_wins(void)
 			      KIRKWOOD_NAND_MEM_SIZE);
 	mvebu_mbus_add_window("sram", KIRKWOOD_SRAM_PHYS_BASE,
 			      KIRKWOOD_SRAM_SIZE);
+#endif  
 }
 
 void __init kirkwood_l2_init(void)
@@ -695,22 +644,20 @@ void __init kirkwood_init(void)
 {
 	pr_info("Kirkwood: %s, TCLK=%d.\n", kirkwood_id(), kirkwood_tclk);
 
-	/*
-	 * Disable propagation of mbus errors to the CPU local bus,
-	 * as this causes mbus errors (which can occur for example
-	 * for PCI aborts) to throw CPU aborts, which we're not set
-	 * up to deal with.
-	 */
 	writel(readl(CPU_CONFIG) & ~CPU_CONFIG_ERROR_PROP, CPU_CONFIG);
+
+#if defined(MY_DEF_HERE)
+	BUG_ON(mvebu_mbus_init("marvell,kirkwood-mbus",
+			BRIDGE_WINS_BASE, BRIDGE_WINS_SZ,
+			DDR_WINDOW_CPU_BASE, DDR_WINDOW_CPU_SZ));
+#endif  
 
 	kirkwood_setup_wins();
 
 	kirkwood_l2_init();
 
-	/* Setup root of clk tree */
 	kirkwood_clk_init();
 
-	/* internal devices that every board has */
 	kirkwood_rtc_init();
 	kirkwood_wdt_init();
 	kirkwood_xor0_init();
@@ -725,14 +672,9 @@ void __init kirkwood_init(void)
 
 void kirkwood_restart(char mode, const char *cmd)
 {
-	/*
-	 * Enable soft reset to assert RSTOUTn.
-	 */
+	 
 	writel(SOFT_RESET_OUT_EN, RSTOUTn_MASK);
 
-	/*
-	 * Assert soft reset.
-	 */
 	writel(SOFT_RESET, SYSTEM_SOFT_RESET);
 
 	while (1)

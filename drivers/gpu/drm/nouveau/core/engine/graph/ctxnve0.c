@@ -2748,7 +2748,6 @@ nve0_grctx_generate(struct nvc0_graph_priv *priv)
 	for (i = 0; i < 6; i++)
 		nv_wr32(priv, 0x40780c + (i * 4), data[i]);
 
-
 	memcpy(tpcnr, priv->tpc_nr, sizeof(priv->tpc_nr));
 	for (gpc = 0; gpc < priv->gpc_nr; gpc++)
 		tpc_mask |= ((1 << priv->tpc_nr[gpc]) - 1) << (gpc * 8);

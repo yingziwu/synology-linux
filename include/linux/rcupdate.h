@@ -559,7 +559,6 @@ static inline void rcu_preempt_sleep_check(void)
 		(p) = (typeof(*v) __force space *)(v); \
 	} while (0)
 
-
 /**
  * rcu_access_pointer() - fetch RCU pointer with no dereferencing
  * @p: The pointer to read
@@ -703,7 +702,6 @@ static inline void rcu_preempt_sleep_check(void)
  */
 #define rcu_dereference_protected(p, c) \
 	__rcu_dereference_protected((p), (c), __rcu)
-
 
 /**
  * rcu_dereference() - fetch RCU-protected pointer for dereferencing
@@ -1014,6 +1012,5 @@ extern bool rcu_is_nocb_cpu(int cpu);
 #else
 static inline bool rcu_is_nocb_cpu(int cpu) { return false; }
 #endif /* #else #ifdef CONFIG_RCU_NOCB_CPU */
-
 
 #endif /* __LINUX_RCUPDATE_H */

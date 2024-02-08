@@ -143,7 +143,6 @@
 #define divn_max(p) (divn_mask(p))
 #define divp_max(p) (1 << (divp_mask(p)))
 
-
 #ifdef CONFIG_ARCH_TEGRA_114_SOC
 /* PLLXC has 4-bit PDIV, but entry 15 is not allowed in h/w */
 #define PLLXC_PDIV_MAX			14
@@ -897,7 +896,6 @@ static int clk_pllm_set_rate(struct clk_hw *hw, unsigned long rate,
 	} else
 		_update_pll_mnp(pll, &cfg);
 
-
 out:
 	if (pll->lock)
 		spin_unlock_irqrestore(pll->lock, flags);
@@ -1359,7 +1357,6 @@ const struct clk_ops tegra_clk_plle_tegra114_ops = {
 	.disable = clk_plle_tegra114_disable,
 	.recalc_rate = clk_pll_recalc_rate,
 };
-
 
 struct clk *tegra_clk_register_pllxc(const char *name, const char *parent_name,
 			  void __iomem *clk_base, void __iomem *pmc,

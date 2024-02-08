@@ -31,7 +31,6 @@ static UCHAR *GetNextIPV6ChainedHeader(UCHAR **ppucPayload,
 	/* Get the Nextt Header Type */
 	*bParseDone = FALSE;
 
-
 	switch (*pucNextHeader) {
 	case IPV6HDR_TYPE_HOPBYHOP:
 		{
@@ -121,7 +120,6 @@ static UCHAR *GetNextIPV6ChainedHeader(UCHAR **ppucPayload,
 		}
 		break;
 
-
 	}
 
 	if (*bParseDone == FALSE) {
@@ -138,7 +136,6 @@ static UCHAR *GetNextIPV6ChainedHeader(UCHAR **ppucPayload,
 	*ppucPayload = pucPayloadPtr;
 	return pucRetHeaderPtr;
 }
-
 
 static UCHAR GetIpv6ProtocolPorts(UCHAR *pucPayload, USHORT *pusSrcPort,
 	USHORT *pusDestPort, USHORT usPayloadLength, UCHAR ucNextHeader)
@@ -174,7 +171,6 @@ static UCHAR GetIpv6ProtocolPorts(UCHAR *pucPayload, USHORT *pusSrcPort,
 	}
 	return ucHeaderType;
 }
-
 
 /*
  * Arg 1 struct bcm_mini_adapter *Adapter is a pointer ot the driver contorl structure
@@ -287,7 +283,6 @@ USHORT	IpVersion6(struct bcm_mini_adapter *Adapter, PVOID pcIpHeader,
 	return bClassificationSucceed;
 }
 
-
 static BOOLEAN MatchSrcIpv6Address(struct bcm_classifier_rule *pstClassifierRule,
 	struct bcm_ipv6_hdr *pstIpv6Header)
 {
@@ -302,10 +297,8 @@ static BOOLEAN MatchSrcIpv6Address(struct bcm_classifier_rule *pstClassifierRule
 	 */
 	UINT  uiCountIPSrcAddresses = (UINT)pstClassifierRule->ucIPSourceAddressLength;
 
-
 	if (uiCountIPSrcAddresses == 0)
 		return TRUE;
-
 
 	/* First Convert the Ip Address in the packet to Host Endian order */
 	for (uiIpv6AddIndex = 0; uiIpv6AddIndex < uiIpv6AddrNoLongWords; uiIpv6AddIndex++)
@@ -359,10 +352,8 @@ static BOOLEAN MatchDestIpv6Address(struct bcm_classifier_rule *pstClassifierRul
 	 */
 	UINT  uiCountIPDestinationAddresses = (UINT)pstClassifierRule->ucIPDestinationAddressLength;
 
-
 	if (uiCountIPDestinationAddresses == 0)
 		return TRUE;
-
 
 	/* First Convert the Ip Address in the packet to Host Endian order */
 	for (uiIpv6AddIndex = 0; uiIpv6AddIndex < uiIpv6AddrNoLongWords; uiIpv6AddIndex++)
@@ -446,6 +437,5 @@ static VOID DumpIpv6Header(struct bcm_ipv6_hdr *pstIpv6Header)
 	DumpIpv6Address(pstIpv6Header->ulDestIpAddress);
 	BCM_DEBUG_PRINT(Adapter, DBG_TYPE_TX, IPV6_DBG, DBG_LVL_ALL,
 			"----Ipv6 Header End---");
-
 
 }

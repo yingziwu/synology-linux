@@ -157,7 +157,6 @@ static ssize_t ieee80211_if_write_##name(struct file *file,		\
 }									\
 __IEEE80211_IF_FILE(name, ieee80211_if_write_##name)
 
-
 #define IEEE80211_IF_FILE(name, field, format)				\
 		IEEE80211_IF_FMT_##format(name, field)			\
 		__IEEE80211_IF_FILE(name, NULL)
@@ -463,7 +462,6 @@ static ssize_t ieee80211_if_parse_tsf(
 	return buflen;
 }
 __IEEE80211_IF_FILE_W(tsf);
-
 
 /* WDS attributes */
 IEEE80211_IF_FILE(peer, u.wds.remote_addr, MAC);

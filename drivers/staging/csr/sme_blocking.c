@@ -16,7 +16,6 @@
 
 #include "unifi_priv.h"
 
-
 /*
  * This file also contains the implementation of the asynchronous
  * requests to the SME.
@@ -64,7 +63,6 @@
  * sme_mgt_tspec()
  */
 
-
 /*
  * Handling the suspend and resume system events, we need to block
  * until the SME sends the response to our indication.
@@ -107,7 +105,6 @@ sme_init_request(unifi_priv_t *priv)
 
 } /* sme_init_request() */
 
-
 void
 uf_sme_complete_request(unifi_priv_t *priv, CsrResult reply_status, const char *func)
 {
@@ -133,7 +130,6 @@ uf_sme_complete_request(unifi_priv_t *priv, CsrResult reply_status, const char *
 
     return;
 }
-
 
 void
 uf_sme_cancel_request(unifi_priv_t *priv, CsrResult reply_status)
@@ -167,7 +163,6 @@ uf_sme_cancel_request(unifi_priv_t *priv, CsrResult reply_status)
 
     return;
 }
-
 
 static int
 _sme_wait_for_reply(unifi_priv_t *priv,
@@ -216,9 +211,6 @@ _sme_wait_for_reply(unifi_priv_t *priv,
     return 0;
 } /* sme_wait_for_reply() */
 
-
-
-
 #ifdef CSR_SUPPORT_WEXT
 int sme_mgt_wifi_on(unifi_priv_t *priv)
 {
@@ -258,7 +250,6 @@ int sme_mgt_wifi_on(unifi_priv_t *priv)
     return 0;
 #endif
 } /* sme_mgt_wifi_on() */
-
 
 int sme_mgt_wifi_off(unifi_priv_t *priv)
 {
@@ -310,7 +301,6 @@ int sme_mgt_key(unifi_priv_t *priv, CsrWifiSmeKey *sme_key,
     return convert_sme_error(priv->sme_reply.reply_status);
 }
 
-
 int sme_mgt_scan_full(unifi_priv_t *priv,
         CsrWifiSsid *specific_ssid,
         int num_channels,
@@ -358,7 +348,6 @@ int sme_mgt_scan_full(unifi_priv_t *priv,
     else
         return convert_sme_error(priv->sme_reply.reply_status);
 }
-
 
 int sme_mgt_scan_results_get_async(unifi_priv_t *priv,
         struct iw_request_info *info,
@@ -430,7 +419,6 @@ int sme_mgt_scan_results_get_async(unifi_priv_t *priv,
     return (current_ev - scan_results);
 }
 
-
 int sme_mgt_connect(unifi_priv_t *priv)
 {
     int r;
@@ -460,7 +448,6 @@ int sme_mgt_connect(unifi_priv_t *priv)
     return convert_sme_error(priv->sme_reply.reply_status);
 }
 
-
 int sme_mgt_disconnect(unifi_priv_t *priv)
 {
     int r;
@@ -482,7 +469,6 @@ int sme_mgt_disconnect(unifi_priv_t *priv)
     unifi_trace(priv, UDBG4, "sme_mgt_disconnect: <-- (status=%d)\n", priv->sme_reply.reply_status);
     return convert_sme_error(priv->sme_reply.reply_status);
 }
-
 
 int sme_mgt_pmkid(unifi_priv_t *priv,
         CsrWifiSmeListAction action,
@@ -508,7 +494,6 @@ int sme_mgt_pmkid(unifi_priv_t *priv,
     unifi_trace(priv, UDBG4, "sme_mgt_pmkid: <-- (status=%d)\n", priv->sme_reply.reply_status);
     return convert_sme_error(priv->sme_reply.reply_status);
 }
-
 
 int sme_mgt_mib_get(unifi_priv_t *priv,
         unsigned char *varbind, int *length)
@@ -1263,8 +1248,6 @@ int sme_mgt_tspec(unifi_priv_t *priv, CsrWifiSmeListAction action,
 	return convert_sme_error(priv->sme_reply.reply_status);
 }
 
-
-
 int sme_sys_suspend(unifi_priv_t *priv)
 {
     int r;
@@ -1349,7 +1332,6 @@ int sme_sys_suspend(unifi_priv_t *priv)
     unifi_trace(priv, UDBG1, "sme_sys_suspend: <-- (r=%d status=%d)\n", r, priv->sme_reply.reply_status);
     return convert_sme_error(priv->sme_reply.reply_status);
 }
-
 
 int sme_sys_resume(unifi_priv_t *priv)
 {

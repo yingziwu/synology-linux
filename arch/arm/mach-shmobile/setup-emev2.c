@@ -159,7 +159,6 @@ static struct platform_device sti_device = {
 	.num_resources	= ARRAY_SIZE(sti_resources),
 };
 
-
 /* GIO */
 static struct gpio_em_config gio0_config = {
 	.gpio_base = 0,

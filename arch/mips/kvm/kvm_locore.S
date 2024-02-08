@@ -16,7 +16,6 @@
 #include <asm/stackframe.h>
 #include <asm/asm-offsets.h>
 
-
 #define _C_LABEL(x)     x
 #define MIPSX(name)     mips32_ ## name
 #define CALLFRAME_SIZ   32
@@ -148,7 +147,6 @@ FEXPORT(__kvm_mips_vcpu_run)
     or          k0, k0, v0
     mtc0        k0,CP0_STATUS
     ehb
-
 
 	/* Set Guest EPC */
 	LONG_L		t0, VCPU_PC(k1)
@@ -330,7 +328,6 @@ NESTED (MIPSX(GuestException), CALLFRAME_SIZ, ra)
     /* Save pointer to run in s0, will be saved by the compiler */
     move        s0, a0
 
-
     /* Save Host level EPC, BadVaddr and Cause to VCPU, useful to process the exception */
     mfc0    k0,CP0_EPC
     LONG_S  k0, VCPU_PC(k1)
@@ -359,7 +356,6 @@ NESTED (MIPSX(GuestException), CALLFRAME_SIZ, ra)
 
     LONG_L      k0, VCPU_HOST_EBASE(k1)
     mtc0        k0,CP0_EBASE
-
 
     /* Now that the new EBASE has been loaded, unset BEV and KSU_USER */
     .set at
@@ -438,7 +434,6 @@ __kvm_mips_return_to_guest:
     .set noat
     mtc0    v1, CP0_STATUS
     ehb
-
 
 	/* Set Guest EPC */
 	LONG_L		t0, VCPU_PC(k1)
@@ -574,7 +569,6 @@ __kvm_mips_return_to_host:
     la      k0, 0x2000000F
     mtc0    k0,  CP0_HWRENA
 
-
     /* Restore RA, which is the address we will return to */
     LONG_L  ra, PT_R31(k1)
     j       ra
@@ -620,7 +614,6 @@ MIPSX(exceptions):
 	.word _C_LABEL(MIPSX(GuestException))	# 29
 	.word _C_LABEL(MIPSX(GuestException))	# 30
 	.word _C_LABEL(MIPSX(GuestException))	# 31
-
 
 /* This routine makes changes to the instruction stream effective to the hardware.
  * It should be called after the instruction stream is written.

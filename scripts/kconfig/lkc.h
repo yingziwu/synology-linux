@@ -87,6 +87,9 @@ char *conf_get_default_confname(void);
 void sym_set_change_count(int count);
 void sym_add_change_count(int count);
 void conf_set_all_new_symbols(enum conf_def_mode mode);
+#if defined(CONFIG_SYNO_LSP_HI3536)
+void set_all_choice_values(struct symbol *csym);
+#endif /* CONFIG_SYNO_LSP_HI3536 */
 
 struct conf_printer {
 	void (*print_symbol)(FILE *, struct symbol *, const char *, void *);
@@ -159,7 +162,6 @@ static inline tristate sym_get_tristate_value(struct symbol *sym)
 {
 	return sym->curr.tri;
 }
-
 
 static inline struct symbol *sym_get_choice_value(struct symbol *sym)
 {

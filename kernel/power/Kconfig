@@ -18,6 +18,16 @@ config SUSPEND_FREEZER
 
 	  Turning OFF this setting is NOT recommended! If in doubt, say Y.
 
+config HAS_WAKELOCK
+	bool
+	depends on SYNO_LSP_HI3536
+	default y
+
+config WAKELOCK
+	bool
+	depends on SYNO_LSP_HI3536
+	default y
+
 config HIBERNATE_CALLBACKS
 	bool
 
@@ -240,10 +250,11 @@ config APM_EMULATION
 
 config ARCH_HAS_OPP
 	bool
+	depends on !SYNO_LSP_ARMADA_2015_T1_1p4
 
 config PM_OPP
 	bool "Operating Performance Point (OPP) Layer library"
-	depends on ARCH_HAS_OPP
+	depends on (ARCH_HAS_OPP && !SYNO_LSP_ARMADA_2015_T1_1p4) || SYNO_LSP_ARMADA_2015_T1_1p4
 	---help---
 	  SOCs have a standard set of tuples consisting of frequency and
 	  voltage pairs that the device will support per voltage domain. This
@@ -274,3 +285,11 @@ config PM_GENERIC_DOMAINS_RUNTIME
 config CPU_PM
 	bool
 	depends on SUSPEND || CPU_IDLE
+
+config SUSPEND_TIME
+	bool "Log time spent in suspend"
+	depends on SYNO_LSP_HI3536
+	---help---
+	  Prints the time spent in suspend in the kernel log, and
+	  keeps statistics on the time spent in suspend in
+	  /sys/kernel/debug/suspend_time

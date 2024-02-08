@@ -32,7 +32,6 @@ struct panel_module {
 };
 #define to_panel_module(x) container_of(x, struct panel_module, base)
 
-
 /*
  * Encoder:
  */
@@ -42,7 +41,6 @@ struct panel_encoder {
 	struct panel_module *mod;
 };
 #define to_panel_encoder(x) container_of(x, struct panel_encoder, base)
-
 
 static void panel_encoder_destroy(struct drm_encoder *encoder)
 {
@@ -146,7 +144,6 @@ struct panel_connector {
 	struct panel_module *mod;
 };
 #define to_panel_connector(x) container_of(x, struct panel_connector, base)
-
 
 static void panel_connector_destroy(struct drm_connector *connector)
 {
@@ -360,7 +357,6 @@ static int panel_probe(struct platform_device *pdev)
 	struct pinctrl *pinctrl;
 	int ret = -EINVAL;
 
-
 	/* bail out early if no DT data: */
 	if (!node) {
 		dev_err(&pdev->dev, "device-tree data is missing\n");
@@ -378,7 +374,6 @@ static int panel_probe(struct platform_device *pdev)
 	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
 	if (IS_ERR(pinctrl))
 		dev_warn(&pdev->dev, "pins are not configured\n");
-
 
 	panel_mod->timings = of_get_display_timings(node);
 	if (!panel_mod->timings) {

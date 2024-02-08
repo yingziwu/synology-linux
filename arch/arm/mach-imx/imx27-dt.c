@@ -1,14 +1,7 @@
-/*
- * Copyright 2012 Sascha Hauer, Pengutronix
- *
- * The code contained herein is licensed under the GNU General Public
- * License. You may obtain a copy of the GNU General Public License
- * Version 2 or later at the following locations:
- *
- * http://www.opensource.org/licenses/gpl-license.html
- * http://www.gnu.org/copyleft/gpl.html
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/irq.h>
 #include <linux/of_irq.h>
 #include <linux/of_platform.h>
@@ -20,7 +13,11 @@
 
 static void __init imx27_dt_init(void)
 {
+#if defined(MY_DEF_HERE)
+	struct platform_device_info devinfo = { .name = "cpufreq-dt", };
+#else  
 	struct platform_device_info devinfo = { .name = "cpufreq-cpu0", };
+#endif  
 
 	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
 

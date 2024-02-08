@@ -212,7 +212,6 @@ void put_client_renew(struct nfs4_client *clp)
 	spin_unlock(&nn->client_lock);
 }
 
-
 static inline u32
 opaque_hashval(const void *ptr, int nbytes)
 {
@@ -445,8 +444,6 @@ unhash_delegation(struct nfs4_delegation *dp)
 	put_nfs4_file(dp->dl_file);
 	dp->dl_file = NULL;
 }
-
-
 
 static void destroy_revoked_delegation(struct nfs4_delegation *dp)
 {
@@ -1253,7 +1250,6 @@ static bool is_gss_cred(struct svc_cred *cr)
 	/* Is cr_flavor one of the gss "pseudoflavors"?: */
 	return (cr->cr_flavor > RPC_AUTH_MAXFLAVOR);
 }
-
 
 static bool
 same_creds(struct svc_cred *cr1, struct svc_cred *cr2)
@@ -2326,7 +2322,6 @@ out:
 	return status;
 }
 
-
 __be32
 nfsd4_setclientid_confirm(struct svc_rqst *rqstp,
 			 struct nfsd4_compound_state *cstate,
@@ -2899,7 +2894,6 @@ nfs4_upgrade_open(struct svc_rqst *rqstp, struct nfs4_file *fp, struct svc_fh *c
 
 	return nfs_ok;
 }
-
 
 static void
 nfs4_set_claim_prev(struct nfsd4_open *open, bool has_session)
@@ -3970,7 +3964,6 @@ out:
 
 	return status;
 }
-
 
 #define LOFF_OVERFLOW(start, len)      ((u64)(len) > ~(u64)(start))
 

@@ -169,4 +169,3 @@ static inline void gpio_line_set(u8 line, int value)
 }
 
 #endif // __ASSEMBLY__
-

@@ -45,7 +45,6 @@ extern int cpci_debug;
 #define info(format, arg...) printk(KERN_INFO "%s: " format "\n", MY_NAME , ## arg)
 #define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n", MY_NAME , ## arg)
 
-
 u8 cpci_get_attention_status(struct slot* slot)
 {
 	int hs_cap;
@@ -245,7 +244,6 @@ int cpci_led_off(struct slot* slot)
 	return 0;
 }
 
-
 /*
  * Device configuration functions
  */
@@ -288,7 +286,6 @@ int __ref cpci_configure_slot(struct slot *slot)
 		if ((dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) ||
 		    (dev->hdr_type == PCI_HEADER_TYPE_CARDBUS))
 			pci_hp_add_bridge(dev);
-
 
 	pci_assign_unassigned_bridge_resources(parent->self);
 

@@ -168,7 +168,6 @@ static int iwlagn_rx_csa(struct iwl_priv *priv, struct iwl_rx_cmd_buffer *rxb,
 	return 0;
 }
 
-
 static int iwlagn_rx_spectrum_measure_notif(struct iwl_priv *priv,
 					  struct iwl_rx_cmd_buffer *rxb,
 					  struct iwl_device_cmd *cmd)
@@ -312,7 +311,6 @@ int iwl_force_rf_reset(struct iwl_priv *priv, bool external)
 	iwl_internal_short_hw_scan(priv);
 	return 0;
 }
-
 
 static void iwlagn_recover_from_statistics(struct iwl_priv *priv,
 				struct statistics_rx_phy *cur_ofdm,
@@ -622,7 +620,6 @@ static int iwlagn_rx_card_state_notif(struct iwl_priv *priv,
 		set_bit(STATUS_RF_KILL_HW, &priv->status);
 	else
 		clear_bit(STATUS_RF_KILL_HW, &priv->status);
-
 
 	if (!(flags & RXON_CARD_DISABLED))
 		iwl_scan_cancel(priv);

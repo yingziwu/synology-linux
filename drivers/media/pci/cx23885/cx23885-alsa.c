@@ -39,7 +39,6 @@
 
 #include <sound/tlv.h>
 
-
 #include "cx23885.h"
 #include "cx23885-reg.h"
 

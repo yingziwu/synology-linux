@@ -23,7 +23,6 @@
  *          Alon Levy
  */
 
-
 #include "linux/crc32.h"
 
 #include "qxl_drv.h"
@@ -394,7 +393,6 @@ static int qxl_crtc_cursor_move(struct drm_crtc *crtc,
 	qxl_release_unreserve(qdev, release);
 	return 0;
 }
-
 
 static const struct drm_crtc_funcs qxl_crtc_funcs = {
 	.cursor_set = qxl_crtc_cursor_set,
@@ -772,7 +770,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
 	DRM_DEBUG("\n");
 	return &qxl_output->enc;
 }
-
 
 static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
 	.dpms = qxl_enc_dpms,
