@@ -32,6 +32,8 @@
 #include "uas-detect.h"
 #include "scsiglue.h"
 
+#ifdef MY_ABC_HERE
+#else
 #define MAX_CMNDS 256
 
 struct uas_dev_info {
@@ -50,6 +52,7 @@ struct uas_dev_info {
 	struct work_struct work;
 	struct work_struct scan_work;      /* for async scanning */
 };
+#endif
 
 enum {
 	SUBMIT_STATUS_URB	= BIT(1),

@@ -52,6 +52,9 @@ typedef enum {
 #ifdef MY_ABC_HERE
 	attr_incompat_supp,
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	attr_compat_ro_supp,
+#endif /* MY_ABC_HERE */
 } attr_id_t;
 
 typedef enum {
@@ -315,6 +318,9 @@ EXT4_ATTR_FUNC(syno_fs_error_count, 0444);
 #ifdef MY_ABC_HERE
 EXT4_ATTR_FUNC(incompat_supp, 0444);
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+EXT4_ATTR_FUNC(compat_ro_supp, 0444);
+#endif /* MY_ABC_HERE */
 
 static unsigned int old_bump_val = 128;
 EXT4_ATTR_PTR(max_writeback_mb_bump, 0444, pointer_ui, &old_bump_val);
@@ -412,6 +418,9 @@ static struct attribute *ext4_feat_attrs[] = {
 	ATTR_LIST(fast_commit),
 #ifdef MY_ABC_HERE
 	ATTR_LIST(incompat_supp),
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	ATTR_LIST(compat_ro_supp),
 #endif /* MY_ABC_HERE */
 	NULL,
 };
@@ -538,6 +547,10 @@ static ssize_t ext4_attr_show(struct kobject *kobj,
 #ifdef MY_ABC_HERE
 	case attr_incompat_supp:
 		return snprintf(buf, PAGE_SIZE, "%u\n", EXT4_FEATURE_INCOMPAT_SUPP);
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	case attr_compat_ro_supp:
+		return snprintf(buf, PAGE_SIZE, "%u\n", EXT4_FEATURE_RO_COMPAT_SUPP);
 #endif /* MY_ABC_HERE */
 	}
 

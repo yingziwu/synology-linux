@@ -36,10 +36,21 @@ platform_image_name()
 }
 
 # shellcheck disable=SC2154
+platform_customize_rtd1619b_mango_image()
+{
+    # shellcheck disable=SC2043
+    for model in mango; do
+        DTBIMG="${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1619b-synology-${model}.dtb"
+        mkdir -p "${DebDevBuild}/image/files/sds-sii/dtbs/synology_rtd1619bmango_${model}/"
+        cp -vf "${DTBIMG}" "${DebDevBuild}/image/files/sds-sii/dtbs/synology_rtd1619bmango_${model}/model-vendor.dtb"
+    done
+}
+
+# shellcheck disable=SC2154
 platform_customize_rtd1619b_image()
 {
     # shellcheck disable=SC2043
-    for model in ds223j ds423 ds223 ds123; do
+    for model in ds223j ds423 ds223 ds124; do
         DTBIMG="${KernelDir}/arch/arm64/boot/dts/realtek/rtd-1619b-synology-${model}.dtb"
         mkdir -p "${DebDevBuild}/image/files/sds-sii/dtbs/synology_rtd1619b_${model}/"
         cp -vf "${DTBIMG}" "${DebDevBuild}/image/files/sds-sii/dtbs/synology_rtd1619b_${model}/model-vendor.dtb"

@@ -50,7 +50,11 @@ ci_check_sparse()
 
 ci_check_patch()
 {
-    git diff -U0 --no-color HEAD~1..HEAD | ./scripts/checkpatch.pl
+    if git remote show origin &>/dev/null; then
+        ./scripts/checkpatch.pl -g origin/HEAD..HEAD
+    else
+        ./scripts/checkpatch.pl -g HEAD~1..HEAD
+    fi
 }
 
 ci_check_smatch()
@@ -93,7 +97,12 @@ ci_check_clang_format_diff()
 
     local _diff
 
-    _diff="$(git diff -U0 --no-color HEAD~1..HEAD | clang-format-diff -p1)"
+    if git remote show origin &>/dev/null; then
+        _diff="$(git diff -U0 --no-color origin/HEAD..HEAD | clang-format-diff -p1)"
+    else
+        _diff="$(git diff -U0 --no-color HEAD~1..HEAD | clang-format-diff -p1)"
+    fi
+
 
     if [ -n "$_diff" ]; then
         echo "$_diff"
@@ -124,7 +133,7 @@ ci_build_tools()
         objtool
         pci
         perf
-        selftests
+        #selftests
         spi
         tmon
         turbostat
@@ -162,6 +171,7 @@ ci_build_tools()
 
 ci_build_ci_image()
 {
+    make olddefconfig
     make vmlinux modules -j "$(nproc)"
 }
 
@@ -176,6 +186,7 @@ ci_build_btf_image()
     # vmlinux with BTF is required for tools/bpf
     ./scripts/config --enable CONFIG_DEBUG_INFO_BTF
 
+    make olddefconfig
     make vmlinux modules -j "$(nproc)"
 }
 

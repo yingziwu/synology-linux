@@ -1452,14 +1452,17 @@ syno_pm_info_show(struct device *dev, struct device_attribute *attr, char *buf)
 	struct Scsi_Host *shost = class_to_shost(dev);
 	struct ata_port *ap = ata_shost_to_port(shost);
 	ssize_t len = 0;
-	//int index, start_idx;
+	int index = 0;
 	int NumOfPMPorts = 0;
 	char szPciePath[SYNO_DTS_PROPERTY_CONTENT_LENGTH] = {'\0'};
 
 	if (ap->nr_pmp_links &&
-		syno_is_synology_pm(ap)) {
+		(syno_is_synology_pm(ap) ||
+		syno_pm_with_synology_magic(ap))) {
 		char szTmp[BDEVNAME_SIZE];
 		char *szTmp1 = NULL;
+		struct scsi_device *sdev = NULL;
+
 		szTmp1 = (char*) kcalloc(PAGE_SIZE, sizeof(char), GFP_KERNEL);
 		if (NULL == szTmp1) {
 			printk(KERN_WARNING "%s kmalloc failed\n", __FUNCTION__);
@@ -1473,7 +1476,22 @@ syno_pm_info_show(struct device *dev, struct device_attribute *attr, char *buf)
 
 		memset(szTmp, 0, sizeof(szTmp));
 
-		/* syno_device_list, it will be empty */
+		/* syno_device_list */
+		shost_for_each_device(sdev, shost) {
+
+			/* Skip virtual pmp device */
+			if (SYNO_PM_VIRTUAL_SCSI_CHANNEL == sdev->channel) {
+				continue;
+			}
+			
+			if (0 == index) {
+				snprintf(szTmp, BDEVNAME_SIZE, "/dev/%s", sdev->syno_disk_name);
+			} else {
+				snprintf(szTmp, BDEVNAME_SIZE, ",/dev/%s", sdev->syno_disk_name);
+			}
+			strncat(szTmp1, szTmp, BDEVNAME_SIZE);
+			index++;
+		}
 		snprintf(buf, PAGE_SIZE, "%s%s%s%s", EBOX_INFO_DEV_LIST_KEY, "=\"", szTmp1, "\"\n");
 
 		/* vendor id and device id */
@@ -1627,7 +1645,7 @@ syno_pm_info_show(struct device *dev, struct device_attribute *attr, char *buf)
 		} else {
 			snprintf(szTmp,
 					BDEVNAME_SIZE,
-					"%s=\"Unknown\"\n%s=\"0\"\n", EBOX_INFO_UNIQUE_KEY, EBOX_INFO_EMID_KEY);
+					"%s=\"Unknown\"\n%s=\"%d\"\n", EBOX_INFO_UNIQUE_KEY, EBOX_INFO_EMID_KEY, ap->PMSynoEMID);
 		}
 		strncat(szTmp1, szTmp, BDEVNAME_SIZE);
 
@@ -2673,6 +2691,9 @@ syno_sata_error_event_debug_store(struct device *dev, struct device_attribute *a
 #endif /* MY_ABC_HERE */
 
 	}
+
+	schedule_work(&(ap->SendDiskRetryEventTask));
+
 	ret = count;
 
 END:
@@ -4574,9 +4595,11 @@ static int syno_ata_scsi_translate(struct ata_device *dev, struct scsi_cmnd *cmd
 			} else {
 				/* These msg will appear very much, so we mark it.
 				 * But it is useful for debug, I leave it here */
-				if (printk_ratelimit()) {
-					DBGMESG("port %d too close to last wakeup, wait again (%lu) (%lu) (%lu)\n",
+#ifdef MY_ABC_HERE
+				if (0 < gSynoAtaDebug && printk_ratelimit()) {
+					printk("port %d too close to last wakeup, wait again (%lu) (%lu) (%lu)\n",
 							ap->print_id, jiffies, gulLastWake, SynoWakeInterval());
+#endif /* MY_ABC_HERE */
 				}
 				goto WAIT;
 			}
@@ -7866,9 +7889,7 @@ static void syno_pciepath_enum(struct device *dev, char *buf) {
 		return;
 	}
 
-	if (NULL != sztemp) {
-		snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buf, sztemp);
-	}
+	snprintf(buf, BLOCK_INFO_SIZE, "%spciepath=%s\n", buf, sztemp);
 }
 
 static void syno_ata_info_enum(struct ata_port *ap, struct scsi_device *sdev) {

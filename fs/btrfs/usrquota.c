@@ -1056,6 +1056,11 @@ int btrfs_usrquota_enable(struct btrfs_fs_info *fs_info, u64 cmd)
 	if (cmd == BTRFS_USRQUOTA_CTL_ENABLE)
 		cmd = BTRFS_USRQUOTA_V2_CTL_ENABLE;
 
+	if (btrfs_test_opt(fs_info, NO_QUOTA_TREE)) {
+		btrfs_info(fs_info, "Can't enable usrquota with mount_opt no_quota_tree");
+		return -EINVAL;
+	}
+
 	/*
 	 * Protected by fs_info->subvol_sem, so qgroup will not do disable
 	 * before we finish user quota enable.
@@ -1129,6 +1134,7 @@ int btrfs_usrquota_enable(struct btrfs_fs_info *fs_info, u64 cmd)
 		ret = insert_usrquota_compat_item(trans, fs_info, usrquota_root);
 		if (ret) {
 			fs_info->usrquota_compat_flags = 0;
+			btrfs_abort_transaction(trans, ret);
 			goto out_free_root;
 		}
 	}
@@ -1138,6 +1144,7 @@ int btrfs_usrquota_enable(struct btrfs_fs_info *fs_info, u64 cmd)
 	ret = usrquota_subtree_load_all(fs_info);
 	if (ret) {
 		btrfs_err(fs_info, "failed to init usrquota subtree during enable usrquota");
+		btrfs_abort_transaction(trans, ret);
 		goto out_free_root;
 	}
 

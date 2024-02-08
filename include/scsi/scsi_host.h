@@ -517,6 +517,10 @@ struct scsi_host_template {
 	int (*syno_set_sashost_disk_led)(struct scsi_device *, int);
 #endif
 
+#ifdef MY_DEF_HERE
+	void (*syno_device_list_set)(struct scsi_device *, int, const char*);
+#endif /* MY_DEF_HERE */
+
 };
 
 /*

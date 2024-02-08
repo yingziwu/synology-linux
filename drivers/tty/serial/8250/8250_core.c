@@ -1187,7 +1187,11 @@ bool dts_uart_port_match(struct uart_port *port, const int uart_index)
 	}
 
 	if (!strcmp(addr_type, "pcie")) {
-		ret = (0 == syno_compare_dts_pciepath(to_pci_dev(port->dev), pSlotNode) ? true : false);
+		if (dev_is_pci(port->dev)) {
+			ret = (0 == syno_compare_dts_pciepath(to_pci_dev(port->dev), pSlotNode) ? true : false);
+		} else {
+			ret = false;
+		}
 	} else if (!strcmp(addr_type, "io")){
 		of_property_read_u32(pSlotNode, "base", &base_addr);
 		ret = (port->iobase == base_addr? true : false);

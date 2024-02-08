@@ -28,5 +28,6 @@ ifeq ($(CONFIG_SYNO_RTD1619B), y)
 dtb-$(CONFIG_ARCH_REALTEK) += rtd-1619b-synology-ds223j.dtb
 dtb-$(CONFIG_ARCH_REALTEK) += rtd-1619b-synology-ds423.dtb
 dtb-$(CONFIG_ARCH_REALTEK) += rtd-1619b-synology-ds223.dtb
-dtb-$(CONFIG_ARCH_REALTEK) += rtd-1619b-synology-ds123.dtb
+dtb-$(CONFIG_ARCH_REALTEK) += rtd-1619b-synology-ds124.dtb
+dtb-$(CONFIG_ARCH_REALTEK) += rtd-1619b-synology-mango.dtb
 endif # CONFIG_SYNO_RTD1619B

@@ -540,6 +540,7 @@ void btrfs_remove_ordered_extent(struct btrfs_inode *btrfs_inode,
 	list_del_init(&entry->root_extent_list);
 #ifdef MY_ABC_HERE
 	atomic64_dec(&fs_info->syno_ordered_extent_nr);
+	atomic64_inc(&fs_info->syno_ordered_extent_processed_nr);
 #endif /* MY_ABC_HERE */
 	root->nr_ordered_extents--;
 
@@ -590,8 +591,13 @@ u64 btrfs_wait_ordered_extents(struct btrfs_root *root, u64 nr,
 		ordered = list_first_entry(&splice, struct btrfs_ordered_extent,
 					   root_extent_list);
 
+#ifdef MY_DEF_HERE
+		if (ordered->disk_bytenr && (range_end <= ordered->disk_bytenr ||
+		    ordered->disk_bytenr + ordered->disk_num_bytes <= range_start)) {
+#else
 		if (range_end <= ordered->disk_bytenr ||
 		    ordered->disk_bytenr + ordered->disk_num_bytes <= range_start) {
+#endif /* MY_DEF_HERE */
 			list_move_tail(&ordered->root_extent_list, &skipped);
 			cond_resched_lock(&root->ordered_extent_lock);
 			continue;

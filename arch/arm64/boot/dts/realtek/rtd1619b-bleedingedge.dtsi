@@ -475,9 +475,11 @@
 	};
 
 	rtk_usb {
+		/*
 		type_c {
 			realtek,plug_side_switch-gpio = <&gpio 53 GPIO_ACTIVE_HIGH>;
 		};
+		*/
 	};
 };
 

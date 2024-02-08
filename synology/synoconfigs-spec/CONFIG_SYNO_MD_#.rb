@@ -35,6 +35,7 @@ describe 'CONFIG_SYNO_MD_*' do
     configs
         .select { |cfg| cfg =~ /^CONFIG_SYNO_MD_/ }
         .reject { |cfg| cfg == 'CONFIG_SYNO_MD_NUMA_SETTING_ENHANCE' }
+        .reject { |cfg| cfg == 'CONFIG_SYNO_MD_DM_CRYPT_QUEUE_LIMIT'}
         .each do |cfg|
             it "#{cfg}=y" do
                 platforms.verify(cfg, builtin?)
@@ -49,6 +50,16 @@ describe 'CONFIG_SYNO_MD_*' do
         platforms
             .reject { |p| p['CONFIG_NUMA'].enabled? }
             .verify('CONFIG_SYNO_MD_NUMA_SETTING_ENHANCE', disabled?)
+    end
+
+    it "CONFIG_SYNO_MD_DM_CRYPT_QUEUE_LIMIT=y if CONFIG_DM_CRYPT enabled" do
+        platforms
+            .select { |p| p['CONFIG_DM_CRYPT'].enabled? }
+            .verify('CONFIG_SYNO_MD_DM_CRYPT_QUEUE_LIMIT', enabled?)
+
+        platforms
+            .reject { |p| p['CONFIG_DM_CRYPT'].enabled? }
+            .verify('CONFIG_SYNO_MD_DM_CRYPT_QUEUE_LIMIT', disabled?)
     end
 end
 

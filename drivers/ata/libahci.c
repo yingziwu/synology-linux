@@ -195,6 +195,9 @@ struct device_attribute *ahci_sdev_attrs[] = {
 #endif /* MY_ABC_HERE */
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
+	&dev_attr_syno_pwr_reset_count,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	&dev_attr_syno_sata_error_event_debug,
 #endif /* MY_ABC_HERE */
 	NULL
@@ -1348,9 +1351,7 @@ static void syno_ahci_sw_activity_blink(struct timer_list *t)
 		goto DO_NOTHING;
 	}
 	list_for_each_entry(sdev, &shost->__devices, siblings) {
-		if (NULL != sdev->syno_disk_name) {
-			goto DO_BLINK;
-		}
+		goto DO_BLINK;
 	}
 	goto DO_NOTHING;
 

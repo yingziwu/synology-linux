@@ -56,6 +56,15 @@ static inline u64 btrfs_sb_offset(int mirror)
 	return BTRFS_SUPER_INFO_OFFSET;
 }
 
+#if defined(MY_ABC_HERE)
+struct btrfs_new_fs_root_args {
+#ifdef MY_ABC_HERE
+	/* Preallocated syno delalloc bytes */
+	struct percpu_counter *syno_delalloc_bytes;
+#endif /* MY_ABC_HERE */
+};
+#endif /* MY_ABC_HERE */
+
 struct btrfs_device;
 struct btrfs_fs_devices;
 
@@ -88,6 +97,10 @@ struct btrfs_super_block *btrfs_read_dev_one_super(struct block_device *bdev,
 int btrfs_commit_super(struct btrfs_fs_info *fs_info);
 struct btrfs_root *btrfs_read_tree_root(struct btrfs_root *tree_root,
 					struct btrfs_key *key);
+#if defined(MY_ABC_HERE)
+void btrfs_free_new_fs_root_args(struct btrfs_new_fs_root_args *args);
+struct btrfs_new_fs_root_args *btrfs_alloc_new_fs_root_args(void);
+#endif /* MY_ABC_HERE */
 int btrfs_insert_fs_root(struct btrfs_fs_info *fs_info,
 			 struct btrfs_root *root);
 void btrfs_free_fs_roots(struct btrfs_fs_info *fs_info);
@@ -95,7 +108,11 @@ void btrfs_free_fs_roots(struct btrfs_fs_info *fs_info);
 struct btrfs_root *btrfs_get_fs_root(struct btrfs_fs_info *fs_info,
 				     u64 objectid, bool check_ref);
 struct btrfs_root *btrfs_get_new_fs_root(struct btrfs_fs_info *fs_info,
-					 u64 objectid, dev_t anon_dev);
+					 u64 objectid, dev_t anon_dev
+#if defined(MY_ABC_HERE)
+					 , struct btrfs_new_fs_root_args *new_fs_root_args
+#endif /* MY_ABC_HERE */
+					 );
 struct btrfs_root *btrfs_get_fs_root_commit_root(struct btrfs_fs_info *fs_info,
 						 struct btrfs_path *path,
 						 u64 objectid);

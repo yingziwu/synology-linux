@@ -76,6 +76,10 @@ config SYNO_DEV_ALLOC_PAGES
 	bool "Enable synology dev alloc pages"
 	default y
 
+config SYNO_OUT_OF_RESOURCE_LOG
+	bool "log for out of resource event occurrence"
+	default y
+
 config SYNO_RND_ENTROPY_GEN
 	bool "generate random entropy"
 	default y
@@ -124,6 +128,25 @@ config SYNO_BIOS_ACPI_FPDT
 	default y
 
 endmenu #BIOS LOG
+
+menu "ceph"
+
+config SYNO_CEPH_CUSTOMIZED_CRUSH
+	bool "customized crush rule for synology hyper converged platform"
+	depends on CEPH_LIB
+	default y
+
+config SYNO_CEPH_SKIP_CRC
+	bool "skip crc32 calculation"
+	depends on CEPH_LIB
+	default y
+
+config SYNO_CEPH_IDENTIFY_POOL_XATTR_IS_ID
+	bool "identify whether the pool xattr is pool id"
+	depends on CEPH_LIB
+	default y
+
+endmenu #ceph
 
 menu "Synology Protection"
 

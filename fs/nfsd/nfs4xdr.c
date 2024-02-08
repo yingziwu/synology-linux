@@ -1805,16 +1805,10 @@ nfsd4_decode_copy(struct nfsd4_compoundargs *argp, struct nfsd4_copy *copy)
 	int i, count;
 
 #ifdef MY_ABC_HERE
-	/*
-	 * NOTE:
-	 *   1. copy->cp_src must be allocated early, or it may cause null ptr
-	 *      dereference in op_func (e.g., intra ssc dup fields).
-	 *   2. copy->cp_src will be freed by op_release, so we don't have to
-	 *      free it in below error handling.
-	 */
-	copy->cp_src = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
-	if (copy->cp_src == NULL)
-		return nfserrno(-ENOMEM);
+	copy->cp_src = (struct nl4_server *) svcxdr_tmpalloc(argp, sizeof(struct nl4_server));
+	if (!copy->cp_src)
+		return nfserr_jukebox;
+	memset(copy->cp_src, 0, sizeof(struct nl4_server));
 #endif /* MY_ABC_HERE */
 
 	status = nfsd4_decode_stateid(argp, &copy->cp_src_stateid);
@@ -1878,12 +1872,14 @@ nfsd4_decode_copy_notify(struct nfsd4_compoundargs *argp,
 	__be32 status;
 
 #ifdef MY_ABC_HERE
-	cn->cpn_src = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
+	cn->cpn_src = (struct nl4_server *) svcxdr_tmpalloc(argp, sizeof(struct nl4_server));
 	if (!cn->cpn_src)
-		return nfserrno(-ENOMEM);
-	cn->cpn_dst = (struct nl4_server *) kzalloc(sizeof(struct nl4_server), GFP_KERNEL);
+		return nfserr_jukebox;
+	memset(cn->cpn_src, 0, sizeof(struct nl4_server));
+	cn->cpn_dst = (struct nl4_server *) svcxdr_tmpalloc(argp, sizeof(struct nl4_server));
 	if (!cn->cpn_dst)
-		return nfserrno(-ENOMEM);
+		return nfserr_jukebox;
+	memset(cn->cpn_dst, 0, sizeof(struct nl4_server));
 #endif /* MY_ABC_HERE */
 
 	status = nfsd4_decode_stateid(argp, &cn->cpn_src_stateid);
@@ -5239,11 +5235,8 @@ nfsd4_encode_operation(struct nfsd4_compoundres *resp, struct nfsd4_op *op)
 	       !nfsd4_enc_ops[op->opnum]);
 	encoder = nfsd4_enc_ops[op->opnum];
 	op->status = encoder(resp, op->status, &op->u);
-#ifdef MY_ABC_HERE
-#else /* MY_ABC_HERE */
 	if (opdesc && opdesc->op_release)
 		opdesc->op_release(&op->u);
-#endif /* MY_ABC_HERE */
 	xdr_commit_encode(xdr);
 
 	/* nfsd4_check_resp_size guarantees enough room for error status */
@@ -5319,26 +5312,6 @@ nfs4svc_encode_voidres(struct svc_rqst *rqstp, __be32 *p)
 void nfsd4_release_compoundargs(struct svc_rqst *rqstp)
 {
 	struct nfsd4_compoundargs *args = rqstp->rq_argp;
-#ifdef MY_ABC_HERE
-	struct nfsd4_op *op;
-	int i;
-
-	if (!args->ops || !args->opcnt ||
-		args->opcnt > NFSD_MAX_OPS_PER_COMPOUND) {
-		/*
-		 * Because nfsd4_decode_compound will keep invalid args->opcnt
-		 * that > NFSD_MAX_OPS_PER_COMPOUND for 'BETTER' error code,
-		 * we have to do check here to prevent invalid memory access.
-		 */
-		goto skip_op_release;
-	}
-	for (i = 0; i < args->opcnt; i++) {
-		op = &args->ops[i];
-		if (op->opdesc && op->opdesc->op_release)
-			op->opdesc->op_release(&op->u);
-	}
-skip_op_release:
-#endif /* MY_ABC_HERE */
 
 	if (args->ops != args->iops) {
 		kfree(args->ops);

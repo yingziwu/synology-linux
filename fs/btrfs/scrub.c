@@ -651,7 +651,11 @@ nomem:
 }
 
 static int scrub_print_warning_inode(u64 inum, u64 offset, u64 root,
-				     void *warn_ctx)
+				     void *warn_ctx
+#ifdef MY_ABC_HERE
+				     , int extent_type
+#endif /* MY_ABC_HERE */
+				     )
 {
 	u64 isize;
 	u32 nlink;

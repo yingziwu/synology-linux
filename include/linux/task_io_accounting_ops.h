@@ -20,7 +20,7 @@ static inline void task_io_account_read(size_t bytes)
 
 #ifdef MY_ABC_HERE
 	if (current->workacct)
-		update_kwork_stat_ratelimited(GFP_ATOMIC);
+		update_kwork_io_stat_ratelimited(current, GFP_NOWAIT);
 #endif /* MY_ABC_HERE */
 }
 
@@ -39,7 +39,7 @@ static inline void task_io_account_write(size_t bytes)
 
 #ifdef MY_ABC_HERE
 	if (current->workacct)
-		update_kwork_stat_ratelimited(GFP_ATOMIC);
+		update_kwork_io_stat_ratelimited(current, GFP_NOWAIT);
 #endif /* MY_ABC_HERE */
 }
 

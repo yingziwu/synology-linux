@@ -250,6 +250,9 @@ struct btrfs_qgroup {
 #ifdef MY_ABC_HERE
 	bool need_rescan;
 #endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	int last_sent;
+#endif /* MY_ABC_HERE */
 };
 
 static inline u64 btrfs_qgroup_subvolid(u64 qgroupid)
@@ -570,6 +573,12 @@ static inline bool btrfs_quota_rescan_check(struct btrfs_root *root, u64 ino)
 #ifdef MY_ABC_HERE
 int btrfs_qgroup_query(struct btrfs_root *root,
                         struct btrfs_ioctl_qgroup_query_args *qqa);
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+extern u64 qgroup_soft_limit;
+int __init qgroup_netlink_init(void);
+void qgroup_netlink_exit(void);
 #endif /* MY_ABC_HERE */
 
 #endif

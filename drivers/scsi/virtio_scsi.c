@@ -764,9 +764,7 @@ static void syno_virtio_info_enum(struct scsi_device *sdev) {
 	if (-1 == syno_pciepath_dts_pattern_get(pdev, sztemp, sizeof(sztemp))) {
 		return;
 	}
-	if (NULL != sztemp) {
-		snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%spciepath=%s\n", sdev->syno_block_info, sztemp);
-	}
+	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%spciepath=%s\n", sdev->syno_block_info, sztemp);
 	snprintf(sdev->syno_block_info, BLOCK_INFO_SIZE, "%sdriver=%s\n", sdev->syno_block_info, DT_VIRTIO);
 }
 #endif /* MY_ABC_HERE */

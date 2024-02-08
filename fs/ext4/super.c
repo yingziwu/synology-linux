@@ -6922,7 +6922,6 @@ int ext4_syno_write_super(struct super_block *sb, void *vals,
 			  void (*updater)(struct super_block *sb, void *vals))
 {
 	int ret;
-	int err;
 	handle_t *handle;
 
 	if (!ext4_has_feature_journal(sb)) {
@@ -6943,10 +6942,28 @@ int ext4_syno_write_super(struct super_block *sb, void *vals,
 
 	updater(sb, vals);
 	ret = ext4_handle_dirty_super(handle, sb);
+	if (ret) {
+		ext4_journal_stop(handle);
+		goto out;
+	}
 out_journal:
-	err = ext4_journal_stop(handle);
-	if (!ret)
-		ret = err;
+	ret = ext4_journal_stop(handle);
+	if (ret)
+		goto out;
+	/*
+	* Only when ext4 is mounted, the journal would be applied.
+	* So, to prevent we lose the capability bit and rbd_offset
+	* on the raw device during an abnormal shutdown, we should
+	* flush journal here.
+	*/
+	if (EXT4_SB(sb)->s_journal) {
+		jbd2_journal_lock_updates(EXT4_SB(sb)->s_journal);
+		ret = jbd2_journal_flush(EXT4_SB(sb)->s_journal);
+		jbd2_journal_unlock_updates(EXT4_SB(sb)->s_journal);
+		if (ret)
+			goto out;
+	}
+	ret = 0;
 out:
 	return ret;
 }

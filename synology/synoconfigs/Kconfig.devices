@@ -241,6 +241,10 @@ config SYNO_MD_RAID_FAIL_FAST_ON_WRITE
 	bool "directly fail device when write error happen"
 	default y
 
+config SYNO_MD_DM_CRYPT_QUEUE_LIMIT
+	bool "limit the io number queue on dm-crypt"
+	default y
+
 endmenu #MD
 
 menu "Block"
@@ -498,7 +502,7 @@ config SYNO_AHCI_GPIO_SOFTWARE_ACITIVITY
 config SYNO_KVMX64_MAX_MEDIUM_ACCESS_TIMEOUTS
 	bool "Increase max medium access timeouts"
 	default y
-	depends on SYNO_KVMX64
+	depends on (SYNO_KVMX64 || SYNO_KVMX64SOFS || SYNO_KVMX64V2)
 
 config SYNO_SATA_JMB585_FIX
 	bool "Fix JMicron issues"
@@ -717,6 +721,16 @@ config SYNO_SATA_PWR_CTRL_TEST
 	tristate "HDD dynamic power control sysfs for testing/verifying"
 	default n
 
+config SYNO_AHCI_REG_READ_TEST
+	tristate "Test AHCI register read"
+	depends on SYNO_LIBS
+	default y
+
+config SYNO_SATA_EH_DEFER_CMD
+	bool "Defer sending command while ata is processing eh"
+	depends on SYNO_SATA_DEEPSLEEP
+	default y
+
 endmenu #SATA
 
 menu "DUAL HEAD"
@@ -880,6 +894,11 @@ config SYNO_INSTALL_FLAG
 	default y
 	depends on SYNO_USB_FLASH_BOOT
 
+config SYNO_USB_UAS_ENABLE_CONTROL
+	bool "USB device use uas driver or usb-storage dirver"
+	default y
+	depends on USB_UAS
+
 config SYNO_USB_VBUS_GPIO_CONTROL
 	bool "Vbus GPIO control"
 	depends on SYNO_OF && SYNO_GPIO
@@ -994,6 +1013,11 @@ config SYNO_USB_COPY
 
 config SYNO_USB_EXTERNAL_HUB
 	bool "Apply Syno USB Features On External USB3.0 Hub"
+	default n
+
+config SYNO_USB_EUNIT_CONTROL
+	bool "For an eunit that has a separated usb control port from data port"
+	depends on USB_ACM
 	default n
 
 endmenu #USB
@@ -1182,6 +1206,10 @@ config SYNO_LED_ATMEGA1608
 	tristate "ATMEGA1608 led dirver for Synology"
 	depends on SYNO_LEDS_TRIGGER
 
+config SYNO_LED_ATMEGA1608_SEG7
+	tristate "ATMEGA1608 led seven segment dirver for Synology"
+	depends on LEDS_TRIGGERS && SYNO_OF
+
 config SYNO_ATEMGA1608_FEATURES
 	bool "ATMEGA1608 led dirver for Synology"
 	depends on SYNO_LED_ATMEGA1608
@@ -1204,6 +1232,11 @@ menu "IOMMU"
 
 config SYNO_IOMMU_PASSTHROUGH
 	bool "enable iommu=pt by default"
+	default y
+
+config SYNO_IOMMU_AMD_USB_QUIRK
+	bool "Enforce default iommu domain type to be Translated model for specifice device"
+	depends on AMD_IOMMU
 	default y
 
 endmenu #IOMMU
@@ -1263,6 +1296,16 @@ config SYNO_PCI_DOMAIN_PATH
 	depends on PCI && SYNO_PORT_MAPPING_V2
 	default y
 
+config SYNO_PCI_EUNIT_SUPPORT
+	bool "Supporting i2c bus on pcie switch for eunit"
+	depends on PCI
+	default n
+
+config SYNO_PCI_EUNIT_I2C
+	bool "Supporting i2c bus on pcie switch for eunit"
+	depends on PCI && I2C && SYNO_PCI_EUNIT_SUPPORT
+	default n
+
 endmenu #PCI
 
 menu "TRANSCODING"
@@ -1270,6 +1313,16 @@ menu "TRANSCODING"
 endmenu #TRANSCODING
 
 menu "NTB"
+
+config SYNO_NTB_ENHANCE_LINK
+	bool "Enhance the ability for NTB devices"
+	depends on NTB
+	default y
+
+config SYNO_NTB_FIX_CLEANUP_WORK_PANIC
+	bool "Fix NTB QP cleanup work panic issue"
+	depends on NTB
+	default y
 
 endmenu #NTB
 
@@ -1302,5 +1355,13 @@ config SYNO_OF
 	select OF_EARLY_FLATTREE
 
 endmenu #SYNO Device Tree
+
+menu "PWM"
+
+config SYNO_PWM_CONTROL_LED
+	bool "Using PWM to control led"
+	depends on SYNO_RTD1619B && PWM_RTK
+
+endmenu #PWM
 
 endmenu #Device Drivers

@@ -3319,17 +3319,29 @@ static ssize_t shmem_listxattr(struct dentry *dentry, char *buffer, size_t size)
 }
 #endif /* CONFIG_TMPFS_XATTR */
 
-#ifdef MY_ABC_HERE
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 static int shmem_syno_getattr(struct dentry *dentry, struct kstat *kst, unsigned int syno_flags)
 {
 	struct inode *inode = dentry->d_inode;
 
+#ifdef MY_ABC_HERE
+	if (syno_flags & SYNOST_ARCHIVE_BIT) {
+		mutex_lock(&inode->i_archive_bit_mutex);
+		kst->syno_archive_bit = inode->i_archive_bit;
+		mutex_unlock(&inode->i_archive_bit_mutex);
+	}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 	if (syno_flags & SYNOST_CREATE_TIME)
 		kst->syno_create_time = SHMEM_I(inode)->crtime;
+#endif /* MY_ABC_HERE */
 
 	return 0;
 }
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
 static int shmem_syno_get_crtime(struct inode *inode, struct timespec64 *crtime)
 {
 	*crtime = SHMEM_I(inode)->crtime;
@@ -3345,11 +3357,26 @@ static int shmem_syno_set_crtime(struct inode *inode, struct timespec64 *crtime)
 }
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+static int shmem_syno_set_archive_bit(struct dentry *dentry, u32 archive_bit)
+{
+	struct inode *inode = dentry->d_inode;
+
+	inode->i_archive_bit = archive_bit;
+	inode->i_ctime = current_time(inode);
+
+	return 0;
+}
+#endif /* MY_ABC_HERE */
+
 static const struct inode_operations shmem_short_symlink_operations = {
 	.get_link	= simple_get_link,
 #ifdef CONFIG_TMPFS_XATTR
 	.listxattr	= shmem_listxattr,
 #endif
+#ifdef MY_ABC_HERE
+	.syno_set_archive_bit = shmem_syno_set_archive_bit,
+#endif /* MY_ABC_HERE */
 };
 
 static const struct inode_operations shmem_symlink_inode_operations = {
@@ -3357,6 +3384,9 @@ static const struct inode_operations shmem_symlink_inode_operations = {
 #ifdef CONFIG_TMPFS_XATTR
 	.listxattr	= shmem_listxattr,
 #endif
+#ifdef MY_ABC_HERE
+	.syno_set_archive_bit = shmem_syno_set_archive_bit,
+#endif /* MY_ABC_HERE */
 };
 
 static struct dentry *shmem_get_parent(struct dentry *child)
@@ -3927,10 +3957,15 @@ static const struct inode_operations shmem_inode_operations = {
 	.listxattr	= shmem_listxattr,
 	.set_acl	= simple_set_acl,
 #endif
-#ifdef MY_ABC_HERE
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 	.syno_getattr	= shmem_syno_getattr,
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	.syno_get_crtime= shmem_syno_get_crtime,
 	.syno_set_crtime= shmem_syno_set_crtime,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.syno_set_archive_bit = shmem_syno_set_archive_bit,
 #endif /* MY_ABC_HERE */
 };
 
@@ -3954,10 +3989,15 @@ static const struct inode_operations shmem_dir_inode_operations = {
 	.setattr	= shmem_setattr,
 	.set_acl	= simple_set_acl,
 #endif
-#ifdef MY_ABC_HERE
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 	.syno_getattr	= shmem_syno_getattr,
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	.syno_get_crtime= shmem_syno_get_crtime,
 	.syno_set_crtime= shmem_syno_set_crtime,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.syno_set_archive_bit = shmem_syno_set_archive_bit,
 #endif /* MY_ABC_HERE */
 };
 
@@ -3969,10 +4009,15 @@ static const struct inode_operations shmem_special_inode_operations = {
 	.setattr	= shmem_setattr,
 	.set_acl	= simple_set_acl,
 #endif
-#ifdef MY_ABC_HERE
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
 	.syno_getattr	= shmem_syno_getattr,
+#endif /* MY_ABC_HERE || MY_ABC_HERE */
+#ifdef MY_ABC_HERE
 	.syno_get_crtime= shmem_syno_get_crtime,
 	.syno_set_crtime= shmem_syno_set_crtime,
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+	.syno_set_archive_bit = shmem_syno_set_archive_bit,
 #endif /* MY_ABC_HERE */
 };
 

@@ -36,13 +36,15 @@ static int rbd_meta_fill_next_extent(struct syno_rbd_meta_ioctl_args *args,
 		return -EINVAL;
 	}
 
-	max_cnt = (args->size - sizeof(struct syno_rbd_meta_ioctl_args)) /
-		  sizeof(struct syno_rbd_meta_file_mapping);
-	if ((idx + 1) > max_cnt)
-		return 1;
+	if (args->act == SYNO_RBD_META_MAPPING) {
+		max_cnt = (args->size - sizeof(struct syno_rbd_meta_ioctl_args)) /
+			  sizeof(struct syno_rbd_meta_file_mapping);
+		if ((idx + 1) > max_cnt)
+			return 1;
+		args->mappings[idx].length = len;
+		args->mappings[idx].dev_offset = phys;
+	}
 
-	args->mappings[idx].length = len;
-	args->mappings[idx].dev_offset = phys;
 	if (flags & FIEMAP_EXTENT_LAST)
 		args->start = (u64) -1;
 	else
@@ -208,10 +210,8 @@ static int rbd_meta_map_prep(struct inode *inode,
 			     u64 start, u64 *len)
 {
 	u64 maxbytes = inode->i_sb->s_maxbytes;
-	const size_t min_arg_size = sizeof(struct syno_rbd_meta_ioctl_args)
-		+ sizeof(struct syno_rbd_meta_file_mapping);
 
-	if (*len == 0 || start == (u64)-1 || rbd_meta->size < min_arg_size)
+	if (*len == 0 || start == (u64)-1)
 		return -EINVAL;
 	if (start > maxbytes)
 		return -EFBIG;

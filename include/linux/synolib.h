@@ -23,10 +23,24 @@ int SynoNVMeGetDeviceIndex(struct gendisk *disk);
 #ifdef MY_ABC_HERE
 int syno_disk_get_device_index(struct block_device *bdev);
 #endif /* MY_ABC_HERE */
+#ifdef MY_DEF_HERE
+int syno_pci_dev_to_i2c_bus(struct pci_dev*);
+struct syno_device_list {
+	char disk_name[DISK_NAME_LEN];
+	struct list_head device_list;
+};
+#endif /* MY_DEF_HERE */
 
 #ifdef MY_ABC_HERE
 #define DT_INTERNAL_SLOT "internal_slot"
 #define DT_ESATA_SLOT "esata_port"
+#ifdef MY_DEF_HERE
+#define DT_EUNIT_SLOT "eunit_slot"
+#define DT_PCIE_EUNIT_MASTER_PORT "pcie_eunit_master_port"
+#define DT_PCIE_EUNIT_NEXT_PORT "pcie_eunit_next_port"
+#define DT_PCIE_EUNIT_SSID "pcie_eunit_ssid"
+#define DT_PCIE_EUNIT_SLOT "pcie_eunit_slot"
+#endif /* MY_DEF_HERE */
 #define DT_CX4_SLOT "cx4_port"
 #define DT_PCIE_SLOT "pcie_slot"
 #define DT_USB_SLOT "usb_slot"
@@ -76,6 +90,8 @@ int syno_disk_get_device_index(struct block_device *bdev);
 #define DT_DEVICE_INDEX "device_index"
 #define DT_ACPI_HID "acpi_hid"
 #define DT_ACPI_UID "acpi_uid"
+#define DT_PHY_ID "phy_id"
+#define DT_SAS "sas"
 
 #define DT_SYSTEM_SLOT "system_slot"
 #define DT_MV9XXX "mv9xxx"
@@ -89,6 +105,11 @@ int syno_disk_get_device_index(struct block_device *bdev);
 #define DT_SYNO_HDD_SMBUS_TYPE "syno_smbus_hdd_type"
 #define DT_SYNO_HDD_SMBUS_ADAPTER "syno_smbus_hdd_adapter"
 #define DT_SYNO_HDD_SMBUS_ADDRESS "syno_smbus_hdd_address"
+
+#define SMBUS_SWITCH_MAX_COUNT 16
+#define DT_SYNO_SMBUS_SWITCH_ADAPTERS "syno_smbus_switch_adapters"
+#define DT_SYNO_SMBUS_SWITCH_ADDRS "syno_smbus_switch_addrs"
+#define DT_SYNO_SMBUS_SWITCH_VALS "syno_smbus_switch_vals"
 #endif /* MY_DEF_HERE */
 
 #ifdef MY_DEF_HERE
@@ -122,6 +143,11 @@ int syno_disk_get_device_index(struct block_device *bdev);
 #ifdef MY_DEF_HERE
 #define DT_AHCI_INTERNAL_MODE "internal_mode"
 #endif /* MY_DEF_HERE */
+
+#define DT_SEG7_NUM "seg7_num"
+#define DT_SEG7_LED_MAP_0 "seg7_led_map_0"
+#define DT_SEG7_LED_MAP_1 "seg7_led_map_1"
+#define DT_SEG7_LED_MAP_2 "seg7_led_map_2"
 
 /* This enum must sync with synosdk/fs.h for user space having same DISK_PORT_TYPE mapping */
 typedef enum _tag_DISK_PORT_TYPE{

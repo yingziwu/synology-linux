@@ -54,8 +54,21 @@ void hfsplus_fill_defaults(struct hfsplus_sb_info *opts)
 	if (!opts)
 		return;
 
+#ifdef MY_ABC_HERE
+/*
+ * HFSPLUS_DEF_CR_TYPE come from linux kernel not
+ * Apple hfs source.  If we set this default value,
+ * any new created file will contain this value in
+ * it's creator/type fields, and it may let system
+ * treat it as xattr unexpectedly.  So we remove this
+ * behavior.
+ */
+	opts->creator = 0;
+	opts->type = 0;
+#elif /* MY_ABC_HERE */
 	opts->creator = HFSPLUS_DEF_CR_TYPE;
 	opts->type = HFSPLUS_DEF_CR_TYPE;
+#endif /* MY_ABC_HERE */
 	opts->umask = current_umask();
 	opts->uid = current_uid();
 	opts->gid = current_gid();

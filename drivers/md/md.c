@@ -11490,29 +11490,11 @@ EXPORT_SYMBOL(syno_update_sb_task);
 #ifdef MY_ABC_HERE
 static void syno_md_fast_wakeup_end_request(struct bio *bio)
 {
+	struct md_rdev *rdev = bio->bi_private;
+	struct mddev *mddev = rdev->mddev;
+
+	rdev_dec_pending(rdev, mddev);
 	bio_put(bio);
-}
-
-static void syno_md_fast_wakeup_submit_bio(
-	struct mddev *mddev, struct md_rdev *rdev)
-{
-	struct bio *bio;
-
-	if (!rdev || !rdev->bdev)
-		return;
-
-	bio = bio_alloc_mddev(GFP_NOIO, 1, mddev);
-	if (!bio)
-		return;
-
-	bio_add_page(bio, mddev->syno_fast_wakeup_page, PAGE_SIZE, 0);
-	bio_set_dev(bio, rdev->bdev);
-	bio->bi_iter.bi_sector = rdev->sb_start;
-	bio->bi_private = NULL;
-	bio->bi_end_io = syno_md_fast_wakeup_end_request;
-	bio->bi_opf = REQ_OP_READ | REQ_SYNC;
-
-	submit_bio(bio);
 }
 
 static void syno_md_fast_wakeup_task(struct work_struct *work)
@@ -11525,8 +11507,28 @@ static void syno_md_fast_wakeup_task(struct work_struct *work)
 	mddev = fast_wakeup_work->mddev;
 
 	rcu_read_lock();
-	rdev_for_each_rcu(rdev, mddev)
-		syno_md_fast_wakeup_submit_bio(mddev, rdev);
+	rdev_for_each_rcu(rdev, mddev) {
+		if (!rdev || !rdev->bdev)
+			continue;
+		if (rdev->raid_disk >= 0 &&
+		    !test_bit(Faulty, &rdev->flags)) {
+			struct bio *bio;
+
+			atomic_inc(&rdev->nr_pending);
+			atomic_inc(&rdev->nr_pending);
+			rcu_read_unlock();
+			bio = bio_alloc_mddev(GFP_NOIO, 1, mddev);
+			bio_add_page(bio, mddev->syno_fast_wakeup_page, PAGE_SIZE, 0);
+			bio_set_dev(bio, rdev->bdev);
+			bio->bi_iter.bi_sector = rdev->sb_start;
+			bio->bi_private = rdev;
+			bio->bi_end_io = syno_md_fast_wakeup_end_request;
+			bio->bi_opf = REQ_OP_READ | REQ_SYNC;
+			submit_bio(bio);
+			rcu_read_lock();
+			rdev_dec_pending(rdev, mddev);
+		}
+	}
 	rcu_read_unlock();
 
 	kfree(fast_wakeup_work);

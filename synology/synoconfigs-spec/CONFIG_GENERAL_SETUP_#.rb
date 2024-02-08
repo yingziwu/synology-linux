@@ -25,17 +25,11 @@ describe 'General setup' do
 	CONFIG_PSI
 
 	CONFIG_VM_EVENT_COUNTERS
-	CONFIG_SLUB_DEBUG
 	CONFIG_SLUB
 
 	CONFIG_TRACEPOINTS
 
 	CONFIG_RD_LZMA
-
-	CONFIG_DEBUG_INFO
-	CONFIG_DEBUG_INFO_BTF
-
-	CONFIG_SCHED_DEBUG
     ].each do |cfg|
         it "#{cfg}=y" do
             platforms.verify(cfg, builtin?)
@@ -54,6 +48,15 @@ describe 'General setup' do
         it "#{cfg} is not set" do
             platforms.verify(cfg, disabled?)
         end
+    end
+
+    it "CONFIG_PHYSICAL_START=0x200000 for x86_64" do
+        platforms
+            .select { |p| p.family == :x86_64 }
+            .verify('CONFIG_PHYSICAL_START', equaled?(0x200000))
+        platforms
+            .select { |p| p.family != :x86_64 }
+            .verify('CONFIG_PHYSICAL_START', disabled?)
     end
 end
 

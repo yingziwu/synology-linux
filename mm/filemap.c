@@ -3365,6 +3365,7 @@ int do_recvfile(struct file *file, struct socket *sock, loff_t pos,
 
 	return ret;
 }
+EXPORT_SYMBOL(do_recvfile);
 #endif /* MY_ABC_HERE */
 
 /*

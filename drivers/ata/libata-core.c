@@ -4640,6 +4640,12 @@ int ata_std_qc_defer(struct ata_queued_cmd *qc)
 {
 	struct ata_link *link = qc->dev->link;
 
+#ifdef MY_ABC_HERE
+	if (link->ap->pflags & (ATA_PFLAG_EH_IN_PROGRESS | ATA_PFLAG_EH_PENDING)) {
+		return ATA_DEFER_LINK;
+	}
+#endif /* MY_ABC_HERE */
+
 	if (ata_is_ncq(qc->tf.protocol)) {
 		if (!ata_tag_valid(link->active_tag))
 			return 0;

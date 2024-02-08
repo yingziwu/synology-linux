@@ -415,7 +415,7 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
 	struct btrfs_root *root = BTRFS_I(inode)->root;
 
 	name = xattr_full_name(handler, name);
-	ret = btrfs_validate_prop(name, value, size);
+	ret = btrfs_validate_prop(BTRFS_I(inode), name, value, size);
 	if (ret)
 		return ret;
 
@@ -531,6 +531,11 @@ static int btrfs_xattr_handler_set_syno(const struct xattr_handler *handler,
 		return btrfs_xattr_syno_set_crtime(NULL, inode,
 			(struct btrfs_timespec *)buffer, flags);
 	}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	if (!strcmp(name, XATTR_SYNO_LOCKER))
+		return btrfs_xattr_syno_set_locker(inode, buffer, size);
 #endif /* MY_ABC_HERE */
 
 	return btrfs_setxattr_trans(inode, name, buffer, size, flags);

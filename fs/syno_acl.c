@@ -7,6 +7,7 @@
 #include <linux/slab.h>
 #include <linux/string.h>
 #include <linux/syno_acl.h>
+#include <linux/syno_acl_xattr.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/syno.h>
@@ -443,3 +444,183 @@ int synoacl_op_xattr_permission(const char *name, struct dentry *dentry, unsigne
 	return 0;
 }
 
+static inline int
+syno_acl_entry_from_disk(struct syno_acl_entry *sae, syno_acl_entry_t *bsae)
+{
+	unsigned short tag = le16_to_cpu(bsae->e_tag);
+
+	// ID: user/group/everyone
+	if (SYNO_ACL_XATTR_TAG_ID_GROUP & tag) {
+		sae->e_tag = SYNO_ACL_GROUP;
+		sae->e_id = le32_to_cpu(bsae->e_id);
+	} else if (SYNO_ACL_XATTR_TAG_ID_EVERYONE & tag) {
+		sae->e_tag = SYNO_ACL_EVERYONE;
+		sae->e_id = SYNO_ACL_UNDEFINED_ID;
+	} else if (SYNO_ACL_XATTR_TAG_ID_USER & tag) {
+		sae->e_tag = SYNO_ACL_USER;
+		sae->e_id = le32_to_cpu(bsae->e_id);
+	} else if (SYNO_ACL_XATTR_TAG_ID_OWNER & tag) {
+		sae->e_tag = SYNO_ACL_OWNER;
+		sae->e_id = SYNO_ACL_UNDEFINED_ID;
+	} else if (SYNO_ACL_XATTR_TAG_ID_AUTHENTICATEDUSER & tag) {
+		sae->e_tag = SYNO_ACL_AUTHENTICATEDUSER;
+		sae->e_id = SYNO_ACL_UNDEFINED_ID;
+	} else if (SYNO_ACL_XATTR_TAG_ID_SYSTEM & tag) {
+		sae->e_tag = SYNO_ACL_SYSTEM;
+		sae->e_id = SYNO_ACL_UNDEFINED_ID;
+	} else {
+		return -EINVAL;
+	}
+
+	// Allow/Deny
+	if (SYNO_ACL_XATTR_TAG_IS_DENY & tag) {
+		sae->e_allow = SYNO_ACL_DENY;
+	} else if (SYNO_ACL_XATTR_TAG_IS_ALLOW & tag){
+		sae->e_allow = SYNO_ACL_ALLOW;
+	} else {
+		return -EINVAL;
+	}
+
+	sae->e_perm = le32_to_cpu(bsae->e_perm);
+	sae->e_inherit = le16_to_cpu(bsae->e_inherit);
+	sae->e_level = 0;
+
+	return 0;
+}
+
+static inline int
+syno_acl_entry_to_disk(const struct syno_acl_entry *sae, syno_acl_entry_t *bsae)
+{
+	unsigned short tag = 0;
+
+	//ID: user/group/everyone
+	switch(sae->e_tag){
+	case SYNO_ACL_GROUP:
+		tag |= SYNO_ACL_XATTR_TAG_ID_GROUP;
+		break;
+	case SYNO_ACL_EVERYONE:
+		tag |= SYNO_ACL_XATTR_TAG_ID_EVERYONE;
+		break;
+	case SYNO_ACL_USER:
+		tag |= SYNO_ACL_XATTR_TAG_ID_USER;
+		break;
+	case SYNO_ACL_OWNER:
+		tag |= SYNO_ACL_XATTR_TAG_ID_OWNER;
+		break;
+	case SYNO_ACL_AUTHENTICATEDUSER:
+		tag |= SYNO_ACL_XATTR_TAG_ID_AUTHENTICATEDUSER;
+		break;
+	case SYNO_ACL_SYSTEM:
+		tag |= SYNO_ACL_XATTR_TAG_ID_SYSTEM;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	// Allow/Deny
+	switch(sae->e_allow){
+	case SYNO_ACL_DENY:
+		tag |= SYNO_ACL_XATTR_TAG_IS_DENY;
+		break;
+	case SYNO_ACL_ALLOW:
+		tag |= SYNO_ACL_XATTR_TAG_IS_ALLOW;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	bsae->e_tag     = cpu_to_le16(tag);
+	bsae->e_inherit = cpu_to_le16(sae->e_inherit);
+	bsae->e_perm    = cpu_to_le32(sae->e_perm);
+	bsae->e_id      = cpu_to_le32(sae->e_id);
+
+	return 0;
+}
+
+/*
+ * Convert from filesystem to in-memory representation.
+ */
+struct syno_acl *syno_acl_from_disk(const void *value, size_t size)
+{
+	int i, count;
+	struct syno_acl *acl;
+
+	if (!value)
+		return NULL;
+	if (size < sizeof(syno_acl_header_t))
+		return ERR_PTR(-EINVAL);
+	if ((size - sizeof(syno_acl_header_t)) % sizeof(syno_acl_entry_t))
+		return ERR_PTR(-EINVAL);
+
+	count = (size - sizeof(syno_acl_header_t)) / sizeof(syno_acl_entry_t);
+	if (count < 0)
+		return ERR_PTR(-EINVAL);
+	if (count == 0)
+		return NULL;
+
+	if (((syno_acl_header_t *)value)->a_version != cpu_to_le16(SYNO_ACL_VERSION))
+		return ERR_PTR(-EINVAL);
+
+	acl = syno_acl_alloc(count, GFP_NOFS);
+	if (!acl)
+		return ERR_PTR(-ENOMEM);
+
+	value = (char *)value + sizeof(syno_acl_header_t);
+	for (i = 0; i < count; i++) {
+		if (syno_acl_entry_from_disk(&(acl->a_entries[i]), (syno_acl_entry_t *)value))
+			goto fail;
+		value = (char *)value + sizeof(syno_acl_entry_t);
+	}
+	return acl;
+
+fail:
+	syno_acl_release(acl);
+	return ERR_PTR(-EINVAL);
+}
+EXPORT_SYMBOL(syno_acl_from_disk);
+
+/*
+ * Convert from in-memory to filesystem representation.
+ */
+void * syno_acl_to_disk(const struct syno_acl *acl, size_t *size)
+{
+	char *ent;
+	size_t i;
+	syno_acl_header_t *b_acl;
+
+	*size = sizeof(syno_acl_header_t) + acl->a_count * sizeof(syno_acl_entry_t);
+	b_acl = kmalloc(*size, GFP_NOFS);
+	if (!b_acl)
+		return ERR_PTR(-ENOMEM);
+
+	b_acl->a_version = cpu_to_le16(SYNO_ACL_VERSION);
+	ent = (char *)b_acl + sizeof(syno_acl_header_t);
+
+	for (i = 0; i < acl->a_count; i++) {
+		if (0 > syno_acl_entry_to_disk(&(acl->a_entries[i]), (syno_acl_entry_t *)ent))
+			goto fail;
+		ent += sizeof(syno_acl_entry_t);
+	}
+
+	return (char *)b_acl;
+
+fail:
+	kfree(b_acl);
+	return ERR_PTR(-EINVAL);
+}
+EXPORT_SYMBOL(syno_acl_to_disk);
+
+static void __forget_cached_syno_acl(struct syno_acl **p)
+{
+	struct syno_acl *old;
+
+	old = xchg(p, ACL_NOT_CACHED);
+	if (!is_uncached_syno_acl(old))
+		syno_acl_release(old);
+}
+
+void forget_cached_syno_acl(struct inode *inode)
+{
+	__forget_cached_syno_acl(&inode->i_syno_acl);
+}
+EXPORT_SYMBOL(forget_cached_syno_acl);

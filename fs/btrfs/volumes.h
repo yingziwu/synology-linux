@@ -428,6 +428,9 @@ struct btrfs_balance_control {
 #ifdef MY_ABC_HERE
 	u64 total_chunk_used;
 #endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
+#ifdef MY_ABC_HERE
+	u64 fast_key_offset;         // 0: normal balance; 1: auto select bg; otherwise: bg key offset provided by progs
+#endif /* MY_ABC_HERE */
 };
 
 enum btrfs_map_op {

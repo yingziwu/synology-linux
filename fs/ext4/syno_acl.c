@@ -334,6 +334,10 @@ ext4_xattr_syno_acl_set(const struct xattr_handler *handler,
 		}
 	}
 
+	ret = dquot_initialize(inode);
+	if (ret)
+		return ret;
+
 retry:
 	handle = ext4_journal_start(inode, EXT4_HT_SYNO, EXT4_DATA_TRANS_BLOCKS(inode->i_sb));
 	if (IS_ERR(handle)) {

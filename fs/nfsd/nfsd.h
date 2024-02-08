@@ -512,4 +512,8 @@ static inline int nfsd4_is_junction(struct dentry *dentry)
 
 #endif /* CONFIG_NFSD_V4 */
 
+#ifdef MY_ABC_HERE
+struct inode *nfsd_get_inode(struct super_block *sb, umode_t mode);
+#endif /* MY_ABC_HERE */
+
 #endif /* LINUX_NFSD_NFSD_H */

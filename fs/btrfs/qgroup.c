@@ -15,6 +15,10 @@
 #include <linux/workqueue.h>
 #include <linux/btrfs.h>
 #include <linux/sched/mm.h>
+#ifdef MY_ABC_HERE
+#include <net/netlink.h>
+#include <net/genetlink.h>
+#endif /* MY_ABC_HERE */
 
 #include "ctree.h"
 #include "transaction.h"
@@ -38,6 +42,130 @@
  *  - performance benchmarks
  *  - check all ioctl parameters
  */
+
+#ifdef MY_ABC_HERE
+enum {
+	SENT_UNDER = -1,
+	SENT_NONE = 0,
+	SENT_OVER = 1,
+};
+
+u64 qgroup_soft_limit = 0;
+
+static const struct genl_multicast_group qgroup_mcgrps[] = {
+	{ .name = "events", },
+};
+
+/* Netlink family structure for quota */
+static struct genl_family btrfs_qgroup_genl_family __ro_after_init = {
+	.module = THIS_MODULE,
+	.hdrsize = 0,
+	.name = "BTRFS_QUOTA",
+	.version = 1,
+	.maxattr = QGROUP_NL_A_MAX,
+	.mcgrps = qgroup_mcgrps,
+	.n_mcgrps = ARRAY_SIZE(qgroup_mcgrps),
+};
+
+#ifdef MY_ABC_HERE
+static void prepare_netlink_notification(struct btrfs_qgroup *qg,
+	u64 *soft_qgroup_subvol_id, u64 *soft_qgroup_limit, u64 *soft_qgroup_used,
+	bool *over_limit)
+{
+	u64 soft_limit;
+
+	if (!(qg->lim_flags & BTRFS_QGROUP_LIMIT_MAX_RFER) || !qgroup_soft_limit)
+		return;
+
+	soft_limit = div_u64(qg->max_rfer * qgroup_soft_limit, 100);
+	// Should we send QGROUP_NL_C_OVER_LIMIT?
+	if (qg->last_sent != SENT_OVER && qg->rfer > soft_limit) {
+		qg->last_sent = SENT_OVER;
+		*over_limit = true;
+		goto notify;
+	}
+
+	// Should we send QGROUP_NL_C_UNDER_LIMIT?
+	if (qg->last_sent != SENT_UNDER) {
+		if (soft_limit <= SZ_1M * 100)
+			return;
+		if (qg->rfer >= div_u64(qg->max_rfer * (qgroup_soft_limit - 1), 100))
+			return;
+		if (qg->rfer >= soft_limit - (SZ_1M * 100))
+			return;
+
+		qg->last_sent = SENT_UNDER;
+		*over_limit = false;
+		goto notify;
+	}
+
+	return;
+notify:
+	*soft_qgroup_subvol_id = qg->qgroupid;
+	*soft_qgroup_limit = qg->max_rfer;
+	*soft_qgroup_used = qg->rfer;
+}
+
+static void send_netlink_notification(struct btrfs_fs_info *fs_info, u64 qgroupid,
+		u64 quota_limit, u64 quota_used, int type)
+{
+	static atomic_t seq = ATOMIC_INIT(0);
+	struct sk_buff *skb;
+	void *msg_head;
+	int ret;
+	int msg_size = nla_total_size(BTRFS_FSID_SIZE) + (3 * nla_total_size_64bit(sizeof(u64)));
+
+	/* We have to allocate using GFP_NOFS as we are called from a
+	 * filesystem performing write and thus further recursion into
+	 * the fs to free some data could cause deadlocks. */
+	skb = genlmsg_new(msg_size, GFP_NOFS);
+	if (!skb) {
+		btrfs_warn(fs_info, "Not enough memory to send qgroup warning.\n");
+		return;
+	}
+	msg_head = genlmsg_put(skb, 0, atomic_add_return(1, &seq),
+			&btrfs_qgroup_genl_family, 0, type);
+	if (!msg_head) {
+		btrfs_warn(fs_info, "Cannot store netlink header in qgroup warning.\n");
+		goto err_out;
+	}
+	ret = nla_put(skb, QGROUP_NL_A_FSID, BTRFS_FSID_SIZE, fs_info->super_copy->fsid);
+	if (ret)
+		goto attr_err_out;
+	ret = nla_put_u64_64bit(skb, QGROUP_NL_A_SUBVOL_ID, qgroupid, QUOTA_NL_A_PAD);
+	if (ret)
+		goto attr_err_out;
+	ret = nla_put_u64_64bit(skb, QGROUP_NL_A_QUOTA_LIMIT, quota_limit, QUOTA_NL_A_PAD);
+	if (ret)
+		goto attr_err_out;
+	ret = nla_put_u64_64bit(skb, QGROUP_NL_A_QUOTA_USED, quota_used, QUOTA_NL_A_PAD);
+	if (ret)
+		goto attr_err_out;
+	genlmsg_end(skb, msg_head);
+
+	genlmsg_multicast(&btrfs_qgroup_genl_family, skb, 0, 0, GFP_NOFS);
+	return;
+
+attr_err_out:
+	btrfs_warn(fs_info, "Not enough space to compose qgroup netlink message!\n");
+err_out:
+	kfree_skb(skb);
+}
+#endif /* MY_ABC_HERE */
+
+int __init qgroup_netlink_init(void)
+{
+	if (genl_register_family(&btrfs_qgroup_genl_family) != 0)
+		printk(KERN_ERR
+		       "Failed to create btrfs qgroup netlink interface.\n");
+	return 0;
+};
+
+void qgroup_netlink_exit(void)
+{
+	genl_unregister_family(&btrfs_qgroup_genl_family);
+};
+#endif /* MY_ABC_HERE */
 
 /*
  * Helpers to access qgroup reservation
@@ -1331,6 +1459,11 @@ int btrfs_quota_enable(struct btrfs_fs_info *fs_info)
 	// Default using v2 quota.
 	if (cmd == BTRFS_QUOTA_CTL_ENABLE)
 		cmd = BTRFS_QUOTA_V2_CTL_ENABLE;
+
+	if (btrfs_test_opt(fs_info, NO_QUOTA_TREE)) {
+		btrfs_info(fs_info, "Can't enable quota with mount_opt no_quota_tree");
+		return -EINVAL;
+	}
 #endif /* MY_ABC_HERE */
 
 	mutex_lock(&fs_info->qgroup_ioctl_lock);
@@ -4138,6 +4271,12 @@ int btrfs_qgroup_syno_accounting(struct btrfs_inode *b_inode,
 	u64 ref_root = root->root_key.objectid;
 	u64 ino = b_inode->location.objectid;
 	int ret = 0;
+#ifdef MY_ABC_HERE
+	u64 soft_qgroup_subvol_id = 0;
+	u64 soft_qgroup_limit = 0;
+	u64 soft_qgroup_used = 0;
+	bool over_limit;
+#endif /* MY_ABC_HERE */
 
 	if (!is_fstree(ref_root))
 		return -EINVAL;
@@ -4180,6 +4319,11 @@ int btrfs_qgroup_syno_accounting(struct btrfs_inode *b_inode,
 		switch (type) {
 		case ADD_QUOTA_RESCAN:
 			qg->rfer += add_bytes;
+#ifdef MY_ABC_HERE
+			if (!soft_qgroup_subvol_id)
+				prepare_netlink_notification(qg, &soft_qgroup_subvol_id,
+					&soft_qgroup_limit, &soft_qgroup_used, &over_limit);
+#endif /* MY_ABC_HERE */
 			break;
 		case UPDATE_QUOTA_FREE_RESERVED:
 			qgroup_rsv_release(fs_info, qg, add_bytes, BTRFS_QGROUP_RSV_DATA);
@@ -4196,6 +4340,12 @@ int btrfs_qgroup_syno_accounting(struct btrfs_inode *b_inode,
 					qg->need_rescan = true;
 				} else
 					qg->rfer -= del_bytes;
+
+#ifdef MY_ABC_HERE
+				if (!soft_qgroup_subvol_id)
+					prepare_netlink_notification(qg, &soft_qgroup_subvol_id,
+						&soft_qgroup_limit, &soft_qgroup_used, &over_limit);
+#endif /* MY_ABC_HERE */
 			}
 			break;
 		}
@@ -4214,6 +4364,12 @@ int btrfs_qgroup_syno_accounting(struct btrfs_inode *b_inode,
 
 out:
 	spin_unlock(&fs_info->qgroup_lock);
+#ifdef MY_ABC_HERE
+	if (soft_qgroup_subvol_id && (add_bytes != del_bytes))
+		send_netlink_notification(fs_info, soft_qgroup_subvol_id,
+			soft_qgroup_limit, soft_qgroup_used,
+			(over_limit)? QGROUP_NL_C_OVER_LIMIT : QGROUP_NL_C_UNDER_LIMIT);
+#endif /* MY_ABC_HERE */
 	return ret;
 }
 

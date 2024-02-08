@@ -125,7 +125,7 @@ static inline u32 max_ordered_sum_bytes(struct btrfs_fs_info *fs_info,
 	return ncsums * fs_info->sectorsize;
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 /*
  * search the tree again to find next BTRFS_EXTENT_DATA_KEY for this file
  * returns 0 if it found something
@@ -163,7 +163,9 @@ get_key:
 out:
 	return ret;
 }
+#endif /* MY_ABC_HERE */
 
+#ifdef MY_DEF_HERE
 static int file_extent_deduped_check(struct btrfs_path *path,
 				     struct btrfs_root *root,
 				     u64 inode_num, u64 offset)
@@ -447,7 +449,7 @@ fail:
 	return ERR_PTR(ret);
 }
 
-#ifdef MY_DEF_HERE
+#ifdef MY_ABC_HERE
 int btrfs_lookup_file_extent_by_file_offset(struct btrfs_trans_handle *trans,
 					    struct btrfs_root *root,
 					    struct btrfs_path *path, u64 inode_num,
@@ -474,7 +476,7 @@ int btrfs_lookup_file_extent_by_file_offset(struct btrfs_trans_handle *trans,
 
 	return 0;
 }
-#endif /* MY_DEF_HERE */
+#endif /* MY_ABC_HERE */
 
 int btrfs_lookup_file_extent(struct btrfs_trans_handle *trans,
 			     struct btrfs_root *root,

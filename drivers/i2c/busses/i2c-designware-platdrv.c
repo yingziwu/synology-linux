@@ -258,7 +258,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
 	}
 
 	if (syno_is_hw_version(HW_RS822p) || syno_is_hw_version(HW_RS822rpp) 
-			|| syno_is_hw_version(HW_SA6400) || syno_is_hw_version(HW_SA6200) || syno_is_hw_version(HW_FS6410)) {
+			|| syno_is_hw_version(HW_SA6400) || syno_is_hw_version(HW_SA6200) || syno_is_hw_version(HW_FS6410) || syno_is_hw_version(HW_SC6200)) {
 		t->sda_hold_ns = 100;
 	}
 #else /* MY_DEF_HERE */

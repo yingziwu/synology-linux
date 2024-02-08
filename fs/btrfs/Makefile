@@ -22,6 +22,7 @@ btrfs-$(CONFIG_SYNO_BTRFS_FREE_SPACE_ANALYZE) += free-space-analyze.o
 btrfs-$(CONFIG_SYNO_BTRFS_SNAPSHOT_SIZE_CALCULATION) += snapshot-size-query.o
 btrfs-$(CONFIG_SYNO_BTRFS_FEATURE_SPACE_USAGE) += syno-extent-usage.o
 btrfs-$(CONFIG_SYNO_BTRFS_SYNO_QUOTA) += usrquota.o
+btrfs-$(CONFIG_SYNO_BTRFS_LOCKER) += syno-locker.o
 
 btrfs-$(CONFIG_BTRFS_FS_RUN_SANITY_TESTS) += tests/free-space-tests.o \
 	tests/extent-buffer-tests.o tests/btrfs-tests.o \

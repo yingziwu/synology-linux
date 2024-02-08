@@ -461,19 +461,34 @@ struct dentry *exportfs_decode_fh(struct vfsmount *mnt, struct fid *fid,
 	 * risking the high overhead caused by directory reconnect.
 	 */
 #ifdef MY_ABC_HERE
-	/* a disconnected dentry isn't accepatable for ACL inheritance. we can not return it.
+	/*
+	 * a disconnected dentry isn't acceptable for locker to determine it in
+	 * whitelist or not. we can not return it.
+	 */
+	if (!acceptable) {
+		struct inode *inode = d_inode(result);
+
+		if (inode->i_op->syno_locker_state_get && (result->d_flags & DCACHE_DISCONNECTED)) {
+			err = -EACCES;
+			goto err_result;
+		}
+	}
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+	/*
+	 * a disconnected dentry isn't accepatable for ACL inheritance. we can not return it.
 	 */
 	if (!acceptable) {
 		if (IS_SYNOACL(result) && (result->d_flags & DCACHE_DISCONNECTED)) {
 			err = -EACCES;
 			goto err_result;
 		}
-		return result;
 	}
-#else /* MY_ABC_HERE */
+#endif /* MY_ABC_HERE */
+
 	if (!acceptable)
 		return result;
-#endif /* MY_ABC_HERE */
 
 	if (d_is_dir(result)) {
 		/*

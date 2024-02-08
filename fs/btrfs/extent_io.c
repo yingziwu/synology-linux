@@ -746,8 +746,12 @@ int __clear_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
 	struct btrfs_inode *inode = NULL;
 	u64 add_bytes = 0;
 
-	if (tree->private_data && is_data_inode(tree->private_data))
-		inode = BTRFS_I(tree->private_data);
+	if (bits & EXTENT_ADD_INODE_BYTES) {
+		if (tree->private_data && is_data_inode(tree->private_data))
+			inode = BTRFS_I(tree->private_data);
+		if (inode && btrfs_is_free_space_inode(inode))
+			inode = NULL;
+	}
 #endif /* MY_ABC_HERE */
 
 	btrfs_debug_check_extent_io_range(tree, start, end);
@@ -850,7 +854,7 @@ hit_next:
 			state = clear_state_bit(tree, state, &bits, wake,
 						changeset
 #ifdef MY_ABC_HERE
-						, &add_bytes
+						, inode ? &add_bytes : NULL
 #endif /* MY_ABC_HERE */
 						);
 			goto next;
@@ -875,7 +879,7 @@ hit_next:
 
 		clear_state_bit(tree, prealloc, &bits, wake, changeset
 #ifdef MY_ABC_HERE
-				, &add_bytes
+				, inode ? &add_bytes : NULL
 #endif /* MY_ABC_HERE */
 				);
 
@@ -885,9 +889,9 @@ hit_next:
 
 	state = clear_state_bit(tree, state, &bits, wake, changeset
 #ifdef MY_ABC_HERE
-				, &add_bytes
+				, inode ? &add_bytes : NULL
 #endif /* MY_ABC_HERE */
-);
+				);
 next:
 	if (last_end == (u64)-1)
 		goto out;
@@ -919,10 +923,10 @@ out:
 #endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 	if (add_bytes && inode) {
-		ASSERT(inode->new_delalloc_bytes >= add_bytes);
 		if (bits & EXTENT_ADD_INODE_BYTES) {
 			WARN_ON_ONCE(!gfpflags_allow_blocking(mask));
 			spin_lock(&inode->lock);
+			ASSERT(inode->new_delalloc_bytes >= add_bytes);
 			inode->new_delalloc_bytes -= add_bytes;
 			inode_add_bytes(&inode->vfs_inode, add_bytes);
 			spin_unlock(&inode->lock);
@@ -931,8 +935,12 @@ out:
 					add_bytes, 0, UPDATE_QUOTA);
 			btrfs_usrquota_syno_accounting(inode,
 					add_bytes, 0, UPDATE_QUOTA);
-		} else
+		} else {
+			spin_lock(&inode->lock);
+			ASSERT(inode->new_delalloc_bytes >= add_bytes);
 			inode->new_delalloc_bytes -= add_bytes;
+			spin_unlock(&inode->lock);
+		}
 	}
 #endif /* MY_ABC_HERE */
 
@@ -1339,8 +1347,12 @@ int convert_extent_bit(struct extent_io_tree *tree, u64 start, u64 end,
 	struct btrfs_inode *inode = NULL;
 	u64 add_bytes = 0;
 
-	if (tree->private_data && is_data_inode(tree->private_data))
-		inode = BTRFS_I(tree->private_data);
+	if (bits & EXTENT_ADD_INODE_BYTES) {
+		if (tree->private_data && is_data_inode(tree->private_data))
+			inode = BTRFS_I(tree->private_data);
+		if (inode && btrfs_is_free_space_inode(inode))
+			inode = NULL;
+	}
 #endif /* MY_ABC_HERE */
 
 	btrfs_debug_check_extent_io_range(tree, start, end);
@@ -1406,7 +1418,7 @@ hit_next:
 		cache_state(state, cached_state);
 		state = clear_state_bit(tree, state, &clear_bits, 0, NULL
 #ifdef MY_ABC_HERE
-					, &add_bytes
+					, inode ? &add_bytes : NULL
 #endif /* MY_ABC_HERE */
 					);
 		if (last_end == (u64)-1)
@@ -1452,7 +1464,7 @@ hit_next:
 			state = clear_state_bit(tree, state, &clear_bits, 0,
 						NULL
 #ifdef MY_ABC_HERE
-						, &add_bytes
+						, inode ? &add_bytes : NULL
 #endif /* MY_ABC_HERE */
 						);
 			if (last_end == (u64)-1)
@@ -1518,9 +1530,9 @@ hit_next:
 		cache_state(prealloc, cached_state);
 		clear_state_bit(tree, prealloc, &clear_bits, 0, NULL
 #ifdef MY_ABC_HERE
-				, &add_bytes
+				, inode ? &add_bytes : NULL
 #endif /* MY_ABC_HERE */
-);
+				);
 		prealloc = NULL;
 		goto out;
 	}
@@ -1539,9 +1551,9 @@ out:
 		free_extent_state(prealloc);
 #ifdef MY_ABC_HERE
 	if (add_bytes && inode) {
-		ASSERT(inode->new_delalloc_bytes >= add_bytes);
 		if (bits & EXTENT_ADD_INODE_BYTES) {
 			spin_lock(&inode->lock);
+			ASSERT(inode->new_delalloc_bytes >= add_bytes);
 			inode->new_delalloc_bytes -= add_bytes;
 			inode_add_bytes(&inode->vfs_inode, add_bytes);
 			spin_unlock(&inode->lock);
@@ -1550,8 +1562,12 @@ out:
 					add_bytes, 0, UPDATE_QUOTA);
 			btrfs_usrquota_syno_accounting(inode,
 					add_bytes, 0, UPDATE_QUOTA);
-		} else
+		} else {
+			spin_lock(&inode->lock);
+			ASSERT(inode->new_delalloc_bytes >= add_bytes);
 			inode->new_delalloc_bytes -= add_bytes;
+			spin_unlock(&inode->lock);
+		}
 	}
 #endif /* MY_ABC_HERE */
 
@@ -1936,6 +1952,11 @@ bool btrfs_find_delalloc_range(struct extent_io_tree *tree, u64 *start,
 			      (state->state & EXTENT_BOUNDARY))) {
 			goto out;
 		}
+		if (state->start > cur_start) {
+			if (!found)
+				*end = state->start - 1;
+			goto out;
+		}
 		if (!(state->state & EXTENT_DELALLOC)) {
 			if (!found)
 				*end = state->end;
@@ -2003,6 +2024,15 @@ static noinline int lock_delalloc_pages(struct inode *inode,
 	return ret;
 }
 
+#ifdef MY_DEF_HERE
+u64 btrfs_max_extent_size(struct inode *inode)
+{
+	if (BTRFS_I(inode)->flags & BTRFS_INODE_NODEDUPE)
+		return BTRFS_MAX_EXTENT_SIZE;
+	return BTRFS_I(inode)->root->small_extent_size;
+}
+#endif /* MY_DEF_HERE */
+
 /*
  * Find and lock a contiguous range of bytes in the file marked as delalloc, no
  * more than @max_bytes.  @Start and @end are used to return the range,
@@ -2016,7 +2046,11 @@ noinline_for_stack bool find_lock_delalloc_range(struct inode *inode,
 				    u64 *end)
 {
 	struct extent_io_tree *tree = &BTRFS_I(inode)->io_tree;
+#ifdef MY_DEF_HERE
+	u64 max_bytes = btrfs_max_extent_size(inode);
+#else
 	u64 max_bytes = BTRFS_MAX_EXTENT_SIZE;
+#endif /* MY_DEF_HERE */
 	u64 delalloc_start;
 	u64 delalloc_end;
 	bool found;
@@ -2356,18 +2390,6 @@ int test_range_bit(struct extent_io_tree *tree, u64 start, u64 end,
 	}
 	spin_unlock(&tree->lock);
 	return bitset;
-}
-
-/*
- * helper function to set a given page up to date if all the
- * extents in the tree for that page are up to date
- */
-static void check_page_uptodate(struct extent_io_tree *tree, struct page *page)
-{
-	u64 start = page_offset(page);
-	u64 end = start + PAGE_SIZE - 1;
-	if (test_range_bit(tree, start, end, EXTENT_UPTODATE, 1, NULL))
-		SetPageUptodate(page);
 }
 
 int free_io_failure(struct extent_io_tree *failure_tree,
@@ -3140,8 +3162,6 @@ endio_readpage_release_extent(struct extent_io_tree *tree, u64 start, u64 len,
 	struct extent_state *cached = NULL;
 	u64 end = start + len - 1;
 
-	if (uptodate && tree->track_uptodate)
-		set_extent_uptodate(tree, start, end, &cached, GFP_ATOMIC);
 	unlock_extent_cached_atomic(tree, start, end, &cached);
 }
 
@@ -3862,19 +3882,8 @@ int btrfs_do_readpage(struct page *page, struct extent_map **em_cached,
 			continue;
 		}
 		/* the get_extent function already copied into the page */
-		if (test_range_bit(tree, cur, cur_end,
-				   EXTENT_UPTODATE, 1, NULL)) {
-			check_page_uptodate(tree, page);
-			unlock_extent(tree, cur, cur + iosize - 1);
-			cur = cur + iosize;
-			pg_offset += iosize;
-			continue;
-		}
-		/* we have an inline extent but it didn't get marked up
-		 * to date.  Error out
-		 */
 		if (block_start == EXTENT_MAP_INLINE) {
-			SetPageError(page);
+			SetPageUptodate(page);
 			unlock_extent(tree, cur, cur + iosize - 1);
 			cur = cur + iosize;
 			pg_offset += iosize;
@@ -4043,6 +4052,9 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
 	int nr = 0;
 	const unsigned int write_flags = wbc_to_write_flags(wbc);
 	bool compressed;
+#ifdef MY_DEF_HERE
+	bool deduped = false;
+#endif /* MY_DEF_HERE */
 
 	ret = btrfs_writepage_cow_fixup(page, start, page_end);
 	if (ret) {
@@ -4093,6 +4105,9 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
 		offset = em->block_start + extent_offset;
 		block_start = em->block_start;
 		compressed = test_bit(EXTENT_FLAG_COMPRESSED, &em->flags);
+#ifdef MY_DEF_HERE
+		deduped = test_bit(EXTENT_FLAG_DEDUPED, &em->flags);
+#endif /* MY_DEF_HERE */
 		free_extent_map(em);
 		em = NULL;
 
@@ -4101,6 +4116,9 @@ static noinline_for_stack int __extent_writepage_io(struct btrfs_inode *inode,
 		 * paths in the FS
 		 */
 		if (compressed || block_start == EXTENT_MAP_HOLE ||
+#ifdef MY_DEF_HERE
+			deduped ||
+#endif /* MY_DEF_HERE */
 		    block_start == EXTENT_MAP_INLINE) {
 			if (compressed)
 				nr++;
@@ -6369,6 +6387,9 @@ int read_extent_buffer_pages(struct extent_buffer *eb, int wait, int mirror_num
 		correction_get_locked_record(eb->fs_info, eb->start);
 #endif /* MY_ABC_HERE */
 
+#ifdef MY_ABC_HERE
+	atomic64_inc(&eb->fs_info->syno_meta_statistics.eb_disk_read);
+#endif /* MY_ABC_HERE */
 	clear_bit(EXTENT_BUFFER_READ_ERR, &eb->bflags);
 #ifdef MY_ABC_HERE
 #else /* MY_ABC_HERE */
