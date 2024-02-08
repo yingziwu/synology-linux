@@ -1332,10 +1332,8 @@ static int syno_ext4_set_sb_archive_ver(struct super_block *sb, u32 archive_ver)
 	int err = 0;
 	int err2;
 
-	sb->s_archive_version = archive_ver;
-	es->s_archive_version = cpu_to_le32(sb->s_archive_version);
-
 	if (!EXT4_HAS_COMPAT_FEATURE(sb, EXT4_FEATURE_COMPAT_HAS_JOURNAL)) {
+		es->s_archive_version = cpu_to_le32(archive_ver);
 		err = ext4_commit_super(sb, 1);
 		goto exit;
 	}
@@ -1348,6 +1346,7 @@ static int syno_ext4_set_sb_archive_ver(struct super_block *sb, u32 archive_ver)
 	if (err) {
 		goto exit_journal;
 	}
+	es->s_archive_version = cpu_to_le32(archive_ver);
 	err = ext4_handle_dirty_super(handle, sb);
 
 exit_journal:
@@ -1355,6 +1354,8 @@ exit_journal:
 		err = err2;
 	}
 exit:
+	if (!err)
+		sb->s_archive_version = archive_ver;
 	return err;
 }
 
@@ -1372,10 +1373,8 @@ static int syno_ext4_set_sb_archive_ver1(struct super_block *sb, u32 archive_ver
 	int err = 0;
 	int err2;
 
-	sb->s_archive_version1 = archive_ver1;
-	es->s_archive_version1 = cpu_to_le32(sb->s_archive_version1);
-
 	if (!EXT4_HAS_COMPAT_FEATURE(sb, EXT4_FEATURE_COMPAT_HAS_JOURNAL)) {
+		es->s_archive_version1 = cpu_to_le32(archive_ver1);
 		err = ext4_commit_super(sb, 1);
 		goto exit;
 	}
@@ -1388,6 +1387,7 @@ static int syno_ext4_set_sb_archive_ver1(struct super_block *sb, u32 archive_ver
 	if (err) {
 		goto exit_journal;
 	}
+	es->s_archive_version1 = cpu_to_le32(archive_ver1);
 	err = ext4_handle_dirty_super(handle, sb);
 
 exit_journal:
@@ -1395,6 +1395,8 @@ exit_journal:
 		err = err2;
 	}
 exit:
+	if (!err)
+		sb->s_archive_version1 = archive_ver1;
 	return err;
 }
 
@@ -2900,6 +2902,14 @@ static ssize_t sbi_ui_store(struct ext4_attr *a,
 	return count;
 }
 
+#ifdef MY_ABC_HERE
+static ssize_t incompat_supp_show(struct ext4_attr *a,
+				       struct ext4_sb_info *sbi, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%u\n", EXT4_FEATURE_INCOMPAT_SUPP);
+}
+#endif /* MY_ABC_HERE */
+
 #define EXT4_ATTR_OFFSET(_name,_mode,_show,_store,_elname) \
 static struct ext4_attr ext4_attr_##_name = {			\
 	.attr = {.name = __stringify(_name), .mode = _mode },	\
@@ -2973,6 +2983,9 @@ EXT4_INFO_ATTR(batched_discard);
 #ifdef SYNO_META_BG_PATCH
 EXT4_INFO_ATTR(meta_bg_resize);
 #endif
+#ifdef MY_ABC_HERE
+EXT4_RO_ATTR(incompat_supp);
+#endif /* MY_ABC_HERE */
 
 static struct attribute *ext4_feat_attrs[] = {
 	ATTR_LIST(lazy_itable_init),
@@ -2980,6 +2993,9 @@ static struct attribute *ext4_feat_attrs[] = {
 #ifdef SYNO_META_BG_PATCH
 	ATTR_LIST(meta_bg_resize),
 #endif
+#ifdef MY_ABC_HERE
+	ATTR_LIST(incompat_supp),
+#endif /* MY_ABC_HERE */
 	NULL,
 };
 
@@ -3886,7 +3902,15 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
 		goto failed_mount;
 	}
 
+#ifdef MY_ABC_HERE
+	/*
+	 * DSM#20845
+	 * for online resize > 16T, when no meta_bg
+	 */
+	if (le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) > 8189) {
+#else /* MY_ABC_HERE */
 	if (le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks) > (blocksize / 4)) {
+#endif /* MY_ABC_HERE */
 		ext4_msg(sb, KERN_ERR,
 			 "Number of reserved GDT blocks insanely large: %d",
 			 le16_to_cpu(sbi->s_es->s_reserved_gdt_blocks));
@@ -4350,7 +4374,7 @@ no_journal:
 	if (ext4_setup_super(sb, es, sb->s_flags & MS_RDONLY))
 		sb->s_flags |= MS_RDONLY;
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 	/*
 	 * We must check that i_syno_archive_bit is the last variable,
 	 * because if the METADATA_CSUM feature is not enabled,
@@ -4359,10 +4383,10 @@ no_journal:
 	 */
 	BUILD_BUG_ON(offsetof(struct ext4_inode, i_projid) != offsetof(struct ext4_inode, i_version_hi) + sizeof(__le32));
 	BUILD_BUG_ON(sizeof(struct ext4_inode) != (offsetof(struct ext4_inode, i_projid) + sizeof(__le32) + sizeof(__le32)));
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 	/* determine the minimum size of new large inodes, if present */
 	if (sbi->s_inode_size > EXT4_GOOD_OLD_INODE_SIZE) {
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 		if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) {
 			sbi->s_want_extra_isize = sizeof(struct ext4_inode) - EXT4_GOOD_OLD_INODE_SIZE;
 		} else {
@@ -4371,7 +4395,7 @@ no_journal:
 #else
 		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
 						     EXT4_GOOD_OLD_INODE_SIZE;
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 		if (EXT4_HAS_RO_COMPAT_FEATURE(sb,
 				       EXT4_FEATURE_RO_COMPAT_EXTRA_ISIZE)) {
 			if (sbi->s_want_extra_isize <
@@ -4387,7 +4411,7 @@ no_journal:
 	/* Check if enough inode space is available */
 	if (EXT4_GOOD_OLD_INODE_SIZE + sbi->s_want_extra_isize >
 							sbi->s_inode_size) {
-#ifdef MY_ABC_HERE
+#ifdef SYNO_ARCHIVE_BIT
 		if (EXT4_HAS_RO_COMPAT_FEATURE(sb, EXT4_FEATURE_RO_COMPAT_METADATA_CSUM)) {
 			sbi->s_want_extra_isize = sizeof(struct ext4_inode) - EXT4_GOOD_OLD_INODE_SIZE;
 		} else {
@@ -4396,7 +4420,7 @@ no_journal:
 #else
 		sbi->s_want_extra_isize = sizeof(struct ext4_inode) -
 						       EXT4_GOOD_OLD_INODE_SIZE;
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 		ext4_msg(sb, KERN_INFO, "required extra inode space not"
 			 "available");
 	}

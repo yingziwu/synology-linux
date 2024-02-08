@@ -9,6 +9,7 @@
  */
 
 #include <linux/slab.h>
+#include <linux/vmalloc.h>
 
 #include "nfsd.h"
 #include "cache.h"
@@ -64,8 +65,11 @@ int nfsd_reply_cache_init(void)
 	}
 
 	cache_hash = kcalloc (HASHSIZE, sizeof(struct hlist_head), GFP_KERNEL);
-	if (!cache_hash)
-		goto out_nomem;
+	if (!cache_hash) {
+		cache_hash = vzalloc(HASHSIZE * sizeof(struct hlist_head));
+		if (!cache_hash)
+			goto out_nomem;
+	}
 
 	cache_disabled = 0;
 	return 0;
@@ -89,7 +93,10 @@ void nfsd_reply_cache_shutdown(void)
 
 	cache_disabled = 1;
 
-	kfree (cache_hash);
+	if (is_vmalloc_addr(cache_hash))
+		vfree(cache_hash);
+	else
+		kfree(cache_hash);
 	cache_hash = NULL;
 }
 

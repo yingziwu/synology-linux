@@ -1174,8 +1174,15 @@ static ssize_t tty_write(struct file *file, const char __user *buf,
 #ifdef MY_DEF_HERE
 	{
 		if (0 == strcmp(tty->name, "ttyS1"))
+#ifdef MY_ABC_HERE
+		{
+			if ('+' != buf[0]) {
+#endif /* MY_ABC_HERE */
 			do_tty_write(ld->ops->write, tty, file, "-", 1);
-
+#ifdef MY_ABC_HERE
+			}
+		}
+#endif /* MY_ABC_HERE */
 		ret = do_tty_write(ld->ops->write, tty, file, buf, count);
 	}
 #else

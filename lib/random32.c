@@ -39,7 +39,7 @@
 #include <linux/jiffies.h>
 #include <linux/random.h>
 
-static DEFINE_PER_CPU(struct rnd_state, net_rand_state);
+DEFINE_PER_CPU(struct rnd_state, net_rand_state);
 
 /**
  *	prandom_u32_state - seeded pseudo-random number generator.

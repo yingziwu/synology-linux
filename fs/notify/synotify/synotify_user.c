@@ -43,6 +43,15 @@ struct ctl_table synotify_table[] = {
 };
 #endif /* CONFIG_SYSCTL */
 
+// Not including name !
+static int get_event_fixed_size(struct fsnotify_group *group)
+{
+	if (group->synotify_data.event_version == 2)
+		return sizeof(struct synotify_event_v2);
+	else
+		return sizeof(struct synotify_event);
+}
+
 /*
  * Get an fsnotify notification event if one exists and is small
  * enough to fit in "count". Return an error pointer if the count
@@ -53,7 +62,7 @@ struct ctl_table synotify_table[] = {
 static struct fsnotify_event *get_one_event(struct fsnotify_group *group,
 					    size_t count)
 {
-	size_t event_size = sizeof(struct synotify_event);
+	size_t event_size;
 	struct fsnotify_event *event;
 
 	BUG_ON(!mutex_is_locked(&group->notification_mutex));
@@ -65,6 +74,7 @@ static struct fsnotify_event *get_one_event(struct fsnotify_group *group,
 
 	pr_debug("%s: group=%p count=%zd, event=%p\n", __func__, group, count, event);
 
+	event_size = get_event_fixed_size(group);
 	if (event->full_name_len)
 		event_size += roundup(event->full_name_len + 1, event_size);
 
@@ -85,12 +95,20 @@ static ssize_t copy_event_to_user(struct fsnotify_group *group,
 				  struct fsnotify_event *event,
 				  char __user *buf)
 {
-	struct synotify_event synotify_event;
+	struct synotify_event_v2 synotify_event; // Use largest version.
 
-	size_t event_size = sizeof(struct synotify_event);
+	size_t event_size;
 	size_t name_len = 0;
 
 	pr_debug("%s: group=%p event=%p\n", __func__, group, event);
+
+	if (event->event_version == 2) {
+		event_size = sizeof(struct synotify_event_v2);
+		synotify_event.pid = (u32)event->pid;
+		synotify_event.uid = (u32)event->uid;
+	} else {
+		event_size = sizeof(struct synotify_event);
+	}
 
 	/*
 	 * round up event->name_len so it is a multiple of event_size
@@ -222,8 +240,10 @@ static long synotify_ioctl(struct file *file, unsigned int cmd, unsigned long ar
 	void __user *p;
 	int ret = -ENOTTY;
 	size_t send_len = 0;
+	int syno_event_size;
 
 	group = file->private_data;
+	syno_event_size = get_event_fixed_size(group);
 
 	p = (void __user *) arg;
 
@@ -234,10 +254,10 @@ static long synotify_ioctl(struct file *file, unsigned int cmd, unsigned long ar
 		mutex_lock(&group->notification_mutex);
 		list_for_each_entry(holder, &group->notification_list, event_list) {
 			event = holder->event;
-			send_len += sizeof(struct synotify_event);
+			send_len += syno_event_size;
 			if (event->full_name_len)
 				send_len += roundup(event->full_name_len + 1,
-						sizeof(struct synotify_event));
+						syno_event_size);
 		}
 		mutex_unlock(&group->notification_mutex);
 		ret = put_user(send_len, (int __user *) p);
@@ -386,7 +406,7 @@ SYSCALL_DEFINE1(syno_notify_init, unsigned int, flags)
 
 	pr_debug("%s: flags=%x\n",__func__, flags);
 
-	if(flags & ~(SYNO_NONBLOCK | SYNO_CLOEXEC))
+	if(flags & ~(SYNO_NONBLOCK | SYNO_CLOEXEC | SYNO_EVENT_V2))
 		return -EINVAL;
 
 	if(flags & SYNO_CLOEXEC){
@@ -415,6 +435,11 @@ SYSCALL_DEFINE1(syno_notify_init, unsigned int, flags)
 	group->max_events = synotify_max_queued_events;
 	group->synotify_data.max_watchers = SYNOTIFY_DEFAULT_MAX_WATCHERS;
 	printk(KERN_INFO "Synotify use %d event queue size\n", group->max_events);
+
+	if (flags & SYNO_EVENT_V2)
+		group->synotify_data.event_version = 2;
+	else
+		group->synotify_data.event_version = 1;
 
 	fd = anon_inode_getfd("[synotify]", &synotify_fops, group, f_flags);
 	if (fd < 0)

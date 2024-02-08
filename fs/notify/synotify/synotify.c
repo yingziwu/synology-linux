@@ -57,6 +57,12 @@ static int synotify_handle_event(struct fsnotify_group *group,
 	struct fsnotify_event *notify_event = NULL;
 
 	pr_debug("%s: group=%p event=%p, mnt=%p, mask=%x\n", __func__, group, event, event->path.mnt, event->mask);
+	event->event_version = group->synotify_data.event_version;
+
+	// v2 event
+	event->pid = task_tgid_nr_ns(current, &init_pid_ns);
+	event->uid = current_uid();
+
 	// to prevent event dependecy, we should have much clever way to do merge
 	notify_event = fsnotify_add_notify_event(group, event, NULL, synotify_merge);
 	if (IS_ERR(notify_event))

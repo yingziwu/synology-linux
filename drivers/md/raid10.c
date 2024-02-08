@@ -443,6 +443,10 @@ static void raid10_end_write_request(struct bio *bio, int error)
 		set_bit(WriteErrorSeen,	&conf->mirrors[dev].rdev->flags);
 		set_bit(R10BIO_WriteError, &r10_bio->state);
 		dec_rdev = 0;
+#ifdef MY_ABC_HERE
+		if (conf->mirrors[dev].rdev->badblocks.shift < 0)
+			md_error(conf->mddev, conf->mirrors[dev].rdev);
+#endif /* MY_ABC_HERE */
 	} else {
 		/*
 		 * Set R10BIO_Uptodate in our master bio, so that

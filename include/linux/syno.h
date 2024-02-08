@@ -741,6 +741,7 @@
 /**
  * Dsc: usb3 pci id define
  */
+#define SYNO_USB3_PCI_ID_DEFINE
 
 /**
  * Dsc: some ups needs more time during address set
@@ -1984,7 +1985,7 @@
  * version plus 1. Super block's version could be increased by
  * user program when complete a backup. With each inode's 
  * version comparing to backup's version, we could quickly find 
- * out modified files. May refer to MY_ABC_HERE.
+ * out modified files. May refer to SYNO_ARCHIVE_BIT.
  * Archive version shall supported by syno xattr.
  */
 #ifdef MY_ABC_HERE
@@ -2140,7 +2141,8 @@
  *      hidden, system bit on Ext3 This modify should sync with
  *      samba.
  */
-#ifdef MY_ABC_HERE
+#define SYNO_ARCHIVE_BIT
+#ifdef SYNO_ARCHIVE_BIT
 
 /**
  * Fix: DSM #44005
@@ -2150,8 +2152,11 @@
 
 /**
  * Dsc: Support ACL in ext4. 
- *      ACL depends on MY_ABC_HERE
+ *      ACL depends on SYNO_ARCHIVE_BIT
  */
+#if !defined(CONFIG_SYNO_MV88F6281_USBSTATION) && !defined(SYNO_MARVELL_88F6180)
+#define SYNO_FS_SYNO_ACL
+#endif
 
 #if defined (F_CLEAR_ARCHIVE) || defined (F_SETSMB_ARCHIVE) || defined (F_SETSMB_HIDDEN) || \
 	defined (F_SETSMB_SYSTEM) || defined (F_CLRSMB_ARCHIVE) || defined (F_CLRSMB_HIDDEN) || \
@@ -2160,14 +2165,14 @@
 #error "Samba archive bit redefine."
 #endif
 
-#if defined(MY_ABC_HERE) || defined(CONFIG_FS_SYNO_ACL)
+#if defined(SYNO_FS_SYNO_ACL) || defined(CONFIG_FS_SYNO_ACL)
 #if defined (F_CLRSMB_READONLY) || defined (F_SETSMB_READONLY) || \
 	defined (F_CLRACL_INHERIT)  || defined (F_SETACL_INHERIT)  || \
 	defined (F_CLRACL_OWNER_IS_GROUP) || defined (F_SETACL_OWNER_IS_GROUP)  || \
 	defined (F_SETACL_SUPPORT) || defined (F_SETACL_SUPPORT)
 #error "ACL archive bit redefine."
 #endif /* ACL archive bit redefine. */
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 
 #define SYNO_FCNTL_BASE             513
 #define F_CLEAR_ARCHIVE             (SYNO_FCNTL_BASE + 0)
@@ -2179,7 +2184,7 @@
 #define F_CLRSMB_SYSTEM             (SYNO_FCNTL_BASE + 6)
 #define F_CLEAR_S3_ARCHIVE          (SYNO_FCNTL_BASE + 7)
 
-#ifdef MY_ABC_HERE
+#ifdef SYNO_FS_SYNO_ACL
 #define F_CLRSMB_READONLY           (SYNO_FCNTL_BASE + 8)
 #define F_SETSMB_READONLY           (SYNO_FCNTL_BASE + 9)
 #define F_CLRACL_INHERIT            (SYNO_FCNTL_BASE + 10)
@@ -2198,12 +2203,12 @@
 #define F_CLRSMB_SPARSE				(SYNO_FCNTL_BASE + 9)
 
 #define SYNO_FCNTL_LAST             F_CLRSMB_SPARSE
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_FS_SYNO_ACL */
 
 #else
 #undef CONFIG_EXT4_FS_SYNO_ACL
 #undef CONFIG_FS_SYNO_ACL
-#endif /* MY_ABC_HERE */
+#endif /* SYNO_ARCHIVE_BIT */
 /**
  * Dsc: Let ext3/ext4/btrfs filesystem be case-insensitive.
  *      This modify should sync with Samba and e2fsprogs.
@@ -3119,6 +3124,15 @@
  */
 
 /**
+ * Fix <DSM> #109242
+ * If raid5 I/O hits a stripe that will soon or already clear STRIPE_PREREAD_ACTIVE,
+ * it might cause this stripe be added into delayed_list. And delayed_list now can
+ * only be checked when preread_active_stripes < IO_THRESHOLD. In heavy I/O loading
+ * preread_active_stripes might not be easy to less then IO_THRESHOLD. Thus cause
+ * high latency.
+ */
+
+/**
  * Fix <DSM> #106322
  * If we try to assemble raid1 only use the disk which is rebuilding, raid1 may
  * add and remove that disk repaetedly. We should check if raid1 is crash when
@@ -3159,6 +3173,18 @@
  * resync stop after abnormal shutdown.
 */
 
+/**
+ * Fix <DSM> #145619
+ * Fix the same issue as DSM #140257. Set conf to mddev->private to avoid
+ * null pointer dereference in stop() funciton.
+*/
+
+/**
+ * Fix <DSM> #147399
+ * If device didn't enable badblock record, we drop device when receive I/O error.
+ * The fail fast device doing the same at endio callback in upstream, we just
+ * follow the same logic.
+ */
 
 /**
  * Fix <PetaSpace> #16
@@ -3202,4 +3228,18 @@
  * Fix <DSM> #120123
  * If ecryptfs mount at the same mount point, it would get wrong stat at caseless stat API.
  */
+
+/**
+ * <DSM> #20845, #25804, #40401
+ * There is online resize boundary with 16TB. One problem is ioctl only reconizes _u32 input. The other is reserved
+ * GDT maximum limitation with 1024 blocks. This fix will make it recognize _u64, and break the maximum limitation
+ * to 8128. 8128 limitation: Because of the maximum jbd2 transaction size is 8192 (the volume should more than 8G).
+ * This config is for compatibility to our own old-style ext4 with this feature.
+ */
+
+/**
+ * <DSM> #150680
+ * Mount rootfs with noatime option to prevent relatime from waking harddisks per 24-hours.
+ */
+
 #endif /* __SYNO_H_ */
