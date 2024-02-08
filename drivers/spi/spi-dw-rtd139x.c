@@ -60,6 +60,7 @@ void rtk_spi_wrap_ctrl(struct spi_device *spi,  int val)
 }
 EXPORT_SYMBOL_GPL(rtk_spi_wrap_ctrl);
 
+
 static int rtk_spi_probe(struct platform_device *pdev)
 {
 	struct rtk_spi *hw;
@@ -151,6 +152,7 @@ static int rtk_spi_remove(struct platform_device *dev)
 	return 0;
 }
 
+
 #ifdef CONFIG_PM_SLEEP
 
 static int rtk_spi_suspend(struct device *dev)
@@ -206,6 +208,7 @@ static SIMPLE_DEV_PM_OPS(rtk_spi_pm_ops, rtk_spi_suspend, rtk_spi_resume);
 #else /* CONFIG_PM_SLEEP */
 #define RTK_SPI_PM_OPS	NULL
 #endif /* CONFIG_PM_SLEEP */
+
 
 static const struct of_device_id rtk_spi_match[] = {
 	{ .compatible = "Realtek,rtk-dw-apb-ssi", },

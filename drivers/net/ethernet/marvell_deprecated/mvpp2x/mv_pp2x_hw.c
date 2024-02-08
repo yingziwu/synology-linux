@@ -5243,6 +5243,7 @@ int mv_pp2x_cls_sw_flow_extra_set(struct mv_pp2x_cls_flow_entry *fe,
 }
 EXPORT_SYMBOL(mv_pp2x_cls_sw_flow_extra_set);
 
+
 /*----------------------------------------------------------------------*/
 /*	Classifier Top Public length change table APIs			*/
 /*----------------------------------------------------------------------*/
@@ -6343,6 +6344,7 @@ static void mv_pp2x_cls_c2_qos_tbl_fill(struct mv_pp2x_port *port,
 	struct mv_pp2x_cls_c2_qos_entry qos_entry;
 	u32 pri, line_num;
 	u8 cos_value, cos_queue, queue;
+
 
 	if (tbl_sel == MVPP2_QOS_TBL_SEL_PRI)
 		line_num = MVPP2_QOS_TBL_LINE_NUM_PRI;

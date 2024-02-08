@@ -72,6 +72,7 @@
 #define FabricConfigAccessControl__CfgRegInstAccRegLock_MASK                                                  0x00000002L
 #define FabricConfigAccessControl__CfgRegInstID_MASK                                                          0x00FF0000L
 
+
 #define mmDF_PIE_AON0_DfGlobalClkGater                                                                 0x00fc
 #define mmDF_PIE_AON0_DfGlobalClkGater_BASE_IDX                                                        0
 //DF_PIE_AON0_DfGlobalClkGater
@@ -235,6 +236,7 @@ static u32 soc15_get_xclk(struct amdgpu_device *adev)
 	return adev->clock.spll.reference_freq;
 }
 
+
 void soc15_grbm_select(struct amdgpu_device *adev,
 		     u32 me, u32 pipe, u32 queue, u32 vmid)
 {
@@ -291,6 +293,7 @@ struct soc15_allowed_register_entry {
 	uint32_t reg_offset;
 	bool grbm_indexed;
 };
+
 
 static struct soc15_allowed_register_entry soc15_allowed_read_registers[] = {
 	{ SOC15_REG_ENTRY(GC, 0, mmGRBM_STATUS)},
@@ -364,6 +367,7 @@ static int soc15_read_register(struct amdgpu_device *adev, u32 se_num,
 	return -EINVAL;
 }
 
+
 /**
  * soc15_program_register_sequence - program an array of registers.
  *
@@ -398,6 +402,7 @@ void soc15_program_register_sequence(struct amdgpu_device *adev,
 	}
 
 }
+
 
 static int soc15_asic_reset(struct amdgpu_device *adev)
 {

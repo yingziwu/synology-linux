@@ -46,6 +46,7 @@ typedef struct {
 	uint16_t Vid;
 } DisplayClockTable_t;
 
+
 typedef struct {
 	uint16_t MinClock; /* This is either DCFCLK or SOCCLK (in MHz) */
 	uint16_t MaxClock; /* This is either DCFCLK or SOCCLK (in MHz) */

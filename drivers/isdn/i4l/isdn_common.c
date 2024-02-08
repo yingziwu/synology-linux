@@ -62,6 +62,7 @@ extern char *isdn_v110_revision;
 static isdn_divert_if *divert_if; /* = NULL */
 #endif /* CONFIG_ISDN_DIVERSION */
 
+
 static int isdn_writebuf_stub(int, int, const u_char __user *, int);
 static void set_global_features(void);
 static int isdn_wildmat(char *s, char *p);
@@ -976,6 +977,7 @@ isdn_readbchan_tty(int di, int channel, struct tty_port *port, int cisco_hack)
 	return count;
 }
 
+
 static inline int
 isdn_minor2drv(int minor)
 {
@@ -1266,6 +1268,7 @@ out:
 	return mask;
 }
 
+
 static int
 isdn_ioctl(struct file *file, uint cmd, ulong arg)
 {
@@ -1376,6 +1379,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 			if (arg) {
 				if (copy_from_user(bname, argp, sizeof(bname) - 1))
 					return -EFAULT;
+				bname[sizeof(bname)-1] = 0;
 			} else
 				return -EINVAL;
 			ret = mutex_lock_interruptible(&dev->mtx);
@@ -1651,13 +1655,7 @@ isdn_ioctl(struct file *file, uint cmd, ulong arg)
 			} else
 				return -EINVAL;
 		case IIOCDBGVAR:
-			if (arg) {
-				if (copy_to_user(argp, &dev, sizeof(ulong)))
-					return -EFAULT;
-				return 0;
-			} else
-				return -EINVAL;
-			break;
+			return -EINVAL;
 		default:
 			if ((cmd & IIOCDRVCTL) == IIOCDRVCTL)
 				cmd = ((cmd >> _IOC_NRSHIFT) & _IOC_NRMASK) & ISDN_DRVIOCTL_MASK;
@@ -2211,6 +2209,7 @@ int DIVERT_REG_NAME(isdn_divert_if *i_div)
 EXPORT_SYMBOL(DIVERT_REG_NAME);
 
 #endif /* CONFIG_ISDN_DIVERSION */
+
 
 EXPORT_SYMBOL(register_isdn);
 #ifdef CONFIG_ISDN_PPP

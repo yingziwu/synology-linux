@@ -140,6 +140,7 @@ struct  amdgim_pf2vf_info_v2 {
 	uint32_t reserved[AMDGIM_GET_STRUCTURE_RESERVED_SIZE(256, 0, 0, (9 + sizeof(struct amdgim_pf2vf_info_header)/sizeof(uint32_t)), 3)];
 } __aligned(4);
 
+
 struct amdgim_vf2pf_info_header {
 	/* the total structure size in byte. */
 	uint32_t size;

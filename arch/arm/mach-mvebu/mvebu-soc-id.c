@@ -60,6 +60,7 @@ static const struct of_device_id mvebu_msys_of_match_table[] = {
 };
 #endif /* MY_DEF_HERE */
 
+
 int mvebu_get_soc_id(u32 *dev, u32 *rev)
 {
 	if (is_id_valid) {

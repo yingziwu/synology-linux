@@ -60,6 +60,7 @@ static struct radeon_device *radeon_get_rdev(struct ttm_bo_device *bdev)
 	return rdev;
 }
 
+
 /*
  * Global memory.
  */
@@ -1009,6 +1010,7 @@ static int radeon_mm_dump_table(struct seq_file *m, void *data)
 	man->func->debug(man, &p);
 	return 0;
 }
+
 
 static int ttm_pl_vram = TTM_PL_VRAM;
 static int ttm_pl_tt = TTM_PL_TT;

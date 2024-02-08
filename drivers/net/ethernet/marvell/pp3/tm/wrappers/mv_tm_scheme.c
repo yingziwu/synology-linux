@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -240,6 +241,7 @@ out:
 }
 EXPORT_SYMBOL(mv_tm_scheme_port_c_nodes_get);
 
+
 /* Return base and number of B nodes that attached to C node number cnode_id.
    Return -1 if cnode_id is invalid or not in use. */
 int mv_tm_scheme_c_node_b_nodes_get(int cnode_id, int *base, int *num)
@@ -265,6 +267,8 @@ out:
 	TM_WRAPPER_END(qmtm_hndl);
 }
 EXPORT_SYMBOL(mv_tm_scheme_c_node_b_nodes_get);
+
+
 
 /* Return base and number of queues that attached to A node number anode_id.
    Return -1 if anode_id is invalid or not in use. */
@@ -318,6 +322,7 @@ out:
 }
 EXPORT_SYMBOL(mv_tm_scheme_a_node_queues_get);
 
+
 /* Retrun A node, B node, C node and port number that attached to queue number q_id.
    Return -1 if q_id is invalid or not in use. */
 int mv_tm_scheme_queue_path_get(int q_id, int *anode, int *bnode, int *cnode, int *port)
@@ -355,6 +360,7 @@ out:
 }
 EXPORT_SYMBOL(mv_tm_scheme_queue_path_get);
 
+
 int mv_tm_scheme_sub_nodes_get(enum tm_level level, int node_id, int *base, int *num)
 {
 	TM_WRAPPER_BEGIN(qmtm_hndl, ctl, henv);
@@ -387,6 +393,7 @@ out:
 	TM_WRAPPER_END(qmtm_hndl);
 }
 EXPORT_SYMBOL(mv_tm_scheme_sub_nodes_get);
+
 
 int mv_tm_scheme_parent_node_get(enum tm_level level, int node_id, int *parent)
 {
@@ -433,3 +440,4 @@ out:
 	TM_WRAPPER_END(qmtm_hndl);
 }
 EXPORT_SYMBOL(mv_tm_scheme_parent_node_get);
+

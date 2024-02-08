@@ -101,6 +101,7 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
 	return 1;
 }
 
+
 static inline int gup_pmd_range(pud_t *pudp, pud_t pud, unsigned long addr,
 		unsigned long end, int write, struct page **pages, int *nr)
 {
@@ -241,7 +242,7 @@ int get_user_pages_fast(unsigned long start, int nr_pages, int write,
 	start += nr << PAGE_SHIFT;
 	pages += nr;
 	ret = get_user_pages_unlocked(current, mm, start,
-			     nr_pages - nr, write, 0, pages);
+			     nr_pages - nr, pages, write ? FOLL_WRITE : 0);
 	/* Have to be a bit careful with return values */
 	if (nr > 0)
 		ret = (ret < 0) ? nr : ret + nr;

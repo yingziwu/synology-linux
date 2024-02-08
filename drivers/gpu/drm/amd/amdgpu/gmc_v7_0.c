@@ -769,6 +769,7 @@ static void gmc_v7_0_vm_decode_fault(struct amdgpu_device *adev,
 	       "write" : "read", block, mc_client, mc_id);
 }
 
+
 static const u32 mc_cg_registers[] = {
 	mmMC_HUB_MISC_HUB_CG,
 	mmMC_HUB_MISC_SIP_CG,
@@ -1166,6 +1167,7 @@ static int gmc_v7_0_soft_reset(void *handle)
 		if (gmc_v7_0_wait_for_idle((void *)adev)) {
 			dev_warn(adev->dev, "Wait for GMC idle timed out !\n");
 		}
+
 
 		tmp = RREG32(mmSRBM_SOFT_RESET);
 		tmp |= srbm_soft_reset;

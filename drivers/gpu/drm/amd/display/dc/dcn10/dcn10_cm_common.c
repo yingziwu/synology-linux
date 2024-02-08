@@ -123,6 +123,8 @@ void cm_helper_program_xfer_func(
 
 }
 
+
+
 bool cm_helper_convert_to_custom_float(
 		struct pwl_result_data *rgb_resulted,
 		struct curve_points *arr_points,
@@ -229,6 +231,7 @@ bool cm_helper_convert_to_custom_float(
 
 	return true;
 }
+
 
 #define MAX_REGIONS_NUMBER 34
 #define MAX_LOW_POINT      25

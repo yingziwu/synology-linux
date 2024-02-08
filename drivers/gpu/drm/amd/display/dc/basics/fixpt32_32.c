@@ -158,3 +158,4 @@ uint32_t dal_fixed32_32_round(struct fixed32_32 v)
 	ASSERT(v.value + (1ULL<<31) >= (1ULL<<31));
 	return (v.value + (1ULL<<31))>>32;
 }
+

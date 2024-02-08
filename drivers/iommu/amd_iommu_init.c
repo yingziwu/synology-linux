@@ -295,7 +295,7 @@ static void iommu_write_l2(struct amd_iommu *iommu, u8 address, u32 val)
 static void iommu_set_exclusion_range(struct amd_iommu *iommu)
 {
 	u64 start = iommu->exclusion_start & PAGE_MASK;
-	u64 limit = (start + iommu->exclusion_length) & PAGE_MASK;
+	u64 limit = (start + iommu->exclusion_length - 1) & PAGE_MASK;
 	u64 entry;
 
 	if (!iommu->exclusion_start)
@@ -642,6 +642,7 @@ static int get_dev_entry_bit(u16 devid, u8 bit)
 	return (amd_iommu_dev_table[devid].data[i] & (1UL << _bit)) >> _bit;
 }
 
+
 void amd_iommu_apply_erratum_63(u16 devid)
 {
 	int sysmgt;
@@ -786,6 +787,7 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
 	struct ivhd_entry *e;
 	int ret;
 
+
 	ret = add_early_maps();
 	if (ret)
 		return ret;
@@ -800,6 +802,7 @@ static int __init init_iommu_from_acpi(struct amd_iommu *iommu,
 	 */
 	p += sizeof(struct ivhd_header);
 	end += h->length;
+
 
 	while (p < end) {
 		e = (struct ivhd_entry *)p;
@@ -1159,6 +1162,7 @@ static int __init init_iommu_all(struct acpi_table_header *table)
 
 	return 0;
 }
+
 
 static void init_iommu_perf_ctr(struct amd_iommu *iommu)
 {

@@ -134,6 +134,7 @@ static kdbmsg_t kdbmsgs[] = {
 
 static const int __nkdb_err = ARRAY_SIZE(kdbmsgs);
 
+
 /*
  * Initial environment.   This is all kept static and local to
  * this file.   We don't want to rely on the memory allocation
@@ -1087,6 +1088,7 @@ int kdb_parse(const char *cmdstr)
 	}
 }
 
+
 static int handle_ctrl_cmd(char *cmd)
 {
 #define CTRL_P	16
@@ -1339,6 +1341,7 @@ do_full_getstr:
 	return diag;
 }
 
+
 /*
  * kdb_print_state - Print the state data for the current processor
  *	for debugging.
@@ -1561,6 +1564,7 @@ static int kdb_md(int argc, const char **argv)
 	int symbolic = 0;
 	int valid = 0;
 	int phys = 0;
+	int raw = 0;
 
 	kdbgetintenv("MDCOUNT", &mdcount);
 	kdbgetintenv("RADIX", &radix);
@@ -1570,9 +1574,10 @@ static int kdb_md(int argc, const char **argv)
 	repeat = mdcount * 16 / bytesperword;
 
 	if (strcmp(argv[0], "mdr") == 0) {
-		if (argc != 2)
+		if (argc == 2 || (argc == 0 && last_addr != 0))
+			valid = raw = 1;
+		else
 			return KDB_ARGCOUNT;
-		valid = 1;
 	} else if (isdigit(argv[0][2])) {
 		bytesperword = (int)(argv[0][2] - '0');
 		if (bytesperword == 0) {
@@ -1608,7 +1613,10 @@ static int kdb_md(int argc, const char **argv)
 		radix = last_radix;
 		bytesperword = last_bytesperword;
 		repeat = last_repeat;
-		mdcount = ((repeat * bytesperword) + 15) / 16;
+		if (raw)
+			mdcount = repeat;
+		else
+			mdcount = ((repeat * bytesperword) + 15) / 16;
 	}
 
 	if (argc) {
@@ -1625,7 +1633,10 @@ static int kdb_md(int argc, const char **argv)
 			diag = kdbgetularg(argv[nextarg], &val);
 			if (!diag) {
 				mdcount = (int) val;
-				repeat = mdcount * 16 / bytesperword;
+				if (raw)
+					repeat = mdcount;
+				else
+					repeat = mdcount * 16 / bytesperword;
 			}
 		}
 		if (argc >= nextarg+1) {
@@ -1635,8 +1646,15 @@ static int kdb_md(int argc, const char **argv)
 		}
 	}
 
-	if (strcmp(argv[0], "mdr") == 0)
-		return kdb_mdr(addr, mdcount);
+	if (strcmp(argv[0], "mdr") == 0) {
+		int ret;
+		last_addr = addr;
+		ret = kdb_mdr(addr, mdcount);
+		last_addr += mdcount;
+		last_repeat = mdcount;
+		last_bytesperword = bytesperword; // to make REPEAT happy
+		return ret;
+	}
 
 	switch (radix) {
 	case 10:
@@ -2745,6 +2763,7 @@ int kdb_register_flags(char *cmd,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(kdb_register_flags);
+
 
 /*
  * kdb_register - Compatibility register function for commands that do

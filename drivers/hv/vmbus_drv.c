@@ -50,6 +50,7 @@ static struct tasklet_struct msg_dpc;
 static struct completion probe_event;
 static int irq;
 
+
 static void hyperv_report_panic(struct pt_regs *regs)
 {
 	static bool panic_reported;
@@ -315,6 +316,8 @@ static ssize_t out_intr_mask_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->outbound, &outbound);
 	return sprintf(buf, "%d\n", outbound.current_interrupt_mask);
 }
@@ -328,6 +331,8 @@ static ssize_t out_read_index_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->outbound, &outbound);
 	return sprintf(buf, "%d\n", outbound.current_read_index);
 }
@@ -342,6 +347,8 @@ static ssize_t out_write_index_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->outbound, &outbound);
 	return sprintf(buf, "%d\n", outbound.current_write_index);
 }
@@ -356,6 +363,8 @@ static ssize_t out_read_bytes_avail_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->outbound, &outbound);
 	return sprintf(buf, "%d\n", outbound.bytes_avail_toread);
 }
@@ -370,6 +379,8 @@ static ssize_t out_write_bytes_avail_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->outbound, &outbound);
 	return sprintf(buf, "%d\n", outbound.bytes_avail_towrite);
 }
@@ -383,6 +394,8 @@ static ssize_t in_intr_mask_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->inbound, &inbound);
 	return sprintf(buf, "%d\n", inbound.current_interrupt_mask);
 }
@@ -396,6 +409,8 @@ static ssize_t in_read_index_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->inbound, &inbound);
 	return sprintf(buf, "%d\n", inbound.current_read_index);
 }
@@ -409,6 +424,8 @@ static ssize_t in_write_index_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->inbound, &inbound);
 	return sprintf(buf, "%d\n", inbound.current_write_index);
 }
@@ -423,6 +440,8 @@ static ssize_t in_read_bytes_avail_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->inbound, &inbound);
 	return sprintf(buf, "%d\n", inbound.bytes_avail_toread);
 }
@@ -437,6 +456,8 @@ static ssize_t in_write_bytes_avail_show(struct device *dev,
 
 	if (!hv_dev->channel)
 		return -ENODEV;
+	if (hv_dev->channel->state != CHANNEL_OPENED_STATE)
+		return -EINVAL;
 	hv_ringbuffer_get_debuginfo(&hv_dev->channel->inbound, &inbound);
 	return sprintf(buf, "%d\n", inbound.bytes_avail_towrite);
 }
@@ -554,6 +575,8 @@ static const struct hv_vmbus_device_id *hv_vmbus_get_id(
 	return NULL;
 }
 
+
+
 /*
  * vmbus_match - Attempt to match the specified device to the specified driver
  */
@@ -611,6 +634,7 @@ static int vmbus_remove(struct device *child_device)
 	return 0;
 }
 
+
 /*
  * vmbus_shutdown - Shutdown a vmbus device
  */
@@ -618,6 +642,7 @@ static void vmbus_shutdown(struct device *child_device)
 {
 	struct hv_driver *drv;
 	struct hv_device *dev = device_to_hv_device(child_device);
+
 
 	/* The device may not be attached yet */
 	if (!child_device->driver)
@@ -630,6 +655,7 @@ static void vmbus_shutdown(struct device *child_device)
 
 	return;
 }
+
 
 /*
  * vmbus_device_release - Final callback release of the vmbus child device
@@ -802,6 +828,7 @@ static void vmbus_isr(void)
 	if (handled)
 		tasklet_schedule(hv_context.event_dpc[cpu]);
 
+
 	page_addr = hv_context.synic_message_page[cpu];
 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
 
@@ -815,6 +842,7 @@ static void vmbus_isr(void)
 
 	add_interrupt_randomness(HYPERVISOR_CALLBACK_VECTOR, 0);
 }
+
 
 /*
  * vmbus_bus_init -Main vmbus driver initialization routine.
@@ -956,6 +984,7 @@ struct hv_device *vmbus_device_create(const uuid_le *type,
 	memcpy(&child_device_obj->dev_instance, instance,
 	       sizeof(uuid_le));
 
+
 	return child_device_obj;
 }
 
@@ -1003,6 +1032,7 @@ void vmbus_device_unregister(struct hv_device *device_obj)
 	 */
 	device_unregister(&device_obj->device);
 }
+
 
 /*
  * VMBUS is an acpi enumerated device. Get the information we
@@ -1330,6 +1360,7 @@ static void __exit vmbus_exit(void)
 	if (vmbus_proto_version > VERSION_WIN7)
 		cpu_hotplug_enable();
 }
+
 
 MODULE_LICENSE("GPL");
 

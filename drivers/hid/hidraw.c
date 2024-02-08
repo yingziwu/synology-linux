@@ -123,6 +123,7 @@ static ssize_t hidraw_send_report(struct file *file, const char __user *buffer, 
 
 	dev = hidraw_table[minor]->hid;
 
+
 	if (count > HID_MAX_BUFFER_SIZE) {
 		hid_warn(dev, "pid %d passed too large report\n",
 			 task_pid_nr(current));
@@ -178,6 +179,7 @@ static ssize_t hidraw_write(struct file *file, const char __user *buffer, size_t
 	return ret;
 }
 
+
 /*
  * This function performs a Get_Report transfer over the control endpoint
  * per section 7.2.1 of the HID specification, version 1.1.  The first byte
@@ -194,6 +196,11 @@ static ssize_t hidraw_get_report(struct file *file, char __user *buffer, size_t 
 	__u8 *buf;
 	int ret = 0, len;
 	unsigned char report_number;
+
+	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
+		ret = -ENODEV;
+		goto out;
+	}
 
 	dev = hidraw_table[minor]->hid;
 

@@ -130,6 +130,7 @@ int  venus_i2c_bus_jam_detect(venus_i2c* p_this);
 void venus_i2c_bus_jam_recover_proc(venus_i2c* p_this);
 #endif
 
+
 #define SA_SHIRQ IRQF_SHARED
 
 #define  phoenix_i2c_mdelay(x)  \
@@ -211,6 +212,8 @@ void venus_i2c_msater_write(venus_i2c* p_this, unsigned int event, unsigned int 
 #undef TxComplete
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_msater_read
  *
@@ -275,6 +278,8 @@ void venus_i2c_msater_read(venus_i2c* p_this, unsigned int event, unsigned int t
 #undef TxComplete
 #undef RxComplete
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_msater_read
@@ -371,6 +376,8 @@ void venus_i2c_msater_random_read(venus_i2c* p_this, unsigned int event, unsigne
 #undef RxComplete
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_isr
  *
@@ -455,6 +462,7 @@ irqreturn_t venus_i2c_isr(int this_irq, void* dev_id){
     return IRQ_HANDLED;
 }
 
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_set_tar
  *
@@ -499,6 +507,8 @@ venus_i2c_set_tar(
 
     return 0;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_slave_mode_enable
@@ -545,6 +555,8 @@ int venus_i2c_slave_mode_enable(
     return 0;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_register_slave_ops
  *
@@ -582,6 +594,8 @@ int venus_i2c_register_slave_ops(
     UNLOCK_VENUS_I2C(&p_this->lock, flags);
     return 0;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_set_port
@@ -636,6 +650,8 @@ venus_i2c_set_port(
     return 0;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_set_sar
  *
@@ -675,6 +691,8 @@ venus_i2c_set_sar(
     return 0;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_set_spd
  *
@@ -696,6 +714,7 @@ int venus_i2c_set_spd(venus_i2c* p_this, int KHz)
     unsigned long sda_del_sel;
 
     RTK_DEBUG("[%s] %s  %d \n", __FILE__,__FUNCTION__,__LINE__);
+
 
     if (KHz < 10 || KHz > 800)
     {
@@ -763,6 +782,7 @@ int venus_i2c_set_spd(venus_i2c* p_this, int KHz)
     return 0;
 }
 
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_set_guard_interval
  *
@@ -779,6 +799,7 @@ int venus_i2c_set_guard_interval(venus_i2c* p_this, unsigned long us)
     p_this->guard_interval = us;
     return 0;
 }
+
 
 #define current_port_id(p_this)     ((p_this->current_port) ? (((unsigned long) p_this->current_port - (unsigned long) p_this->p_port)/sizeof(venus_i2c_port)) : -1)
 
@@ -828,6 +849,8 @@ int venus_i2c_dump(venus_i2c* p_this)
     i2c_print("=========================\n");
     return 0;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_find_current_port
@@ -888,6 +911,7 @@ venus_i2c_port* venus_i2c_find_current_port(
     return NULL;
 }
 
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_probe
  *
@@ -932,6 +956,8 @@ int venus_i2c_probe(venus_i2c* p_this)
     return 0;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_phy_init
  *
@@ -975,6 +1001,9 @@ int venus_i2c_phy_init(venus_i2c* p_this)
     return 0;
 }
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_init
  *
@@ -1011,6 +1040,8 @@ int venus_i2c_init(venus_i2c* p_this)
     return venus_i2c_phy_init(p_this);
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_uninit
  *
@@ -1035,10 +1066,15 @@ int venus_i2c_uninit(venus_i2c* p_this)
     return 0;
 }
 
+
+
+
 enum {
     I2C_MODE    = 0,
     GPIO_MODE   = 1
 };
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_gpio_selection
@@ -1068,6 +1104,8 @@ void venus_i2c_gpio_selection(venus_i2c* p_this, unsigned char mode)
         //printk("GPIO Selection: [%08x] = %08x & %08x\n", p_this->gpio_map.muxpad, rd_reg(p_this->gpio_map.muxpad), p_this->gpio_map.muxpad_mask);
     }
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_suspend
@@ -1103,6 +1141,7 @@ int venus_i2c_suspend(venus_i2c* p_this)
     return 0;
 }
 
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_resume
  *
@@ -1125,6 +1164,8 @@ int venus_i2c_resume(venus_i2c* p_this)
 
     return 0;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_reset_state
@@ -1177,6 +1218,7 @@ void venus_i2c_reset_state(venus_i2c* p_this)
     venus_gpio_set_dir(sda, 0);
     venus_gpio_set_dir(scl, 0);
 }
+
 
 #ifdef CONFIG_I2C_RTK_BUS_JAM_RECOVER
 
@@ -1284,8 +1326,13 @@ void venus_i2c_bus_jam_recover(venus_i2c* p_this)
     venus_i2c_gpio_selection(p_this, I2C_MODE);
     JAM_DEBUG(KERN_EMERG"[%s] %s  %d end\n", __FILE__,__FUNCTION__,__LINE__);
 
+
+
+
 #endif
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_bus_jam_detect
@@ -1339,6 +1386,9 @@ int venus_i2c_bus_jam_detect(venus_i2c* p_this)
     return ret;
 }
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_bus_jam_recover
  *
@@ -1376,6 +1426,7 @@ void venus_i2c_bus_jam_recover_proc(venus_i2c* p_this)
     JAM_DEBUG("I2C%d Bus Recover failed\n",p_this->id);
 }
 #endif
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_start_xfer
@@ -1469,6 +1520,7 @@ int venus_i2c_start_xfer(venus_i2c* p_this)
     SET_IC_INTR_MASK(p_this, 0);
     SET_IC_ENABLE(p_this, 0);
 
+
     //printk(KERN_ERR "#############>>>> venus_i2c_start_xfer test 3\n");
     if (p_this->xfer.mode != I2C_IDEL)
     {
@@ -1542,6 +1594,8 @@ int venus_i2c_start_xfer(venus_i2c* p_this)
     return ret;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_do_start
  *
@@ -1591,6 +1645,9 @@ void venus_g2c_do_start(venus_i2c* p_this)
         break;
     }
 }
+
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_do_address
@@ -1718,6 +1775,9 @@ void venus_g2c_do_address(venus_i2c* p_this)
     }
 }
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_do_read
  *
@@ -1824,6 +1884,8 @@ void venus_g2c_do_read(venus_i2c* p_this)
         }
     }
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_do_write
@@ -1940,6 +2002,9 @@ void venus_g2c_do_write(venus_i2c* p_this)
     }
 }
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_do_stop
  *
@@ -1988,6 +2053,9 @@ void venus_g2c_do_stop(venus_i2c* p_this)
     }
 }
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_do_complete
  *
@@ -2011,6 +2079,8 @@ void venus_g2c_do_complete(venus_i2c* p_this)
         p_this->xfer.mode = I2C_IDEL;
     }
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_isr
@@ -2074,6 +2144,8 @@ irqreturn_t venus_g2c_isr(
     return IRQ_HANDLED;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_start_xfer
  *
@@ -2135,6 +2207,8 @@ int venus_g2c_start_xfer(
     return p_this->xfer.ret;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_get_tx_abort_reason
  *
@@ -2149,6 +2223,9 @@ unsigned int venus_i2c_get_tx_abort_reason(venus_i2c* p_this)
     RTK_DEBUG("[%s] %s  %d \n", __FILE__,__FUNCTION__,__LINE__);
     return p_this->xfer.tx_abort_source;
 }
+
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_load_message
@@ -2194,6 +2271,7 @@ int venus_i2c_load_message(
 
     UNLOCK_VENUS_I2C(&p_this->lock, flags);
 
+
 #ifdef DEV_DEBUG
 	{
 		int i;
@@ -2224,8 +2302,12 @@ int venus_i2c_load_message(
 	}
 #endif
 
+
+
+
     return 0;
 }
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_read
@@ -2264,6 +2346,8 @@ int venus_i2c_read(
 
     return ret;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_i2c_write
@@ -2310,6 +2394,8 @@ int venus_i2c_write(
     return ret;
 }
 
+
+
 int venus_g2c_read(
     venus_i2c*              p_this,
     unsigned char*          tx_buf,
@@ -2327,6 +2413,7 @@ int venus_g2c_write(
 
 static unsigned char venus_i2c_flags = 0;
 static venus_i2c* venus_i2c_phy_handle[I2C_PHY_CNT] = {NULL};
+
 
 /*------------------------------------------------------------------
  * Func : get_venus_i2c_phy_count
@@ -2432,6 +2519,7 @@ int venus_i2c_read_edid_seg (
 
 #endif
 
+
 /*------------------------------------------------------------------
  * Func : create_venus_i2c_handle
  *
@@ -2507,6 +2595,9 @@ create_venus_i2c_handle(
 }
 EXPORT_SYMBOL(create_venus_i2c_handle);
 
+
+
+
 /*------------------------------------------------------------------
  * Func : destroy_venus_i2c_handle
  *
@@ -2535,6 +2626,9 @@ void destroy_venus_i2c_handle(venus_i2c* hHandle)
 }
 EXPORT_SYMBOL(destroy_venus_i2c_handle);
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_null_function
  *
@@ -2549,6 +2643,8 @@ int venus_g2c_null_function(venus_i2c* p_this)
     RTK_DEBUG("[%s] %s  %d \n", __FILE__,__FUNCTION__,__LINE__);
     return 0;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_null_function
@@ -2576,6 +2672,8 @@ int venus_g2c_dump(venus_i2c* p_this)
     return 0;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_set_spd
  *
@@ -2602,6 +2700,9 @@ int venus_g2c_set_spd(venus_i2c* p_this, int KHz)
     return 0;
 }
 
+
+
+
 /*------------------------------------------------------------------
  * Func : venus_i2c_set_tar
  *
@@ -2626,6 +2727,7 @@ venus_g2c_set_tar(
     p_this->tar_mode = mode;
     return 0;
 }
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_set_sar
@@ -2652,6 +2754,8 @@ venus_g2c_set_sar(
     return 0;
 }
 
+
+
 /*------------------------------------------------------------------
  * Func : venus_g2c_slave_mode_enable
  *
@@ -2670,6 +2774,8 @@ int venus_g2c_slave_mode_enable(
     RTK_DEBUG("[%s] %s  %d \n", __FILE__,__FUNCTION__,__LINE__);
     return -1;
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_set_port
@@ -2690,6 +2796,7 @@ venus_g2c_set_port(
     RTK_DEBUG("[%s] %s  %d \n", __FILE__,__FUNCTION__,__LINE__);
     return -EFAULT;
 }
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_write
@@ -2719,6 +2826,8 @@ int venus_g2c_write(
 
     return venus_g2c_start_xfer(p_this);
 }
+
+
 
 /*------------------------------------------------------------------
  * Func : venus_g2c_read
@@ -2754,11 +2863,15 @@ int venus_g2c_read(
     return venus_g2c_start_xfer(p_this);
 }
 
+
+
 #define venus_g2c_init                  venus_g2c_dump
 #define venus_g2c_uninit                venus_g2c_null_function               // no nothing
 #define venus_g2c_get_tx_abort_reason   venus_i2c_get_tx_abort_reason         // share the same function with venus i2c
 #define venus_g2c_suspend               venus_g2c_null_function               // no nothing
 #define venus_g2c_resume                venus_g2c_null_function               // no nothing
+
+
 
 /*------------------------------------------------------------------
  * Func : create_venus_g2c_handle

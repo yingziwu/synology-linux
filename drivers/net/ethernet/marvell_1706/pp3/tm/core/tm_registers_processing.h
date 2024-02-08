@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -28,9 +29,11 @@ disclaimer.
 #ifndef TM_REGISTER_INTERFACE_H
 #define TM_REGISTER_INTERFACE_H
 
+
 void __set_field(void * address, int shift, int width, int value);
 
 unsigned int __get_field(void * address, int shift, int width);
+
 
 /* workaround for MSVS variadic macros bug - all variadic parameters are passed inside macro as 1 parameter (first in list) other are empty
  so I use __VA_ARGS__ inside macro  and following macros in order to extract parameters from VA_ARGS_
@@ -72,6 +75,8 @@ unsigned int __get_field(void * address, int shift, int width);
 #define	 TM_REG_ROW_DUMP(field_name, shift, width, default_value, ...)\
 		fprintf(DUMMY_MACRO(PARAM_2_OF_2(__VA_ARGS__)), "    %s (shift=%d, width=%d) value=%u\n",\
 		#field_name, shift, width, __get_field(TM_REGISTER_VAR_PTR(PARAM_1_OF_2(__VA_ARGS__)), shift, width));
+
+
 
 /* the register variable of some register type must be unique in the scope of it's definition
    It's name is defined by register name in the following macro.

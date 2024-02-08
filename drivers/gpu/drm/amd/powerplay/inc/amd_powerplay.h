@@ -31,4 +31,5 @@
 #include "dm_pp_interface.h"
 #include "kgd_pp_interface.h"
 
+
 #endif /* _AMD_POWERPLAY_H_ */

@@ -30,7 +30,7 @@
 #include "ion_priv.h"
 
 static gfp_t high_order_gfp_flags = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN |
-				     __GFP_NORETRY) & ~__GFP_DIRECT_RECLAIM;
+				     __GFP_NORETRY) & ~__GFP_RECLAIM;
 static gfp_t low_order_gfp_flags  = (GFP_HIGHUSER | __GFP_ZERO | __GFP_NOWARN);
 static const unsigned int orders[] = {8, 4, 0};
 static const int num_orders = ARRAY_SIZE(orders);
@@ -105,6 +105,7 @@ static void free_buffer_page(struct ion_system_heap *heap,
 		__free_pages(page, order);
 	}
 }
+
 
 static struct page *alloc_largest_available(struct ion_system_heap *heap,
 					    struct ion_buffer *buffer,

@@ -375,6 +375,7 @@ struct phm_samu_clock_voltage_dependency_record {
 	uint32_t v;
 };
 
+
 struct phm_samu_clock_voltage_dependency_table {
 	uint8_t count;
 	struct phm_samu_clock_voltage_dependency_record entries[1];
@@ -778,6 +779,7 @@ extern int phm_wait_for_indirect_register_unequal(
 				uint32_t indirect_port, uint32_t index,
 				uint32_t value, uint32_t mask);
 
+
 extern bool phm_cf_want_uvd_power_gating(struct pp_hwmgr *hwmgr);
 extern bool phm_cf_want_vce_power_gating(struct pp_hwmgr *hwmgr);
 extern bool phm_cf_want_microcode_fan_ctrl(struct pp_hwmgr *hwmgr);
@@ -821,6 +823,7 @@ extern int phm_get_voltage_evv_on_sclk(struct pp_hwmgr *hwmgr, uint8_t voltage_t
 	(((value) & PHM_FIELD_MASK(reg, field)) >>	\
 	 PHM_FIELD_SHIFT(reg, field))
 
+
 /* Operations on named fields. */
 
 #define PHM_READ_FIELD(device, reg, field)	\
@@ -851,6 +854,7 @@ extern int phm_get_voltage_evv_on_sclk(struct pp_hwmgr *hwmgr, uint8_t voltage_t
 #define PHM_WAIT_INDIRECT_REGISTER_GIVEN_INDEX(hwmgr, port, index, value, mask)        \
        phm_wait_on_indirect_register(hwmgr, mm##port##_INDEX, index, value, mask)
 
+
 #define PHM_WAIT_INDIRECT_REGISTER(hwmgr, port, reg, value, mask)      \
        PHM_WAIT_INDIRECT_REGISTER_GIVEN_INDEX(hwmgr, port, ix##reg, value, mask)
 
@@ -870,6 +874,7 @@ extern int phm_get_voltage_evv_on_sclk(struct pp_hwmgr *hwmgr, uint8_t voltage_t
 				(fieldval) << PHM_FIELD_SHIFT(reg, field), \
 					PHM_FIELD_MASK(reg, field) )
 
+
 #define PHM_WAIT_VFPF_INDIRECT_REGISTER_UNEQUAL_GIVEN_INDEX(hwmgr,	\
 				port, index, value, mask)		\
 	phm_wait_for_indirect_register_unequal(hwmgr,			\
@@ -882,6 +887,7 @@ extern int phm_get_voltage_evv_on_sclk(struct pp_hwmgr *hwmgr, uint8_t voltage_t
 	PHM_WAIT_VFPF_INDIRECT_REGISTER_UNEQUAL(hwmgr, port, reg,	\
 		(fieldval) << PHM_FIELD_SHIFT(reg, field),		\
 		PHM_FIELD_MASK(reg, field))
+
 
 #define PHM_WAIT_VFPF_INDIRECT_REGISTER_GIVEN_INDEX(hwmgr,		\
 				port, index, value, mask)		\

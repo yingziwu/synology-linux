@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright (c) 2000-2018 Synology Inc. All rights reserved.
 
-if [ "$PLATFORM_FAMILY" != "SYNOPLAT_F_X86_64" ]; then
+if [ "$PLATFORM_FAMILY" != "SYNOPLAT_F_X86_64" && "$PLATFORM_FAMILY" != "SYNOPLAT_F_ARMV8" ]; then
     SkipThisProject
     return
 fi
@@ -21,7 +21,9 @@ esac
 env CC="$CC" CXX="$CXX" LD="$LD" AR="$AR" RANLIB="$RANLIB" NM="$NM" STRIP="$STRIP" \
     CROSS_COMPILE="$ToolChainPrefix" LDFLAGS="$LDFLAGS" \
 make perf -C tools \
+    prefix="/usr" \
     ARCH="$ARCH" \
     NO_LIBPERL=1 \
-    NO_LIBPYTHON=1
+    NO_LIBPYTHON=1 \
+    DESTDIR="$TmpInstDir" \
 

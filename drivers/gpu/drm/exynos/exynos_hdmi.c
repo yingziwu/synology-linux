@@ -1708,6 +1708,7 @@ static int hdmi_clk_init(struct hdmi_context *hdata)
 	return hdmi_clks_get(hdata, &drv_data->clk_muxes, hdata->clk_muxes);
 }
 
+
 static void hdmiphy_clk_enable(struct exynos_drm_clk *clk, bool enable)
 {
 	struct hdmi_context *hdata = container_of(clk, struct hdmi_context,

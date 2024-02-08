@@ -528,6 +528,12 @@ enable_vport(struct fc_vport *fc_vport)
 
 	spin_lock_irq(shost->host_lock);
 	vport->load_flag |= FC_LOADING;
+	if (vport->fc_flag & FC_VPORT_NEEDS_INIT_VPI) {
+		spin_unlock_irq(shost->host_lock);
+		lpfc_issue_init_vpi(vport);
+		goto out;
+	}
+
 	vport->fc_flag |= FC_VPORT_NEEDS_REG_VPI;
 	spin_unlock_irq(shost->host_lock);
 
@@ -548,6 +554,8 @@ enable_vport(struct fc_vport *fc_vport)
 	} else {
 		lpfc_vport_set_state(vport, FC_VPORT_FAILED);
 	}
+
+out:
 	lpfc_printf_vlog(vport, KERN_ERR, LOG_VPORT,
 			 "1827 Vport Enabled.\n");
 	return VPORT_OK;
@@ -561,6 +569,7 @@ lpfc_vport_disable(struct fc_vport *fc_vport, bool disable)
 	else
 		return enable_vport(fc_vport);
 }
+
 
 int
 lpfc_vport_delete(struct fc_vport *fc_vport)
@@ -825,6 +834,7 @@ lpfc_destroy_vport_work_array(struct lpfc_hba *phba, struct lpfc_vport **vports)
 	kfree(vports);
 }
 
+
 /**
  * lpfc_vport_reset_stat_data - Reset the statistical data for the vport
  * @vport: Pointer to vport object.
@@ -845,6 +855,7 @@ lpfc_vport_reset_stat_data(struct lpfc_vport *vport)
 				sizeof(struct lpfc_scsicmd_bkt));
 	}
 }
+
 
 /**
  * lpfc_alloc_bucket - Allocate data buffer required for statistical data

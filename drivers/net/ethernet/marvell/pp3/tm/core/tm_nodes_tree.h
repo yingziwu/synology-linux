@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -29,6 +30,7 @@ disclaimer.
 #define TM_NODES_TREE_H
 
 #include "tm_core_types.h"
+
 
 /**  Change the tree DeQ status.
  *
@@ -62,4 +64,6 @@ int tm_tree_change_status(tm_handle hndl, uint8_t status);
 int tm_tree_set_dwrr_prio(tm_handle hndl, uint8_t *prios);
 #endif
 
+
 #endif   /* TM_NODES_TREE_H */
+

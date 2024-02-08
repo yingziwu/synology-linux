@@ -8,6 +8,7 @@
  * only version 2 as published by the Free Software Foundation.
  */
 
+
 #ifndef __NAND_REG_H
 #define __NAND_REG_H
 //========================================================================
@@ -87,6 +88,7 @@
 #define REG_RMZ_SEED_L				(REG_NF_BASE_ADDR + 0x244)
 #define REG_RMZ_SEED_H				(REG_NF_BASE_ADDR + 0x248)
 
+
 /*
  * Defines for the CP.
  */
@@ -143,6 +145,7 @@
 #define REG_K_CP_REG_SET2			(REG_CP_BASE_ADDR+0x87C)
 #define REG_CP_DBG				(REG_CP_BASE_ADDR+0x0CC)
 #define REG_MCP_ST				(REG_CP_BASE_ADDR+0x1A0)
+
 
 #define CP_NF_SET				(REG_NF_BASE_ADDR + 0x50a4)
 
@@ -353,5 +356,6 @@
 
 //#define REG_CP_LEN				( REG_NF_BASE_ADDR + 0x34C )
 #define NF_CP_LEN_cp_length(value)		(0x01FFFE00&((value)<<9))
+
 
 #endif

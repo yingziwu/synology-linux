@@ -151,6 +151,7 @@ static void pkt_kobj_release(struct kobject *kobj)
 	kfree(to_pktcdvdkobj(kobj));
 }
 
+
 /**********************************************************
  *
  * sysfs interface for pktcdvd
@@ -335,6 +336,7 @@ static void pkt_sysfs_dev_remove(struct pktcdvd_device *pd)
 		device_unregister(pd->dev);
 }
 
+
 /********************************************************************
   /sys/class/pktcdvd/
                      add            map block device
@@ -408,6 +410,7 @@ static struct class_attribute class_pktcdvd_attrs[] = {
  __ATTR(device_map,     0444, class_pktcdvd_show_map, NULL),
  __ATTR_NULL
 };
+
 
 static int pkt_sysfs_init(void)
 {
@@ -501,6 +504,7 @@ static void pkt_debugfs_cleanup(void)
 }
 
 /* ----------------------------------------------------------*/
+
 
 static void pkt_bio_finished(struct pktcdvd_device *pd)
 {
@@ -1272,7 +1276,7 @@ try_next_bio:
 	 		&& pd->bio_queue_size <= pd->write_congestion_off);
 	spin_unlock(&pd->lock);
 	if (wakeup) {
-		clear_bdi_congested(&pd->disk->queue->backing_dev_info,
+		clear_bdi_congested(pd->disk->queue->backing_dev_info,
 					BLK_RW_ASYNC);
 	}
 
@@ -2326,6 +2330,7 @@ static void pkt_close(struct gendisk *disk, fmode_t mode)
 	mutex_unlock(&pktcdvd_mutex);
 }
 
+
 static void pkt_end_io_read_cloned(struct bio *bio)
 {
 	struct packet_stacked_data *psd = bio->bi_private;
@@ -2400,7 +2405,7 @@ static void pkt_make_request_write(struct request_queue *q, struct bio *bio)
 	spin_lock(&pd->lock);
 	if (pd->write_congestion_on > 0
 	    && pd->bio_queue_size >= pd->write_congestion_on) {
-		set_bdi_congested(&q->backing_dev_info, BLK_RW_ASYNC);
+		set_bdi_congested(q->backing_dev_info, BLK_RW_ASYNC);
 		do {
 			spin_unlock(&pd->lock);
 			congestion_wait(BLK_RW_ASYNC, HZ);
@@ -2774,7 +2779,7 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev)
 	pd->pkt_dev = MKDEV(pktdev_major, idx);
 	ret = pkt_new_dev(pd, dev);
 	if (ret)
-		goto out_new_dev;
+		goto out_mem2;
 
 	/* inherit events of the host device */
 	disk->events = pd->bdev->bd_disk->events;
@@ -2792,8 +2797,6 @@ static int pkt_setup_dev(dev_t dev, dev_t* pkt_dev)
 	mutex_unlock(&ctl_mutex);
 	return 0;
 
-out_new_dev:
-	blk_cleanup_queue(disk->queue);
 out_mem2:
 	put_disk(disk);
 out_mem:

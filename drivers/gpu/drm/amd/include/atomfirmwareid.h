@@ -80,5 +80,7 @@ enum atom_master_command_table_id
     VBIOS_CMD_TBL_ID__UNDEFINED,
 };
 
+
+
 #endif  /* _ATOMFIRMWAREID_H_  */
 /* ### EOF ### */

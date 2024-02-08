@@ -152,7 +152,11 @@ static char dhcp_client_identifier[253] __initdata;
 
 /* Persistent data: */
 
+#ifdef IPCONFIG_DYNAMIC
 static int ic_proto_used;			/* Protocol used, if any */
+#else
+#define ic_proto_used 0
+#endif
 static __be32 ic_nameservers[CONF_NAMESERVERS_MAX]; /* DNS Server IP addresses */
 static u8 ic_domain[64];		/* DNS (not NIS) domain name */
 
@@ -176,6 +180,7 @@ static volatile int ic_got_reply __initdata;    /* Proto(s) that replied */
 #ifdef IPCONFIG_DHCP
 static int ic_dhcp_msgtype __initdata;	/* DHCP msg type received */
 #endif
+
 
 /*
  *	Network devices
@@ -586,6 +591,7 @@ drop:
 	return 0;
 }
 
+
 /*
  *  Send RARP request packet over a single interface.
  */
@@ -778,15 +784,22 @@ static void __init ic_bootp_init_ext(u8 *e)
 	*e++ = 255;		/* End of the list */
 }
 
+
 /*
  *  Initialize the DHCP/BOOTP mechanism.
  */
 static inline void __init ic_bootp_init(void)
 {
+	/* Re-initialise all name servers to NONE, in case any were set via the
+	 * "ip=" or "nfsaddrs=" kernel command line parameters: any IP addresses
+	 * specified there will already have been decoded but are no longer
+	 * needed
+	 */
 	ic_nameservers_predef();
 
 	dev_add_pack(&bootp_packet_type);
 }
+
 
 /*
  *  DHCP/BOOTP cleanup.
@@ -795,6 +808,7 @@ static inline void __init ic_bootp_cleanup(void)
 {
 	dev_remove_pack(&bootp_packet_type);
 }
+
 
 /*
  *  Send DHCP/BOOTP request to single interface.
@@ -874,6 +888,7 @@ static void __init ic_bootp_send_if(struct ic_device *d, unsigned long jiffies_d
 		printk("E");
 }
 
+
 /*
  *  Copy BOOTP-supplied string if not already set.
  */
@@ -887,6 +902,7 @@ static int __init ic_bootp_string(char *dest, char *src, int len, int max)
 	dest[len] = '\0';
 	return 1;
 }
+
 
 /*
  *  Process BOOTP extensions.
@@ -947,6 +963,7 @@ static void __init ic_do_bootp_ext(u8 *ext)
 		break;
 	}
 }
+
 
 /*
  *  Receive BOOTP reply.
@@ -1152,7 +1169,9 @@ drop:
 	return 0;
 }
 
+
 #endif
+
 
 /*
  *	Dynamic IP configuration -- DHCP, BOOTP, RARP.
@@ -1409,6 +1428,13 @@ static int __init ip_auto_config(void)
 	int err;
 	unsigned int i;
 
+	/* Initialise all name servers to NONE (but only if the "ip=" or
+	 * "nfsaddrs=" kernel command line parameters weren't decoded, otherwise
+	 * we'll overwrite the IP addresses specified there)
+	 */
+	if (ic_set_manually == 0)
+		ic_nameservers_predef();
+
 #ifdef CONFIG_PROC_FS
 	proc_create("pnp", S_IRUGO, init_net.proc_net, &pnp_seq_fops);
 #endif /* CONFIG_PROC_FS */
@@ -1547,6 +1573,7 @@ static int __init ip_auto_config(void)
 
 late_initcall(ip_auto_config);
 
+
 /*
  *  Decode any IP configuration options in the "ip=" or "nfsaddrs=" kernel
  *  command line parameter.  See Documentation/filesystems/nfs/nfsroot.txt.
@@ -1625,6 +1652,7 @@ static int __init ip_auto_config_setup(char *addrs)
 		return 1;
 	}
 
+	/* Initialise all name servers to NONE */
 	ic_nameservers_predef();
 
 	/* Parse string for static IP assignment.  */

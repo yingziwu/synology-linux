@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -33,6 +34,7 @@ disclaimer.
 #include "gop/pcs/mv_gpcs_if.h"
 #include "gop/pcs/mv_xpcs_if.h"
 #include "gop/serdes/mv_serdes_if.h"
+
 
 struct mv_io_addr *gop_regs_addrs_size;
 static void __iomem		*gop_vbase_address;
@@ -700,3 +702,4 @@ int mv_pp3_gop_fl_cfg(int port_num)
 	}
 	return 0;
 }
+

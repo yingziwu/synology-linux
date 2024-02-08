@@ -79,3 +79,4 @@ int vega10_enable_didt_config(struct pp_hwmgr *hwmgr);
 int vega10_disable_didt_config(struct pp_hwmgr *hwmgr);
 
 #endif  /* _VEGA10_POWERTUNE_H_ */
+

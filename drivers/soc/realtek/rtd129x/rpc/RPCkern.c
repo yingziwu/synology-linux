@@ -503,3 +503,4 @@ int send_rpc_command(int opt, uint32_t command, uint32_t param1, uint32_t param2
 }
 
 EXPORT_SYMBOL(send_rpc_command);
+

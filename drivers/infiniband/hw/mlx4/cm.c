@@ -39,7 +39,7 @@
 
 #include "mlx4_ib.h"
 
-#define CM_CLEANUP_CACHE_TIMEOUT  (5 * HZ)
+#define CM_CLEANUP_CACHE_TIMEOUT  (30 * HZ)
 
 struct id_map_entry {
 	struct rb_node node;
@@ -70,6 +70,7 @@ struct cm_req_msg {
 	unsigned char unused[0x60];
 	union ib_gid primary_path_sgid;
 };
+
 
 static void set_local_comm_id(struct ib_mad *mad, u32 cm_id)
 {

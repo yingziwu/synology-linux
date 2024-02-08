@@ -1023,6 +1023,7 @@ static const struct amdgpu_allowed_register_entry cik_allowed_read_registers[] =
 	{mmPA_SC_RASTER_CONFIG_1, true},
 };
 
+
 static uint32_t cik_get_register_value(struct amdgpu_device *adev,
 				       bool indexed, u32 se_num,
 				       u32 sh_num, u32 reg_offset)

@@ -153,6 +153,7 @@ static void sun6i_spi_set_cs(struct spi_device *spi, bool enable)
 	sun6i_spi_write(sspi, SUN6I_TFR_CTL_REG, reg);
 }
 
+
 static int sun6i_spi_transfer_one(struct spi_master *master,
 				  struct spi_device *spi,
 				  struct spi_transfer *tfr)
@@ -456,7 +457,7 @@ err_free_master:
 
 static int sun6i_spi_remove(struct platform_device *pdev)
 {
-	pm_runtime_disable(&pdev->dev);
+	pm_runtime_force_suspend(&pdev->dev);
 
 	return 0;
 }

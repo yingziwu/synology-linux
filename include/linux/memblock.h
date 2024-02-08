@@ -339,6 +339,7 @@ static inline void memblock_dump_all(void)
  */
 void memblock_set_current_limit(phys_addr_t limit);
 
+
 phys_addr_t memblock_get_current_limit(void);
 
 /*
@@ -390,6 +391,7 @@ static inline unsigned long memblock_region_reserved_end_pfn(const struct memblo
 	     region < (memblock.memblock_type.regions + memblock.memblock_type.cnt);	\
 	     region++)
 
+
 #ifdef CONFIG_ARCH_DISCARD_MEMBLOCK
 #define __init_memblock __meminit
 #define __initdata_memblock __meminitdata
@@ -406,8 +408,16 @@ static inline void early_memtest(phys_addr_t start, phys_addr_t end)
 }
 #endif
 
+extern unsigned long memblock_reserved_memory_within(phys_addr_t start_addr,
+		phys_addr_t end_addr);
 #else
 static inline phys_addr_t memblock_alloc(phys_addr_t size, phys_addr_t align)
+{
+	return 0;
+}
+
+static inline unsigned long memblock_reserved_memory_within(phys_addr_t start_addr,
+		phys_addr_t end_addr)
 {
 	return 0;
 }

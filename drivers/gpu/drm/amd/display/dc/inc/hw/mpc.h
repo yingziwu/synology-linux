@@ -37,6 +37,7 @@ enum mpc_output_csc_mode {
 	MPC_OUTPUT_CSC_COEF_B
 };
 
+
 enum mpcc_blend_mode {
 	MPCC_BLEND_MODE_BYPASS,
 	MPCC_BLEND_MODE_TOP_LAYER_PASSTHROUGH,

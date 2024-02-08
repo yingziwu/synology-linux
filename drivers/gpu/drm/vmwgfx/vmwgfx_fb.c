@@ -667,6 +667,7 @@ static int vmw_fb_set_par(struct fb_info *info)
 		par->bo_ptr = ttm_kmap_obj_virtual(&par->map, &par->bo_iowrite);
 	}
 
+
 	vmw_fb_dirty_mark(par, par->fb_x, par->fb_y,
 			  par->set_fb->width, par->set_fb->height);
 
@@ -685,6 +686,7 @@ out_unlock:
 
 	return ret;
 }
+
 
 static struct fb_ops vmw_fb_ops = {
 	.owner = THIS_MODULE,

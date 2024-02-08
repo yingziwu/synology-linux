@@ -314,6 +314,7 @@ static void program_tiling(
 	}
 }
 
+
 static void program_size_and_rotation(
 	struct dce_mem_input *dce_mi,
 	enum dc_rotation_angle rotation,
@@ -570,6 +571,7 @@ static void dce_mi_free_dmif(
 	}
 }
 
+
 static void program_sec_addr(
 	struct dce_mem_input *dce_mi,
 	PHYSICAL_ADDRESS_LOC address)
@@ -597,6 +599,7 @@ static void program_pri_addr(
 		GRPH_PRIMARY_SURFACE_ADDRESS,
 		address.low_part >> 8);
 }
+
 
 static bool dce_mi_is_flip_pending(struct mem_input *mem_input)
 {
@@ -664,6 +667,7 @@ static struct mem_input_funcs dce_mi_funcs = {
 			dce_mi_program_surface_config,
 	.mem_input_is_flip_pending = dce_mi_is_flip_pending
 };
+
 
 void dce_mem_input_construct(
 	struct dce_mem_input *dce_mi,

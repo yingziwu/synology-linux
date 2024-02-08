@@ -420,6 +420,7 @@ static void llc_sap_mcast(struct llc_sap *sap,
 	llc_do_mcast(sap, skb, stack, i);
 }
 
+
 void llc_sap_handler(struct llc_sap *sap, struct sk_buff *skb)
 {
 	struct llc_addr laddr;

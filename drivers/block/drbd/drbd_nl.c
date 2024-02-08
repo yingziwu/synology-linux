@@ -632,14 +632,15 @@ drbd_set_role(struct drbd_device *const device, enum drbd_role new_role, int for
 		if (rv == SS_TWO_PRIMARIES) {
 			/* Maybe the peer is detected as dead very soon...
 			   retry at most once more in this case. */
-			int timeo;
-			rcu_read_lock();
-			nc = rcu_dereference(connection->net_conf);
-			timeo = nc ? (nc->ping_timeo + 1) * HZ / 10 : 1;
-			rcu_read_unlock();
-			schedule_timeout_interruptible(timeo);
-			if (try < max_tries)
+			if (try < max_tries) {
+				int timeo;
 				try = max_tries - 1;
+				rcu_read_lock();
+				nc = rcu_dereference(connection->net_conf);
+				timeo = nc ? (nc->ping_timeo + 1) * HZ / 10 : 1;
+				rcu_read_unlock();
+				schedule_timeout_interruptible(timeo);
+			}
 			continue;
 		}
 		if (rv < SS_SUCCESS) {
@@ -1170,11 +1171,13 @@ static void drbd_setup_queue_param(struct drbd_device *device, struct drbd_backi
 
 		blk_queue_stack_limits(q, b);
 
-		if (q->backing_dev_info.ra_pages != b->backing_dev_info.ra_pages) {
+		if (q->backing_dev_info->ra_pages !=
+		    b->backing_dev_info->ra_pages) {
 			drbd_info(device, "Adjusting my ra_pages to backing device's (%lu -> %lu)\n",
-				 q->backing_dev_info.ra_pages,
-				 b->backing_dev_info.ra_pages);
-			q->backing_dev_info.ra_pages = b->backing_dev_info.ra_pages;
+				 q->backing_dev_info->ra_pages,
+				 b->backing_dev_info->ra_pages);
+			q->backing_dev_info->ra_pages =
+						b->backing_dev_info->ra_pages;
 		}
 	}
 }
@@ -1268,6 +1271,7 @@ static void drbd_suspend_al(struct drbd_device *device)
 	if (s)
 		drbd_info(device, "Suspended AL updates\n");
 }
+
 
 static bool should_set_defaults(struct genl_info *info)
 {
@@ -3317,6 +3321,7 @@ out:
 	drbd_adm_finish(&adm_ctx, info, retcode);
 	return 0;
 }
+
 
 int drbd_adm_new_c_uuid(struct sk_buff *skb, struct genl_info *info)
 {

@@ -128,6 +128,7 @@ static inline void mv_pp3_pkt_ptp_stats(int port, int reset)
 static u32 pp3_ptp_filler_enable; /* DISABLE by default*/
 #endif
 
+
 void mv_ptp_hook_extra_op(u32 val1, u32 val2, u32 val3)
 {
 	int i, rc = -1, clear_stats = 0;
@@ -190,6 +191,7 @@ void mv_ptp_hook_enable(int port, bool enable)
 	}
 }
 
+
 /***************************************************************************
  **  Real-Time used utilities
  ***************************************************************************
@@ -217,6 +219,7 @@ static inline void ptp_raise_tx_q_priority(struct pp3_dev_priv *dev_priv,
 	*p_tx_swq = (*p_tx_vq)->swq;
 	**/
 }
+
 
 #ifdef PTP_TS_TRAFFIC_CORRECTION
 /* Under traffic long packets have transmission latency ~12us (on 1Gb link)

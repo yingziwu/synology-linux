@@ -1177,6 +1177,7 @@ static const struct file_operations empty_dir_operations = {
 	.fsync		= noop_fsync,
 };
 
+
 void make_empty_dir_inode(struct inode *inode)
 {
 	set_nlink(inode, 2);

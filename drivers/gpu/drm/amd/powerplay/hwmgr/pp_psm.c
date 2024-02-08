@@ -251,3 +251,4 @@ int psm_adjust_power_state_dynamic(struct pp_hwmgr *hwmgr, bool skip,
 
 	return 0;
 }
+

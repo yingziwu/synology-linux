@@ -64,3 +64,4 @@ static int __init power_control_debugfs_init(void)
     return 0;
 }
 late_initcall(power_control_debugfs_init);
+

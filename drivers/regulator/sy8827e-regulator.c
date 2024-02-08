@@ -111,6 +111,7 @@ static int sy8827e_regulator_set_suspend_disable(struct regulator_dev *rdev)
 	return 0;
 }
 
+
 static const struct regulator_ops sy8827e_regulator_ops = {
 	.get_voltage_sel     = regulator_get_voltage_sel_regmap,
 	.set_voltage_sel     = regulator_set_voltage_sel_regmap,
@@ -300,6 +301,7 @@ static int sy8827e_init_regmap_fields(struct sy8827e_data *data)
 		return PTR_ERR(data->nmode);
 	return 0;
 }
+
 
 static int sy8827e_regulator_probe(struct i2c_client *client,
 	const struct i2c_device_id *id)

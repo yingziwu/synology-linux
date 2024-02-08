@@ -94,6 +94,7 @@ struct tvec_base {
 	struct tvec tv5;
 } ____cacheline_aligned;
 
+
 static DEFINE_PER_CPU(struct tvec_base, tvec_bases);
 
 #if defined(CONFIG_SMP) && defined(CONFIG_NO_HZ_COMMON)
@@ -126,7 +127,7 @@ int timer_migration_handler(struct ctl_table *table, int write,
 	int ret;
 
 	mutex_lock(&mutex);
-	ret = proc_dointvec(table, write, buffer, lenp, ppos);
+	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
 	if (!ret && write)
 		timers_update_migration(false);
 	mutex_unlock(&mutex);
@@ -763,8 +764,15 @@ static struct tvec_base *lock_timer_base(struct timer_list *timer,
 	__acquires(timer->base->lock)
 {
 	for (;;) {
-		u32 tf = timer->flags;
 		struct tvec_base *base;
+		u32 tf;
+
+		/*
+		 * We need to use READ_ONCE() here, otherwise the compiler
+		 * might re-read @tf between the check for TIMER_MIGRATING
+		 * and spin_lock().
+		 */
+		tf = READ_ONCE(timer->flags);
 
 		if (!(tf & TIMER_MIGRATING)) {
 			base = per_cpu_ptr(&tvec_bases, tf & TIMER_CPUMASK);

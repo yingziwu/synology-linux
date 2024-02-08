@@ -79,6 +79,7 @@ static unsigned int tbg_get_div(void __iomem *reg, const struct tbg_def *ptbg)
 	return div;
 }
 
+
 static int armada_3700_tbg_clock_probe(struct platform_device *pdev)
 {
 	struct device_node *np = pdev->dev.of_node;

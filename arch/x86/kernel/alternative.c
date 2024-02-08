@@ -799,3 +799,4 @@ void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler)
 
 	return addr;
 }
+

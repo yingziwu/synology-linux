@@ -316,6 +316,7 @@ static void rds_ib_ic_info(struct socket *sock, unsigned int len,
 				sizeof(struct rds_info_rdma_connection));
 }
 
+
 /*
  * Early RDS/IB was built to only bind to an address if there is an IPoIB
  * device with that address set.
@@ -335,7 +336,8 @@ static int rds_ib_laddr_check(struct net *net, __be32 addr)
 	/* Create a CMA ID and try to bind it. This catches both
 	 * IB and iWARP capable NICs.
 	 */
-	cm_id = rdma_create_id(&init_net, NULL, NULL, RDMA_PS_TCP, IB_QPT_RC);
+	cm_id = rdma_create_id(&init_net, rds_rdma_cm_event_handler,
+			       NULL, RDMA_PS_TCP, IB_QPT_RC);
 	if (IS_ERR(cm_id))
 		return PTR_ERR(cm_id);
 
@@ -448,3 +450,4 @@ out:
 }
 
 MODULE_LICENSE("GPL");
+

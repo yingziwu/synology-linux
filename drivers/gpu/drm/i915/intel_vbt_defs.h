@@ -624,6 +624,7 @@ struct bdb_sdvo_lvds_options {
 	u8 panel_misc_bits_4;
 } __packed;
 
+
 #define BDB_DRIVER_FEATURE_NO_LVDS		0
 #define BDB_DRIVER_FEATURE_INT_LVDS		1
 #define BDB_DRIVER_FEATURE_SDVO_LVDS		2
@@ -699,6 +700,7 @@ struct bdb_driver_features {
 #define EDP_VSWING_0_6V		1
 #define EDP_VSWING_0_8V		2
 #define EDP_VSWING_1_2V		3
+
 
 struct edp_fast_link_params {
 	u8 rate:4;

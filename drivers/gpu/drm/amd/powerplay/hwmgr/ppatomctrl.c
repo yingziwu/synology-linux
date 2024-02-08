@@ -128,6 +128,7 @@ static int atomctrl_set_mc_reg_address_table(
 	return 0;
 }
 
+
 int atomctrl_initialize_mc_reg_table(
 		struct pp_hwmgr *hwmgr,
 		uint8_t module_index,
@@ -1336,6 +1337,7 @@ int atomctrl_get_smc_sclk_range_table(struct pp_hwmgr *hwmgr, struct pp_atom_ctr
 		(ATOM_SMU_INFO_V2_1 *)cgs_atom_get_data_table(hwmgr->device,
 			GetIndexIntoMasterTable(DATA, SMU_Info),
 			&size, &frev, &crev);
+
 
 	for (i = 0; i < psmu_info->ucSclkEntryNum; i++) {
 		table->entry[i].ucVco_setting = psmu_info->asSclkFcwRangeEntry[i].ucVco_setting;

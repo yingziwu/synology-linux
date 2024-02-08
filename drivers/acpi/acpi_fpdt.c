@@ -71,6 +71,7 @@ struct suspend_performance_record {
 	u64 suspend_end;
 } __attribute__((packed));
 
+
 static struct resume_performance_record *record_resume;
 static struct suspend_performance_record *record_suspend;
 static struct boot_performance_record *record_boot;

@@ -60,9 +60,11 @@
 #include <linux/kthread.h>
 #include <linux/aer.h>
 
+
 #include "mpt3sas_base.h"
 
 static MPT_CALLBACK	mpt_callbacks[MPT_MAX_CALLBACKS];
+
 
 #define FAULT_POLLING_INTERVAL 1000 /* in milliseconds */
 
@@ -155,6 +157,7 @@ _base_fault_reset_work(struct work_struct *work)
 	u32 doorbell;
 	int rc;
 	struct task_struct *p;
+
 
 	spin_lock_irqsave(&ioc->ioc_reset_in_progress_lock, flags);
 	if (ioc->shost_recovery || ioc->pci_error_recovery)
@@ -1155,6 +1158,7 @@ mpt3sas_base_initialize_callback_handler(void)
 		mpt3sas_base_release_callback_handler(cb_idx);
 }
 
+
 /**
  * _base_build_zero_len_sge - build zero length sg entry
  * @ioc: per adapter object
@@ -1194,6 +1198,7 @@ _base_add_sg_single_32(void *paddr, u32 flags_length, dma_addr_t dma_addr)
 	sgel->FlagsLength = cpu_to_le32(flags_length);
 	sgel->Address = cpu_to_le32(dma_addr);
 }
+
 
 /**
  * _base_add_sg_single_64 - Place a simple 64 bit SGE at address pAddr.
@@ -1242,6 +1247,7 @@ _base_get_chain_buffer_tracker(struct MPT3SAS_ADAPTER *ioc, u16 smid)
 	spin_unlock_irqrestore(&ioc->scsi_lookup_lock, flags);
 	return chain_req;
 }
+
 
 /**
  * _base_build_sg - build generic sg
@@ -1469,6 +1475,7 @@ _base_build_sg_scmd(struct MPT3SAS_ADAPTER *ioc,
 		chain_dma = chain_req->chain_buffer_dma;
 	} while (1);
 
+
  fill_in_last_segment:
 
 	/* fill the last segment */
@@ -1592,6 +1599,7 @@ _base_build_sg_scmd_ieee(struct MPT3SAS_ADAPTER *ioc,
 		chain = chain_req->chain_buffer;
 		chain_dma = chain_req->chain_buffer_dma;
 	} while (1);
+
 
  fill_in_last_segment:
 
@@ -2057,6 +2065,7 @@ mpt3sas_base_map_resources(struct MPT3SAS_ADAPTER *ioc)
 		return -ENODEV;
 	}
 
+
 	if (pci_request_selected_regions(pdev, ioc->bars,
 	    ioc->driver_name)) {
 		pr_warn(MPT3SAS_FMT "pci_request_selected_regions: failed\n",
@@ -2070,6 +2079,7 @@ mpt3sas_base_map_resources(struct MPT3SAS_ADAPTER *ioc)
 	pci_enable_pcie_error_reporting(pdev);
 
 	pci_set_master(pdev);
+
 
 	if (_base_config_dma_addressing(ioc, pdev) != 0) {
 		pr_warn(MPT3SAS_FMT "no suitable DMA mask for %s\n",
@@ -2434,6 +2444,7 @@ mpt3sas_base_put_smid_scsi_io(struct MPT3SAS_ADAPTER *ioc, u16 smid, u16 handle)
 {
 	Mpi2RequestDescriptorUnion_t descriptor;
 	u64 *request = (u64 *)&descriptor;
+
 
 	descriptor.SCSIIO.RequestFlags = MPI2_REQ_DESCRIPT_FLAGS_SCSI_IO;
 	descriptor.SCSIIO.MSIxIndex =  _base_get_msix_index(ioc);
@@ -3161,6 +3172,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
 	dinitprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
 
+
 	retry_sz = 0;
 	facts = &ioc->facts;
 
@@ -3245,6 +3257,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
 	if (ioc->reply_post_queue_depth % 16)
 		ioc->reply_post_queue_depth += 16 -
 		(ioc->reply_post_queue_depth % 16);
+
 
 	if (ioc->reply_post_queue_depth >
 	    facts->MaxReplyDescriptorPostQueueDepth) {
@@ -3331,6 +3344,7 @@ _base_allocate_memory_pools(struct MPT3SAS_ADAPTER *ioc,  int sleep_flag)
 	dinitprintk(ioc, pr_info(MPT3SAS_FMT
 		"scsi host: can_queue depth (%d)\n",
 		ioc->name, ioc->shost->can_queue));
+
 
 	/* contiguous pool for request and chains, 16 byte align, one extra "
 	 * "frame for smid=0
@@ -4967,15 +4981,14 @@ _base_make_ioc_ready(struct MPT3SAS_ADAPTER *ioc, int sleep_flag,
 static int
 _base_make_ioc_operational(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 {
-	int r, i;
+	int r, i, index;
 	unsigned long	flags;
 	u32 reply_address;
 	u16 smid;
 	struct _tr_list *delayed_tr, *delayed_tr_next;
 	u8 hide_flag;
 	struct adapter_reply_queue *reply_q;
-	long reply_post_free;
-	u32 reply_post_free_sz, index = 0;
+	Mpi2ReplyDescriptorsUnion_t *reply_post_free_contig;
 
 	dinitprintk(ioc, pr_info(MPT3SAS_FMT "%s\n", ioc->name,
 	    __func__));
@@ -4986,6 +4999,7 @@ _base_make_ioc_operational(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 		list_del(&delayed_tr->list);
 		kfree(delayed_tr);
 	}
+
 
 	list_for_each_entry_safe(delayed_tr, delayed_tr_next,
 	    &ioc->delayed_tr_volume_list, list) {
@@ -5046,27 +5060,27 @@ _base_make_ioc_operational(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 		_base_assign_reply_queues(ioc);
 
 	/* initialize Reply Post Free Queue */
-	reply_post_free_sz = ioc->reply_post_queue_depth *
-	    sizeof(Mpi2DefaultReplyDescriptor_t);
-	reply_post_free = (long)ioc->reply_post[index].reply_post_free;
+	index = 0;
+	reply_post_free_contig = ioc->reply_post[0].reply_post_free;
 	list_for_each_entry(reply_q, &ioc->reply_queue_list, list) {
+		/*
+		 * If RDPQ is enabled, switch to the next allocation.
+		 * Otherwise advance within the contiguous region.
+		 */
+		if (ioc->rdpq_array_enable) {
+			reply_q->reply_post_free =
+				ioc->reply_post[index++].reply_post_free;
+		} else {
+			reply_q->reply_post_free = reply_post_free_contig;
+			reply_post_free_contig += ioc->reply_post_queue_depth;
+		}
+
 		reply_q->reply_post_host_index = 0;
-		reply_q->reply_post_free = (Mpi2ReplyDescriptorsUnion_t *)
-		    reply_post_free;
 		for (i = 0; i < ioc->reply_post_queue_depth; i++)
 			reply_q->reply_post_free[i].Words =
 			    cpu_to_le64(ULLONG_MAX);
 		if (!_base_is_controller_msix_enabled(ioc))
 			goto skip_init_reply_post_free_queue;
-		/*
-		 * If RDPQ is enabled, switch to the next allocation.
-		 * Otherwise advance within the contiguous region.
-		 */
-		if (ioc->rdpq_array_enable)
-			reply_post_free = (long)
-			    ioc->reply_post[++index].reply_post_free;
-		else
-			reply_post_free += reply_post_free_sz;
 	}
  skip_init_reply_post_free_queue:
 
@@ -5102,6 +5116,7 @@ _base_make_ioc_operational(struct MPT3SAS_ADAPTER *ioc, int sleep_flag)
 
 	if (sleep_flag == CAN_SLEEP)
 		_base_static_config_pages(ioc);
+
 
 	if (ioc->is_driver_loading) {
 
@@ -5372,6 +5387,7 @@ mpt3sas_base_attach(struct MPT3SAS_ADAPTER *ioc)
 	ioc->pfacts = NULL;
 	return r;
 }
+
 
 /**
  * mpt3sas_base_detach - remove controller instance

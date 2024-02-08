@@ -68,7 +68,8 @@ out:
 static int soc_compr_open_fe(struct snd_compr_stream *cstream)
 {
 	struct snd_soc_pcm_runtime *fe = cstream->private_data;
-	struct snd_pcm_substream *fe_substream = fe->pcm->streams[0].substream;
+	struct snd_pcm_substream *fe_substream =
+		 fe->pcm->streams[cstream->direction].substream;
 	struct snd_soc_platform *platform = fe->platform;
 	struct snd_soc_dpcm *dpcm;
 	struct snd_soc_dapm_widget_list *list;
@@ -201,6 +202,7 @@ static int soc_compr_free(struct snd_compr_stream *cstream)
 	if (!codec_dai->active)
 		codec_dai->rate = 0;
 
+
 	if (rtd->dai_link->compr_ops && rtd->dai_link->compr_ops->shutdown)
 		rtd->dai_link->compr_ops->shutdown(cstream);
 
@@ -326,6 +328,7 @@ static int soc_compr_trigger_fe(struct snd_compr_stream *cstream, int cmd)
 	else
 		stream = SNDRV_PCM_STREAM_CAPTURE;
 
+
 	mutex_lock_nested(&fe->card->mutex, SND_SOC_CARD_CLASS_RUNTIME);
 
 	if (platform->driver->compr_ops && platform->driver->compr_ops->trigger) {
@@ -410,7 +413,8 @@ static int soc_compr_set_params_fe(struct snd_compr_stream *cstream,
 					struct snd_compr_params *params)
 {
 	struct snd_soc_pcm_runtime *fe = cstream->private_data;
-	struct snd_pcm_substream *fe_substream = fe->pcm->streams[0].substream;
+	struct snd_pcm_substream *fe_substream =
+		 fe->pcm->streams[cstream->direction].substream;
 	struct snd_soc_platform *platform = fe->platform;
 	int ret = 0, stream;
 

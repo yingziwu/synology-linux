@@ -37,6 +37,7 @@ DP_PIXEL_ENCODING_YCBCR420               = 0x00000005,
 DP_PIXEL_ENCODING_RESERVED               = 0x00000006,
 };
 
+
 enum DP_COMPONENT_DEPTH {
 DP_COMPONENT_DEPTH_6BPC                  = 0x00000000,
 DP_COMPONENT_DEPTH_8BPC                  = 0x00000001,
@@ -45,6 +46,7 @@ DP_COMPONENT_DEPTH_12BPC                 = 0x00000003,
 DP_COMPONENT_DEPTH_16BPC                 = 0x00000004,
 DP_COMPONENT_DEPTH_RESERVED              = 0x00000005,
 };
+
 
 #define REG(reg)\
 	(enc110->regs->reg)
@@ -381,6 +383,7 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 
 	/* set dynamic range and YCbCr range */
 
+
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
 	switch (crtc_timing->display_color_depth) {
 	case COLOR_DEPTH_666:
@@ -489,9 +492,11 @@ static void dce110_stream_encoder_dp_set_stream_attribute(
 		/* start at begining of left border */
 		h_active_start = crtc_timing->h_sync_width + h_back_porch;
 
+
 		v_active_start = crtc_timing->v_total - crtc_timing->v_border_top -
 				crtc_timing->v_addressable - crtc_timing->v_border_bottom -
 				crtc_timing->v_front_porch;
+
 
 #if defined(CONFIG_DRM_AMD_DC_DCN1_0)
 		/* start at begining of left border */
@@ -1029,6 +1034,7 @@ static void dce110_stream_encoder_set_avmute(
 	REG_UPDATE(HDMI_GC, HDMI_GC_AVMUTE, value);
 }
 
+
 #define DP_SEC_AUD_N__DP_SEC_AUD_N__DEFAULT 0x8000
 #define DP_SEC_TIMESTAMP__DP_SEC_TIMESTAMP_MODE__AUTO_CALC 1
 
@@ -1194,6 +1200,7 @@ static const struct audio_clock_info audio_clock_info_table_48bpc[14] = {
 	{14850, 4096, 297000,  6272, 330000,  6144, 297000},
 	{29670, 5824, 843750,  4459, 468750,  5824, 562500},
 	{29700, 3072, 445500,  4704, 495000,  5120, 495000}
+
 
 };
 
@@ -1567,6 +1574,7 @@ void dce110_se_hdmi_audio_disable(
 	dce110_se_enable_audio_clock(enc, false);
 }
 
+
 static void setup_stereo_sync(
 	struct stream_encoder *enc,
 	int tg_inst, bool enable)
@@ -1575,6 +1583,7 @@ static void setup_stereo_sync(
 	REG_UPDATE(DIG_FE_CNTL, DIG_STEREOSYNC_SELECT, tg_inst);
 	REG_UPDATE(DIG_FE_CNTL, DIG_STEREOSYNC_GATE_EN, !enable);
 }
+
 
 static const struct stream_encoder_funcs dce110_str_enc_funcs = {
 	.dp_set_stream_attribute =

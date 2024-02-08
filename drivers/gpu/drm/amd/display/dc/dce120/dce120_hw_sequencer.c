@@ -243,6 +243,8 @@ static void dce120_update_dchub(
 	dh_data->dchub_info_valid = false;
 }
 
+
+
 void dce120_hw_sequencer_construct(struct dc *dc)
 {
 	/* All registers used by dce11.2 match those in dce11 in offset and
@@ -252,3 +254,4 @@ void dce120_hw_sequencer_construct(struct dc *dc)
 	dc->hwss.enable_display_power_gating = dce120_enable_display_power_gating;
 	dc->hwss.update_dchub = dce120_update_dchub;
 }
+

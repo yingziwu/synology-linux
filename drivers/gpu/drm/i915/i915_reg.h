@@ -267,6 +267,7 @@ static inline bool i915_mmio_reg_valid(i915_reg_t reg)
 
 #define LBPC 0xf4 /* legacy/combination backlight modes, also called LBB */
 
+
 #define ILK_GDSR _MMIO(MCHBAR_MIRROR_BASE + 0x2ca4)
 #define  ILK_GRDOM_FULL		(0<<1)
 #define  ILK_GRDOM_RENDER	(1<<1)
@@ -2286,6 +2287,7 @@ enum i915_power_well_id {
 #define   GEN6_FENCE_PITCH_SHIFT	32
 #define   GEN7_FENCE_MAX_PITCH_VAL	0x0800
 
+
 /* control register for cpu gtt access */
 #define TILECTL				_MMIO(0x101000)
 #define   TILECTL_SWZCTL			(1 << 0)
@@ -2516,6 +2518,7 @@ enum i915_power_well_id {
 #define   DERRMR_PIPEC_SPR_FLIP_DONE	(1<<20)
 #define   DERRMR_PIPEC_VBLANK		(1<<21)
 #define   DERRMR_PIPEC_HBLANK		(1<<22)
+
 
 /* GM45+ chicken bits -- debug workaround bits that may be required
  * for various sorts of correct behavior.  The top 16 bits of each are
@@ -2994,6 +2997,7 @@ enum i915_power_well_id {
 #define ILK_DISPLAY_CHICKEN1	_MMIO(0x42000)
 #define   ILK_FBCQ_DIS		(1<<22)
 #define	  ILK_PABSTRETCH_DIS	(1<<21)
+
 
 /*
  * Framebuffer compression for Sandybridge
@@ -4163,6 +4167,7 @@ enum {
 #define   ADPA_DPMS_STANDBY	(2<<10)
 #define   ADPA_DPMS_OFF		(3<<10)
 
+
 /* Hotplug control (945+ only) */
 #define PORT_HOTPLUG_EN		_MMIO(dev_priv->info.display_mmio_offset + 0x61110)
 #define   PORTB_HOTPLUG_INT_EN			(1 << 29)
@@ -4333,6 +4338,7 @@ enum {
 /* CHV SDVO/HDMI bits: */
 #define   SDVO_PIPE_SEL_CHV(pipe)		((pipe) << 24)
 #define   SDVO_PIPE_SEL_MASK_CHV		(3 << 24)
+
 
 /* DVO port control */
 #define _DVOA			0x61120
@@ -5834,6 +5840,7 @@ enum {
 /* the unit of memory self-refresh latency time is 0.5us */
 #define  ILK_SRLT_MASK		0x3f
 
+
 /* the address where we get all kinds of latency value */
 #define SSKPD			_MMIO(0x5d10)
 #define SSKPD_WM_MASK		0x3f
@@ -6035,6 +6042,7 @@ enum {
 #define _PIPEBFRAMEPIXEL	0x71044
 #define _PIPEB_FRMCOUNT_G4X	(dev_priv->info.display_mmio_offset + 0x71040)
 #define _PIPEB_FLIPCOUNT_G4X	(dev_priv->info.display_mmio_offset + 0x71044)
+
 
 /* Display B control */
 #define _DSPBCNTR		(dev_priv->info.display_mmio_offset + 0x71180)
@@ -6380,6 +6388,7 @@ enum {
 #define _PLANE_NV12_BUF_CFG_1_A		0x70278
 #define _PLANE_NV12_BUF_CFG_2_A		0x70378
 
+
 #define _PLANE_CTL_1_B				0x71180
 #define _PLANE_CTL_2_B				0x71280
 #define _PLANE_CTL_3_B				0x71380
@@ -6555,6 +6564,7 @@ enum {
 #define  FDI_PLL_FREQ_CHANGE_REQUEST    (1<<24)
 #define  FDI_PLL_FREQ_LOCK_LIMIT_MASK   0xfff00
 #define  FDI_PLL_FREQ_DISABLE_COUNT_LIMIT_MASK  0xff
+
 
 #define _PIPEA_DATA_M1		0x60030
 #define  PIPE_DATA_M1_OFFSET    0
@@ -9390,6 +9400,7 @@ enum skl_power_gate {
 #define  DBI_TYPEC_OVERRIDE				(1 << 8)
 #define  DBI_TYPEC_OVERRIDE_COUNTER_SHIFT		0
 #define  DBI_TYPEC_OVERRIDE_COUNTER_MASK		(0xff << 0)
+
 
 /* MIPI adapter registers */
 

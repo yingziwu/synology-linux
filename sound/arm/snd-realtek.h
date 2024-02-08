@@ -160,6 +160,7 @@ extern struct ion_device *rtk_phoenix_ion_device;
 #define RTK_ENC_LPCM_BUFFER_SIZE        (32*1024)
 #define RTK_ENC_PTS_BUFFER_SIZE         (8*1024)
 
+
 #define MAX_PCM_DEVICES     1 //2 todo
 #define MAX_PCM_SUBSTREAMS  8
 #define MAX_AI_DEVICES      1
@@ -191,6 +192,7 @@ extern struct ion_device *rtk_phoenix_ion_device;
     pRing64->rp = (unsigned long)pRing32->rp; \
     pRing64->cp = (unsigned long)pRing32->cp; \
 }
+
 
 /************************************************************************/
 /* ENUM                                                                     */
@@ -938,6 +940,7 @@ typedef struct {
     HRESULT res;
 } AUDIO_CONFIG_DAC_SPDIF_T;
 
+
 typedef struct
 {
     int base;
@@ -1333,6 +1336,7 @@ enum{
     pRing64->rp = (unsigned long)pRing32->rp; \
     pRing64->cp = (unsigned long)pRing32->cp; \
 }
+
 
 /************************************************************************/
 /* ENUM                                                                     */
@@ -2230,6 +2234,7 @@ typedef struct {
     AUDIO_OUT_SPDIF_CONFIG spdifConfig;
     HRESULT res;
 } AUDIO_CONFIG_DAC_SPDIF_T;
+
 
 typedef struct
 {

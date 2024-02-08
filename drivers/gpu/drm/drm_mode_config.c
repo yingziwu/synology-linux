@@ -99,6 +99,7 @@ int drm_mode_getresources(struct drm_device *dev, void *data,
 	if (!drm_core_check_feature(dev, DRIVER_MODESET))
 		return -EINVAL;
 
+
 	mutex_lock(&file_priv->fbs_lock);
 	count = 0;
 	fb_id = u64_to_user_ptr(card_res->fb_id_ptr);

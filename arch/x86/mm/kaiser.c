@@ -314,7 +314,6 @@ void __init kaiser_check_boottime_disable(void)
 #ifdef MY_ABC_HERE
 	goto disable;
 #else /* MY_ABC_HERE */
-
 	if (cmdline_find_option_bool(boot_command_line, "nopti") ||
 	    cpu_mitigations_off())
 		goto disable;

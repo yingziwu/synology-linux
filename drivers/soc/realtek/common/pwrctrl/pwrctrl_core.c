@@ -29,6 +29,7 @@ static LIST_HEAD(power_control_list);
 static int power_control_add_debugfs(struct power_control *pwrctrl);
 static void power_control_del_debugfs(struct power_control *pwrctrl);
 
+
 int power_control_register_notifier(struct power_control *pwrctrl,
 				    struct notifier_block *nb)
 {
@@ -259,6 +260,7 @@ struct power_control *of_power_control_get_from_provider(struct of_phandle_args 
 {
 	struct power_control *ctrl = ERR_PTR(-ENOENT);
 	struct of_power_control_provider *provider;
+
 
 	mutex_lock(&of_power_control_provider_lock);
 	list_for_each_entry(provider, &of_power_control_providers, list) {

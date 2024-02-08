@@ -58,6 +58,8 @@ ecryptfs case usally mark them, then it runs in synchormous mode.*/
 #define WORK
 #define REQ_LEN  64
 
+
+
 /*#define WORK
 //#define DESC_LEN  10
 #define ASYNC_NAPI
@@ -79,6 +81,7 @@ static struct device* mcp_device;
 #define IV_PLAIN 0
 #define IV_PLAIN64 1
 #define IV_NULL 2
+
 
 #define AES_PRIO 400
 
@@ -155,6 +158,7 @@ static int mcp_init(void);
 static DEFINE_MUTEX(mcp_mutex);
 static int rtk_mcp_sg(struct scatterlist* in,struct scatterlist* out, struct rtk_aes_ctx * ctx, char* iv, uint32_t mode, uint32_t ende, struct ablkcipher_request *req);
 
+
 #ifdef CONFIG_RTK_MCP_INTERRUPT
 #ifdef WORK
 void complete_irq(struct work_struct *work);
@@ -190,6 +194,7 @@ int rtk_irq_done(int irq, void *dev_id)
 //	SET_MCP_EN(0x0F, cpioaddr);
     return IRQ_HANDLED;
 }
+
 
 #ifdef WORK
 void complete_irq(struct work_struct *work)
@@ -253,6 +258,7 @@ void complete_irq(unsigned long data)
     return;
 }
 #endif
+
 
 #ifdef ASYNC_NAPI
 int _mcp_start_xfer(void);
@@ -453,6 +459,7 @@ static int mcp_resume(struct platform_device *dev)
     return 0;
 }
 
+
 static const struct of_device_id rtk_mcp_ids[] = {
     { .compatible = "Realtek,rtk-mcp", },
     {},
@@ -487,6 +494,7 @@ static int writeSRAM(unsigned int id, uint32_t *data, unsigned int cnt, mcp_desc
     SET_TP_KEYINFO_1(0x0, tpioaddr);
     return 0;
 }
+
 
 static int _sg_write_key(uint32_t keylen, char *Key, mcp_desc* p_desc)
 {
@@ -536,6 +544,7 @@ void* hash_malloc(unsigned long size)
     return (size >= PAGE_SIZE) ? (void*) __get_free_pages(GFP_USER, get_order(size))
            : (void*) kmalloc(size, GFP_USER) ;
 }
+
 
 /*------------------------------------------------------------------
  * Func : mcp_free
@@ -713,6 +722,7 @@ int _mcp_set_desc_buffer(
     return 0;
 }
 
+
 /*------------------------------------------------------------------
  * Func : _mcp_start_xfer
  *
@@ -739,6 +749,7 @@ int _mcp_start_xfer(void)
     SET_MCP_STATUS(0xFE, cpioaddr);    // clear status
 
     SET_MCP_CTRL(MCP_GO | MCP_WRITE_DATA, cpioaddr);
+
 
 #ifndef CONFIG_RTK_MCP_INTERRUPT
     int ret = -1;
@@ -877,6 +888,8 @@ static struct rtk_sha_dev *rtk_aes_find_dev(struct rtk_aes_ctx *ctx)
         printk(KERN_ERR "in rtk_aes_find_dev rtk_dd is NULL.\n");
     return rtk_dd;
 }
+
+
 
 static int fallback_init_blk(struct crypto_tfm *tfm)
 {
@@ -1102,6 +1115,7 @@ static int rtk_mcp_sg(struct scatterlist* in,struct scatterlist* out, struct rtk
     return ret;
 }
 
+
 static int rtk_cbc_decrypt(struct ablkcipher_request *req)
 {
     int err;
@@ -1217,10 +1231,13 @@ static struct crypto_alg rtk_cbc_alg = {
     }
 };
 
+
+
 static int __init rtk_mcp_init(void)
 {
     return platform_driver_register(&rtk_mcp_driver);
 }
+
 
 static void __exit rtk_mcp_exit(void)
 {
@@ -1228,6 +1245,7 @@ static void __exit rtk_mcp_exit(void)
 
     crypto_unregister_alg(&rtk_ecb_alg);
     crypto_unregister_alg(&rtk_cbc_alg);
+
 
     platform_driver_unregister(&rtk_mcp_driver);
 }

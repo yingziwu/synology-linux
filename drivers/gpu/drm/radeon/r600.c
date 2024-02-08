@@ -2383,6 +2383,7 @@ static void r600_gpu_init(struct radeon_device *rdev)
 	WREG32(VC_ENHANCE, 0);
 }
 
+
 /*
  * Indirect registers accessor
  */
@@ -3354,6 +3355,7 @@ void r600_fini(struct radeon_device *rdev)
 	kfree(rdev->bios);
 	rdev->bios = NULL;
 }
+
 
 /*
  * CS stuff

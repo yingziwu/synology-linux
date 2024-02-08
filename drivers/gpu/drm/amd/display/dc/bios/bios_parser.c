@@ -1075,6 +1075,7 @@ static enum bp_result bios_parser_program_display_engine_pll(
 
 }
 
+
 static enum bp_result bios_parser_enable_crtc(
 	struct dc_bios *dcb,
 	enum controller_id id,

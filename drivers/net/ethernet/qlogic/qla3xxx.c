@@ -97,6 +97,7 @@ static const struct PHY_DEVICE_INFO PHY_DEVICES[] = {
 	{PHY_AGERE_ET1011C,   0x00a0bc, 0x1, "PHY_AGERE_ET1011C"},
 };
 
+
 /*
  * Caller must take hw_lock.
  */
@@ -379,8 +380,6 @@ static void fm93c56a_select(struct ql3_adapter *qdev)
 
 	qdev->eeprom_cmd_data = AUBURN_EEPROM_CS_1;
 	ql_write_nvram_reg(qdev, spir, ISP_NVRAM_MASK | qdev->eeprom_cmd_data);
-	ql_write_nvram_reg(qdev, spir,
-			   ((ISP_NVRAM_MASK << 16) | qdev->eeprom_cmd_data));
 }
 
 /*
@@ -1812,6 +1811,7 @@ static int ql_populate_free_queue(struct ql3_adapter *qdev)
 					lrg_buf_cb->skb = NULL;
 					break;
 				}
+
 
 				lrg_buf_cb->buf_phy_addr_low =
 					cpu_to_le32(LS_64BITS(map));
@@ -3245,6 +3245,7 @@ static int ql_adapter_initialize(struct ql3_adapter *qdev)
 		ql_write_page0_reg(qdev, &port_regs->portControl,
 				   ((value << 16) | value));
 	}
+
 
 out:
 	return status;

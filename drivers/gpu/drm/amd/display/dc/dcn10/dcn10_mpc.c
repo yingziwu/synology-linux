@@ -36,6 +36,7 @@
 #define FN(reg_name, field_name) \
 	mpc10->mpc_shift->field_name, mpc10->mpc_mask->field_name
 
+
 void mpc1_set_bg_color(struct mpc *mpc,
 		struct tg_color *bg_color,
 		int mpcc_id)
@@ -442,3 +443,4 @@ void dcn10_mpc_construct(struct dcn10_mpc *mpc10,
 	for (i = 0; i < MAX_MPCC; i++)
 		mpc1_init_mpcc(&mpc10->base.mpcc_array[i], i);
 }
+

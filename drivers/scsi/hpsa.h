@@ -200,6 +200,7 @@ struct ctlr_info {
 	dma_addr_t		errinfo_pool_dhandle;
 	unsigned long  		*cmd_pool_bits;
 	int			scan_finished;
+	u8			scan_waiting : 1;
 	spinlock_t		scan_lock;
 	wait_queue_head_t	scan_wait_queue;
 
@@ -385,6 +386,7 @@ struct offline_device_entry {
 #define SA5_OUTDB_CLEAR         0xA0
 #define SA5_OUTDB_CLEAR_PERF_BIT        0x01
 #define SA5_OUTDB_STATUS        0x9C
+
 
 #define HPSA_INTR_ON 	1
 #define HPSA_INTR_OFF	0
@@ -617,3 +619,4 @@ struct board_type {
 };
 
 #endif /* HPSA_H */
+

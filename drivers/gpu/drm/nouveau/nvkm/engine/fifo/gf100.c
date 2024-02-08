@@ -567,6 +567,7 @@ gf100_fifo_oneinit(struct nvkm_fifo *base)
 	fifo->pbdma_nr = hweight32(nvkm_rd32(device, 0x002204));
 	nvkm_debug(subdev, "%d PBDMA(s)\n", fifo->pbdma_nr);
 
+
 	ret = nvkm_memory_new(device, NVKM_MEM_TARGET_INST, 0x1000, 0x1000,
 			      false, &fifo->runlist.mem[0]);
 	if (ret)

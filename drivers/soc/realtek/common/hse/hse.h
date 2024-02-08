@@ -47,6 +47,7 @@ struct hse_engine {
 	struct hse_command_queue *cq;
 };
 
+
 int hse_engine_init(struct hse_device *hdev, int index);
 void hse_engine_fini(struct hse_device *hdev, int index);
 int hse_engine_suspend(struct hse_engine *eng);
@@ -57,6 +58,7 @@ void hse_engine_put(struct hse_engine *eng);
 
 void hse_engine_check_ints(struct hse_engine *eng);
 void hse_engine_execute_cq(struct hse_engine *eng, struct hse_command_queue *cq);
+
 
 struct hse_command_queue {
 	struct hse_device *hdev;

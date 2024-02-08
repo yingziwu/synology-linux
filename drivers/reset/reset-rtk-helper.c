@@ -11,6 +11,7 @@
 #include <linux/debugfs.h>
 #include <linux/seq_file.h>
 
+
 static int dfs_read(struct seq_file *s, void *v)
 {
     struct reset_control * rstc = (struct reset_control *)s->private;
@@ -44,6 +45,7 @@ const struct file_operations rtk_rst_debugfs_assert_fops = {
     .write   = dfs_write_assert,
     .release = single_release,
 };
+
 
 const struct file_operations rtk_rst_debugfs_deassert_fops = {
     .owner   = THIS_MODULE,
@@ -128,3 +130,10 @@ err:
     return -EINVAL;
 }
 EXPORT_SYMBOL(rstc_add);
+
+
+
+
+
+
+

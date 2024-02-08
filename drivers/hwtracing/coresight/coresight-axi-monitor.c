@@ -343,6 +343,7 @@ static ssize_t mon_enable_store(struct device *dev,
 }
 static DEVICE_ATTR_RW(mon_enable);
 
+
 static ssize_t prof_enable_show(struct device *dev,
 		       struct device_attribute *attr,
 		       char *buf)
@@ -396,6 +397,7 @@ static char *memfmt(char *buf, unsigned long n)
 		sprintf(buf, "%lu KB", n >> 10);
 	return buf;
 }
+
 
 static ssize_t prof_counters_show(struct device *dev,
 		       struct device_attribute *attr,

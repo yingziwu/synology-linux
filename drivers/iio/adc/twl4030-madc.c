@@ -159,6 +159,7 @@ twl4030_divider_ratios[16] = {
 	{5, 11},	/* CHANNEL 15 */
 };
 
+
 /* Conversion table from -3 to 55 degrees Celcius */
 static int twl4030_therm_tbl[] = {
 	30800,	29500,	28300,	27100,
@@ -865,8 +866,10 @@ static int twl4030_madc_probe(struct platform_device *pdev)
 
 	/* Enable 3v1 bias regulator for MADC[3:6] */
 	madc->usb3v1 = devm_regulator_get(madc->dev, "vusb3v1");
-	if (IS_ERR(madc->usb3v1))
-		return -ENODEV;
+	if (IS_ERR(madc->usb3v1)) {
+		ret = -ENODEV;
+		goto err_i2c;
+	}
 
 	ret = regulator_enable(madc->usb3v1);
 	if (ret)
@@ -875,11 +878,13 @@ static int twl4030_madc_probe(struct platform_device *pdev)
 	ret = iio_device_register(iio_dev);
 	if (ret) {
 		dev_err(&pdev->dev, "could not register iio device\n");
-		goto err_i2c;
+		goto err_usb3v1;
 	}
 
 	return 0;
 
+err_usb3v1:
+	regulator_disable(madc->usb3v1);
 err_i2c:
 	twl4030_madc_set_current_generator(madc, 0, 0);
 err_current_generator:

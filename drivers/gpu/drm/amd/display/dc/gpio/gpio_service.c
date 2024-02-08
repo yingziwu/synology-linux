@@ -310,6 +310,7 @@ void dal_gpio_service_close(
 	}
 }
 
+
 enum dc_irq_source dal_irq_get_source(
 	const struct gpio *irq)
 {
@@ -587,3 +588,4 @@ void dal_ddc_close(
 	dal_gpio_close(ddc->pin_clock);
 	dal_gpio_close(ddc->pin_data);
 }
+

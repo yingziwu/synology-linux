@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -247,6 +248,7 @@ static DEVICE_ATTR(bmpool_stats,	S_IWUSR, NULL, mv_fw_store);
 static DEVICE_ATTR(chan_stats,		S_IWUSR, NULL, mv_fw_store);
 static DEVICE_ATTR(clear_stats,		S_IWUSR, NULL, mv_fw_store);
 
+
 static struct attribute *mv_fw_attrs[] = {
 	&dev_attr_help.attr,
 	&dev_attr_version.attr,
@@ -271,6 +273,7 @@ static struct attribute_group mv_fw_group = {
 	.attrs = mv_fw_attrs,
 };
 
+
 static ssize_t mv_fw_debug_help(char *b)
 {
 	int o = 0;
@@ -294,6 +297,7 @@ static ssize_t mv_fw_debug_help(char *b)
 	o += scnprintf(b + o, p - o, "      [ind]   - index of SP_image array (decimal)\n");
 	o += scnprintf(b + o, p - o, "      [adr]   - offset to print (hex)\n");
 	o += scnprintf(b + o, p - o, "      [words] - words number to print (decimal)\n");
+
 
 	return o;
 }
@@ -382,10 +386,12 @@ static struct attribute_group mv_fw_debug_group = {
 	.attrs = mv_fw_debug_attrs,
 };
 
+
 int mv_pp3_fw_sysfs_init(struct kobject *neta_kobj)
 {
 	int err;
 	struct kobject *fw_kobj;
+
 
 	fw_kobj = kobject_create_and_add("fw", neta_kobj);
 	if (!fw_kobj) {
@@ -405,6 +411,7 @@ int mv_pp3_fw_sysfs_init(struct kobject *neta_kobj)
 		return err;
 	}
 
+
 	return err;
 }
 
@@ -414,3 +421,4 @@ int mv_pp3_fw_sysfs_exit(struct kobject *neta_kobj)
 	sysfs_remove_group(neta_kobj, &mv_fw_group);
 	return 0;
 }
+

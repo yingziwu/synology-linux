@@ -56,4 +56,6 @@ enum dc_status dce112_add_stream_to_ctx(
 		struct dc_state *new_ctx,
 		struct dc_stream_state *dc_stream);
 
+
 #endif /* __DC_RESOURCE_DCE112_H__ */
+

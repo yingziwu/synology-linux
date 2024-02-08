@@ -652,6 +652,9 @@ static int ti_hecc_rx_poll(struct napi_struct *napi, int quota)
 		mbx_mask = hecc_read(priv, HECC_CANMIM);
 		mbx_mask |= HECC_TX_MBOX_MASK;
 		hecc_write(priv, HECC_CANMIM, mbx_mask);
+	} else {
+		/* repoll is done only if whole budget is used */
+		num_pkts = quota;
 	}
 
 	return num_pkts;
@@ -995,6 +998,7 @@ static int ti_hecc_remove(struct platform_device *pdev)
 
 	return 0;
 }
+
 
 #ifdef CONFIG_PM
 static int ti_hecc_suspend(struct platform_device *pdev, pm_message_t state)

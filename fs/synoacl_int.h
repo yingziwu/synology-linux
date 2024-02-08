@@ -1,7 +1,10 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * File: fs/synoacl_int.h
+ * Copyright (c) 2000-2010 Synology Inc.
+ */
 #ifndef __LINUX_SYNOACL_INT_H
 #define __LINUX_SYNOACL_INT_H
 
@@ -31,6 +34,12 @@ struct synoacl_vfs_operations {
 	int (*syno_acl_init) (struct dentry *d, struct inode *inode);
 };
 
+struct synoacl_mod_info {
+	struct synoacl_syscall_operations *syscall_ops;
+	struct synoacl_vfs_operations *vfs_ops;
+	struct module *owner;
+};
+
 int synoacl_mod_archive_change_ok(struct dentry *, unsigned int , int , int );
 int synoacl_mod_may_delete(struct dentry *, struct inode *);
 int synoacl_mod_setattr_post(struct dentry *, struct iattr *);
@@ -42,6 +51,7 @@ int synoacl_mod_exec_permission(struct dentry *);
 int synoacl_mod_permission(struct dentry *, int);
 int synoacl_mod_get_acl_xattr(struct dentry *, int, void *, size_t);
 
+/**  Inode Operation of SYNOACL **/
 static inline int synoacl_op_perm(struct dentry * dentry, int perm)
 {
 	struct inode *inode = dentry->d_inode;
@@ -49,7 +59,7 @@ static inline int synoacl_op_perm(struct dentry * dentry, int perm)
 	if (inode->i_op->syno_permission) {
 		return inode->i_op->syno_permission(dentry, perm);
 	}
-	 
+	/*printk(KERN_ERR "(%s/%d/%s) file:[%s], cur_uid: [%u], perm: [%d], error: [%d] \n", __FILE__, __LINE__, __FUNCTION__, dentry->d_iname, current_fsuid(), perm, synoacl_mod_permission(dentry, perm));*/
 	return synoacl_mod_permission(dentry, perm);
 }
 
@@ -58,7 +68,7 @@ static inline int synoacl_op_exec_perm(struct dentry * dentry, struct inode * in
 	if (inode->i_op->syno_exec_permission) {
 		return inode->i_op->syno_exec_permission(dentry);
 	}
-	 
+	/*printk(KERN_ERR "(%s/%d/%s) file:[%s], cur_uid: [%u], perm: [exec], error: [%d] \n", __FILE__, __LINE__, __FUNCTION__, dentry->d_iname, current_fsuid(), synoacl_mod_exec_permission(dentry));*/
 	return synoacl_mod_exec_permission(dentry);
 }
 
@@ -151,13 +161,13 @@ static inline int synoacl_check_xattr_perm(const char *name, struct dentry *dent
 	int error = 0;
 
 	if (!name || strcmp(name, SYNO_ACL_XATTR_ACCESS)) {
-		return 0;  
+		return 0; // skip xattr except ACL.
 	}
 
 	switch (perm) {
 	case MAY_READ_PERMISSION:
 		if (!IS_SYNOACL(dentry)) {
-			 
+			//printk(KERN_ERR "(%s/%d/%s) gfs:[%d] name: [%s], error: acl bit not on (fs:%d) \n", __FILE__, __LINE__, __FUNCTION__, IS_GLUSTER_FS(dentry->d_inode), name, IS_FS_SYNOACL(dentry->d_inode)?1:0);
 			return -EOPNOTSUPP;
 		}
 		break;
@@ -166,18 +176,18 @@ static inline int synoacl_check_xattr_perm(const char *name, struct dentry *dent
 			return -EOPNOTSUPP;
 		}
 		break;
-	default:  
+	default: //invalid parameters, just skip it.
 		return 0;
 	}
 
 	error = synoacl_op_perm(dentry, perm);
 	if (error) {
-		 
+		//printk(KERN_ERR "(%s/%d/%s) gfs:[%d] name: [%s], error: perm err )\n", __FILE__, __LINE__, __FUNCTION__, IS_GLUSTER_FS(dentry->d_inode), name);
 		return error;
 	}
 
 	return 0;
 }
 
-#endif  
-#endif   
+#endif /* MY_ABC_HERE */
+#endif  /* __LINUX_SYNOACL_INT_H */

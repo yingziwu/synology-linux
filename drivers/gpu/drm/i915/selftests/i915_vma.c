@@ -737,3 +737,4 @@ int i915_vma_mock_selftests(void)
 	drm_dev_unref(&i915->drm);
 	return err;
 }
+

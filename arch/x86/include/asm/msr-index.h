@@ -75,12 +75,6 @@
 						  * Sampling (MDS) vulnerabilities.
 						  */
 
-#define MSR_IA32_FLUSH_CMD		0x0000010b
-#define L1D_FLUSH			(1 << 0)   /*
-						    * Writeback and invalidate the
-						    * L1 data cache.
-						    */
-
 #define MSR_IA32_BBL_CR_CTL		0x00000119
 #define MSR_IA32_BBL_CR_CTL3		0x0000011e
 
@@ -452,6 +446,8 @@
 #define MSR_IA32_FEATURE_CONTROL        0x0000003a
 #define MSR_IA32_TSC_ADJUST             0x0000003b
 #define MSR_IA32_BNDCFGS		0x00000d90
+
+#define MSR_IA32_BNDCFGS_RSVD		0x00000ffc
 
 #define MSR_IA32_XSS			0x00000da0
 

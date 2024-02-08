@@ -235,6 +235,7 @@ static enum bp_result transmitter_control_v1_6(
 	ps.param.connobj_id = (uint8_t)cntl->connector_obj_id.id;
 	ps.param.symclk_10khz = cntl->pixel_clock/10;
 
+
 	if (cntl->action == TRANSMITTER_CONTROL_ENABLE ||
 		cntl->action == TRANSMITTER_CONTROL_ACTIAVATE ||
 		cntl->action == TRANSMITTER_CONTROL_DEACTIVATE) {
@@ -242,6 +243,7 @@ static enum bp_result transmitter_control_v1_6(
 		"%s:ps.param.symclk_10khz = %d\n",\
 		__func__, ps.param.symclk_10khz);
 	}
+
 
 /*color_depth not used any more, driver has deep color factor in the Phyclk*/
 	if (EXEC_BIOS_CMD_TABLE(dig1transmittercontrol, ps))
@@ -274,6 +276,8 @@ static void init_set_pixel_clock(struct bios_parser *bp)
 		break;
 	}
 }
+
+
 
 static enum bp_result set_pixel_clock_v7(
 	struct bios_parser *bp,
@@ -487,6 +491,7 @@ static enum bp_result set_crtc_using_dtd_timing_v3(
  ******************************************************************************
  *****************************************************************************/
 
+
 static enum bp_result select_crtc_source_v3(
 	struct bios_parser *bp,
 	struct bp_crtc_source_select *bp_params);
@@ -504,6 +509,7 @@ static void init_select_crtc_source(struct bios_parser *bp)
 		break;
 	}
 }
+
 
 static enum bp_result select_crtc_source_v3(
 	struct bios_parser *bp,
@@ -606,6 +612,8 @@ static enum bp_result enable_crtc_v1(
  ******************************************************************************
  *****************************************************************************/
 
+
+
 /******************************************************************************
  ******************************************************************************
  **
@@ -675,6 +683,7 @@ static enum bp_result enable_disp_power_gating_v2_1(
 	enum bp_pipe_control_action action)
 {
 	enum bp_result result = BP_RESULT_FAILURE;
+
 
 	struct enable_disp_power_gating_ps_allocation ps = { { 0 } };
 	uint8_t atom_crtc_id;
@@ -779,6 +788,7 @@ static enum bp_result set_dce_clock_v2_1(
 	return result;
 }
 
+
 /******************************************************************************
  ******************************************************************************
  **
@@ -812,3 +822,4 @@ static unsigned int get_smu_clock_info_v3_1(struct bios_parser *bp)
 
 	return 0;
 }
+

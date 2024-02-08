@@ -45,6 +45,7 @@ struct vmw_user_simple_resource {
  */
 };
 
+
 /**
  * vmw_simple_resource_init - Initialize a simple resource object.
  *

@@ -20,6 +20,7 @@
 
 #include "i2c-core.h"
 
+
 /* These symbols are exported ONLY FOR the i2c core.
  * No other users will be supported.
  */
@@ -31,6 +32,7 @@ EXPORT_SYMBOL_GPL(__i2c_board_list);
 
 int __i2c_first_dynamic_bus_num;
 EXPORT_SYMBOL_GPL(__i2c_first_dynamic_bus_num);
+
 
 /**
  * i2c_register_board_info - statically declare I2C devices
@@ -54,9 +56,7 @@ EXPORT_SYMBOL_GPL(__i2c_first_dynamic_bus_num);
  * The board info passed can safely be __initdata, but be careful of embedded
  * pointers (for platform_data, functions, etc) since that won't be copied.
  */
-int __init
-i2c_register_board_info(int busnum,
-	struct i2c_board_info const *info, unsigned len)
+int i2c_register_board_info(int busnum, struct i2c_board_info const *info, unsigned len)
 {
 	int status;
 

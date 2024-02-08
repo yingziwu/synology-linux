@@ -293,6 +293,7 @@ static int rtk_se_resume(struct device *dev)
 	return 0;
 }
 
+
 static const struct dev_pm_ops rtk_se_pm_ops = {
 	SET_RUNTIME_PM_OPS(rtk_se_runtime_suspend, rtk_se_runtime_resume, NULL)
 	SET_SYSTEM_SLEEP_PM_OPS(rtk_se_suspend, rtk_se_resume)
@@ -434,6 +435,7 @@ static int rtk_se_remove(struct platform_device *pdev)
 	uio_mem_iounmap(dev, &info->mem[0]);
 	return 0;
 }
+
 
 static const struct of_device_id rtk_se_ids[] = {
 	{ .compatible = "realtek,se" },

@@ -425,6 +425,7 @@ static int vidi_bind(struct device *dev, struct device *master, void *data)
 	return 0;
 }
 
+
 static void vidi_unbind(struct device *dev, struct device *master, void *data)
 {
 	struct vidi_context *ctx = dev_get_drvdata(dev);

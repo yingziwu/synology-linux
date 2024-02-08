@@ -42,6 +42,7 @@ static const char *inv_cpu_str[] = {
 	[SB2_INV_PCPU]     = "PCPU",
 };
 
+
 int sb2_dbg_register_dbg_notifier(struct notifier_block *nb)
 {
 	return atomic_notifier_chain_register(&sb2_dbg_notifier, nb);
@@ -260,6 +261,7 @@ static void sb2_disable_interrupt(struct sb2_data *data)
 {
 	sb2_write(data, SB2_DBG_INT, 0);
 }
+
 
 static int sb2_dbg_probe(struct platform_device *pdev)
 {

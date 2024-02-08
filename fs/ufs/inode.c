@@ -51,6 +51,7 @@ static int ufs_block_to_path(struct inode *inode, sector_t i_block, unsigned off
 		double_blocks = (1 << (ptrs_bits * 2));
 	int n = 0;
 
+
 	UFSD("ptrs=uspi->s_apb = %d,double_blocks=%ld \n",ptrs,double_blocks);
 	if (i_block < direct_blocks) {
 		offsets[n++] = i_block;
@@ -234,7 +235,8 @@ ufs_extend_tail(struct inode *inode, u64 writes_to,
 
 	p = ufs_get_direct_data_ptr(uspi, ufsi, block);
 	tmp = ufs_new_fragments(inode, p, lastfrag, ufs_data_ptr_to_cpu(sb, p),
-				new_size, err, locked_page);
+				new_size - (lastfrag & uspi->s_fpbmask), err,
+				locked_page);
 	return tmp != 0;
 }
 
@@ -283,7 +285,7 @@ ufs_inode_getfrag(struct inode *inode, unsigned index,
 			goal += uspi->s_fpb;
 	}
 	tmp = ufs_new_fragments(inode, p, ufs_blknum(new_fragment),
-				goal, uspi->s_fpb, err, locked_page);
+				goal, nfrags, err, locked_page);
 
 	if (!tmp) {
 		*err = -ENOSPC;
@@ -401,7 +403,9 @@ static int ufs_getfrag_block(struct inode *inode, sector_t fragment, struct buff
 
 	if (!create) {
 		phys64 = ufs_frag_map(inode, offsets, depth);
-		goto out;
+		if (phys64)
+			map_bh(bh_result, sb, phys64 + frag);
+		return 0;
 	}
 
         /* This code entered only while writing ....? */
@@ -572,6 +576,7 @@ static int ufs1_read_inode(struct inode *inode, struct ufs_inode *ufs_inode)
 	ufsi->i_flags = fs32_to_cpu(sb, ufs_inode->ui_flags);
 	ufsi->i_shadow = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_shadow);
 	ufsi->i_oeftflag = fs32_to_cpu(sb, ufs_inode->ui_u3.ui_sun.ui_oeftflag);
+
 
 	if (S_ISCHR(mode) || S_ISBLK(mode) || inode->i_blocks) {
 		memcpy(ufsi->i_u1.i_data, &ufs_inode->ui_u2.ui_addr,
@@ -1058,6 +1063,7 @@ static int ufs_alloc_lastblock(struct inode *inode, loff_t size)
        bh = page_buffers(lastpage);
        for (i = 0; i < end; ++i)
                bh = bh->b_this_page;
+
 
        err = ufs_getfrag_block(inode, lastfrag, bh, 1);
 

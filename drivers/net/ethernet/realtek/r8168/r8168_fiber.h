@@ -50,6 +50,8 @@ enum {
 
 #define HW_FIBER_MODE_ENABLED(_M)        ((_M)->HwFiberModeVer > 0)
 
+
+
 void rtl8168_hw_init_fiber_nic(struct net_device *dev);
 void rtl8168_hw_fiber_nic_d3_para(struct net_device *dev);
 void rtl8168_hw_fiber_phy_config(struct net_device *dev);
@@ -58,5 +60,6 @@ void rtl8168_hw_switch_mdi_to_fiber(struct net_device *dev);
 void rtl8168_hw_switch_mdi_to_nic(struct net_device *dev);
 unsigned int rtl8168_hw_fiber_link_ok(struct net_device *dev);
 void rtl8168_check_fiber_link_status(struct net_device *dev);
+
 
 #endif /* _LINUX_R8168_FIBER_H */

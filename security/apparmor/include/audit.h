@@ -105,6 +105,7 @@ enum aa_ops {
 	OP_PROF_RM,
 };
 
+
 struct apparmor_audit_data {
 	int error;
 	int op;

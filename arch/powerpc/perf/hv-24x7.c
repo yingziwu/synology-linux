@@ -514,7 +514,7 @@ static int memord(const void *d1, size_t s1, const void *d2, size_t s2)
 {
 	if (s1 < s2)
 		return 1;
-	if (s2 > s1)
+	if (s1 > s2)
 		return -1;
 
 	return memcmp(d1, d2, s1);
@@ -592,6 +592,7 @@ static void event_uniq_destroy(struct rb_root *root)
 	rbtree_postorder_for_each_entry_safe(pos, n, root, node)
 		kfree(pos);
 }
+
 
 /*
  * ensure the event structure's sizes are self consistent and don't cause us to
@@ -1139,6 +1140,7 @@ out:
 	put_cpu_var(hv_24x7_resb);
 	return ret;
 }
+
 
 static int h_24x7_event_init(struct perf_event *event)
 {

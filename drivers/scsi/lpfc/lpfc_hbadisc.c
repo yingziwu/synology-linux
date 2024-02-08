@@ -691,8 +691,9 @@ lpfc_work_done(struct lpfc_hba *phba)
 	    (phba->hba_flag & HBA_SP_QUEUE_EVT)) {
 		if (pring->flag & LPFC_STOP_IOCB_EVENT) {
 			pring->flag |= LPFC_DEFERRED_RING_EVENT;
-			/* Set the lpfc data pending flag */
-			set_bit(LPFC_DATA_READY, &phba->data_flags);
+			/* Preserve legacy behavior. */
+			if (!(phba->hba_flag & HBA_SP_QUEUE_EVT))
+				set_bit(LPFC_DATA_READY, &phba->data_flags);
 		} else {
 			if (phba->link_state >= LPFC_LINK_UP) {
 				pring->flag &= ~LPFC_DEFERRED_RING_EVENT;
@@ -1081,6 +1082,7 @@ out:
 
 	return;
 }
+
 
 void
 lpfc_mbx_cmpl_local_config_link(struct lpfc_hba *phba, LPFC_MBOXQ_t *pmb)
@@ -3265,6 +3267,7 @@ lpfc_mbx_issue_link_down(struct lpfc_hba *phba)
 	/* turn on Link Attention interrupts - no CLEAR_LA needed */
 }
 
+
 /*
  * This routine handles processing a READ_TOPOLOGY mailbox
  * command upon completion. It is setup in the LPFC_MBOXQ
@@ -3665,6 +3668,7 @@ lpfc_create_static_vport(struct lpfc_hba *phba)
 
 	} while (byte_count &&
 		offset < sizeof(struct static_vport_info));
+
 
 	if ((le32_to_cpu(vport_info->signature) != VPORT_INFO_SIG) ||
 		((le32_to_cpu(vport_info->rev) & VPORT_INFO_REV_MASK)
@@ -4267,6 +4271,7 @@ lpfc_enable_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 				 ndlp->nlp_usg_map, ndlp);
 	}
 
+
 	if (state != NLP_STE_UNUSED_NODE)
 		lpfc_nlp_set_state(vport, ndlp, state);
 
@@ -4317,6 +4322,7 @@ lpfc_set_disctmo(struct lpfc_vport *vport)
 		 */
 		tmo = ((phba->fc_ratov * 3) + 3);
 	}
+
 
 	if (!timer_pending(&vport->fc_disctmo)) {
 		lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_ELS_CMD,
@@ -4694,6 +4700,7 @@ lpfc_cleanup_node(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 		lpfc_disable_node(vport, ndlp);
 	}
 
+
 	/* Don't need to clean up REG_LOGIN64 cmds for Default RPI cleanup */
 
 	/* cleanup any ndlp on mbox q waiting for reglogin cmpl */
@@ -4771,7 +4778,8 @@ lpfc_nlp_remove(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
 	lpfc_cancel_retry_delay_tmo(vport, ndlp);
 	if ((ndlp->nlp_flag & NLP_DEFER_RM) &&
 	    !(ndlp->nlp_flag & NLP_REG_LOGIN_SEND) &&
-	    !(ndlp->nlp_flag & NLP_RPI_REGISTERED)) {
+	    !(ndlp->nlp_flag & NLP_RPI_REGISTERED) &&
+	    phba->sli_rev != LPFC_SLI_REV4) {
 		/* For this case we need to cleanup the default rpi
 		 * allocated by the firmware.
 		 */
@@ -5725,6 +5733,8 @@ lpfc_nlp_init(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
 			memset(ndlp->active_rrqs_xri_bitmap, 0,
 			       ndlp->phba->cfg_rrq_xri_bitmap_sz);
 	}
+
+
 
 	lpfc_debugfs_disc_trc(vport, LPFC_DISC_TRC_NODE,
 		"node init:       did:x%x",

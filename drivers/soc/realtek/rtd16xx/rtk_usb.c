@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (c) 2017 Realtek Semiconductor Corp.
  *
@@ -76,9 +79,9 @@ int rtk_usb_set_hw_l4icg_on_off(struct rtk_usb *rtk_usb,
 
 	return 0;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_set_hw_l4icg_on_off);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 static inline struct reset_control *USB_reset_get(struct device *dev,
 	    const char *str)
@@ -186,9 +189,9 @@ int rtk_usb_iso_power_ctrl(struct rtk_usb *rtk_usb,
 
 	return 0;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_iso_power_ctrl);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 int rtk_usb_port_suspend_resume(struct rtk_usb *rtk_usb,
 	    enum usb_port_num port_num, bool is_suspend)
@@ -198,9 +201,9 @@ int rtk_usb_port_suspend_resume(struct rtk_usb *rtk_usb,
 
 	return 0;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_port_suspend_resume);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 struct rtk_usb *rtk_usb_soc_init(struct device_node *sub_node)
 {
@@ -227,9 +230,9 @@ struct rtk_usb *rtk_usb_soc_init(struct device_node *sub_node)
 	pr_info("%s END\n", __func__);
 	return rtk_usb;
 }
-#if defined(CONFIG_SYNO_RTD1619)
+#if defined(MY_DEF_HERE)
 EXPORT_SYMBOL(rtk_usb_soc_init);
-#endif /* CONFIG_SYNO_RTD1619 */
+#endif /* MY_DEF_HERE */
 
 int rtk_usb_soc_free(struct rtk_usb **rtk_usb)
 {

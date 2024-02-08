@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Intel LPSS PCI support.
  *
@@ -152,10 +155,10 @@ static const struct pci_device_id intel_lpss_pci_ids[] = {
 	{ PCI_VDEVICE(INTEL, 0xa160), (kernel_ulong_t)&spt_info },
 	{ PCI_VDEVICE(INTEL, 0xa161), (kernel_ulong_t)&spt_info },
 	{ PCI_VDEVICE(INTEL, 0xa166), (kernel_ulong_t)&spt_uart_info },
-#ifdef CONFIG_SYNO_COFFEELAKE
+#ifdef MY_DEF_HERE
 	/* CFL */
 	{ PCI_VDEVICE(INTEL, 0xa328), (kernel_ulong_t)&spt_uart_info },
-#endif /* CONFIG_SYNO_COFFEELAKE */
+#endif /* MY_DEF_HERE */
 	{ }
 };
 MODULE_DEVICE_TABLE(pci, intel_lpss_pci_ids);

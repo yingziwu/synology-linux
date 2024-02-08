@@ -131,6 +131,7 @@ static const struct dce110_timing_generator_offsets dce100_tg_offsets[] = {
 #define SRI(reg_name, block, id)\
 	.reg_name = mm ## block ## id ## _ ## reg_name
 
+
 static const struct dce_disp_clk_registers disp_clk_regs = {
 		CLK_COMMON_REG_LIST_DCE_BASE()
 };
@@ -276,6 +277,7 @@ static const struct dce_opp_mask opp_mask = {
 	OPP_COMMON_MASK_SH_LIST_DCE_100(_MASK)
 };
 
+
 #define audio_regs(id)\
 [id] = {\
 	AUD_COMMON_REG_LIST(id)\
@@ -317,6 +319,8 @@ static const struct dce110_clk_src_shift cs_shift = {
 static const struct dce110_clk_src_mask cs_mask = {
 		CS_COMMON_MASK_SH_LIST_DCE_COMMON_BASE(_MASK)
 };
+
+
 
 #define DCFE_MEM_PWR_CTRL_REG_BASE 0x1b03
 
@@ -825,6 +829,7 @@ static bool construct(
 		goto res_create_fail;
 	}
 
+
 	/* get static clock information for PPLIB or firmware, save
 	 * max_clock_state
 	 */
@@ -926,3 +931,4 @@ struct resource_pool *dce100_create_resource_pool(
 	BREAK_TO_DEBUGGER();
 	return NULL;
 }
+

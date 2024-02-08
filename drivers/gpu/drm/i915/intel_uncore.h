@@ -126,6 +126,7 @@ struct intel_uncore {
 #define for_each_fw_domain(domain__, dev_priv__, tmp__) \
 	for_each_fw_domain_masked(domain__, (dev_priv__)->uncore.fw_domains, dev_priv__, tmp__)
 
+
 void intel_uncore_sanitize(struct drm_i915_private *dev_priv);
 void intel_uncore_init(struct drm_i915_private *dev_priv);
 bool intel_uncore_unclaimed_mmio(struct drm_i915_private *dev_priv);

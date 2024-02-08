@@ -19,6 +19,7 @@
 #ifndef _VMWGFX_MSG_H
 #define _VMWGFX_MSG_H
 
+
 /**
  * Hypervisor-specific bi-directional communication channel.  Should never
  * execute on bare metal hardware.  The caller must make sure to check for
@@ -58,6 +59,7 @@
 		"D"(in_di) :			\
 		"memory");			\
 })
+
 
 /**
  * Hypervisor-specific bi-directional communication channel.  Should never
@@ -105,6 +107,7 @@
 		"r"(bp) :				\
 		"memory", "cc");			\
 })
+
 
 #define VMW_PORT_HB_IN(cmd, in_ecx, in_si, in_di,	\
 		       port_num, magic, bp,		\
@@ -158,6 +161,7 @@
 		"m"(bp) :				\
 		"memory", "cc");			\
 })
+
 
 #define VMW_PORT_HB_IN(cmd, in_ecx, in_si, in_di,	\
 		       port_num, magic, bp,		\

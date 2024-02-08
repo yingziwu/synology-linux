@@ -257,6 +257,7 @@ enum {
 	MLX4_FUNC_CAP_DMFS_A0_STATIC	= 1L << 2
 };
 
+
 #define MLX4_ATTR_EXTENDED_PORT_INFO	cpu_to_be16(0xff90)
 
 enum {
@@ -459,6 +460,7 @@ enum {
 enum {
 	MLX4_INTERFACE_STATE_UP		= 1 << 0,
 	MLX4_INTERFACE_STATE_DELETION	= 1 << 1,
+	MLX4_INTERFACE_STATE_NOWAIT	= 1 << 2,
 };
 
 #define MSTR_SM_CHANGE_MASK (MLX4_EQ_PORT_INFO_MSTR_SM_SL_CHANGE_MASK | \
@@ -1325,6 +1327,7 @@ enum {
 	VXLAN_STEER_BY_INNER_MAC	= 1 << 3,
 	VXLAN_STEER_BY_INNER_VLAN	= 1 << 4,
 };
+
 
 int mlx4_flow_steer_promisc_add(struct mlx4_dev *dev, u8 port, u32 qpn,
 				enum mlx4_net_trans_promisc_mode mode);

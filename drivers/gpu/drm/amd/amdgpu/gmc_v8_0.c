@@ -43,6 +43,7 @@
 
 #include "amdgpu_atombios.h"
 
+
 static void gmc_v8_0_set_gart_funcs(struct amdgpu_device *adev);
 static void gmc_v8_0_set_irq_funcs(struct amdgpu_device *adev);
 static int gmc_v8_0_wait_for_idle(void *handle);

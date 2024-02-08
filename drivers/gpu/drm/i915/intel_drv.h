@@ -1609,6 +1609,7 @@ void intel_dvo_init(struct drm_i915_private *dev_priv);
 /* intel_hotplug.c */
 void intel_hpd_poll_init(struct drm_i915_private *dev_priv);
 
+
 /* legacy fbdev emulation in intel_fbdev.c */
 #ifdef CONFIG_DRM_FBDEV_EMULATION
 extern int intel_fbdev_init(struct drm_device *dev);
@@ -1688,10 +1689,12 @@ void intel_hdmi_handle_sink_scrambling(struct intel_encoder *intel_encoder,
 void intel_dp_dual_mode_set_tmds_output(struct intel_hdmi *hdmi, bool enable);
 void intel_infoframe_init(struct intel_digital_port *intel_dig_port);
 
+
 /* intel_lvds.c */
 void intel_lvds_init(struct drm_i915_private *dev_priv);
 struct intel_encoder *intel_get_lvds_encoder(struct drm_device *dev);
 bool intel_is_dual_link_lvds(struct drm_device *dev);
+
 
 /* intel_modes.c */
 int intel_connector_update_modes(struct drm_connector *connector,
@@ -1700,6 +1703,7 @@ int intel_ddc_get_modes(struct drm_connector *c, struct i2c_adapter *adapter);
 void intel_attach_force_audio_property(struct drm_connector *connector);
 void intel_attach_broadcast_rgb_property(struct drm_connector *connector);
 void intel_attach_aspect_ratio_property(struct drm_connector *connector);
+
 
 /* intel_overlay.c */
 void intel_setup_overlay(struct drm_i915_private *dev_priv);
@@ -1710,6 +1714,7 @@ int intel_overlay_put_image_ioctl(struct drm_device *dev, void *data,
 int intel_overlay_attrs_ioctl(struct drm_device *dev, void *data,
 			      struct drm_file *file_priv);
 void intel_overlay_reset(struct drm_i915_private *dev_priv);
+
 
 /* intel_panel.c */
 int intel_panel_init(struct intel_panel *panel,
@@ -1751,6 +1756,7 @@ static inline void intel_backlight_device_unregister(struct intel_connector *con
 {
 }
 #endif /* CONFIG_BACKLIGHT_CLASS_DEVICE */
+
 
 /* intel_psr.c */
 void intel_psr_enable(struct intel_dp *intel_dp,
@@ -1859,6 +1865,7 @@ void chv_phy_powergate_lanes(struct intel_encoder *encoder,
 bool chv_phy_powergate_ch(struct drm_i915_private *dev_priv, enum dpio_phy phy,
 			  enum dpio_channel ch, bool override);
 
+
 /* intel_pm.c */
 void intel_init_clock_gating(struct drm_i915_private *dev_priv);
 void intel_suspend_hw(struct drm_i915_private *dev_priv);
@@ -1908,6 +1915,7 @@ void intel_enable_ipc(struct drm_i915_private *dev_priv);
 /* intel_sdvo.c */
 bool intel_sdvo_init(struct drm_i915_private *dev_priv,
 		     i915_reg_t reg, enum port port);
+
 
 /* intel_sprite.c */
 int intel_usecs_to_scanlines(const struct drm_display_mode *adjusted_mode,

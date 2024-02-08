@@ -1,7 +1,19 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *	common UDP/RAW code
+ *	Linux INET6 implementation
+ *
+ *	Authors:
+ *	Pedro Roque		<roque@di.fc.ul.pt>
+ *
+ *	This program is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU General Public License
+ *      as published by the Free Software Foundation; either version
+ *      2 of the License, or (at your option) any later version.
+ */
+
 #include <linux/capability.h>
 #include <linux/errno.h>
 #include <linux/types.h>
@@ -67,16 +79,22 @@ static int __ip6_datagram_connect(struct sock *sk, struct sockaddr *uaddr, int a
 		}
 	}
 
-	addr_type = ipv6_addr_type(&usin->sin6_addr);
-
-	if (addr_type == IPV6_ADDR_ANY) {
-		 
-		usin->sin6_addr.s6_addr[15] = 0x01;
+	if (ipv6_addr_any(&usin->sin6_addr)) {
+		/*
+		 *	connect to self
+		 */
+		if (ipv6_addr_v4mapped(&sk->sk_v6_rcv_saddr))
+			ipv6_addr_set_v4mapped(htonl(INADDR_LOOPBACK),
+					       &usin->sin6_addr);
+		else
+			usin->sin6_addr = in6addr_loopback;
 	}
+
+	addr_type = ipv6_addr_type(&usin->sin6_addr);
 
 	daddr = &usin->sin6_addr;
 
-	if (addr_type == IPV6_ADDR_MAPPED) {
+	if (addr_type & IPV6_ADDR_MAPPED) {
 		struct sockaddr_in sin;
 
 		if (__ipv6_only_sock(sk)) {
@@ -138,8 +156,9 @@ ipv4_connected:
 				}
 			}
 		}
-#endif  
+#endif /* MY_ABC_HERE */
 
+		/* Connect to link-local address requires an interface */
 		if (!sk->sk_bound_dev_if) {
 			err = -EINVAL;
 			goto out;
@@ -150,6 +169,11 @@ ipv4_connected:
 	np->flow_label = fl6.flowlabel;
 
 	inet->inet_dport = usin->sin6_port;
+
+	/*
+	 *	Check for a route to destination an obtain the
+	 *	destination cache for it.
+	 */
 
 	fl6.flowi6_proto = sk->sk_protocol;
 	fl6.daddr = sk->sk_v6_daddr;
@@ -178,6 +202,8 @@ ipv4_connected:
 		err = PTR_ERR(dst);
 		goto out;
 	}
+
+	/* source address lookup done in ip6_dst_lookup */
 
 	if (ipv6_addr_any(&np->saddr))
 		np->saddr = fl6.saddr;
@@ -281,6 +307,7 @@ void ipv6_local_error(struct sock *sk, int err, struct flowi6 *fl6, u32 info)
 	skb_reset_network_header(skb);
 	iph = ipv6_hdr(skb);
 	iph->daddr = fl6->daddr;
+	ip6_flow_hdr(iph, 0, 0);
 
 	serr = SKB_EXT_ERR(skb);
 	serr->ee.ee_errno = err;
@@ -335,6 +362,9 @@ void ipv6_local_rxpmtu(struct sock *sk, struct flowi6 *fl6, u32 mtu)
 	kfree_skb(skb);
 }
 
+/* For some errors we have valid addr_offset even with zero payload and
+ * zero port. Also, addr_offset should be supported if port is set.
+ */
 static inline bool ipv6_datagram_support_addr(struct sock_exterr_skb *serr)
 {
 	return serr->ee.ee_origin == SO_EE_ORIGIN_ICMP6 ||
@@ -342,6 +372,15 @@ static inline bool ipv6_datagram_support_addr(struct sock_exterr_skb *serr)
 	       serr->ee.ee_origin == SO_EE_ORIGIN_LOCAL || serr->port;
 }
 
+/* IPv6 supports cmsg on all origins aside from SO_EE_ORIGIN_LOCAL.
+ *
+ * At one point, excluding local errors was a quick test to identify icmp/icmp6
+ * errors. This is no longer true, but the test remained, so the v6 stack,
+ * unlike v4, also honors cmsg requests on all wifi and timestamp errors.
+ *
+ * Timestamp code paths do not initialize the fields expected by cmsg:
+ * the PKTINFO fields in skb->cb[]. Fill those in here.
+ */
 static bool ip6_datagram_support_cmsg(struct sk_buff *skb,
 				      struct sock_exterr_skb *serr)
 {
@@ -363,6 +402,9 @@ static bool ip6_datagram_support_cmsg(struct sk_buff *skb,
 	return true;
 }
 
+/*
+ *	Handle MSG_ERRQUEUE
+ */
 int ipv6_recv_error(struct sock *sk, struct msghdr *msg, int len, int *addr_len)
 {
 	struct ipv6_pinfo *np = inet6_sk(sk);
@@ -441,6 +483,8 @@ int ipv6_recv_error(struct sock *sk, struct msghdr *msg, int len, int *addr_len)
 
 	put_cmsg(msg, SOL_IPV6, IPV6_RECVERR, sizeof(errhdr), &errhdr);
 
+	/* Now we could try to dump offended packet options */
+
 	msg->msg_flags |= MSG_ERRQUEUE;
 	err = copied;
 
@@ -451,6 +495,9 @@ out:
 }
 EXPORT_SYMBOL_GPL(ipv6_recv_error);
 
+/*
+ *	Handle IPV6_RECVPATHMTU
+ */
 int ipv6_recv_rxpmtu(struct sock *sk, struct msghdr *msg, int len,
 		     int *addr_len)
 {
@@ -497,6 +544,7 @@ out_free_skb:
 out:
 	return err;
 }
+
 
 void ip6_datagram_recv_common_ctl(struct sock *sk, struct msghdr *msg,
 				 struct sk_buff *skb)
@@ -546,6 +594,7 @@ void ip6_datagram_recv_specific_ctl(struct sock *sk, struct msghdr *msg,
 			put_cmsg(msg, SOL_IPV6, IPV6_FLOWINFO, sizeof(flowinfo), &flowinfo);
 	}
 
+	/* HbH is allowed only once */
 	if (np->rxopt.bits.hopopts && (opt->flags & IP6SKB_HOPBYHOP)) {
 		u8 *ptr = nh + sizeof(struct ipv6hdr);
 		put_cmsg(msg, SOL_IPV6, IPV6_HOPOPTS, (ptr[1]+1)<<3, ptr);
@@ -553,7 +602,15 @@ void ip6_datagram_recv_specific_ctl(struct sock *sk, struct msghdr *msg,
 
 	if (opt->lastopt &&
 	    (np->rxopt.bits.dstopts || np->rxopt.bits.srcrt)) {
-		 
+		/*
+		 * Silly enough, but we need to reparse in order to
+		 * report extension headers (except for HbH)
+		 * in order.
+		 *
+		 * Also note that IPV6_RECVRTHDRDSTOPTS is NOT
+		 * (and WILL NOT be) defined because
+		 * IPV6_RECVDSTOPTS is more generic. --yoshfuji
+		 */
 		unsigned int off = sizeof(struct ipv6hdr);
 		u8 nexthdr = ipv6_hdr(skb)->nexthdr;
 
@@ -588,6 +645,7 @@ void ip6_datagram_recv_specific_ctl(struct sock *sk, struct msghdr *msg,
 		}
 	}
 
+	/* socket options in old style */
 	if (np->rxopt.bits.rxoinfo) {
 		struct in6_pktinfo src_info;
 
@@ -617,10 +675,15 @@ void ip6_datagram_recv_specific_ctl(struct sock *sk, struct msghdr *msg,
 	}
 	if (np->rxopt.bits.rxorigdstaddr) {
 		struct sockaddr_in6 sin6;
-		__be16 *ports = (__be16 *) skb_transport_header(skb);
+		__be16 _ports[2], *ports;
 
-		if (skb_transport_offset(skb) + 4 <= skb->len) {
-			 
+		ports = skb_header_pointer(skb, skb_transport_offset(skb),
+					   sizeof(_ports), &_ports);
+		if (ports) {
+			/* All current transport protocols have the port numbers in the
+			 * first four bytes of the transport header and this function is
+			 * written with this assumption in mind.
+			 */
 			sin6.sin6_family = AF_INET6;
 			sin6.sin6_addr = ipv6_hdr(skb)->daddr;
 			sin6.sin6_port = ports[1];
@@ -836,6 +899,7 @@ int ip6_datagram_send_ctl(struct net *net, struct sock *sk,
 				goto exit_f;
 			}
 
+			/* segments left must also match */
 			if ((rthdr->hdrlen >> 1) != rthdr->segments_left) {
 				err = -EINVAL;
 				goto exit_f;

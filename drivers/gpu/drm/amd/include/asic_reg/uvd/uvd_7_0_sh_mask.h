@@ -21,6 +21,7 @@
 #ifndef _uvd_7_0_SH_MASK_HEADER
 #define _uvd_7_0_SH_MASK_HEADER
 
+
 // addressBlock: uvd0_uvd_pg_dec
 //UVD_POWER_STATUS
 #define UVD_POWER_STATUS__UVD_POWER_STATUS__SHIFT                                                             0x0
@@ -78,6 +79,7 @@
 //UVD_DPG_VCPU_CACHE_OFFSET0
 #define UVD_DPG_VCPU_CACHE_OFFSET0__CACHE_OFFSET0__SHIFT                                                      0x0
 #define UVD_DPG_VCPU_CACHE_OFFSET0__CACHE_OFFSET0_MASK                                                        0x01FFFFFFL
+
 
 // addressBlock: uvd0_uvdnpdec
 //UVD_JPEG_ADDR_CONFIG
@@ -331,6 +333,7 @@
 //UVD_LMI_RBC_RB_64BIT_BAR_LOW
 #define UVD_LMI_RBC_RB_64BIT_BAR_LOW__BITS_31_0__SHIFT                                                        0x0
 #define UVD_LMI_RBC_RB_64BIT_BAR_LOW__BITS_31_0_MASK                                                          0xFFFFFFFFL
+
 
 // addressBlock: uvd0_uvddec
 //UVD_SEMA_CNTL
@@ -803,5 +806,6 @@
 //UVD_CONTEXT_ID2
 #define UVD_CONTEXT_ID2__CONTEXT_ID2__SHIFT                                                                   0x0
 #define UVD_CONTEXT_ID2__CONTEXT_ID2_MASK                                                                     0xFFFFFFFFL
+
 
 #endif

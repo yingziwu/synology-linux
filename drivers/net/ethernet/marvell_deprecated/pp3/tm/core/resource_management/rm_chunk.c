@@ -13,6 +13,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -33,8 +34,10 @@ disclaimer.
 #include "rm_chunk.h"
 #include "tm/core/tm_os_interface.h"
 
+
 /* Chunk list is always in decending order - the biggest is first */
 /* Chunk list always have member - if no free nodes so it has one chunk with 0 size */
+
 
 void clear_chunk_list(chunk_ptr list)
 {
@@ -46,12 +49,14 @@ void clear_chunk_list(chunk_ptr list)
 	}
 }
 
+
 static void prv_swap_chunk_content(chunk_ptr a, chunk_ptr b)
 {
 	uint32_t tmp;
 	tmp = a->index; a->index = b->index ; b->index = tmp;
 	tmp = a->size; a->size = b->size ; b->size = tmp;
 }
+
 
 static void prv_reorder_decreased(chunk_ptr ptr)
 {
@@ -68,6 +73,7 @@ static void prv_reorder_decreased(chunk_ptr ptr)
 	}
 }
 
+
 static void prv_reorder_increased(chunk_ptr list, chunk_ptr ptr)
 {
 	while (list != ptr) {
@@ -76,6 +82,7 @@ static void prv_reorder_increased(chunk_ptr list, chunk_ptr ptr)
 		list = list->next_free;
 	}
 }
+
 
 chunk_ptr rm_new_chunk(uint32_t start_index, uint32_t length, struct rm_chunk *chunk_list)
 {
@@ -87,6 +94,7 @@ chunk_ptr rm_new_chunk(uint32_t start_index, uint32_t length, struct rm_chunk *c
 	return pchunk;
 }
 
+
 int rm_release_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t index)
 {
 	chunk_ptr ptr;
@@ -94,6 +102,7 @@ int rm_release_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t in
 
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
+
 
 	/* find if the chunk can be merged with already existing free chunk */
 	for (ptr = ctl->rm_free_nodes[lvl]; ptr ; ptr = ptr->next_free) {
@@ -121,6 +130,7 @@ int rm_release_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t in
 	return 0;
 }
 
+
 int rm_get_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t *index)
 {
 	chunk_ptr	ptr;
@@ -147,12 +157,14 @@ int rm_get_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t size, uint32_t *index
 	return 0;
 }
 
+
 int rm_expand_chunk(rmctl_t hndl, enum rm_level lvl, uint32_t index)
 {
 	chunk_ptr	ptr;
 
 	DECLARE_RM_HANDLE(ctl, hndl)
 	CHECK_RM_HANDLE(ctl)
+
 
 	ptr = ctl->rm_free_nodes[lvl];
 	while ((ptr) && (ptr->index != index))

@@ -1213,6 +1213,7 @@ do { \
 	(i915)->uncore.funcs.mmio_readq = x##_read64; \
 } while (0)
 
+
 static void fw_domain_init(struct drm_i915_private *dev_priv,
 			   enum forcewake_domain_id domain_id,
 			   i915_reg_t reg_set,

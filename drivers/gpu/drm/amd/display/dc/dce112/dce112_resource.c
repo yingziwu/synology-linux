@@ -143,6 +143,7 @@ static const struct dce110_timing_generator_offsets dce112_tg_offsets[] = {
 #define SRI(reg_name, block, id)\
 	.reg_name = mm ## block ## id ## _ ## reg_name
 
+
 static const struct dce_disp_clk_registers disp_clk_regs = {
 		CLK_COMMON_REG_LIST_DCE_BASE()
 };
@@ -401,6 +402,7 @@ static struct audio *create_audio(
 	return dce_audio_create(ctx, inst,
 			&audio_regs[inst], &audio_shift, &audio_mask);
 }
+
 
 static struct timing_generator *dce112_timing_generator_create(
 		struct dc_context *ctx,
@@ -857,6 +859,7 @@ enum dc_status dce112_add_stream_to_ctx(
 	if (result == DC_OK)
 		result = resource_map_phy_clock_resources(dc, new_ctx, dc_stream);
 
+
 	if (result == DC_OK)
 		result = build_mapped_resource(dc, new_ctx, dc_stream);
 
@@ -1102,6 +1105,7 @@ static bool construct(
 	dc->caps.max_cursor_size = 128;
 	dc->caps.dual_link_dvi = true;
 
+
 	/*************************************************
 	 *  Create resources                             *
 	 *************************************************/
@@ -1141,6 +1145,7 @@ static bool construct(
 	pool->base.dp_clock_source =  dce112_clock_source_create(
 		ctx, ctx->dc_bios,
 		CLOCK_SOURCE_ID_DP_DTO, &clk_src_regs[0], true);
+
 
 	for (i = 0; i < pool->base.clk_src_count; i++) {
 		if (pool->base.clock_sources[i] == NULL) {

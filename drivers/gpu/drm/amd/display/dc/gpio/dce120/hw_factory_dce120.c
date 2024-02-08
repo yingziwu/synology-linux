@@ -27,6 +27,7 @@
 #include "include/gpio_types.h"
 #include "../hw_factory.h"
 
+
 #include "../hw_gpio.h"
 #include "../hw_ddc.h"
 #include "../hw_hpd.h"
@@ -61,6 +62,7 @@
 #define REGI(reg_name, block, id)\
 	BASE(mm ## block ## id ## _ ## reg_name ## _BASE_IDX) + \
 				mm ## block ## id ## _ ## reg_name
+
 
 #include "reg_helper.h"
 #include "../hpd_regs.h"
@@ -157,6 +159,7 @@ static void define_hpd_registers(struct hw_gpio_pin *pin, uint32_t en)
 	hpd->masks = &hpd_mask;
 	hpd->base.regs = &hpd_regs[en].gpio;
 }
+
 
 /* fucntion table */
 static const struct hw_factory_funcs funcs = {

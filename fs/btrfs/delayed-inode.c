@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2011 Fujitsu.  All rights reserved.
  * Written by Miao Xie <miaox@cn.fujitsu.com>
@@ -634,6 +637,14 @@ static int btrfs_delayed_inode_reserve_metadata(
 			release = true;
 			goto migrate;
 		}
+#ifdef MY_ABC_HERE
+		if (test_and_clear_bit(BTRFS_INODE_USRQUOTA_META_RESERVED,
+				       &BTRFS_I(inode)->runtime_flags)) {
+			spin_unlock(&BTRFS_I(inode)->lock);
+			release = true;
+			goto migrate;
+		}
+#endif /* MY_ABC_HERE */
 		spin_unlock(&BTRFS_I(inode)->lock);
 
 		/* Ok we didn't have space pre-reserved.  This shouldn't happen
@@ -795,9 +806,6 @@ static int btrfs_batch_insert_items(struct btrfs_root *root,
 		data_size[i] = next->data_len;
 		i++;
 	}
-
-	/* reset all the locked nodes in the patch to spinning locks. */
-	btrfs_clear_path_blocking(path, NULL, 0);
 
 	/* insert the keys of the items */
 	setup_items_for_insert(root, path, keys, data_size,
@@ -1385,6 +1393,7 @@ out:
 	kfree(async_work);
 }
 
+
 static int btrfs_wq_run_delayed_node(struct btrfs_delayed_root *delayed_root,
 				     struct btrfs_fs_info *fs_info, int nr)
 {
@@ -1495,6 +1504,7 @@ int btrfs_insert_delayed_dir_index(struct btrfs_trans_handle *trans,
 	 * so reserving metadata failure is impossible
 	 */
 	BUG_ON(ret);
+
 
 	mutex_lock(&delayed_node->mutex);
 	ret = __btrfs_add_delayed_insertion_item(delayed_node, delayed_item);
@@ -1769,6 +1779,10 @@ static void fill_stack_inode_item(struct btrfs_trans_handle *trans,
 				     BTRFS_I(inode)->i_otime.tv_sec);
 	btrfs_set_stack_timespec_nsec(&inode_item->otime,
 				     BTRFS_I(inode)->i_otime.tv_nsec);
+
+#ifdef MY_ABC_HERE
+	btrfs_set_stack_inode_syno_uq_rfer_used(inode_item, BTRFS_I(inode)->syno_uq_rfer_used);
+#endif /* MY_ABC_HERE */
 }
 
 int btrfs_fill_inode(struct inode *inode, u32 *rdev)
@@ -1819,6 +1833,10 @@ int btrfs_fill_inode(struct inode *inode, u32 *rdev)
 
 	inode->i_generation = BTRFS_I(inode)->generation;
 	BTRFS_I(inode)->index_cnt = (u64)-1;
+
+#ifdef MY_ABC_HERE
+	BTRFS_I(inode)->syno_uq_rfer_used = btrfs_stack_inode_syno_uq_rfer_used(inode_item);
+#endif /* MY_ABC_HERE */
 
 	mutex_unlock(&delayed_node->mutex);
 	btrfs_release_delayed_node(delayed_node);
@@ -1988,3 +2006,4 @@ void btrfs_destroy_delayed_inodes(struct btrfs_root *root)
 		btrfs_release_delayed_node(prev_node);
 	}
 }
+
