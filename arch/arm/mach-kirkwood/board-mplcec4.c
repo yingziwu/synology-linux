@@ -31,6 +31,3 @@ void __init mplcec4_init(void)
 	kirkwood_ge01_init(&mplcec4_ge01_data);
 	kirkwood_pcie_init(KW_PCIE0);
 }
-
-
-

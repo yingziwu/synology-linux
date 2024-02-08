@@ -121,7 +121,6 @@ static struct gfs2_sbd *init_sbd(struct super_block *sb)
 	return sdp;
 }
 
-
 /**
  * gfs2_check_sb - Check superblock
  * @sdp: the filesystem
@@ -932,7 +931,6 @@ static int init_threads(struct gfs2_sbd *sdp, int undo)
 	sdp->sd_quotad_process = p;
 
 	return 0;
-
 
 fail_quotad:
 	kthread_stop(sdp->sd_quotad_process);

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_UM_BARRIER_H_
 #define _ASM_UM_BARRIER_H_
 
@@ -64,7 +67,9 @@
  */
 static inline void rdtsc_barrier(void)
 {
+#ifdef MY_DEF_HERE
 	alternative(ASM_NOP3, "mfence", X86_FEATURE_MFENCE_RDTSC);
+#endif	/* MY_DEF_HERE */
 	alternative(ASM_NOP3, "lfence", X86_FEATURE_LFENCE_RDTSC);
 }
 

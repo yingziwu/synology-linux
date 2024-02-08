@@ -368,7 +368,6 @@ static inline void __dc_line_op(unsigned long paddr, unsigned long vaddr,
 
 #endif /* CONFIG_ARC_HAS_DCACHE */
 
-
 #ifdef CONFIG_ARC_HAS_ICACHE
 
 /*
@@ -465,7 +464,6 @@ static void __ic_line_inv_vaddr(unsigned long paddr, unsigned long vaddr,
 
 #endif /* CONFIG_ARC_HAS_ICACHE */
 
-
 /***********************************************************
  * Exported APIs
  */
@@ -513,7 +511,6 @@ void flush_dcache_page(struct page *page)
 	}
 }
 EXPORT_SYMBOL(flush_dcache_page);
-
 
 void dma_cache_wback_inv(unsigned long start, unsigned long sz)
 {
@@ -735,7 +732,6 @@ void clear_user_page(void *to, unsigned long u_vaddr, struct page *page)
 	clear_page(to);
 	set_bit(PG_arch_1, &page->flags);
 }
-
 
 /**********************************************************************
  * Explicit Cache flush request from user space via syscall

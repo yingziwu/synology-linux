@@ -144,7 +144,6 @@
 					CKCTL_6362_ROBOSW_EN |		\
 					CKCTL_6362_PCIE_EN)
 
-
 #define CKCTL_6368_VDSL_QPROC_EN	(1 << 2)
 #define CKCTL_6368_VDSL_AFE_EN		(1 << 3)
 #define CKCTL_6368_VDSL_BONDING_EN	(1 << 4)
@@ -364,7 +363,6 @@
 				((m1bus) << ADSLPLLCTL_M1BUS_SHIFT) |	\
 				((m2bus) << ADSLPLLCTL_M2BUS_SHIFT))
 
-
 /*************************************************************************
  * _REG relative to RSET_TIMER
  *************************************************************************/
@@ -395,7 +393,6 @@
 #define TIMER_CTL_COUNTDOWN_MASK	(0x3fffffff)
 #define TIMER_CTL_MONOTONIC_MASK	(1 << 30)
 #define TIMER_CTL_ENABLE_MASK		(1 << 31)
-
 
 /*************************************************************************
  * _REG relative to RSET_WDT
@@ -538,7 +535,6 @@
 					UART_FIFO_PARERR_MASK |		\
 					UART_FIFO_BRKDET_MASK)
 
-
 /*************************************************************************
  * _REG relative to RSET_GPIO
  *************************************************************************/
@@ -611,7 +607,6 @@
 #define GPIO_MODE_6368_SPI_SSN4		(1 << 30)
 #define GPIO_MODE_6368_SPI_SSN5		(1 << 31)
 
-
 #define GPIO_PINMUX_OTHR_REG		0x24
 #define GPIO_PINMUX_OTHR_6328_USB_SHIFT 12
 #define GPIO_PINMUX_OTHR_6328_USB_MASK	(3 << GPIO_PINMUX_OTHR_6328_USB_SHIFT)
@@ -631,7 +626,6 @@
 #define STRAPBUS_6368_BOOT_SEL_NAND	0
 #define STRAPBUS_6368_BOOT_SEL_SERIAL	1
 #define STRAPBUS_6368_BOOT_SEL_PARALLEL 3
-
 
 /*************************************************************************
  * _REG relative to RSET_ENET
@@ -723,7 +717,6 @@
 #define ENET_MIB_REG(x)			(0x200 + (x) * 4)
 #define ENET_MIB_REG_COUNT		55
 
-
 /*************************************************************************
  * _REG relative to RSET_ENETDMA
  *************************************************************************/
@@ -782,7 +775,6 @@
 /* State Ram Word 4 */
 #define ENETDMA_SRAM4_REG(x)		(0x20c + (x) * 0x10)
 
-
 /*************************************************************************
  * _REG relative to RSET_ENETDMAC
  *************************************************************************/
@@ -808,7 +800,6 @@
 /* Maximum Burst Length */
 #define ENETDMAC_MAXBURST_REG(x)	(0xc + (x) * 0x10)
 
-
 /*************************************************************************
  * _REG relative to RSET_ENETDMAS
  *************************************************************************/
@@ -825,7 +816,6 @@
 /* State Ram Word 4 */
 #define ENETDMAS_SRAM4_REG(x)		(0xc + (x) * 0x10)
 
-
 /*************************************************************************
  * _REG relative to RSET_ENETSW
  *************************************************************************/
@@ -833,7 +823,6 @@
 /* MIB register */
 #define ENETSW_MIB_REG(x)		(0x2800 + (x) * 4)
 #define ENETSW_MIB_REG_COUNT		47
-
 
 /*************************************************************************
  * _REG relative to RSET_OHCI_PRIV
@@ -844,7 +833,6 @@
 #define OHCI_PRIV_PORT1_HOST_MASK	(1 << OHCI_PRIV_PORT1_HOST_SHIFT)
 #define OHCI_PRIV_REG_SWAP_SHIFT	3
 #define OHCI_PRIV_REG_SWAP_MASK		(1 << OHCI_PRIV_REG_SWAP_SHIFT)
-
 
 /*************************************************************************
  * _REG relative to RSET_USBH_PRIV
@@ -876,7 +864,6 @@
 #define USBH_PRIV_SETUP_6368_REG	0x28
 #define USBH_PRIV_SETUP_IOC_SHIFT	4
 #define USBH_PRIV_SETUP_IOC_MASK	(1 << USBH_PRIV_SETUP_IOC_SHIFT)
-
 
 /*************************************************************************
  * _REG relative to RSET_USBD
@@ -1019,7 +1006,6 @@
 #define USBD_CSR_EP_LOG_SHIFT		0
 #define USBD_CSR_EP_LOG_MASK		(0xf << USBD_CSR_EP_LOG_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_MPI
  *************************************************************************/
@@ -1133,7 +1119,6 @@
 #define REG_TIMER_RETRY_SHIFT		8
 #define REG_TIMER_RETRY_MASK		(0xff << REG_TIMER_RETRY_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_PCMCIA
  *************************************************************************/
@@ -1164,7 +1149,6 @@
 #define PCMCIA_C2_HOLD_SHIFT		24
 #define PCMCIA_C2_HOLD_MASK		(0x3f << PCMCIA_C2_HOLD_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_SDRAM
  *************************************************************************/
@@ -1189,7 +1173,6 @@
 #define SDRAM_PRIO_EN_SHIFT		31
 #define SDRAM_PRIO_EN_MASK		(1 << SDRAM_PRIO_EN_SHIFT)
 
-
 /*************************************************************************
  * _REG relative to RSET_MEMC
  *************************************************************************/
@@ -1201,7 +1184,6 @@
 #define MEMC_CFG_COL_MASK		(0x3 << MEMC_CFG_COL_SHIFT)
 #define MEMC_CFG_ROW_SHIFT		6
 #define MEMC_CFG_ROW_MASK		(0x3 << MEMC_CFG_ROW_SHIFT)
-
 
 /*************************************************************************
  * _REG relative to RSET_DDR
@@ -1228,7 +1210,6 @@
 #define DDR_DMIPSPLLDIV_6368_REG	0x24
 #define DMIPSPLLDIV_6368_MDIV_SHIFT	0
 #define DMIPSPLLDIV_6368_MDIV_MASK	(0xff << DMIPSPLLDIV_6368_MDIV_SHIFT)
-
 
 /*************************************************************************
  * _REG relative to RSET_M2M

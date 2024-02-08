@@ -30,7 +30,6 @@
 #include "csr_wifi_hip_xbv.h"
 #include "csr_wifi_hip_chiphelper.h"
 
-
 /*
  *
  * Configuration items.
@@ -47,7 +46,6 @@
  */
 #define RESUME_XMIT_THRESHOLD           4
 
-
 /*
  * When reading signals from UniFi, the host processes pending all signals
  * and then acknowledges them together in a single write to update the
@@ -61,7 +59,6 @@
  * transferred since the last update.
  */
 #define TO_HOST_FLUSH_THRESHOLD (500 * 5)
-
 
 /* SDIO Card Common Control Registers */
 #define SDIO_CCCR_SDIO_REVISION     (0x00)
@@ -92,7 +89,6 @@
 #define SDIO_CSR_CSPI_MODE          (0xf7)
 #define SDIO_CSR_CSPI_STATUS        (0xf8)
 #define SDIO_CSR_CSPI_PADDING       (0xf9)
-
 
 #define UNIFI_SD_INT_ENABLE_IENM 0x0001    /* Master INT Enable */
 
@@ -192,7 +188,6 @@ typedef struct
 #define SDIO_INIT_FLAG_OFFSET 0x12
 #define SDIO_TO_HOST_SIG_PADDING_OFFSET 0x1C
 
-
 /* Structure for a bulk data transfer command */
 typedef struct
 {
@@ -201,7 +196,6 @@ typedef struct
     u16 offset;
     u16 buffer_handle;
 } bulk_data_cmd_t;
-
 
 /* Bulk Data signal command values */
 #define SDIO_CMD_SIGNAL                 0x00
@@ -216,7 +210,6 @@ typedef struct
 #define SDIO_CMD_PADDING                0x0f
 
 #define SLOT_DIR_TO_HOST 0x8000
-
 
 /* Initialise bulkdata slot
  *  params:
@@ -250,7 +243,6 @@ typedef struct card_signal
     bulk_data_desc_t bulkdata[UNIFI_MAX_DATA_REFERENCES];
 } card_signal_t;
 
-
 /*
  * Control structure for a generic ring buffer.
  */
@@ -267,7 +259,6 @@ typedef struct
 
     char name[UNIFI_QUEUE_NAME_MAX_LENGTH];
 } q_t;
-
 
 #define UNIFI_RESERVED_COMMAND_SLOTS   2
 
@@ -298,7 +289,6 @@ typedef struct
     /* Once a queue reaches a stable state, avoid processing */
     u8 queue_stable[UNIFI_NO_OF_TX_QS];
 } card_dynamic_slot_t;
-
 
 /* These are type-safe and don't write incorrect values to the
  * structure. */
@@ -405,7 +395,6 @@ struct card
      */
     u32 *fh_slot_host_tag_record;
 
-
     /* Info read from Symbol Table during probe */
     u32     build_id;
     char build_id_string[128];
@@ -491,7 +480,6 @@ struct card
     s32 to_host_signals_r;
     s32 to_host_signals_w;
 
-
     /* Should specify buffer size as a number of signals */
     /*
      * Enough for 10 th and 10 fh data slots:
@@ -508,7 +496,6 @@ struct card
     } fh_buffer;
     struct sigbuf th_buffer;
 
-
     /*
      * Field to use for the incrementing value to write to the UniFi
      * SHARED_IO_INTERRUPT register.
@@ -517,11 +504,9 @@ struct card
     u32 unifi_interrupt_seq;
     u8  generate_interrupt;
 
-
     /* Pointers to the bulk data slots */
     slot_desc_t      *from_host_data;
     bulk_data_desc_t *to_host_data;
-
 
     /*
      * Index of the next (hopefully) free data slot.
@@ -628,7 +613,6 @@ struct card
 #endif
 }; /* struct card */
 
-
 /* Reset types */
 enum unifi_reset_type
 {
@@ -647,11 +631,9 @@ enum unifi_reset_type
  */
 CsrResult unifi_set_host_state(card_t *card, enum unifi_host_state state);
 
-
 CsrResult unifi_set_proc_select(card_t *card, enum unifi_dbg_processors_select select);
 s32 card_read_signal_counts(card_t *card);
 bulk_data_desc_t* card_find_data_slot(card_t *card, s16 slot);
-
 
 CsrResult unifi_read32(card_t *card, u32 unifi_addr, u32 *pdata);
 CsrResult unifi_readnz(card_t *card, u32 unifi_addr,

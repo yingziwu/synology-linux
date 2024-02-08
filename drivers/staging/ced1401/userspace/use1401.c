@@ -180,7 +180,6 @@
 #include <assert.h>
 #include "process.h"
 
-
 #define sprintf wsprintf
 #define PATHSEP '\\'
 #define PATHSEPSTR "\\"
@@ -265,7 +264,6 @@ static BOOL   abUseNTDIOC[MAX1401];             // Use NT-style DIOC parameters 
 static int aHand1401[MAX1401] = {0};    // handles for 1401s
 #define INVALID_HANDLE_VALUE 0          // to avoid code differences
 #endif
-
 
 /*
 ** The CmdHead relates to backwards compatibility with ancient Microsoft (and Sperry!)
@@ -505,7 +503,6 @@ U14API(short) U14StrToLongs(const char* pszBuff, U14LONG *palNums, short sMaxLon
     return (sLgInd);
 }
 
-
 /****************************************************************************
 ** U14LongsFrom1401
 ** Gets the next waiting line from the 1401 and converts it longs
@@ -606,7 +603,6 @@ U14API(short) U14OutBufSpace(short hand)
     return (sErr == U14ERR_NOERROR) ? CED_GetOutBufSpace(aHand1401[hand]) : sErr;
 #endif
 }
-
 
 /****************************************************************************
 ** U14BaseAddr1401
@@ -1336,7 +1332,6 @@ static short U14TryToOpen(int n1401, long* plRetVal, short* psHandle)
         }
     }
 
-
     if (fh)                                 // If we got our device open
         *psHandle = (short)(nDev-1);        // return 1401 number opened
     else
@@ -1426,7 +1421,6 @@ U14API(short) U14Open1401(short n1401)
 
     return sErr;
 }
-
 
 /****************************************************************************
 ** U14Close1401
@@ -1538,7 +1532,6 @@ U14API(short) U14KillIO1401(short hand)
     return (sErr == U14ERR_NOERROR) ? CED_KillIO1401(aHand1401[hand]) : sErr;
 #endif
 }
-
 
 /****************************************************************************
 ** U14SendString
@@ -2851,7 +2844,6 @@ U14API(short) U14LdCmd(short hand, const char* command)
     return sErr;
 }
 
-
 /****************************************************************************
 ** Ld
 ** Loads a command into the 1401
@@ -2988,7 +2980,6 @@ U14API(int) U14InitLib(void)
 ///--------------------------------------------------------------------------------
 /// Functions called when the library is loaded and unloaded to give us a chance to
 /// setup the library.
-
 
 #ifdef _IS_WINDOWS_
 #ifndef U14_NOT_DLL

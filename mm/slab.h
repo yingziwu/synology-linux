@@ -43,7 +43,6 @@ void create_kmalloc_caches(unsigned long);
 struct kmem_cache *kmalloc_slab(size_t, gfp_t);
 #endif
 
-
 /* Functions provided by the slab allocators */
 extern int __kmem_cache_create(struct kmem_cache *, unsigned long flags);
 
@@ -63,7 +62,6 @@ __kmem_cache_alias(struct mem_cgroup *memcg, const char *name, size_t size,
 		   size_t align, unsigned long flags, void (*ctor)(void *))
 { return NULL; }
 #endif
-
 
 /* Legal flag mask for kmem_cache_create(), for various configurations */
 #define SLAB_CORE_FLAGS (SLAB_HWCACHE_ALIGN | SLAB_CACHE_DMA | SLAB_PANIC | \
@@ -241,7 +239,6 @@ static inline struct kmem_cache *cache_from_obj(struct kmem_cache *s, void *x)
 	return s;
 }
 #endif
-
 
 /*
  * The slab lists for all objects.

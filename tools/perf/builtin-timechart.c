@@ -37,7 +37,6 @@
 #define SUPPORT_OLD_POWER_EVENTS 1
 #define PWR_EVENT_EXIT -1
 
-
 static unsigned int	numcpus;
 static u64		min_freq;	/* Lowest CPU frequency seen */
 static u64		max_freq;	/* Highest CPU frequency seen */
@@ -46,7 +45,6 @@ static u64		turbo_frequency;
 static u64		first_time, last_time;
 
 static bool		power_only;
-
 
 struct per_pid;
 struct per_pidcomm;
@@ -81,7 +79,6 @@ struct per_pid {
 	struct per_pidcomm *all;
 	struct per_pidcomm *current;
 };
-
 
 struct per_pidcomm {
 	struct per_pidcomm *next;
@@ -154,7 +151,6 @@ struct process_filter {
 };
 
 static struct process_filter *process_filter;
-
 
 static struct per_pid *find_create_pid(int pid)
 {
@@ -345,8 +341,6 @@ enum trace_flag_type {
 	TRACE_FLAG_SOFTIRQ		= 0x10,
 };
 
-
-
 struct sched_switch {
 	struct trace_entry te;
 	char prev_comm[TASK_COMM_LEN];
@@ -454,7 +448,6 @@ static void sched_switch(int cpu, u64 timestamp, struct trace_entry *te)
 	struct per_pid *p = NULL, *prev_p;
 	struct sched_switch *sw = (void *)te;
 
-
 	prev_p = find_create_pid(sw->prev_pid);
 
 	p = find_create_pid(sw->next_pid);
@@ -478,7 +471,6 @@ static void sched_switch(int cpu, u64 timestamp, struct trace_entry *te)
 			prev_p->current->state = TYPE_WAITING;
 	}
 }
-
 
 static int process_sample_event(struct perf_tool *tool __maybe_unused,
 				union perf_event *event __maybe_unused,
@@ -651,7 +643,6 @@ static void sort_pids(void)
 	}
 	all_data = new_list;
 }
-
 
 static void draw_c_p_states(void)
 {
@@ -931,8 +922,6 @@ static int determine_display_tasks(u64 threshold)
 	return count;
 }
 
-
-
 #define TIME_THRESH 10000000
 
 static void write_svg_file(const char *filename)
@@ -941,7 +930,6 @@ static void write_svg_file(const char *filename)
 	int count;
 
 	numcpus++;
-
 
 	count = determine_display_tasks(TIME_THRESH);
 

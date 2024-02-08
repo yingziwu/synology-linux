@@ -74,7 +74,6 @@ static const char * const sym_regex_kernel[S_NSYMTYPES] = {
 	"_end)$"
 };
 
-
 static const char * const sym_regex_realmode[S_NSYMTYPES] = {
 /*
  * These symbols are known to be relative, even if the linker marks them
@@ -475,7 +474,6 @@ static void read_symtabs(FILE *fp)
 	}
 }
 
-
 static void read_relocs(FILE *fp)
 {
 	int i,j;
@@ -508,7 +506,6 @@ static void read_relocs(FILE *fp)
 		}
 	}
 }
-
 
 static void print_absolute_symbols(void)
 {
@@ -732,7 +729,6 @@ static int is_percpu_sym(ElfW(Sym) *sym, const char *symname)
 	return (sym->st_shndx == per_cpu_shndx) &&
 		strcmp(symname, "__init_begin");
 }
-
 
 static int do_reloc64(struct section *sec, Elf_Rel *rel, ElfW(Sym) *sym,
 		      const char *symname)

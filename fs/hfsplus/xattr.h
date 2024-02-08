@@ -1,11 +1,7 @@
-/*
- * linux/fs/hfsplus/xattr.h
- *
- * Vyacheslav Dubeyko <slava@dubeyko.com>
- *
- * Logic of processing extended attributes
- */
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #ifndef _LINUX_HFSPLUS_XATTR_H
 #define _LINUX_HFSPLUS_XATTR_H
 
@@ -14,8 +10,7 @@
 extern const struct xattr_handler hfsplus_xattr_osx_handler;
 extern const struct xattr_handler hfsplus_xattr_user_handler;
 extern const struct xattr_handler hfsplus_xattr_trusted_handler;
-/*extern const struct xattr_handler hfsplus_xattr_acl_access_handler;*/
-/*extern const struct xattr_handler hfsplus_xattr_acl_default_handler;*/
+ 
 extern const struct xattr_handler hfsplus_xattr_security_handler;
 
 extern const struct xattr_handler *hfsplus_xattr_handlers[];
@@ -34,6 +29,11 @@ ssize_t hfsplus_getxattr(struct dentry *dentry, const char *name,
 
 ssize_t hfsplus_listxattr(struct dentry *dentry, char *buffer, size_t size);
 
+#ifdef MY_ABC_HERE
+int hfsplus_syno_setxattr(struct dentry *dentry, const char *name, const void *value, size_t size, int flags);
+ssize_t hfsplus_syno_getxattr(struct dentry *dentry, const char *name, void *buffer, size_t size);
+#endif
+
 int hfsplus_removexattr(struct dentry *dentry, const char *name);
 
 int hfsplus_init_security(struct inode *inode, struct inode *dir,
@@ -41,7 +41,7 @@ int hfsplus_init_security(struct inode *inode, struct inode *dir,
 
 static inline int hfsplus_init_acl(struct inode *inode, struct inode *dir)
 {
-	/*TODO: implement*/
+	 
 	return 0;
 }
 

@@ -14,7 +14,6 @@
 #include <asm/uaccess.h>
 #include <asm/page.h>
 
-
 /*
  * seq_files have a buffer which can may overflow. When this happens a larger
  * buffer is reallocated and all the data will be printed again.

@@ -44,7 +44,6 @@ static int psb_probe(struct pci_dev *pdev, const struct pci_device_id *ent);
 MODULE_PARM_DESC(trap_pagefaults, "Error and reset on MMU pagefaults");
 module_param_named(trap_pagefaults, drm_psb_trap_pagefaults, int, 0600);
 
-
 static DEFINE_PCI_DEVICE_TABLE(pciidlist) = {
 	{ 0x8086, 0x8108, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (long) &psb_chip_ops },
 	{ 0x8086, 0x8109, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (long) &psb_chip_ops },
@@ -177,7 +176,6 @@ static int psb_do_init(struct drm_device *dev)
 		goto out_err;
 	}
 
-
 	stolen_gtt = (pg->stolen_size >> PAGE_SHIFT) * 4;
 	stolen_gtt = (stolen_gtt + PAGE_SIZE - 1) >> PAGE_SHIFT;
 	stolen_gtt =
@@ -208,7 +206,6 @@ static int psb_driver_unload(struct drm_device *dev)
 	struct drm_psb_private *dev_priv = dev->dev_private;
 
 	/* Kill vblank etc here */
-
 
 	if (dev_priv) {
 		if (dev_priv->backlight_device)
@@ -261,7 +258,6 @@ static int psb_driver_unload(struct drm_device *dev)
 	gma_power_uninit(dev);
 	return 0;
 }
-
 
 static int psb_driver_load(struct drm_device *dev, unsigned long chipset)
 {
@@ -583,7 +579,6 @@ static long psb_unlocked_ioctl(struct file *filp, unsigned int cmd,
 	return drm_ioctl(filp, cmd, arg);
 	/* FIXME: do we need to wrap the other side of this */
 }
-
 
 /* When a client dies:
  *    - Check for and clean up flipped page state

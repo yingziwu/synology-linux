@@ -2369,7 +2369,6 @@ int ndo_dflt_bridge_getlink(struct sk_buff *skb, u32 pid, u32 seq,
 	ifm->ifi_flags = dev_get_flags(dev);
 	ifm->ifi_change = 0;
 
-
 	if (nla_put_string(skb, IFLA_IFNAME, dev->name) ||
 	    nla_put_u32(skb, IFLA_MTU, dev->mtu) ||
 	    nla_put_u8(skb, IFLA_OPERSTATE, operstate) ||
@@ -2733,7 +2732,6 @@ static struct notifier_block rtnetlink_dev_notifier = {
 	.notifier_call	= rtnetlink_event,
 };
 
-
 static int __net_init rtnetlink_net_init(struct net *net)
 {
 	struct sock *sk;
@@ -2786,4 +2784,3 @@ void __init rtnetlink_init(void)
 	rtnl_register(PF_BRIDGE, RTM_DELLINK, rtnl_bridge_dellink, NULL, NULL);
 	rtnl_register(PF_BRIDGE, RTM_SETLINK, rtnl_bridge_setlink, NULL, NULL);
 }
-

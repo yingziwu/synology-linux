@@ -89,7 +89,6 @@ typedef	struct xfs_bmap_free
 	{ XFS_BMAPI_CONVERT,	"CONVERT" }, \
 	{ XFS_BMAPI_STACK_SWITCH, "STACK_SWITCH" }
 
-
 static inline int xfs_bmapi_aflag(int w)
 {
 	return (w == XFS_ATTR_FORK ? XFS_BMAPI_ATTRFORK : 0);

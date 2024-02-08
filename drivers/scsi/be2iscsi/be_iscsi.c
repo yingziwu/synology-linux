@@ -50,7 +50,6 @@ struct iscsi_cls_session *beiscsi_session_create(struct iscsi_endpoint *ep,
 	struct beiscsi_session *beiscsi_sess;
 	struct beiscsi_io_task *io_task;
 
-
 	if (!ep) {
 		printk(KERN_ERR
 		       "beiscsi_session_create: invalid ep\n");
@@ -293,7 +292,6 @@ beiscsi_set_static_ip(struct Scsi_Host *shost,
 	struct nlattr *nla;
 	int ret;
 
-
 	switch (iface_param->param) {
 	case ISCSI_NET_PARAM_IPV4_BOOTPROTO:
 		nla = nla_find(data, dt_len, ISCSI_NET_PARAM_IPV4_ADDR);
@@ -377,7 +375,6 @@ beiscsi_set_vlan_tag(struct Scsi_Host *shost,
 	}
 	return ret;
 }
-
 
 static int
 beiscsi_set_ipv4(struct Scsi_Host *shost,

@@ -1625,7 +1625,6 @@ static ssize_t nr_hugepages_mempolicy_store(struct kobject *kobj,
 HSTATE_ATTR(nr_hugepages_mempolicy);
 #endif
 
-
 static ssize_t nr_overcommit_hugepages_show(struct kobject *kobj,
 					struct kobj_attribute *attr, char *buf)
 {
@@ -2967,7 +2966,6 @@ int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
 	/* Check for a racing update before calling hugetlb_cow */
 	if (unlikely(!pte_same(entry, huge_ptep_get(ptep))))
 		goto out_page_table_lock;
-
 
 	if (flags & FAULT_FLAG_WRITE) {
 		if (!huge_pte_write(entry)) {

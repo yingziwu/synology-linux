@@ -21,7 +21,6 @@
 
 #include "unifi_priv.h"
 
-
 /*
  * ---------------------------------------------------------------------------
  *  unifi_net_data_malloc
@@ -111,7 +110,6 @@ unifi_net_data_free(void *ospriv, bulk_data_desc_t *bulk_data_slot)
 
 } /* unifi_net_data_free() */
 
-
 /*
 * ---------------------------------------------------------------------------
 *  unifi_net_dma_align
@@ -185,7 +183,6 @@ char* print_time(void )
 }
 #endif
 
-
 /* Module parameters */
 extern int unifi_debug;
 
@@ -257,7 +254,6 @@ unifi_warning(void* ospriv, const char *fmt, ...)
     printk("%s", s);
 }
 
-
 void
 unifi_notice(void* ospriv, const char *fmt, ...)
 {
@@ -284,7 +280,6 @@ unifi_notice(void* ospriv, const char *fmt, ...)
 
     printk("%s", s);
 }
-
 
 void
 unifi_info(void* ospriv, const char *fmt, ...)
@@ -357,7 +352,6 @@ unifi_trace_nop(void* ospriv, int level, const char *fmt, ...)
 
 #endif /* UNIFI_DEBUG */
 
-
 /*
  * ---------------------------------------------------------------------------
  *
@@ -426,7 +420,6 @@ dump(void *mem, u16 len)
         printk("\n");
 } /* dump() */
 
-
 void
 dump16(void *mem, u16 len)
 {
@@ -450,7 +443,6 @@ dump16(void *mem, u16 len)
         printk("\n");
 }
 
-
 #ifdef CSR_WIFI_HIP_DEBUG_OFFLINE
 void
 dump_str(void *mem, u16 len)
@@ -468,9 +460,7 @@ dump_str(void *mem, u16 len)
 } /* dump_str() */
 #endif /* CSR_ONLY_NOTES */
 
-
 #endif /* UNIFI_DEBUG */
-
 
 /* ---------------------------------------------------------------------------
  *                              - End -

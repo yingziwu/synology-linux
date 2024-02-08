@@ -146,7 +146,6 @@
 	std	r14,PACA_EXMC+EX_R14(r13);				    \
 	std	r15,PACA_EXMC+EX_R15(r13)
 
-
 /* Core exception code for all exceptions except TLB misses.
  * XXX: Needs to make SPRN_SPRG_GEN depend on exception type
  */
@@ -258,7 +257,6 @@ exc_##n##_bad_stack:							    \
 	std	r7,TI_LOCAL_FLAGS(r11);					\
 1:
 
-
 #define MASKABLE_EXCEPTION(trapnum, intnum, label, hdlr, ack)		\
 	START_EXCEPTION(label);						\
 	NORMAL_EXCEPTION_PROLOG(trapnum, intnum, PROLOG_ADDITION_MASKABLE)\
@@ -273,7 +271,6 @@ exc_##n##_bad_stack:							    \
 	.section	".toc","aw"
 exception_marker:
 	.tc	ID_EXC_MARKER[TC],STACK_FRAME_REGS_MARKER
-
 
 /*
  * And here we have the exception vectors !
@@ -434,7 +431,6 @@ END_FTR_SECTION_IFSET(CPU_FTR_ALTIVEC)
 	bl	.unknown_exception
 #endif
 	b	.ret_from_except
-
 
 /* Decrementer Interrupt */
 	MASKABLE_EXCEPTION(0x900, BOOKE_INTERRUPT_DECREMENTER,
@@ -746,7 +742,6 @@ _GLOBAL(__replay_interrupt)
 	cmpwi	cr0,r3,0x280
 	beq	exc_0x280_common
 	blr
-
 
 /*
  * This is called from 0x300 and 0x400 handlers after the prologs with
@@ -1285,7 +1280,6 @@ _GLOBAL(start_initialization_book3e)
 	tovirt(r28,r28)
 	mtlr	r28
 	blr
-
 
 /*
  * Secondary core/processor entry

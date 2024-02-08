@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #ifndef _ASM_X86_MSR_H
 #define _ASM_X86_MSR_H
 
@@ -57,7 +60,11 @@ static inline unsigned long long native_read_tscp(unsigned int *aux)
 #define EAX_EDX_RET(val, low, high)	"=A" (val)
 #endif
 
+#ifdef MY_DEF_HERE
 static inline unsigned long long native_read_msr(unsigned int msr)
+#else
+static __always_inline unsigned long long native_read_msr(unsigned int msr)
+#endif	/* MY_DEF_HERE */
 {
 	DECLARE_ARGS(val, low, high);
 
@@ -81,8 +88,13 @@ static inline unsigned long long native_read_msr_safe(unsigned int msr,
 	return EAX_EDX_VAL(val, low, high);
 }
 
+#ifdef MY_DEF_HERE
 static inline void native_write_msr(unsigned int msr,
 				    unsigned low, unsigned high)
+#else
+static __always_inline void native_write_msr(unsigned int msr,
+				    unsigned low, unsigned high)
+#endif	/* MY_DEF_HERE */
 {
 	asm volatile("wrmsr" : : "c" (msr), "a"(low), "d" (high) : "memory");
 }
@@ -214,14 +226,29 @@ do {                                                            \
 
 struct msr *msrs_alloc(void);
 void msrs_free(struct msr *msrs);
+#ifdef MY_DEF_HERE
+#else
+int msr_set_bit(u32 msr, u8 bit);
+int msr_clear_bit(u32 msr, u8 bit);
+#endif	/* MY_DEF_HERE */
 
 #ifdef CONFIG_SMP
 int rdmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
 int wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
+#ifdef MY_DEF_HERE
+#else
+int rdmsrl_on_cpu(unsigned int cpu, u32 msr_no, u64 *q);
+int wrmsrl_on_cpu(unsigned int cpu, u32 msr_no, u64 q);
+#endif	/* MY_DEF_HERE */
 void rdmsr_on_cpus(const struct cpumask *mask, u32 msr_no, struct msr *msrs);
 void wrmsr_on_cpus(const struct cpumask *mask, u32 msr_no, struct msr *msrs);
 int rdmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 *l, u32 *h);
 int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h);
+#ifdef MY_DEF_HERE
+#else
+int rdmsrl_safe_on_cpu(unsigned int cpu, u32 msr_no, u64 *q);
+int wrmsrl_safe_on_cpu(unsigned int cpu, u32 msr_no, u64 q);
+#endif	/* MY_DEF_HERE */
 int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8]);
 int wrmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8]);
 #else  /*  CONFIG_SMP  */
@@ -235,6 +262,19 @@ static inline int wrmsr_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
 	wrmsr(msr_no, l, h);
 	return 0;
 }
+#ifdef MY_DEF_HERE
+#else
+static inline int rdmsrl_on_cpu(unsigned int cpu, u32 msr_no, u64 *q)
+{
+	rdmsrl(msr_no, *q);
+	return 0;
+}
+static inline int wrmsrl_on_cpu(unsigned int cpu, u32 msr_no, u64 q)
+{
+	wrmsrl(msr_no, q);
+	return 0;
+}
+#endif	/* MY_DEF_HERE */
 static inline void rdmsr_on_cpus(const struct cpumask *m, u32 msr_no,
 				struct msr *msrs)
 {
@@ -254,6 +294,17 @@ static inline int wrmsr_safe_on_cpu(unsigned int cpu, u32 msr_no, u32 l, u32 h)
 {
 	return wrmsr_safe(msr_no, l, h);
 }
+#ifdef MY_DEF_HERE
+#else
+static inline int rdmsrl_safe_on_cpu(unsigned int cpu, u32 msr_no, u64 *q)
+{
+	return rdmsrl_safe(msr_no, q);
+}
+static inline int wrmsrl_safe_on_cpu(unsigned int cpu, u32 msr_no, u64 q)
+{
+	return wrmsrl_safe(msr_no, q);
+}
+#endif	/* MY_DEF_HERE */
 static inline int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8])
 {
 	return rdmsr_safe_regs(regs);

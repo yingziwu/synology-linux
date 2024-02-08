@@ -173,7 +173,6 @@
 
 #define INTEGRATOR_HDR_SDRAM_SPD_OK     (1 << 5)
 
-
 /* ------------------------------------------------------------------------
  *  Integrator system registers
  * ------------------------------------------------------------------------
@@ -260,7 +259,6 @@
 #define INTEGRATOR_EBI_WS_15            0xD0
 #define INTEGRATOR_EBI_WS_16            0xE0
 #define INTEGRATOR_EBI_WS_17            0xF0
-
 
 #define INTEGRATOR_CT_BASE              0x13000000	 /*  Counter/Timers */
 #define INTEGRATOR_IC_BASE              0x14000000	 /*  Interrupt Controller */
@@ -356,7 +354,6 @@
 #define FIQ_ENABLE                      0x28
 #define FIQ_ENABLE_SET                  0x28
 #define FIQ_ENABLE_CLEAR                0x2C
-
 
 /* ------------------------------------------------------------------------
  *  Interrupts

@@ -32,5 +32,3 @@ static inline void cdv_intel_wait_for_vblank(struct drm_device *dev)
         /* FIXME: msleep ?? */
 	mdelay(20);
 }
-
-

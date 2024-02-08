@@ -61,7 +61,6 @@
 
 #define MODEMR		0xffcc0020
 
-
 /* ioremap() through clock mapping mandatory to avoid
  * collision with ARM coherent DMA virtual memory range.
  */

@@ -253,7 +253,6 @@ static void bnx2x_dcbx_get_ets_feature(struct bnx2x *bp,
 
 	memset(&pg_help_data, 0, sizeof(struct pg_help_data));
 
-
 	if (GET_FLAGS(error, DCBX_LOCAL_ETS_ERROR))
 		DP(BNX2X_MSG_DCB, "DCBX_LOCAL_ETS_ERROR\n");
 
@@ -366,7 +365,6 @@ static int bnx2x_dcbx_read_mib(struct bnx2x *bp,
 	u32 mib_size, prefix_seq_num, suffix_seq_num;
 	struct lldp_remote_mib *remote_mib ;
 	struct lldp_local_mib  *local_mib;
-
 
 	switch (read_mib_type) {
 	case DCBX_READ_LOCAL_MIB:
@@ -628,7 +626,6 @@ static int bnx2x_dcbx_read_shmem_neg_results(struct bnx2x *bp)
 	bp->dcbx_error = local_mib.error;
 	return 0;
 }
-
 
 #ifdef BCM_DCBNL
 static inline
@@ -1181,7 +1178,6 @@ static void bnx2x_dcbx_separate_pauseable_from_non(struct bnx2x *bp,
 		BNX2X_ERR("dcbx error: Both groups must have priorities\n");
 }
 
-
 #ifndef POWER_OF_2
 #define POWER_OF_2(x)	((0 != x) && (0 == (x & (x-1))))
 #endif
@@ -1523,7 +1519,6 @@ static void bnx2x_dcbx_2cos_limit_cee_three_pg_to_cos_params(
 		}
 	}
 }
-
 
 static void bnx2x_dcbx_2cos_limit_cee_fill_cos_params(struct bnx2x *bp,
 				       struct pg_help_data *help_data,

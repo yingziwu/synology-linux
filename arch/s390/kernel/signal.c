@@ -150,7 +150,6 @@ badframe:
  * Set up a signal frame.
  */
 
-
 /*
  * Determine which stack to use..
  */

@@ -1288,7 +1288,6 @@ static const unsigned char cmptab[8] = {
 	IEEE754_CLT | IEEE754_CEQ | IEEE754_CUN,	/* cmp_ule (sig) cmp_ngt */
 };
 
-
 #if __mips >= 4 && __mips != 32
 
 /*
@@ -1522,8 +1521,6 @@ static int fpux_emu(struct pt_regs *xcp, struct mips_fpu_struct *ctx,
 	return 0;
 }
 #endif
-
-
 
 /*
  * Emulate a single COP1 arithmetic instruction.

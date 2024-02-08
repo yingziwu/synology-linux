@@ -111,7 +111,6 @@ MODULE_PARM_DESC(bh_priority, "Modify the BH thread priority");
 MODULE_PARM_DESC(log_hip_signals, "Set to 1 to enable HIP signal offline logging");
 #endif
 
-
 /* Callback for event logging to UDI clients */
 static void udi_log_event(ul_client_t *client,
                           const u8 *signal, int signal_len,
@@ -120,7 +119,6 @@ static void udi_log_event(ul_client_t *client,
 
 static void udi_set_log_filter(ul_client_t *pcli,
                                unifiio_filter_t *udi_filter);
-
 
 /* Mutex to protect access to  priv->sme_cli */
 DEFINE_SEMAPHORE(udi_mutex);
@@ -161,7 +159,6 @@ s32 CsrHipResultToStatus(CsrResult csrResult)
     }
     return r;
 }
-
 
 static const char*
 trace_putest_cmdid(unifi_putest_command_t putest_cmd)
@@ -242,7 +239,6 @@ int uf_unregister_hip_offline_debug(unifi_priv_t *priv)
     return 0;
 }
 #endif
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -343,7 +339,6 @@ unifi_open(struct inode *inode, struct file *file)
         up(&udi_mutex);
     }
 
-
     /*
      * Store the pointer to the client.
      * All char driver's entry points will pass this pointer.
@@ -352,7 +347,6 @@ unifi_open(struct inode *inode, struct file *file)
 
     return 0;
 } /* unifi_open() */
-
 
 static int
 unifi_release(struct inode *inode, struct file *filp)
@@ -426,8 +420,6 @@ unifi_release(struct inode *inode, struct file *filp)
 
     return 0;
 } /* unifi_release() */
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -519,8 +511,6 @@ unifi_read(struct file *filp, char *p, size_t len, loff_t *poff)
 
 } /* unifi_read() */
 
-
-
 /*
  * ---------------------------------------------------------------------------
  * udi_send_signal_unpacked
@@ -590,7 +580,6 @@ udi_send_signal_unpacked(unifi_priv_t *priv, unsigned char* data, uint data_len)
         bulk_data_offset += bulk_data.d[i].data_length;
     }
 
-
     unifi_trace(priv, UDBG3, "SME Send: signal 0x%.4X\n", sigptr->SignalPrimitiveHeader.SignalId);
 
     /* Send the signal. */
@@ -607,8 +596,6 @@ udi_send_signal_unpacked(unifi_priv_t *priv, unsigned char* data, uint data_len)
 
     return bytecount;
 } /* udi_send_signal_unpacked() */
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -924,7 +911,6 @@ unifi_write(struct file *filp, const char *p, size_t len, loff_t *poff)
     return bytes_written;
 } /* unifi_write() */
 
-
 static const char* build_type_to_string(unsigned char build_type)
 {
     switch (build_type)
@@ -935,7 +921,6 @@ static const char* build_type_to_string(unsigned char build_type)
     }
     return "unknown";
 }
-
 
 /*
  * ----------------------------------------------------------------
@@ -1342,7 +1327,6 @@ unifi_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
         r = -EINVAL;
         break;
 
-
       case UNIFI_SET_UDI_LOG_MASK:
         {
             unifiio_filter_t udi_filter;
@@ -1619,8 +1603,6 @@ out:
     return (long)r;
 } /* unifi_ioctl() */
 
-
-
 static unsigned int
 unifi_poll(struct file *filp, poll_table *wait)
 {
@@ -1638,8 +1620,6 @@ unifi_poll(struct file *filp, poll_table *wait)
 
     return mask;
 } /* unifi_poll() */
-
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1710,7 +1690,6 @@ udi_set_log_filter(ul_client_t *pcli, unifiio_filter_t *udi_filter)
     }
 
 } /* udi_set_log_filter() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -1806,7 +1785,6 @@ udi_log_event(ul_client_t *pcli,
         /* Signal is not wanted by client */
         return;
     }
-
 
     /* Calculate the buffer we need to store signal plus bulk data */
     total_len = signal_len;
@@ -1954,7 +1932,6 @@ static const struct file_operations unifi_fops = {
 static dev_t unifi_first_devno;
 static struct class *unifi_class;
 
-
 int uf_create_device_nodes(unifi_priv_t *priv, int bus_id)
 {
     dev_t devno;
@@ -2015,7 +1992,6 @@ int uf_create_device_nodes(unifi_priv_t *priv, int bus_id)
     return 0;
 }
 
-
 void uf_destroy_device_nodes(unifi_priv_t *priv)
 {
 	device_destroy(unifi_class, priv->unifiudi_cdev.dev);
@@ -2023,8 +1999,6 @@ void uf_destroy_device_nodes(unifi_priv_t *priv)
 	cdev_del(&priv->unifiudi_cdev);
 	cdev_del(&priv->unifi_cdev);
 }
-
-
 
 /*
  * ----------------------------------------------------------------
@@ -2066,7 +2040,6 @@ uf_create_debug_device(const struct file_operations *fops)
     return 0;
 } /* uf_create_debug_device() */
 
-
 /*
  * ----------------------------------------------------------------
  *  uf_remove_debug_device
@@ -2090,7 +2063,6 @@ uf_remove_debug_device(void)
     unifi_first_devno = 0;
 
 } /* uf_remove_debug_device() */
-
 
 /*
  * ---------------------------------------------------------------------------
@@ -2173,7 +2145,6 @@ unifi_load(void)
 
     return 0;
 } /* unifi_load() */
-
 
 void __exit
 unifi_unload(void)

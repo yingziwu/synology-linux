@@ -51,7 +51,6 @@
 #include "xfs_icache.h"
 #include "xfs_symlink.h"
 
-
 /*
  * This is called by xfs_inactive to free any blocks beyond eof
  * when the link count isn't zero and by xfs_dm_punch_hole() when
@@ -1620,7 +1619,6 @@ xfs_free_file_space(
 		    XFS_ILOCK_EXCL);
 	return error;
 }
-
 
 STATIC int
 xfs_zero_file_space(

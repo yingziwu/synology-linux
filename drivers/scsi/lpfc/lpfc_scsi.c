@@ -90,7 +90,6 @@ lpfc_debug_save_data(struct lpfc_hba *phba, struct scsi_cmnd *cmnd)
 		return;
 	}
 
-
 	if (!sgde) {
 		lpfc_printf_log(phba, KERN_ERR, LOG_BG,
 			"9051 BLKGRD: ERROR: data scatterlist is null\n");
@@ -1744,7 +1743,6 @@ lpfc_bg_err_inject(struct lpfc_hba *phba, struct scsi_cmnd *sc,
 		}
 	}
 
-
 	/* Should we change the Guard Tag */
 	if (new_guard) {
 		if (phba->lpfc_injerr_wgrd_cnt) {
@@ -2628,7 +2626,6 @@ lpfc_bg_setup_sgl_prot(struct lpfc_hba *phba, struct scsi_cmnd *sc,
 			}
 		}
 
-
 		if (scsi_prot_flagged(sc, SCSI_PROT_REF_CHECK))
 			bf_set(lpfc_sli4_sge_dif_re, diseed, checking);
 		else
@@ -3194,7 +3191,6 @@ out:
 				app_tag, start_app_tag);
 	}
 }
-
 
 /*
  * This function checks for BlockGuard errors detected by
@@ -3826,7 +3822,6 @@ lpfc_handle_fcp_err(struct lpfc_vport *vport, struct lpfc_scsi_buf *lpfc_cmd,
 	uint32_t host_status = DID_OK;
 	uint32_t rsplen = 0;
 	uint32_t logit = LOG_FCP | LOG_FCP_ERROR;
-
 
 	/*
 	 *  If this is a task management command, there is no
@@ -4782,7 +4777,6 @@ lpfc_queuecommand(struct Scsi_Host *shost, struct scsi_cmnd *cmnd)
 	return 0;
 }
 
-
 /**
  * lpfc_abort_handler - scsi_host_template eh_abort_handler entry point
  * @cmnd: Pointer to scsi_cmnd data structure.
@@ -5520,7 +5514,6 @@ lpfc_slave_destroy(struct scsi_device *sdev)
 	sdev->hostdata = NULL;
 	return;
 }
-
 
 struct scsi_host_template lpfc_template = {
 	.module			= THIS_MODULE,

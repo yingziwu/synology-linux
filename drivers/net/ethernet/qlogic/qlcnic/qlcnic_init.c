@@ -1252,8 +1252,6 @@ qlcnic_get_next_fwtype(struct qlcnic_adapter *adapter)
 	adapter->ahw->fw_type = fw_type;
 }
 
-
-
 void qlcnic_request_firmware(struct qlcnic_adapter *adapter)
 {
 	struct pci_dev *pdev = adapter->pdev;
@@ -1281,7 +1279,6 @@ next:
 		}
 	}
 }
-
 
 void
 qlcnic_release_firmware(struct qlcnic_adapter *adapter)

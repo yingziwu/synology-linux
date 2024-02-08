@@ -862,7 +862,6 @@ static int pci230_ai_rinsn(struct comedi_device *dev,
 	else
 		adccon |= PCI230_ADC_IR_UNI;
 
-
 	/* Enable only this channel in the scan list - otherwise by default
 	 * we'll get one sample from each channel. */
 	outw(adcen, dev->iobase + PCI230_ADCEN);
@@ -2312,7 +2311,6 @@ static int pci230_ai_cmd(struct comedi_device *dev, struct comedi_subdevice *s)
 	if (!get_resources(dev, res_mask, OWNER_AICMD))
 		return -EBUSY;
 
-
 	/* Get number of scans required. */
 	if (cmd->stop_src == TRIG_COUNT) {
 		devpriv->ai_scan_count = cmd->stop_arg;
@@ -2496,7 +2494,6 @@ static irqreturn_t pci230_interrupt(int irq, void *d)
 
 	if (status_int == PCI230_INT_DISABLE)
 		return IRQ_NONE;
-
 
 	spin_lock_irqsave(&devpriv->isr_spinlock, irqflags);
 	valid_status_int = devpriv->int_en & status_int;

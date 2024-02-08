@@ -1267,7 +1267,6 @@ out_free:
 	return err;
 }
 
-
 /**
  * ubifs_jnl_delete_xattr - delete an extended attribute.
  * @c: UBIFS file-system description object
@@ -1460,4 +1459,3 @@ out_free:
 	kfree(ino);
 	return err;
 }
-

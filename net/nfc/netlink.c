@@ -1086,7 +1086,6 @@ static struct genl_ops nfc_genl_ops[] = {
 	},
 };
 
-
 struct urelease_work {
 	struct	work_struct w;
 	int	portid;

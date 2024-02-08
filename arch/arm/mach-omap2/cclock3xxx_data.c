@@ -3572,7 +3572,6 @@ int __init omap3xxx_clk_init(void)
 	else
 		dpll4_dd = dpll4_dd_34xx;
 
-
 	/*
 	 * 3505 must be tested before 3517, since 3517 returns true
 	 * for both AM3517 chips and AM3517 family chips, which

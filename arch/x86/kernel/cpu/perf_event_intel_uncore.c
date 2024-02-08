@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include "perf_event_intel_uncore.h"
 
 static struct intel_uncore_type *empty_uncore[] = { NULL, };
@@ -767,7 +770,6 @@ static struct intel_uncore_type snbep_uncore_qpi = {
 	.event_descs	= snbep_uncore_qpi_events,
 	.format_group	= &snbep_uncore_qpi_format_group,
 };
-
 
 static struct intel_uncore_type snbep_uncore_r2pcie = {
 	.name		= "r2pcie",
@@ -3115,7 +3117,11 @@ static int __init uncore_type_init(struct intel_uncore_type *type)
 
 	pmus = kzalloc(sizeof(*pmus) * type->num_boxes, GFP_KERNEL);
 	if (!pmus)
+#ifdef MY_DEF_HERE
 		return -ENOMEM;
+#else
+		goto fail;
+#endif	/* MY_DEF_HERE */
 
 	type->unconstrainted = (struct event_constraint)
 		__EVENT_CONSTRAINT(0, (1ULL << type->num_counters) - 1,

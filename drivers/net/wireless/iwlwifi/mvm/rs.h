@@ -88,7 +88,6 @@ enum {
 #define	IWL_RATE_5M_MASK   (1 << IWL_RATE_5M_INDEX)
 #define	IWL_RATE_11M_MASK  (1 << IWL_RATE_11M_INDEX)
 
-
 /* uCode API values for OFDM high-throughput (HT) bit rates */
 enum {
 	IWL_RATE_SISO_6M_PLCP = 0,
@@ -179,7 +178,6 @@ enum {
 #define IWL_SISO_SWITCH_GI              5
 #define IWL_SISO_SWITCH_MIMO3_ABC       6
 
-
 /* possible actions when in mimo mode */
 #define IWL_MIMO2_SWITCH_ANTENNA1       0
 #define IWL_MIMO2_SWITCH_ANTENNA2       1
@@ -188,7 +186,6 @@ enum {
 #define IWL_MIMO2_SWITCH_SISO_C         4
 #define IWL_MIMO2_SWITCH_GI             5
 #define IWL_MIMO2_SWITCH_MIMO3_ABC      6
-
 
 /* possible actions when in mimo3 mode */
 #define IWL_MIMO3_SWITCH_ANTENNA1       0
@@ -200,7 +197,6 @@ enum {
 #define IWL_MIMO3_SWITCH_MIMO2_AC       6
 #define IWL_MIMO3_SWITCH_MIMO2_BC       7
 #define IWL_MIMO3_SWITCH_GI             8
-
 
 #define IWL_MAX_11N_MIMO3_SEARCH IWL_MIMO3_SWITCH_GI
 #define IWL_MAX_SEARCH IWL_MIMO2_SWITCH_MIMO3_ABC

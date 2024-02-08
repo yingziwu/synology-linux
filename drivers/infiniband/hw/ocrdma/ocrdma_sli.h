@@ -993,7 +993,6 @@ struct ocrdma_qp_params {
 	u32 qkey;
 } __packed;
 
-
 struct ocrdma_modify_qp {
 	struct ocrdma_mqe_hdr hdr;
 	struct ocrdma_mbx_hdr req;

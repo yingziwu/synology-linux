@@ -832,5 +832,4 @@ struct fsl_ifc_ctrl {
 
 extern struct fsl_ifc_ctrl *fsl_ifc_ctrl_dev;
 
-
 #endif /* __ASM_FSL_IFC_H */

@@ -21,7 +21,6 @@
  *
  */
 
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/poll.h>
@@ -57,7 +56,6 @@
  *
  */
 
-
 enum key_index {
 	FullyQualifiedDomainName = 0,
 	IntegrationServicesVersion, /*This key is serviced in the kernel*/
@@ -70,7 +68,6 @@ enum key_index {
 	OSVersion,
 	ProcessorArchitecture
 };
-
 
 enum {
 	IPADDR = 0,
@@ -254,7 +251,6 @@ static int kvp_file_init(void)
 
 		if (fd == -1)
 			return 1;
-
 
 		filep = fopen(fname, "re");
 		if (!filep)
@@ -452,7 +448,6 @@ static int kvp_pool_enumerate(int pool, int index, char *key, int key_size,
 	return 0;
 }
 
-
 void kvp_get_os_info(void)
 {
 	FILE	*file;
@@ -581,8 +576,6 @@ done:
 	return;
 }
 
-
-
 /*
  * Retrieve an interface name corresponding to the specified guid.
  * If there is a match, the function returns a pointer
@@ -678,7 +671,6 @@ static char *kvp_if_name_to_mac(char *if_name)
 	return mac_addr;
 }
 
-
 /*
  * Retrieve the interface name given tha MAC address.
  */
@@ -740,7 +732,6 @@ static char *kvp_mac_to_if_name(char *mac)
 	closedir(dir);
 	return if_name;
 }
-
 
 static void kvp_process_ipconfig_file(char *cmd,
 					char *config_buf, int len,
@@ -804,7 +795,6 @@ static void kvp_get_ipconfig_info(char *if_name,
 	kvp_process_ipconfig_file(cmd, (char *)buffer->gate_way,
 				(MAX_GATEWAY_SIZE * 2), INET6_ADDRSTRLEN, 1);
 
-
 	/*
 	 * Gather the DNS  state.
 	 * Since there is no standard way to get this information
@@ -856,7 +846,6 @@ static void kvp_get_ipconfig_info(char *if_name,
 
 	pclose(file);
 }
-
 
 static unsigned int hweight32(unsigned int *w)
 {
@@ -1046,7 +1035,6 @@ getaddr_done:
 	return error;
 }
 
-
 static int expand_ipv6(char *addr, int type)
 {
 	int ret;
@@ -1135,7 +1123,6 @@ static int kvp_write_file(FILE *f, char *s1, char *s2, char *s3)
 	return 0;
 }
 
-
 static int process_ip_string(FILE *f, char *ip_string, int type)
 {
 	int error = 0;
@@ -1175,7 +1162,6 @@ static int process_ip_string(FILE *f, char *ip_string, int type)
 			} else {
 				snprintf(sub_str, sizeof(sub_str), "%d", i++);
 			}
-
 
 		} else if (expand_ipv6(addr, type)) {
 			switch (type) {
@@ -1354,7 +1340,6 @@ setval_error:
 	return error;
 }
 
-
 static int
 kvp_get_domain_name(char *buffer, int length)
 {
@@ -1449,7 +1434,6 @@ int main(void)
 	addr.nl_pad = 0;
 	addr.nl_pid = 0;
 	addr.nl_groups = 0;
-
 
 	error = bind(fd, (struct sockaddr *)&addr, sizeof(addr));
 	if (error < 0) {

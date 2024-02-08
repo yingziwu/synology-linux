@@ -50,7 +50,6 @@
 #include "xfs_trace.h"
 #include "xfs_symlink.h"
 
-
 kmem_zone_t		*xfs_bmap_free_item_zone;
 
 /*
@@ -628,7 +627,6 @@ xfs_bmap_check_leaf_extents(
 		xfs_fsblock_t	nextbno;
 		xfs_extnum_t	num_recs;
 
-
 		num_recs = xfs_btree_get_numrecs(block);
 
 		/*
@@ -836,7 +834,6 @@ xfs_bmap_del_free(
 	flist->xbf_count--;
 	kmem_zone_free(xfs_bmap_free_item_zone, free);
 }
-
 
 /*
  * Routine to be called at transaction's end by xfs_bmapi, xfs_bunmapi
@@ -1665,7 +1662,6 @@ error0:
 	xfs_trans_brelse(tp, bp);
 	return XFS_ERROR(EFSCORRUPTED);
 }
-
 
 /*
  * Search the extent records for the entry containing block bno.
@@ -4522,7 +4518,6 @@ xfs_bmapi_reserve_delalloc(
 	if (error)
 		goto out_unreserve_blocks;
 
-
 	ip->i_delayed_blks += alen;
 
 	got->br_startoff = aoff;
@@ -4637,7 +4632,6 @@ xfs_bmapi_delay(
 	*nmap = n;
 	return 0;
 }
-
 
 STATIC int
 __xfs_bmapi_allocate(
@@ -4787,7 +4781,6 @@ xfs_bmapi_allocate(
 
 	if (!args->stack_switch)
 		return __xfs_bmapi_allocate(args);
-
 
 	args->done = &done;
 	INIT_WORK_ONSTACK(&args->work, xfs_bmapi_allocate_worker);
@@ -5951,7 +5944,6 @@ xfs_getbmap(
 	if (nex <= 0)
 		return XFS_ERROR(EINVAL);
 	bmvend = bmv->bmv_offset + bmv->bmv_length;
-
 
 	if (bmv->bmv_count > ULONG_MAX / sizeof(struct getbmapx))
 		return XFS_ERROR(ENOMEM);

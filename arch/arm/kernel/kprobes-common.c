@@ -18,7 +18,6 @@
 
 #include "kprobes.h"
 
-
 #ifndef find_str_pc_offset
 
 /*
@@ -46,7 +45,6 @@ void __init find_str_pc_offset(void)
 
 #endif /* !find_str_pc_offset */
 
-
 #ifndef test_load_write_pc_interworking
 
 bool load_write_pc_interworks;
@@ -59,7 +57,6 @@ void __init test_load_write_pc_interworking(void)
 }
 
 #endif /* !test_load_write_pc_interworking */
-
 
 #ifndef test_alu_write_pc_interworking
 
@@ -74,14 +71,12 @@ void __init test_alu_write_pc_interworking(void)
 
 #endif /* !test_alu_write_pc_interworking */
 
-
 void __init arm_kprobe_decode_init(void)
 {
 	find_str_pc_offset();
 	test_load_write_pc_interworking();
 	test_alu_write_pc_interworking();
 }
-
 
 static unsigned long __kprobes __check_eq(unsigned long cpsr)
 {
@@ -172,7 +167,6 @@ kprobe_check_cc * const kprobe_condition_checks[16] = {
 	&__check_hi, &__check_ls, &__check_ge, &__check_lt,
 	&__check_gt, &__check_le, &__check_al, &__check_al
 };
-
 
 void __kprobes kprobe_simulate_nop(struct kprobe *p, struct pt_regs *regs)
 {
@@ -320,7 +314,6 @@ kprobe_decode_ldmstm(kprobe_opcode_t insn, struct arch_specific_insn *asi)
 	asi->insn_handler = handler;
 	return INSN_GOOD_NO_SLOT;
 }
-
 
 /*
  * Prepare an instruction slot to receive an instruction for emulating.

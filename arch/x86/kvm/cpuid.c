@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Kernel-based Virtual Machine driver for Linux
  * cpuid support routines
@@ -16,12 +19,27 @@
 #include <linux/module.h>
 #include <linux/vmalloc.h>
 #include <linux/uaccess.h>
+#ifdef MY_DEF_HERE
+#else
+#include <asm/processor.h>
+#endif	/* MY_DEF_HERE */
 #include <asm/user.h>
 #include <asm/xsave.h>
 #include "cpuid.h"
 #include "lapic.h"
 #include "mmu.h"
 #include "trace.h"
+#ifdef MY_DEF_HERE
+#else
+/* CPUID[eax=7,ecx=0].edx */
+#define KVM_CPUID_BIT_AVX512_4VNNIW     2
+#define KVM_CPUID_BIT_AVX512_4FMAPS     3
+#define KVM_CPUID_BIT_SPEC_CTRL		26
+#define KVM_CPUID_BIT_STIBP		27
+
+/* CPUID[eax=0x80000008].ebx */
+#define KVM_CPUID_BIT_IBPB_SUPPORT	12
+#endif	/* MY_DEF_HERE */
 
 void kvm_update_cpuid(struct kvm_vcpu *vcpu)
 {
@@ -186,6 +204,10 @@ static bool supported_xcr0_bit(unsigned bit)
 }
 
 #define F(x) bit(X86_FEATURE_##x)
+#ifdef MY_DEF_HERE
+#else
+#define KF(x) bit(KVM_CPUID_BIT_##x)
+#endif	/* MY_DEF_HERE */
 
 static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
 			 u32 index, int *nent, int maxnent)
@@ -250,6 +272,18 @@ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
 	const u32 kvm_supported_word9_x86_features =
 		F(FSGSBASE) | F(BMI1) | F(HLE) | F(AVX2) | F(SMEP) |
 		F(BMI2) | F(ERMS) | f_invpcid | F(RTM);
+
+#ifdef MY_DEF_HERE
+#else
+		/* cpuid 7.0.edx*/
+	const u32 kvm_cpuid_7_0_edx_x86_features =
+		KF(AVX512_4VNNIW) | KF(AVX512_4FMAPS) |
+		KF(SPEC_CTRL) | KF(STIBP);
+
+	/* cpuid 0x80000008.ebx */
+	const u32 kvm_cpuid_80000008_ebx_x86_features =
+		KF(IBPB_SUPPORT);
+#endif	/* MY_DEF_HERE */
 
 	/* all calls to cpuid_count() should be made on the same cpu */
 	get_cpu();
@@ -439,7 +473,13 @@ static int do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
 		if (!g_phys_as)
 			g_phys_as = phys_as;
 		entry->eax = g_phys_as | (virt_as << 8);
+#ifdef MY_DEF_HERE
 		entry->ebx = entry->edx = 0;
+#else
+		entry->ebx &= kvm_cpuid_80000008_ebx_x86_features;
+		entry->ebx &= get_scattered_cpuid_leaf(0x80000008, 0, CPUID_EBX);
+		entry->edx = 0;
+#endif	/* MY_DEF_HERE */
 		break;
 	}
 	case 0x80000019:

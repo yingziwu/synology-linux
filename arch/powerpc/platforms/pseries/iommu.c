@@ -51,7 +51,6 @@
 
 #include "plpar_wrappers.h"
 
-
 static void tce_invalidate_pSeries_sw(struct iommu_table *tbl,
 				      u64 *startp, u64 *endp)
 {
@@ -110,7 +109,6 @@ static int tce_build_pSeries(struct iommu_table *tbl, long index,
 		tce_invalidate_pSeries_sw(tbl, tces, tcep - 1);
 	return 0;
 }
-
 
 static void tce_free_pSeries(struct iommu_table *tbl, long index, long npages)
 {
@@ -280,7 +278,6 @@ static void tce_free_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages
 		tcenum++;
 	}
 }
-
 
 static void tce_freemulti_pSeriesLP(struct iommu_table *tbl, long tcenum, long npages)
 {
@@ -460,7 +457,6 @@ static int tce_setrange_multi_pSeriesLP_walk(unsigned long start_pfn,
 	return tce_setrange_multi_pSeriesLP(start_pfn, num_pfn, arg);
 }
 
-
 #ifdef CONFIG_PCI
 static void iommu_table_setparms(struct pci_controller *phb,
 				 struct device_node *dn,
@@ -623,7 +619,6 @@ static void pci_dma_bus_setup_pSeries(struct pci_bus *bus)
 	pr_debug("ISA/IDE, window size is 0x%llx\n", pci->phb->dma_window_size);
 }
 
-
 static void pci_dma_bus_setup_pSeriesLP(struct pci_bus *bus)
 {
 	struct iommu_table *tbl;
@@ -661,7 +656,6 @@ static void pci_dma_bus_setup_pSeriesLP(struct pci_bus *bus)
 		pr_debug("  created table: %p\n", ppci->iommu_table);
 	}
 }
-
 
 static void pci_dma_dev_setup_pSeries(struct pci_dev *dev)
 {
@@ -1385,7 +1379,6 @@ void iommu_init_early_pSeries(void)
 		ppc_md.pci_dma_bus_setup = pci_dma_bus_setup_pSeries;
 		ppc_md.pci_dma_dev_setup = pci_dma_dev_setup_pSeries;
 	}
-
 
 	of_reconfig_notifier_register(&iommu_reconfig_nb);
 	register_memory_notifier(&iommu_mem_nb);

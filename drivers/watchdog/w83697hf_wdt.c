@@ -41,7 +41,6 @@
 #include <linux/io.h>
 #include <linux/uaccess.h>
 
-
 #define WATCHDOG_NAME "w83697hf/hg WDT"
 #define WATCHDOG_TIMEOUT 60		/* 60 sec default timeout */
 #define WATCHDOG_EARLY_DISABLE 1	/* Disable until userland kicks in */

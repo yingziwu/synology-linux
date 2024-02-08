@@ -368,4 +368,3 @@ RATEuSetIE (
     }
     return (u8)uRateCnt;
 }
-

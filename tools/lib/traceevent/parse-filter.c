@@ -1199,7 +1199,6 @@ int pevent_filter_add_filter_str(struct event_filter *filter,
 	else
 		len = strlen(filter_str);
 
-
 	do {
 		next_event = strchr(filter_str, ',');
 		if (next_event &&
@@ -1413,7 +1412,6 @@ int pevent_filter_copy(struct event_filter *dest, struct event_filter *source)
 	}
 	return ret;
 }
-
 
 /**
  * pevent_update_trivial - update the trivial filters with the given filter
@@ -2300,4 +2298,3 @@ int pevent_filter_compare(struct event_filter *filter1, struct event_filter *fil
 		return 0;
 	return 1;
 }
-

@@ -147,8 +147,6 @@ do {								\
 struct __large_struct { unsigned long buf[100]; };
 #define __m(x) (*(struct __large_struct *)(x))
 
-
-
 #define __get_user_nocheck(x,ptr,size)				\
 ({								\
 	long __gu_err, __gu_val;				\
@@ -190,7 +188,6 @@ strncpy_from_user(char *dst, const char __user *src, long count)
 		res = __do_strncpy_from_user(dst, src, count);
 	return res;
 }
-
 
 /* Note that these expand awfully if made into switch constructs, so
    don't do that.  */
@@ -324,7 +321,6 @@ __constant_clear_user(void __user *to, unsigned long n)
 
 	return ret;
 }
-
 
 static inline size_t clear_user(void __user *to, size_t n)
 {

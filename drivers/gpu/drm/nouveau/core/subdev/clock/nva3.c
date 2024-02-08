@@ -83,7 +83,6 @@ nva3_clock_pll_calc(struct nouveau_clock *clock, struct nvbios_pll *info,
 	return ret;
 }
 
-
 static int
 nva3_clock_ctor(struct nouveau_object *parent, struct nouveau_object *engine,
 		struct nouveau_oclass *oclass, void *data, u32 size,

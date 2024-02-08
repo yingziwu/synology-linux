@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* memcontrol.h - Memory Controller
  *
  * Copyright IBM Corporation, 2007
@@ -140,6 +143,22 @@ static inline bool task_in_memcg_oom(struct task_struct *p)
 {
 	return p->memcg_oom.memcg;
 }
+
+#ifdef MY_ABC_HERE
+static inline bool task_skip_memcg_account(struct task_struct *p)
+{
+	return p->memcg_skip_account;
+}
+static inline void memcg_stop_account(void)
+{
+	current->memcg_skip_account++;
+}
+
+static inline void memcg_resume_account(void)
+{
+	current->memcg_skip_account--;
+}
+#endif
 
 bool mem_cgroup_oom_synchronize(bool wait);
 
@@ -654,4 +673,3 @@ static inline void kmem_cache_destroy_memcg_children(struct kmem_cache *s)
 }
 #endif /* CONFIG_MEMCG_KMEM */
 #endif /* _LINUX_MEMCONTROL_H */
-

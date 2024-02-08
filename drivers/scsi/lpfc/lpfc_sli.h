@@ -150,7 +150,6 @@ struct lpfc_sli_ring_mask {
 					 struct lpfc_iocbq *);
 };
 
-
 /* Structure used to hold SLI statistical counters and info */
 struct lpfc_sli_ring_stat {
 	uint64_t iocb_event;	 /* IOCB event counters */
@@ -178,7 +177,6 @@ struct lpfc_sli3_ring {
 struct lpfc_sli4_ring {
 	struct lpfc_queue *wqp;	/* Pointer to associated WQ */
 };
-
 
 /* Structure used to hold SLI ring information */
 struct lpfc_sli_ring {

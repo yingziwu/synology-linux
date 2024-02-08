@@ -130,7 +130,6 @@ xfs_blft_from_flags(struct xfs_buf_log_format *blf)
 	{ XFS_BLI_STALE_INODE,	"STALE_INODE" }, \
 	{ XFS_BLI_INODE_BUF,	"INODE_BUF" }
 
-
 #ifdef __KERNEL__
 
 struct xfs_buf;

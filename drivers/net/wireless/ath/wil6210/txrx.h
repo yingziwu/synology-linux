@@ -211,7 +211,6 @@ struct vring_tx_mac {
 #define DMA_CFG_DESC_TX_0_L4_TYPE_LEN 2
 #define DMA_CFG_DESC_TX_0_L4_TYPE_MSK 0xC0000000
 
-
 #define TX_DMA_STATUS_DU         BIT(0)
 
 struct vring_tx_dma {

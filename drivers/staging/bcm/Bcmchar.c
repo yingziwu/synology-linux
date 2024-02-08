@@ -2008,7 +2008,6 @@ cntrlEnd:
 	return Status;
 }
 
-
 static const struct file_operations bcm_fops = {
 	.owner    = THIS_MODULE,
 	.open     = bcm_char_open,
@@ -2050,4 +2049,3 @@ void unregister_control_device_interface(struct bcm_mini_adapter *Adapter)
 		unregister_chrdev(Adapter->major, DEV_NAME);
 	}
 }
-

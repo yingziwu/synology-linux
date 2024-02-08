@@ -481,7 +481,6 @@ out:
 		 */
 		err = 0;
 
-
 	/* 2 is a special value indicating that there are no more direntries */
 	file->f_pos = 2;
 	return err;
@@ -1020,7 +1019,6 @@ static int ubifs_rename(struct inode *old_dir, struct dentry *old_dentry,
 	ubifs_assert(mutex_is_locked(&new_dir->i_mutex));
 	if (unlink)
 		ubifs_assert(mutex_is_locked(&new_inode->i_mutex));
-
 
 	if (unlink && is_dir) {
 		err = check_dir_empty(c, new_inode);

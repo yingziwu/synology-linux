@@ -198,4 +198,3 @@ done:
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mwifiex_write_data_complete);
-

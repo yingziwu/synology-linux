@@ -114,7 +114,6 @@ static inline void __finv_buffer(void *buffer, size_t size)
 	}
 }
 
-
 /* Invalidate a VA range and wait for it to be complete. */
 static inline void inv_buffer(void *buffer, size_t size)
 {

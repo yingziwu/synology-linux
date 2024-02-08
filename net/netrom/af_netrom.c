@@ -1011,7 +1011,7 @@ int nr_rx_frame(struct sk_buff *skb, struct net_device *dev)
 	skb_queue_head(&sk->sk_receive_queue, skb);
 
 	if (!sock_flag(sk, SOCK_DEAD))
-		sk->sk_data_ready(sk, skb->len);
+		sk->sk_data_ready(sk);
 
 	bh_unlock_sock(sk);
 
@@ -1187,7 +1187,6 @@ static int nr_recvmsg(struct kiocb *iocb, struct socket *sock,
 	release_sock(sk);
 	return copied;
 }
-
 
 static int nr_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 {

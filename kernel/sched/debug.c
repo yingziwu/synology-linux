@@ -74,7 +74,6 @@ static void print_cfs_group_stats(struct seq_file *m, int cpu, struct task_group
 		return;
 	}
 
-
 	PN(se->exec_start);
 	PN(se->vruntime);
 	PN(se->sum_exec_runtime);

@@ -70,8 +70,6 @@ static void __init sunxi_osc_clk_setup(struct device_node *node)
 	}
 }
 
-
-
 /**
  * sunxi_get_pll1_factors() - calculates n, k, m, p factors for PLL1
  * PLL1 rate is calculated as follows
@@ -124,8 +122,6 @@ static void sunxi_get_pll1_factors(u32 *freq, u32 parent_rate,
 	*n = div / 4;
 }
 
-
-
 /**
  * sunxi_get_apb1_factors() - calculates m, p factors for APB1
  * APB1 rate is calculated as follows
@@ -166,8 +162,6 @@ static void sunxi_get_apb1_factors(u32 *freq, u32 parent_rate,
 	*m = calcm;
 	*p = calcp;
 }
-
-
 
 /**
  * sunxi_factors_clk_setup() - Setup function for factor clocks
@@ -227,8 +221,6 @@ static void __init sunxi_factors_clk_setup(struct device_node *node,
 	}
 }
 
-
-
 /**
  * sunxi_mux_clk_setup() - Setup function for muxes
  */
@@ -270,8 +262,6 @@ static void __init sunxi_mux_clk_setup(struct device_node *node,
 		clk_register_clkdev(clk, clk_name, NULL);
 	}
 }
-
-
 
 /**
  * sunxi_divider_clk_setup() - Setup function for simple divider clocks
@@ -320,8 +310,6 @@ static void __init sunxi_divider_clk_setup(struct device_node *node,
 		clk_register_clkdev(clk, clk_name, NULL);
 	}
 }
-
-
 
 /**
  * sunxi_gates_clk_setup() - Setup function for leaf gates on clocks

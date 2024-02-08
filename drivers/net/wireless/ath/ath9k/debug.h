@@ -127,7 +127,6 @@ struct ath_interrupt_stats {
 	u32 mac_sleep_access;
 };
 
-
 /**
  * struct ath_tx_stats - Statistics about TX
  * @tx_pkts_all:  No. of total frames transmitted, including ones that
@@ -375,6 +374,5 @@ static inline void ath9k_debug_samp_bb_mac(struct ath_softc *sc)
 }
 
 #endif
-
 
 #endif /* DEBUG_H */

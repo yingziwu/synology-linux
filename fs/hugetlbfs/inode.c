@@ -169,7 +169,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
 		addr = ALIGN(addr, huge_page_size(h));
 		vma = find_vma(mm, addr);
 		if (TASK_SIZE - len >= addr &&
-		    (!vma || addr + len <= vma->vm_start))
+		    (!vma || addr + len <= vm_start_gap(vma)))
 			return addr;
 	}
 
@@ -656,7 +656,6 @@ static void hugetlbfs_inc_free_inodes(struct hugetlbfs_sb_info *sbinfo)
 	}
 }
 
-
 static struct kmem_cache *hugetlbfs_inode_cachep;
 
 static struct inode *hugetlbfs_alloc_inode(struct super_block *sb)
@@ -693,7 +692,6 @@ static const struct address_space_operations hugetlbfs_aops = {
 	.set_page_dirty	= hugetlbfs_set_page_dirty,
 	.migratepage    = hugetlbfs_migrate_page,
 };
-
 
 static void init_once(void *foo)
 {
@@ -1054,7 +1052,6 @@ static void __exit exit_hugetlbfs_fs(void)
 {
 	struct hstate *h;
 	int i;
-
 
 	/*
 	 * Make sure all delayed rcu free inodes are flushed before we

@@ -140,7 +140,6 @@ static ssize_t adis16220_capture_buffer_read(struct iio_dev *indio_dev,
 	/* read count/2 values from capture buffer */
 	mutex_lock(&st->buf_lock);
 
-
 	for (i = 0; i < count; i += 2) {
 		st->tx[i] = ADIS_READ_REG(addr);
 		st->tx[i + 1] = 0;
@@ -217,7 +216,6 @@ static ssize_t adis16220_adc2_bin_read(struct file *filp, struct kobject *kobj,
 					off, count,
 					ADIS16220_CAPT_BUF2);
 }
-
 
 static struct bin_attribute adc2_bin = {
 	.attr = {

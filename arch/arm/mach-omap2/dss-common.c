@@ -103,7 +103,6 @@ void __init omap4_panda_display_init_of(void)
 	omap_display_init(&omap4_panda_dss_data);
 }
 
-
 /* OMAP4 Blaze display data */
 
 #define DISPLAY_SEL_GPIO	59	/* LCD2/PicoDLP switch */

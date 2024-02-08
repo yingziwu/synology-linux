@@ -62,7 +62,6 @@ void unlock_memory_hotplug(void)
 	mutex_unlock(&mem_hotplug_mutex);
 }
 
-
 /* add this memory to iomem resource */
 static struct resource *register_memory_resource(u64 start, u64 size)
 {
@@ -915,7 +914,6 @@ static void node_states_set_node(int node, struct memory_notify *arg)
 	node_set_state(node, N_MEMORY);
 }
 
-
 int __ref online_pages(unsigned long pfn, unsigned long nr_pages, int online_type)
 {
 	unsigned long onlined_pages = 0;
@@ -1067,7 +1065,6 @@ static void rollback_node_hotadd(int nid, pg_data_t *pgdat)
 	arch_free_nodedata(pgdat);
 	return;
 }
-
 
 /*
  * called by cpu_up() to online a node without onlined memory.

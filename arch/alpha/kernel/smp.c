@@ -43,7 +43,6 @@
 #include "proto.h"
 #include "irq_impl.h"
 
-
 #define DEBUG_SMP 0
 #if DEBUG_SMP
 #define DBGS(args)	printk args
@@ -497,7 +496,6 @@ smp_cpus_done(unsigned int max_cpus)
 	       ((bogosum + 2500) / (5000/HZ)) % 100);
 }
 
-
 void
 smp_percpu_timer_interrupt(struct pt_regs *regs)
 {
@@ -532,7 +530,6 @@ setup_profiling_timer(unsigned int multiplier)
 	return -EINVAL;
 }
 
-
 static void
 send_ipi_message(const struct cpumask *to_whom, enum ipi_message_type operation)
 {

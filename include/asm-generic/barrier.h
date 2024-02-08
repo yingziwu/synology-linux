@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Generic barrier definitions, based on MN10300 definitions.
  *
  * It should be possible to use these on really simple architectures,
@@ -29,6 +32,12 @@
 #define mb()	asm volatile ("": : :"memory")
 #define rmb()	mb()
 #define wmb()	asm volatile ("": : :"memory")
+#ifdef MY_DEF_HERE
+#else
+#ifndef gmb
+#define gmb()	do { } while (0)
+#endif
+#endif	/* MY_DEF_HERE */
 
 #ifdef CONFIG_SMP
 #define smp_mb()	mb()

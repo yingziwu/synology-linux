@@ -62,7 +62,6 @@ typedef struct
 	long args[0];
 } debug_sprintf_entry_t;
 
-
 /* internal function prototyes */
 
 static int debug_init(void);
@@ -232,7 +231,6 @@ fail_malloc_areas:
 	return NULL;
 
 }
-
 
 /*
  * debug_info_alloc
@@ -898,7 +896,6 @@ s390dbf_procactive(ctl_table *table, int write,
 		return 0;
 }
 
-
 static struct ctl_table s390dbf_table[] = {
 	{
 		.procname       = "debug_stoppable",
@@ -1324,7 +1321,6 @@ out:
 	*offset += user_len;
 	return rc;		/* number of input characters */
 }
-
 
 /*
  * flushes debug areas

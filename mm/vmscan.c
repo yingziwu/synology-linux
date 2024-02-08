@@ -3567,7 +3567,6 @@ static ssize_t write_scan_unevictable_node(struct device *dev,
 	return 1;
 }
 
-
 static DEVICE_ATTR(scan_unevictable_pages, S_IRUGO | S_IWUSR,
 			read_scan_unevictable_node,
 			write_scan_unevictable_node);

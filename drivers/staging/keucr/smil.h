@@ -205,7 +205,6 @@ struct CIS_AREA {
 	WORD PhyBlock;	/* Physical Block Number on Zone 0 */
 };
 
-
 extern BYTE IsSSFDCCompliance;
 extern BYTE IsXDCompliance;
 
