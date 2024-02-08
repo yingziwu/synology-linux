@@ -871,6 +871,7 @@ static struct spi_master * __devinit fsl_spi_probe(struct device *dev,
 	mpc8xxx_spi->spi_do_one_msg = fsl_spi_do_one_msg;
 	mpc8xxx_spi->spi_remove = fsl_spi_remove;
 
+
 	ret = fsl_spi_cpm_init(mpc8xxx_spi);
 	if (ret)
 		goto err_cpm_init;

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -89,6 +90,7 @@ typedef struct ATAIdentifyInfo
     MV_SATA_DEVICE_TYPE deviceType;
 } ATA_IDENTIFY_INFO;
 
+
 typedef struct mvSataPMDeviceInfo
 {
     MV_U16      vendorId;
@@ -97,6 +99,7 @@ typedef struct mvSataPMDeviceInfo
     MV_U8       PMSpecRevision:4;
     MV_U8       numberOfPorts:4;
 } MV_SATA_PM_DEVICE_INFO;
+
 
 MV_BOOLEAN mvParseIdentifyResult(MV_U16_PTR  iden,ATA_IDENTIFY_INFO *pIdentifyInfo);
 
@@ -111,6 +114,7 @@ MV_BOOLEAN mvInitSataATAPI(MV_SATA_ADAPTER   *pSataAdapter, MV_U8 channelIndex,
                           MV_U8 PMPort, ATA_IDENTIFY_INFO   *pIdentifyInfo,
                           MV_U16_PTR identifyBuffer
                          );
+
 
 MV_BOOLEAN  mvGetPMDeviceInfo(MV_SATA_ADAPTER   *pSataAdapter,
                               MV_U8 channelIndex,
@@ -133,3 +137,4 @@ MV_VOID mvSelectConfiguration(MV_SATA_ADAPTER        *pSataAdapter,
 #endif /* __cplusplus */
 
 #endif /* __INCmvIALCommonh */
+

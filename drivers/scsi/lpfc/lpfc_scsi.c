@@ -84,6 +84,7 @@ lpfc_debug_save_data(struct lpfc_hba *phba, struct scsi_cmnd *cmnd)
 		return;
 	}
 
+
 	if (!sgde) {
 		lpfc_printf_log(phba, KERN_ERR, LOG_BG,
 			"9051 BLKGRD: ERROR: data scatterlist is null\n");
@@ -2451,6 +2452,7 @@ lpfc_handle_fcp_err(struct lpfc_vport *vport, struct lpfc_scsi_buf *lpfc_cmd,
 	uint32_t rsplen = 0;
 	uint32_t logit = LOG_FCP | LOG_FCP_ERROR;
 
+
 	/*
 	 *  If this is a task management command, there is no
 	 *  scsi packet associated with this lpfc_cmd.  The driver
@@ -4046,6 +4048,7 @@ lpfc_slave_destroy(struct scsi_device *sdev)
 	sdev->hostdata = NULL;
 	return;
 }
+
 
 struct scsi_host_template lpfc_template = {
 	.module			= THIS_MODULE,

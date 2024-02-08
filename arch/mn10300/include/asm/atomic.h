@@ -269,6 +269,7 @@ static inline void atomic_dec(atomic_t *v)
 	c;							\
 })
 
+
 /**
  * atomic_clear_mask - Atomically clear bits in memory
  * @mask: Mask of the bits to be cleared

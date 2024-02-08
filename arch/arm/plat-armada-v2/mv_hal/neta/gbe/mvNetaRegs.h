@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __mvNetaRegs_h__
 #define __mvNetaRegs_h__
 
@@ -112,6 +113,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define NETA_RXQ_PACKET_OFFSET_ALL_MASK     (0xF << NETA_RXQ_PACKET_OFFSET_OFFS)
 #define NETA_RXQ_PACKET_OFFSET_MASK(offs)   ((offs) << NETA_RXQ_PACKET_OFFSET_OFFS)
 
+
 #define NETA_RXQ_INTR_ENABLE_BIT            15
 #define NETA_RXQ_INTR_ENABLE_MASK           (0x1 << NETA_RXQ_INTR_ENABLE_BIT)
 
@@ -128,6 +130,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 
 #define NETA_RXQ_L2_DEPOSIT_BYTES_OFFS      16
 #define NETA_RXQ_L2_DEPOSIT_BYTES_MASK      (0x3FFF << NETA_RXQ_L2_DEPOSIT_BYTES_OFFS)
+
 
 #define NETA_RXQ_PREFETCH_01_REG(p, q)      (NETA_REG_BASE(p) + 0x1440 + ((q) << 2))
 #define NETA_RXQ_PREFETCH_23_REG(p, q)      (NETA_REG_BASE(p) + 0x1460 + ((q) << 2))
@@ -225,6 +228,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define NETA_PORT_RX_DMA_RESET_MASK         (1 << NETA_PORT_RX_DMA_RESET_BIT)
 /*-------------------------------------------------------------------------------*/
 
+
 #define NETA_HWF_RX_CTRL_REG(p)             (NETA_REG_BASE(p) + 0x1d00)
 
 #define NETA_COLOR_SRC_SEL_BIT				0
@@ -303,6 +307,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #endif /* MV_ETH_PMT_NEW */
 /*-----------------------------------------------------------------------------------*/
 
+
 #define NETA_HWF_TXP_CFG_REG(p, txp)        (NETA_REG_BASE(p) + 0x1d10 + ((txp) >> 1) * 4)
 
 #define NETA_TXP_BASE_ADDR_OFFS(txp)        (((txp) & 0x1) ? 18 : 2)
@@ -361,6 +366,8 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define NETA_HWF_SMALL_TX_GAP_BIT			0
 #define NETA_HWF_SMALL_TX_GAP_MASK			(1 << NETA_HWF_SMALL_TX_GAP_BIT)
 /*-----------------------------------------------------------------------------------*/
+
+
 
 /**************************** NETA General Registers ***********************/
 
@@ -709,6 +716,7 @@ extern int port_vbase[MV_ETH_MAX_PORTS];
 #define NETA_LOW_POWER_CNTR_REG(p)          (NETA_REG_BASE(p) + 0x2CD0)
 
 #endif /* MV_ETH_GMAC_NEW */
+
 
 #ifdef MV_PON_MIB_SUPPORT
 /* Special registers for PON MIB support */
@@ -1102,6 +1110,7 @@ typedef struct neta_rx_desc {
 #endif /* CONFIG_MV_ETH_PNC */
 /*---------------------------------------------------------------------------*/
 
+
 /* Bit map of "hw_cmd" field */
 #define NETA_RX_COLOR_BIT                   3
 #define NETA_RX_COLOR_MASK                  (1 << NETA_RX_COLOR_BIT)
@@ -1117,6 +1126,7 @@ typedef struct neta_rx_desc {
 #define NETA_RX_GEM_PID_OFFS                8
 #define NETA_RX_GEM_PID_MASK                (0xFFF << NETA_RX_GEM_PID_OFFS)
 /*---------------------------------------------------------------------------*/
+
 
 /******************** NETA TX EXTENDED DESCRIPTOR ********************************/
 
@@ -1184,6 +1194,7 @@ typedef struct neta_tx_desc {
 #define NETA_TX_BM_ENABLE_BIT               22
 #define NETA_TX_BM_ENABLE_MASK              (1 << NETA_TX_BM_ENABLE_BIT)
 
+
 #define NETA_TX_PKT_OFFSET_OFFS             23
 #define NETA_TX_PKT_OFFSET_MAX				0x7F
 #define NETA_TX_PKT_OFFSET_ALL_MASK         (NETA_TX_PKT_OFFSET_MAX << NETA_TX_PKT_OFFSET_OFFS)
@@ -1234,6 +1245,7 @@ typedef struct neta_tx_desc {
 #define NETA_TX_DSA                         (1 << NETA_TX_DSA_OFFS) /* normal dsa */
 #define NETA_TX_DSA_E                       (2 << NETA_TX_DSA_OFFS) /* extended dsa */
 /*-------------------------------------------------------------------------------*/
+
 
 #ifdef __cplusplus
 }

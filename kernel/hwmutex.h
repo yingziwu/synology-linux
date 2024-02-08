@@ -33,9 +33,12 @@
 #ifndef KERNEL_HWMUTEX_H
 #define KERNEL_HWMUTEX_H
 
+
 /* Time out if we cannot get a MUTEX within half minute */
 #define IRQ_HW_MUTEX_TIME_OUT (30*HZ)
 #define HW_MUTEX_IRQ_NAME "hw_mutex_irq"
+
+
 
 //#ifdef CONFIG_SMP
 static inline void hw_mutex_set_owner(struct hw_mutex *lock)
@@ -54,3 +57,9 @@ static inline struct thread_info* hw_mutex_get_owner(struct hw_mutex *lock)
 
 #endif 
 /* end of hw_mutex.h */
+
+
+
+
+
+

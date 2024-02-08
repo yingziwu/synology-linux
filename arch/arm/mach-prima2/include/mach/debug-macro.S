@@ -26,3 +26,4 @@
 	tst	\rd, #SIRFSOC_UART1_TXFIFO_EMPTY
 	beq	1001b
 	.endm
+

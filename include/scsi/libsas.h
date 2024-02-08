@@ -26,6 +26,7 @@
 #ifndef _LIBSAS_H_
 #define _LIBSAS_H_
 
+
 #include <linux/timer.h>
 #include <linux/pci.h>
 #include <scsi/sas.h>
@@ -162,7 +163,6 @@ enum ata_command_set {
 
 struct sata_device {
         enum   ata_command_set command_set;
-        struct smp_resp        rps_resp; /* report_phy_sata_resp */
         __le16 *identify_device;
         __le16 *identify_packet_device;
 
@@ -171,10 +171,8 @@ struct sata_device {
 
 	struct ata_port *ap;
 	struct ata_host ata_host;
+	struct smp_resp rps_resp ____cacheline_aligned; /* report_phy_sata_resp */
 	u8     fis[ATA_RESP_FIS_SIZE];
-	u32 sstatus;
-	u32 serror;
-	u32 scontrol;
 };
 
 /* ---------- Domain device ---------- */
@@ -226,6 +224,7 @@ struct sas_discovery {
 	u8     eeds_b[8];
 	int    max_level;
 };
+
 
 /* The port struct is Class:RW, driver:RO */
 struct asd_sas_port {
@@ -447,7 +446,10 @@ enum service_response {
 };
 
 enum exec_status {
-	/* The SAM_STAT_.. codes fit in the lower 6 bits */
+	/* The SAM_STAT_.. codes fit in the lower 6 bits, alias some of
+	 * them here to silence 'case value not in enumerated type' warnings
+	 */
+	__SAM_STAT_CHECK_CONDITION = SAM_STAT_CHECK_CONDITION,
 
 	SAS_DEV_NO_RESPONSE = 0x80,
 	SAS_DATA_UNDERRUN,
@@ -487,10 +489,6 @@ enum exec_status {
 struct ata_task_resp {
 	u16  frame_len;
 	u8   ending_fis[ATA_RESP_FIS_SIZE];	  /* dev to host or data-in */
-	u32  sstatus;
-	u32  serror;
-	u32  scontrol;
-	u32  sactive;
 };
 
 #define SAS_STATUS_BUF_SIZE 96

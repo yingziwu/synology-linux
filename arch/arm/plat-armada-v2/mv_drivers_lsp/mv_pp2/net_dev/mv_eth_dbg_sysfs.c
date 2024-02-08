@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -33,6 +34,7 @@ disclaimer.
 
 #include "mv_netdev.h"
 #include "mv_eth_sysfs.h"
+
 
 static ssize_t mv_pp2_dbg_help(char *buf)
 {
@@ -102,11 +104,13 @@ static ssize_t mv_pp2_dbg_reg_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(help,          S_IRUSR, mv_pp2_dbg_show, NULL);
 static DEVICE_ATTR(clean,         S_IRUSR, mv_pp2_dbg_show, NULL);
 static DEVICE_ATTR(init,          S_IRUSR, mv_pp2_dbg_show, NULL);
 static DEVICE_ATTR(regRead,       S_IWUSR, NULL, mv_pp2_dbg_reg_store);
 static DEVICE_ATTR(regWrite,      S_IWUSR, NULL, mv_pp2_dbg_reg_store);
+
 
 static struct attribute *mv_pp2_dbg_attrs[] = {
 	&dev_attr_clean.attr,
@@ -117,6 +121,7 @@ static struct attribute *mv_pp2_dbg_attrs[] = {
 	NULL
 };
 
+
 static struct attribute_group mv_pp2_dbg_group = {
 	.name = "dbg",
 	.attrs = mv_pp2_dbg_attrs,
@@ -126,6 +131,10 @@ int mv_pp2_dbg_sysfs_init(struct kobject *pp2_kobj)
 {
 	int err;
 
+#ifdef CONFIG_ARCH_ARMADA375
+//FIXME: skip init dbg interface avoid boot hang
+	return 0;
+#endif /* CONFIG_ARCH_ARMADA375 */
 	err = sysfs_create_group(pp2_kobj, &mv_pp2_dbg_group);
 	if (err)
 		pr_err("sysfs group i%s failed %d\n", mv_pp2_dbg_group.name, err);

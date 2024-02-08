@@ -69,6 +69,7 @@ extern int as102_debug;
 #include "as10x_spi_drv.h"
 #endif
 
+
 struct as102_bus_adapter_t {
 #if defined(CONFIG_AS102_USB)
 	struct usb_device *usb_dev;

@@ -73,9 +73,11 @@
 #ifdef MSND_CLASSIC
 #  include "msnd_classic.h"
 #  define LOGNAME			"msnd_classic"
+#  define DEV_NAME			"msnd-classic"
 #else
 #  include "msnd_pinnacle.h"
 #  define LOGNAME			"snd_msnd_pinnacle"
+#  define DEV_NAME			"msnd-pinnacle"
 #endif
 
 static void __devinit set_default_audio_parameters(struct snd_msnd *chip)
@@ -189,6 +191,7 @@ static irqreturn_t snd_msnd_interrupt(int irq, void *dev_id)
 	inb(chip->io + HP_RXL);
 	return IRQ_HANDLED;
 }
+
 
 static int snd_msnd_reset_dsp(long io, unsigned char *info)
 {
@@ -375,6 +378,7 @@ static int snd_msnd_init_sma(struct snd_msnd *chip)
 
 	return 0;
 }
+
 
 static int upload_dsp_code(struct snd_card *card)
 {
@@ -590,6 +594,7 @@ static int __devinit snd_msnd_attach(struct snd_card *card)
 		goto err_release_region;
 	}
 
+
 	if (mpu_io[0] != SNDRV_AUTO_PORT) {
 		struct snd_mpu401 *mpu;
 
@@ -629,6 +634,7 @@ err_release_region:
 	free_irq(chip->irq, chip);
 	return err;
 }
+
 
 static void __devexit snd_msnd_unload(struct snd_card *card)
 {
@@ -812,6 +818,7 @@ module_param_array(ide_io1, long, NULL, S_IRUGO);
 module_param_array(ide_irq, int, NULL, S_IRUGO);
 module_param_array(joystick_io, long, NULL, S_IRUGO);
 #endif
+
 
 static int __devinit snd_msnd_isa_match(struct device *pdev, unsigned int i)
 {
@@ -1063,8 +1070,6 @@ static int __devexit snd_msnd_isa_remove(struct device *pdev, unsigned int dev)
 	return 0;
 }
 
-#define DEV_NAME "msnd-pinnacle"
-
 static struct isa_driver snd_msnd_driver = {
 	.match		= snd_msnd_isa_match,
 	.probe		= snd_msnd_isa_probe,
@@ -1237,3 +1242,4 @@ static void __exit snd_msnd_exit(void)
 
 module_init(snd_msnd_init);
 module_exit(snd_msnd_exit);
+

@@ -125,6 +125,7 @@ minstrel_get_ratestats(struct minstrel_ht_sta *mi, int index)
 	return &mi->groups[index / MCS_GROUP_RATES].rates[index % MCS_GROUP_RATES];
 }
 
+
 /*
  * Recalculate success probabilities and counters for a rate using EWMA
  */
@@ -375,7 +376,7 @@ minstrel_aggr_check(struct minstrel_priv *mp, struct ieee80211_sta *pubsta, stru
 	if (skb_get_queue_mapping(skb) == IEEE80211_AC_VO)
 		return;
 
-	ieee80211_start_tx_ba_session(pubsta, tid, 5000);
+	ieee80211_start_tx_ba_session(pubsta, tid, 0);
 }
 
 static void
@@ -509,6 +510,7 @@ minstrel_calc_retransmit(struct minstrel_priv *mp, struct minstrel_ht_sta *mi,
 	} while ((tx_time < mp->segment_size) &&
 	         (++mr->retry_count < mp->max_retry));
 }
+
 
 static void
 minstrel_ht_set_rate(struct minstrel_priv *mp, struct minstrel_ht_sta *mi,
@@ -859,6 +861,7 @@ static struct rate_control_ops mac80211_minstrel_ht = {
 	.remove_sta_debugfs = minstrel_ht_remove_sta_debugfs,
 #endif
 };
+
 
 static void
 init_sample_table(void)

@@ -71,6 +71,7 @@ static void sim_notify_interp(unsigned long load_addr)
 	}
 }
 
+
 /* Kernel address of page used to map read-only kernel data into userspace. */
 static void *vdso_page;
 
@@ -151,6 +152,7 @@ int arch_setup_additional_pages(struct linux_binprm *bprm,
 
 	return retval;
 }
+
 
 void elf_plat_init(struct pt_regs *regs, unsigned long load_addr)
 {

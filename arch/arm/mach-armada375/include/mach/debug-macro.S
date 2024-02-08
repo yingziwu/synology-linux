@@ -8,6 +8,7 @@
 
 #include <mach/armada375.h>
 
+
 	.macro  addruart, rp, rv, tmp
 	ldr     \rp, =INTER_REGS_PHYS_BASE
 	ldr	\rv, =INTER_REGS_VIRT_BASE

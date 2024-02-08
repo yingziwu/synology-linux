@@ -47,6 +47,7 @@ static inline void axp_smp_cross_call(const struct cpumask *mask, unsigned int i
 	return;
 }
 
+
 static inline unsigned int get_sample_at_reset_core_count(void)
 {
 	/* Read the number of availabe CPUs in the SoC */
@@ -76,6 +77,7 @@ void __init set_core_count(unsigned int cpu_count)
 /* 
  * Platform intialization routine for seconday CPUs
  */
+
 
 void  platform_secondary_init(unsigned int cpu)
 {

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -78,6 +79,7 @@ static ssize_t phy_store_hex(struct device *dev,
 
 	sscanf(buf, "%x", &p);
 
+
 	if (!strcmp(name, "status")) {
 		err = mvEthPhyPrintStatus(p);
 	} else if (!strcmp(name, "phy_init")) {
@@ -91,6 +93,7 @@ static ssize_t phy_store_hex(struct device *dev,
 
 	return err ? -EINVAL : len;
 }
+
 
 static ssize_t phy_3_hex_store(struct device *dev,
 				   struct device_attribute *attr, const char *buf, size_t len)
@@ -122,12 +125,15 @@ static ssize_t phy_3_hex_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
+
 static DEVICE_ATTR(status, S_IWUSR, NULL, phy_store_hex);
 static DEVICE_ATTR(restart_an, S_IWUSR, NULL, phy_store_hex);
 static DEVICE_ATTR(read_reg, S_IWUSR, NULL, phy_3_hex_store);
 static DEVICE_ATTR(write_reg, S_IWUSR, NULL, phy_3_hex_store);
 static DEVICE_ATTR(phy_init, S_IWUSR, NULL, phy_store_hex);
 static DEVICE_ATTR(help,   S_IRUSR, phy_show, NULL);
+
 
 static struct attribute *phy_attrs[] = {
 	&dev_attr_status.attr,

@@ -335,6 +335,7 @@ static int lxfb_blank(int blank_mode, struct fb_info *info)
 	return lx_blank_display(info, blank_mode);
 }
 
+
 static int __devinit lxfb_map_video_memory(struct fb_info *info,
 					struct pci_dev *dev)
 {

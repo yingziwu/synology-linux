@@ -70,6 +70,7 @@ void sh_mobile_setup_cpuidle(void)
 	struct cpuidle_state *state;
 	int i;
 
+
 	for (i = 0; i < CPUIDLE_STATE_MAX; i++) {
 		drv->states[i].name[0] = '\0';
 		drv->states[i].desc[0] = '\0';

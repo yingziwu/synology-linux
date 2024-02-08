@@ -118,6 +118,7 @@ struct fb_info_control {
 /* control register access macro */
 #define CNTRL_REG(INFO,REG) (&(((INFO)->control_regs->REG).r))
 
+
 /******************** Prototypes for exported functions ********************/
 /*
  * struct fb_ops
@@ -149,12 +150,14 @@ static inline void control_par_to_var(struct fb_par_control *par,
 static void control_init_info(struct fb_info *info, struct fb_info_control *p);
 static void control_cleanup(void);
 
+
 /************************** Internal variables *******************************/
 
 static struct fb_info_control *control_fb;
 
 static int default_vmode __initdata = VMODE_NVRAM;
 static int default_cmode __initdata = CMODE_NVRAM;
+
 
 static struct fb_ops controlfb_ops = {
 	.owner		= THIS_MODULE,
@@ -168,6 +171,7 @@ static struct fb_ops controlfb_ops = {
 	.fb_copyarea	= cfb_copyarea,
 	.fb_imageblit	= cfb_imageblit,
 };
+
 
 /********************  The functions for controlfb_ops ********************/
 
@@ -249,6 +253,7 @@ static inline void set_screen_start(int xoffset, int yoffset,
 		 par->yoffset * par->pitch + (par->xoffset << par->cmode));
 }
 
+
 static int controlfb_pan_display(struct fb_var_screeninfo *var,
 				 struct fb_info *info)
 {
@@ -270,6 +275,7 @@ static int controlfb_pan_display(struct fb_var_screeninfo *var,
 
 	return 0;
 }
+
 
 /*
  * Private mmap since we want to have a different caching on the framebuffer
@@ -378,7 +384,10 @@ static int controlfb_setcolreg(u_int regno, u_int red, u_int green, u_int blue,
 	return 0;
 }
 
+
 /********************  End of controlfb_ops implementation  ******************/
+
+
 
 static void set_control_clock(unsigned char *params)
 {
@@ -394,6 +403,7 @@ static void set_control_clock(unsigned char *params)
 	}
 #endif	
 }
+
 
 /*
  * finish off the driver initialization and register
@@ -538,6 +548,7 @@ static void control_set_hardware(struct fb_info_control *p, struct fb_par_contro
 #endif /* CONFIG_BOOTX_TEXT */
 }
 
+
 /*
  * Parse user specified options (`video=controlfb:')
  */
@@ -671,6 +682,7 @@ static void __init find_vram_size(struct fb_info_control *p)
 			"(%dMB @ bank 1, %dMB @ bank 2)\n",
 			(bank1 + bank2) << 1, bank1 << 1, bank2 << 1);
 }
+
 
 /*
  * find "control" and initialize
@@ -818,6 +830,7 @@ static int calc_clock_params(unsigned long clk, unsigned char *param)
 	return 0;
 }
 
+
 /*
  * This routine takes a user-supplied var, and picks the best vmode/cmode
  * from it.
@@ -954,6 +967,7 @@ static int control_var_to_par(struct fb_var_screeninfo *var,
 	return 0;
 }
 
+
 /*
  * Convert hardware data in par to an fb_var_screeninfo
  */
@@ -1051,6 +1065,7 @@ static void __init control_init_info(struct fb_info *info, struct fb_info_contro
         info->fix.accel = FB_ACCEL_NONE;
 }
 
+
 static void control_cleanup(void)
 {
 	struct fb_info_control	*p = control_fb;
@@ -1075,3 +1090,5 @@ static void control_cleanup(void)
 		release_mem_region(p->fb_orig_base, p->fb_orig_size);
 	kfree(p);
 }
+
+

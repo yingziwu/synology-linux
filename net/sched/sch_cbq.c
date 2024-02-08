@@ -20,6 +20,7 @@
 #include <net/netlink.h>
 #include <net/pkt_sched.h>
 
+
 /*	Class-Based Queueing (CBQ) algorithm.
 	=======================================
 
@@ -55,6 +56,7 @@
 	In the worst case we have IntServ estimate with D = W*r+k*MTU
 	and C = MTU*r. The proof (if correct at all) is trivial.
 
+
 	--- It seems that cbq-2.0 is not very accurate. At least, I cannot
 	interpret some places, which look like wrong translations
 	from NS. Anyone is advised to find these differences
@@ -68,6 +70,7 @@
 	very close to an ideal solution.  */
 
 struct cbq_sched_data;
+
 
 struct cbq_class {
 	struct Qdisc_class_common common;
@@ -110,6 +113,7 @@ struct cbq_class {
 	struct cbq_class	*children;	/* Pointer to children chain */
 
 	struct Qdisc		*q;		/* Elementary queueing discipline */
+
 
 /* Variables */
 	unsigned char		cpriority;	/* Effective priority */
@@ -167,6 +171,7 @@ struct cbq_sched_data {
 	int			toplevel;
 	u32			hgenerator;
 };
+
 
 #define L2T(cl, len)	qdisc_l2t((cl)->R_tab, len)
 
@@ -958,8 +963,11 @@ cbq_dequeue(struct Qdisc *sch)
 		cbq_update(q);
 		if ((incr -= incr2) < 0)
 			incr = 0;
+		q->now += incr;
+	} else {
+		if (now > q->now)
+			q->now = now;
 	}
-	q->now += incr;
 	q->now_rt = now;
 
 	for (;;) {
@@ -1237,6 +1245,7 @@ cbq_reset(struct Qdisc *sch)
 	sch->q.qlen = 0;
 }
 
+
 static int cbq_set_lss(struct cbq_class *cl, struct tc_cbq_lssopt *lss)
 {
 	if (lss->change & TCF_CBQ_LSS_FLAGS) {
@@ -1358,6 +1367,13 @@ static int cbq_init(struct Qdisc *sch, struct nlattr *opt)
 	struct tc_ratespec *r;
 	int err;
 
+	qdisc_watchdog_init(&q->watchdog, sch);
+	hrtimer_init(&q->delay_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
+	q->delay_timer.function = cbq_undelay;
+
+	if (!opt)
+		return -EINVAL;
+
 	err = nla_parse_nested(tb, TCA_CBQ_MAX, opt, cbq_policy);
 	if (err < 0)
 		return err;
@@ -1396,9 +1412,6 @@ static int cbq_init(struct Qdisc *sch, struct nlattr *opt)
 	q->link.avpkt = q->link.allot/2;
 	q->link.minidle = -0x7FFFFFFF;
 
-	qdisc_watchdog_init(&q->watchdog, sch);
-	hrtimer_init(&q->delay_timer, CLOCK_MONOTONIC, HRTIMER_MODE_ABS);
-	q->delay_timer.function = cbq_undelay;
 	q->toplevel = TC_CBQ_MAXLEVEL;
 	q->now = psched_get_time();
 	q->now_rt = q->now;
@@ -1458,6 +1471,7 @@ static int cbq_dump_wrr(struct sk_buff *skb, struct cbq_class *cl)
 	unsigned char *b = skb_tail_pointer(skb);
 	struct tc_cbq_wrropt opt;
 
+	memset(&opt, 0, sizeof(opt));
 	opt.flags = 0;
 	opt.allot = cl->allot;
 	opt.priority = cl->priority + 1;

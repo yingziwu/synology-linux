@@ -295,6 +295,8 @@ struct ttm_mem_type_manager_func {
  * It's set up by the ttm_bo_driver::init_mem_type method.
  */
 
+
+
 struct ttm_mem_type_manager {
 	struct ttm_bo_device *bdev;
 
@@ -515,6 +517,7 @@ struct ttm_bo_global {
 	 */
 	atomic_t bo_count;
 };
+
 
 #define TTM_NUM_MEM_TYPES 8
 
@@ -820,6 +823,7 @@ extern int ttm_mem_io_lock(struct ttm_mem_type_manager *man,
 			   bool interruptible);
 extern void ttm_mem_io_unlock(struct ttm_mem_type_manager *man);
 
+
 /**
  * ttm_bo_reserve:
  *
@@ -877,6 +881,7 @@ extern void ttm_mem_io_unlock(struct ttm_mem_type_manager *man);
 extern int ttm_bo_reserve(struct ttm_buffer_object *bo,
 			  bool interruptible,
 			  bool no_wait, bool use_sequence, uint32_t sequence);
+
 
 /**
  * ttm_bo_reserve_locked:

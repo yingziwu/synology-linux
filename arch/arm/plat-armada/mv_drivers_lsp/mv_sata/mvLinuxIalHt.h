@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -43,6 +44,7 @@ disclaimer.
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/types.h>
+
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 #include <scsi/scsi.h>
@@ -89,6 +91,7 @@ extern int mv_ial_ht_ioctl(struct scsi_device *, int, void __user *);
 #ifdef CONFIG_PCI_MSI
 /*#define MV_SUPPORT_MSI*/
 #endif
+
 
 #ifndef MRVL_SATA_BUFF_BOUNDARY
 #define MRVL_SATA_BUFF_BOUNDARY (1 << 24)
@@ -148,6 +151,7 @@ extern int mv_ial_ht_ioctl(struct scsi_device *, int, void __user *);
     use_clustering:     ENABLE_CLUSTERING               /*use_clustering*/  \
 }
 #endif
+
 
 #define MV_IAL_HT_SACOALT_DEFAULT   4
 #define MV_IAL_HT_SAITMTH_DEFAULT   (150 * 50)
@@ -236,6 +240,7 @@ struct mv_comp_info
 #define use_sg(p)		1
 #endif
 
+
 /* Once pci64_ DMA mapping interface is in, kill this. */
 /*#define pci64_alloc_consistent(d,s,p) pci_alloc_consistent((d),(s),(p))*/
 /*#define pci64_free_consistent(d,s,c,a) pci_free_consistent((d),(s),(c),(a))*/
@@ -254,5 +259,6 @@ struct mv_comp_info
 #endif  /* BITS_PER_LONG */
 #define sg_dma64_address(s) sg_dma_address(s)
 #define sg_dma64_len(s) sg_dma_len(s)
+
 
 #endif /* __INCmvLinuxIalHth */

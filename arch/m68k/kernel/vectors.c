@@ -142,3 +142,4 @@ void __init trap_init (void)
 		vectors[VEC_INT7] = nmihandler;
 	}
 }
+

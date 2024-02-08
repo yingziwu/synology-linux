@@ -1593,9 +1593,18 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
 	unsigned long long now;
 	int expires;
 
+	cqr = (struct dasd_ccw_req *) intparm;
 	if (IS_ERR(irb)) {
 		switch (PTR_ERR(irb)) {
 		case -EIO:
+			if (cqr && cqr->status == DASD_CQR_CLEAR_PENDING) {
+				device = (struct dasd_device *) cqr->startdev;
+				cqr->status = DASD_CQR_CLEARED;
+				dasd_device_clear_timer(device);
+				wake_up(&dasd_flush_wq);
+				dasd_schedule_device_bh(device);
+				return;
+			}
 			break;
 		case -ETIMEDOUT:
 			DBF_EVENT_DEVID(DBF_WARNING, cdev, "%s: "
@@ -1611,7 +1620,6 @@ void dasd_int_handler(struct ccw_device *cdev, unsigned long intparm,
 	}
 
 	now = get_clock();
-	cqr = (struct dasd_ccw_req *) intparm;
 	/* check for conditions that should be handled immediately */
 	if (!cqr ||
 	    !(scsw_dstat(&irb->scsw) == (DEV_STAT_CHN_END | DEV_STAT_DEV_END) &&
@@ -2328,6 +2336,7 @@ int dasd_cancel_req(struct dasd_ccw_req *cqr)
 	return rc;
 }
 
+
 /*
  * SECTION: Operations of the dasd_block layer.
  */
@@ -2705,6 +2714,7 @@ void dasd_schedule_block_bh(struct dasd_block *block)
 	dasd_get_device(block->base);
 	tasklet_hi_schedule(&block->tasklet);
 }
+
 
 /*
  * SECTION: external block device operations
@@ -3276,6 +3286,7 @@ int dasd_generic_verify_path(struct dasd_device *device, __u8 lpm)
 }
 EXPORT_SYMBOL_GPL(dasd_generic_verify_path);
 
+
 int dasd_generic_pm_freeze(struct ccw_device *cdev)
 {
 	struct dasd_ccw_req *cqr, *n;
@@ -3409,6 +3420,7 @@ static struct dasd_ccw_req *dasd_generic_build_rdc(struct dasd_device *device,
 	cqr->status = DASD_CQR_FILLED;
 	return cqr;
 }
+
 
 int dasd_generic_read_dev_chars(struct dasd_device *device, int magic,
 				void *rdc_buffer, int rdc_buffer_size)

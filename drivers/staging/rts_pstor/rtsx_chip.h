@@ -100,6 +100,7 @@
 #define TRANSPORT_NO_SENSE 	2  /* Command failed, no auto-sense    */
 #define TRANSPORT_ERROR   	3   /* Transport bad (i.e. device dead) */
 
+
 /*-----------------------------------
     Start-Stop-Unit
 -----------------------------------*/
@@ -222,6 +223,7 @@
 #define ASCQ_LOAD_EJCT_ERR      0x00
 #define	ASCQ_WRITE_PROTECT	0x00
 
+
 struct sense_data_t {
     unsigned char   err_code;		/* error code */
 						/* bit7 : valid                    */
@@ -298,12 +300,14 @@ struct sense_data_t {
 #define MS_OC_INT_EN		(1 << 23)
 #define SD_OC_INT_EN		(1 << 22)
 
+
 #define READ_REG_CMD		0
 #define WRITE_REG_CMD		1
 #define CHECK_REG_CMD		2
 
 #define HOST_TO_DEVICE		0
 #define DEVICE_TO_HOST		1
+
 
 #define RTSX_RESV_BUF_LEN	4096
 #define HOST_CMDS_BUF_LEN	1024
@@ -322,6 +326,7 @@ struct sense_data_t {
 
 #define XD_FREE_TABLE_CNT	1200
 #define MS_FREE_TABLE_CNT	512
+
 
 /* Bit Operation */
 #define SET_BIT(data, idx)	((data) |= 1 << (idx))
@@ -604,6 +609,7 @@ struct spi_info {
 
 	int spi_clock;
 };
+
 
 #ifdef _MSG_TRACE
 struct trace_msg_t {

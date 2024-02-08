@@ -207,6 +207,7 @@ void gmap_free(struct gmap *gmap)
 	unsigned long *table;
 	int i;
 
+
 	/* Flush tlb. */
 	if (MACHINE_HAS_IDTE)
 		__tlb_flush_idte((unsigned long) gmap->table |

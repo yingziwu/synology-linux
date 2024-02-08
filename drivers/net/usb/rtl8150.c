@@ -58,31 +58,6 @@
 #define	RTL8150_REQ_GET_REGS	0x05
 #define	RTL8150_REQ_SET_REGS	0x05
 
-/* Transmit status register errors */
-#define TSR_ECOL		(1<<5)
-#define TSR_LCOL		(1<<4)
-#define TSR_LOSS_CRS		(1<<3)
-#define TSR_JBR			(1<<2)
-#define TSR_ERRORS		(TSR_ECOL | TSR_LCOL | TSR_LOSS_CRS | TSR_JBR)
-/* Receive status register errors */
-#define RSR_CRC			(1<<2)
-#define RSR_FAE			(1<<1)
-#define RSR_ERRORS		(RSR_CRC | RSR_FAE)
-
-/* Media status register definitions */
-#define MSR_DUPLEX		(1<<4)
-#define MSR_SPEED		(1<<3)
-#define MSR_LINK		(1<<2)
-
-/* Interrupt pipe data */
-#define INT_TSR			0x00
-#define INT_RSR			0x01
-#define INT_MSR			0x02
-#define INT_WAKSR		0x03
-#define INT_TXOK_CNT		0x04
-#define INT_RXLOST_CNT		0x05
-#define INT_CRERR_CNT		0x06
-#define INT_COL_CNT		0x07
 
 /* Transmit status register errors */
 #define TSR_ECOL		(1<<5)
@@ -109,6 +84,33 @@
 #define INT_RXLOST_CNT		0x05
 #define INT_CRERR_CNT		0x06
 #define INT_COL_CNT		0x07
+
+/* Transmit status register errors */
+#define TSR_ECOL		(1<<5)
+#define TSR_LCOL		(1<<4)
+#define TSR_LOSS_CRS		(1<<3)
+#define TSR_JBR			(1<<2)
+#define TSR_ERRORS		(TSR_ECOL | TSR_LCOL | TSR_LOSS_CRS | TSR_JBR)
+/* Receive status register errors */
+#define RSR_CRC			(1<<2)
+#define RSR_FAE			(1<<1)
+#define RSR_ERRORS		(RSR_CRC | RSR_FAE)
+
+/* Media status register definitions */
+#define MSR_DUPLEX		(1<<4)
+#define MSR_SPEED		(1<<3)
+#define MSR_LINK		(1<<2)
+
+/* Interrupt pipe data */
+#define INT_TSR			0x00
+#define INT_RSR			0x01
+#define INT_MSR			0x02
+#define INT_WAKSR		0x03
+#define INT_TXOK_CNT		0x04
+#define INT_RXLOST_CNT		0x05
+#define INT_CRERR_CNT		0x06
+#define INT_COL_CNT		0x07
+
 
 #define	RTL8150_MTU		1540
 #define	RTL8150_TX_TIMEOUT	(HZ)
@@ -176,16 +178,36 @@ static const char driver_name [] = "rtl8150";
 */
 static int get_registers(rtl8150_t * dev, u16 indx, u16 size, void *data)
 {
-	return usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
-			       RTL8150_REQ_GET_REGS, RTL8150_REQT_READ,
-			       indx, 0, data, size, 500);
+	void *buf;
+	int ret;
+
+	buf = kmalloc(size, GFP_NOIO);
+	if (!buf)
+		return -ENOMEM;
+
+	ret = usb_control_msg(dev->udev, usb_rcvctrlpipe(dev->udev, 0),
+			      RTL8150_REQ_GET_REGS, RTL8150_REQT_READ,
+			      indx, 0, buf, size, 500);
+	if (ret > 0 && ret <= size)
+		memcpy(data, buf, ret);
+	kfree(buf);
+	return ret;
 }
 
-static int set_registers(rtl8150_t * dev, u16 indx, u16 size, void *data)
+static int set_registers(rtl8150_t * dev, u16 indx, u16 size, const void *data)
 {
-	return usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
-			       RTL8150_REQ_SET_REGS, RTL8150_REQT_WRITE,
-			       indx, 0, data, size, 500);
+	void *buf;
+	int ret;
+
+	buf = kmemdup(data, size, GFP_NOIO);
+	if (!buf)
+		return -ENOMEM;
+
+	ret = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+			      RTL8150_REQ_SET_REGS, RTL8150_REQT_WRITE,
+			      indx, 0, buf, size, 500);
+	kfree(buf);
+	return ret;
 }
 
 static void ctrl_callback(struct urb *urb)
@@ -731,6 +753,7 @@ static netdev_tx_t rtl8150_start_xmit(struct sk_buff *skb,
 
 	return NETDEV_TX_OK;
 }
+
 
 static void set_carrier(struct net_device *netdev)
 {

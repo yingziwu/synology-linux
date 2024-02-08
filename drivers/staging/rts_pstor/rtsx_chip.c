@@ -1309,6 +1309,7 @@ void rtsx_polling_func(struct rtsx_chip *chip)
 		break;
 	}
 
+
 #ifdef SUPPORT_OCP
 	if (CHECK_LUN_MODE(chip, SD_MS_2LUN)) {
 #ifdef CONFIG_RTS_PSTOR_DEBUG

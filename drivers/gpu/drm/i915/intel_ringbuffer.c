@@ -163,6 +163,7 @@ intel_emit_post_sync_nonzero_flush(struct intel_ring_buffer *ring)
 	u32 scratch_addr = pc->gtt_offset + 128;
 	int ret;
 
+
 	ret = intel_ring_begin(ring, 6);
 	if (ret)
 		return ret;
@@ -407,11 +408,6 @@ static int init_render_ring(struct intel_ring_buffer *ring)
 	if (INTEL_INFO(dev)->gen >= 6)
 		I915_WRITE(MI_MODE, GFX_MODE_ENABLE(ASYNC_FLIP_PERF_DISABLE));
 
-	/* Required for the hardware to program scanline values for waiting */
-	if (INTEL_INFO(dev)->gen == 6)
-		I915_WRITE(GFX_MODE,
-			   GFX_MODE_ENABLE(GFX_TLB_INVALIDATE_ALWAYS));
-
 	if (IS_GEN7(dev))
 		I915_WRITE(GFX_MODE_GEN7,
 			   GFX_MODE_DISABLE(GFX_TLB_INVALIDATE_ALWAYS) |
@@ -422,6 +418,7 @@ static int init_render_ring(struct intel_ring_buffer *ring)
 		if (ret)
 			return ret;
 	}
+
 
 	if (IS_GEN6(dev)) {
 		/* From the Sandybridge PRM, volume 1 part 3, page 24:
@@ -568,6 +565,8 @@ gen6_blt_ring_sync_to(struct intel_ring_buffer *waiter,
 			       BCS,
 			       seqno);
 }
+
+
 
 #define PIPE_CONTROL_FLUSH(ring__, addr__)					\
 do {									\
@@ -777,6 +776,18 @@ void intel_ring_setup_status_page(struct intel_ring_buffer *ring)
 
 	I915_WRITE(mmio, (u32)ring->status_page.gfx_addr);
 	POSTING_READ(mmio);
+
+	/* Flush the TLB for this page */
+	if (INTEL_INFO(dev)->gen >= 6) {
+		u32 reg = RING_INSTPM(ring->mmio_base);
+		I915_WRITE(reg,
+			   _MASKED_BIT_ENABLE(INSTPM_TLB_INVALIDATE |
+					      INSTPM_SYNC_FLUSH));
+		if (wait_for((I915_READ(reg) & INSTPM_SYNC_FLUSH) == 0,
+			     1000))
+			DRM_ERROR("%s: wait for SyncFlush to complete for TLB invalidation timed out\n",
+				  ring->name);
+	}
 }
 
 static int
@@ -1202,6 +1213,27 @@ int intel_ring_begin(struct intel_ring_buffer *ring,
 	return 0;
 }
 
+/* Align the ring tail to a cacheline boundary */
+int intel_ring_cacheline_align(struct intel_ring_buffer *ring)
+{
+	int num_dwords = (64 - (ring->tail & 63)) / sizeof(uint32_t);
+	int ret;
+
+	if (num_dwords == 0)
+		return 0;
+
+	ret = intel_ring_begin(ring, num_dwords);
+	if (ret)
+		return ret;
+
+	while (num_dwords--)
+		intel_ring_emit(ring, MI_NOOP);
+
+	intel_ring_advance(ring);
+
+	return 0;
+}
+
 void intel_ring_advance(struct intel_ring_buffer *ring)
 {
 	ring->tail &= ring->size - 1;
@@ -1245,6 +1277,7 @@ static const struct intel_ring_buffer bsd_ring = {
 	.irq_put		= bsd_ring_put_irq,
 	.dispatch_execbuffer	= ring_dispatch_execbuffer,
 };
+
 
 static void gen6_bsd_ring_write_tail(struct intel_ring_buffer *ring,
 				     u32 value)
@@ -1377,6 +1410,7 @@ blt_ring_put_irq(struct intel_ring_buffer *ring)
 			  GT_BLT_USER_INTERRUPT,
 			  GEN6_BLITTER_USER_INTERRUPT);
 }
+
 
 /* Workaround for some stepping of SNB,
  * each time when BLT engine ring tail moved,

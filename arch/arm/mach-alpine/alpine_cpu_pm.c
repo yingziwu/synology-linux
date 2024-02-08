@@ -162,3 +162,4 @@ void __init alpine_cpu_pm_init(void)
 	}
 #endif
 }
+

@@ -176,6 +176,7 @@ claw_test_and_setbit_busy(int nr,struct net_device *dev)
 		(void *)&(((struct claw_privbk *) dev->ml_priv)->tbusy));
 }
 
+
 /* Functions for the DEV methods */
 
 static int claw_probe(struct ccwgroup_device *cgdev);
@@ -478,6 +479,7 @@ claw_change_mtu(struct net_device *dev, int new_mtu)
         dev->mtu = new_mtu;
         return 0;
 }  /*   end of claw_change_mtu */
+
 
 /*-------------------------------------------------------------------*
  *   claw_open                                                       *
@@ -832,6 +834,7 @@ claw_irq_handler(struct ccw_device *cdev,
 
 }       /*   end of claw_irq_handler    */
 
+
 /*-------------------------------------------------------------------*
 *       claw_irq_tasklet                                             *
 *                                                                    *
@@ -1007,6 +1010,7 @@ claw_write_retry ( struct chbk *p_ch )
         return;
 }      /* end of claw_write_retry      */
 
+
 /*-------------------------------------------------------------------*
 *       claw_write_next                                              *
 *                                                                    *
@@ -1061,6 +1065,7 @@ claw_timer ( struct chbk * p_ch )
 *
 *       functions
 */
+
 
 /*-------------------------------------------------------------------*
 *                                                                    *
@@ -1149,6 +1154,7 @@ add_claw_reads(struct net_device *dev, struct ccwbk* p_first,
                 temp_ccw.count=0;
                 temp_ccw.flags=0;
                 temp_ccw.cmd_code = CCW_CLAW_CMD_TIC;
+
 
                 if (p_end->read1) {
 
@@ -1800,6 +1806,7 @@ init_ccw_bk(struct net_device *dev)
         privptr->p_buff_write_num=claw_write_pages;
         privptr->write_free_count=privptr->p_env->write_buffers;
 
+
         /*
         *               allocate read_pages_required and chain to free chain
         */
@@ -2317,6 +2324,7 @@ claw_process_control( struct net_device *dev, struct ccwbk * p_ccw)
         return 0;
 }   /*    end of claw_process_control    */
 
+
 /*-------------------------------------------------------------------*
 *               claw_send_control                                    *
 *                                                                    *
@@ -2383,6 +2391,7 @@ claw_send_control(struct net_device *dev, __u8 type, __u8 link,
 
         /*      write Control Record to the device                   */
 
+
         skb = dev_alloc_skb(sizeof(struct clawctl));
         if (!skb) {
                 return -ENOMEM;
@@ -2428,6 +2437,7 @@ claw_snd_conn_req(struct net_device *dev, __u8 link)
 
 }  /*  end of claw_snd_conn_req */
 
+
 /*-------------------------------------------------------------------*
 *               claw_snd_disc                                        *
 *                                                                    *
@@ -2447,6 +2457,7 @@ claw_snd_disc(struct net_device *dev, struct clawctl * p_ctl)
                 p_connect->host_name, p_connect->WS_name);
         return rc;
 }     /*   end of claw_snd_disc    */
+
 
 /*-------------------------------------------------------------------*
 *               claw_snd_sys_validate_rsp                            *
@@ -2488,6 +2499,8 @@ claw_strt_conn_req(struct net_device *dev )
         return rc;
 }    /*   end of claw_strt_conn_req   */
 
+
+
 /*-------------------------------------------------------------------*
  *   claw_stats                                                      *
  *-------------------------------------------------------------------*/
@@ -2501,6 +2514,7 @@ net_device_stats *claw_stats(struct net_device *dev)
 	privptr = dev->ml_priv;
         return &privptr->stats;
 }     /*   end of claw_stats   */
+
 
 /*-------------------------------------------------------------------*
 *       unpack_read                                                  *
@@ -2916,6 +2930,7 @@ add_channel(struct ccw_device *cdev,int i,struct claw_privbk *privptr)
 	return 0;
 }
 
+
 /**
  *
  * Setup an interface.
@@ -3095,6 +3110,7 @@ claw_remove_device(struct ccwgroup_device *cgdev)
 
 	return;
 }
+
 
 /*
  * sysfs attributes

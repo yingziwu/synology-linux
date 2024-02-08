@@ -70,6 +70,7 @@ static BYTE BitData[] = { 0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80 } ;
 BYTE     IsSSFDCCompliance;
 BYTE     IsXDCompliance;
 
+
 //
 ////Power Control & Media Exist Check Function
 ////----- Init_D_SmartMedia() --------------------------------------------
@@ -675,6 +676,7 @@ int Check_D_MediaFmt(struct us_data *us)
 		ErrCode = ERR_IllegalFmt;
 		return(ERROR);
 	}
+
 
     MediaChange = SMSUCCESS;
     return(SMSUCCESS);

@@ -49,6 +49,7 @@ typedef struct {
 	struct proc_dir_entry	*entry;		/* registered entry (removal) */
 } palinfo_entry_t;
 
+
 /*
  *  A bunch of string array to get pretty printing
  */
@@ -289,6 +290,7 @@ cache_info(char *page)
 	return p - page;
 }
 
+
 static int
 vm_info(char *page)
 {
@@ -354,6 +356,7 @@ vm_info(char *page)
 			     vm_info_1.pal_vm_info_1_s.max_dtr_entry+1,
 			     vm_info_1.pal_vm_info_1_s.max_itr_entry+1);
 
+
 		p = bitvector_process(p, tr_pages);
 
 		p += sprintf(p, "\nTLB purgeable page sizes       : ");
@@ -381,6 +384,7 @@ vm_info(char *page)
 		for(i=0; i < vm_info_1.pal_vm_info_1_s.num_tc_levels; i++) {
 			for (j=2; j>0 ; j--) {
 				tc_pages = 0; /* just in case */
+
 
 				/* even without unification, some levels may not be present */
 				if ((status=ia64_pal_vm_info(i,j, &tc_info, &tc_pages)) != 0) {
@@ -419,6 +423,7 @@ vm_info(char *page)
 
 	return p - page;
 }
+
 
 static int
 register_info(char *page)
@@ -610,6 +615,7 @@ static const char *bus_features[]={
 	"Disable Bus Address Error Signalling",
 	"Disable Bus Data Error Checking"
 };
+
 
 static int
 bus_info(char *page)
@@ -823,6 +829,8 @@ tr_info(char *page)
 	return p - page;
 }
 
+
+
 /*
  * List {name,function} pairs for every entry in /proc/palinfo/cpu*
  */
@@ -883,6 +891,7 @@ typedef struct {
 	int		ret;	/* return value from call */
 } palinfo_smp_data_t;
 
+
 /*
  * this function does the actual final call and he called
  * from the smp code, i.e., this is the palinfo callback routine
@@ -909,6 +918,7 @@ int palinfo_handle_smp(pal_func_cpu_u_t *f, char *page)
 	ptr.func = palinfo_entries[f->func_id].proc_read;
 	ptr.page = page;
 	ptr.ret  = 0; /* just in case */
+
 
 	/* will send IPI to other CPU and wait for completion of remote call */
 	if ((ret=smp_call_function_single(f->req_cpu, palinfo_smp_call, &ptr, 1))) {
@@ -968,6 +978,7 @@ create_palinfo_proc_entries(unsigned int cpu)
 	struct proc_dir_entry *cpu_dir;
 	int j;
 	char cpustr[sizeof(CPUSTR)];
+
 
 	/*
 	 * we keep track of created entries in a depth-first order for

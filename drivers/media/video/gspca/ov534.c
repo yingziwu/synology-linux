@@ -1166,6 +1166,7 @@ static void setlightfreq(struct gspca_dev *gspca_dev)
 	sccb_reg_write(gspca_dev, 0x2b, val);
 }
 
+
 /* this function is called at probe time */
 static int sd_config(struct gspca_dev *gspca_dev,
 		     const struct usb_device_id *id)
@@ -1480,8 +1481,13 @@ static void sd_set_streamparm(struct gspca_dev *gspca_dev,
 	struct v4l2_fract *tpf = &cp->timeperframe;
 	struct sd *sd = (struct sd *) gspca_dev;
 
-	/* Set requested framerate */
-	sd->frame_rate = tpf->denominator / tpf->numerator;
+	if (tpf->numerator == 0 || tpf->denominator == 0)
+		/* Set default framerate */
+		sd->frame_rate = 30;
+	else
+		/* Set requested framerate */
+		sd->frame_rate = tpf->denominator / tpf->numerator;
+
 	if (gspca_dev->streaming)
 		set_frame_rate(gspca_dev);
 

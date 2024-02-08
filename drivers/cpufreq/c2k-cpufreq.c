@@ -247,3 +247,4 @@ MODULE_LICENSE ("GPL");
 
 late_initcall(comcerto_cpufreq_init);
 module_exit(comcerto_cpufreq_exit);
+

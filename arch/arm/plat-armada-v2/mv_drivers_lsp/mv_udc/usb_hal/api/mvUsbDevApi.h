@@ -26,6 +26,7 @@ disclaimer.
 #include "mvUsbDefs.h"
 #include "ctrlEnv/mvCtrlEnvSpec.h"
 
+
 #define ARC_USB_MAX_ENDPOINTS               (16)
 
 #define MAX_EP_TR_DESCRS                    (48)
@@ -37,6 +38,7 @@ if they are not you need to modify the tr_complete routine to handle that */
 #define USB_MAX_CONTROL_ENDPOINTS           (1)
 
 #define USB_MAX_CTRL_PAYLOAD                (64)
+
 
 /* Endpoint types */
 #define  ARC_USB_CONTROL_ENDPOINT             (0)
@@ -117,6 +119,8 @@ void    _usb_device_read_setup_data(void* handle, uint_8 ep_num, uint_8* buf_ptr
 uint_8  _usb_device_register_service(void* handle, uint_8 type, USB_SERVICE_FUNC serviceFunc);
 
 uint_8  _usb_device_unregister_service(void* handle, uint_8 type);
+
+
 
 /* These functions that implement USB 2.0 standard Chapter 9 Setup requests */
 void    mvUsbCh9GetStatus(void* handle, boolean setup,

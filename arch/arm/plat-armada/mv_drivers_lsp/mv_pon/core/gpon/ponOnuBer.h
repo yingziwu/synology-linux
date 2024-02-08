@@ -128,3 +128,16 @@ void             onuGponBerIntervalSet(MV_U32 interval);
 MV_U32           onuGponBerPower(MV_U32 x, MV_U32 y);
 
 #endif /* PON_ONU_BER_H */
+
+
+
+
+
+
+ 
+ 
+ 
+
+
+
+

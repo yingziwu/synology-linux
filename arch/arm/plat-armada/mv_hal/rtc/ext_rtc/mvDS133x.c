@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 /* includes */
 #include "ctrlEnv/mvCtrlEnvLib.h"
 #include "rtc/ext_rtc/mvDS133x.h"
@@ -261,6 +262,7 @@ MV_VOID mvRtcDS1339Init(MV_VOID)
 
 	return;
 }
+
 
 /*******************************************************************************
 * mvRtcDS1338Init - Initialize the clock.

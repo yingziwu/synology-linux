@@ -74,7 +74,7 @@ static int r300_emit_cliprects(drm_radeon_private_t *dev_priv,
 		OUT_RING(CP_PACKET0(R300_RE_CLIPRECT_TL_0, nr * 2 - 1));
 
 		for (i = 0; i < nr; ++i) {
-			if (DRM_COPY_FROM_USER_UNCHECKED
+			if (DRM_COPY_FROM_USER
 			    (&box, &cmdbuf->boxes[n + i], sizeof(box))) {
 				DRM_ERROR("copy cliprect faulted\n");
 				return -EFAULT;
@@ -535,6 +535,7 @@ static __inline__ int r300_emit_bitblt_multi(drm_radeon_private_t *dev_priv,
 	u32 *cmd = drm_buffer_pointer_to_dword(cmdbuf->buffer, 0);
 	int count, ret;
 	RING_LOCALS;
+
 
 	count = (*cmd & RADEON_CP_PACKET_COUNT_MASK) >> 16;
 
@@ -1000,6 +1001,7 @@ static inline int r300_emit_r500fp(drm_radeon_private_t *dev_priv,
 
 	return 0;
 }
+
 
 /**
  * Parses and validates a user-supplied command buffer and emits appropriate

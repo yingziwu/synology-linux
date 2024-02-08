@@ -94,6 +94,7 @@ struct fib_info {
 #define fib_dev		fib_nh[0].nh_dev
 };
 
+
 #ifdef CONFIG_IP_MULTIPLE_TABLES
 struct fib_rule;
 #endif
@@ -128,18 +129,16 @@ struct fib_result_nl {
 };
 
 #ifdef CONFIG_IP_ROUTE_MULTIPATH
-
 #define FIB_RES_NH(res)		((res).fi->fib_nh[(res).nh_sel])
-
-#define FIB_TABLE_HASHSZ 2
-
 #else /* CONFIG_IP_ROUTE_MULTIPATH */
-
 #define FIB_RES_NH(res)		((res).fi->fib_nh[0])
-
-#define FIB_TABLE_HASHSZ 256
-
 #endif /* CONFIG_IP_ROUTE_MULTIPATH */
+
+#ifdef CONFIG_IP_MULTIPLE_TABLES
+#define FIB_TABLE_HASHSZ 256
+#else
+#define FIB_TABLE_HASHSZ 2
+#endif
 
 extern __be32 fib_info_update_nh_saddr(struct net *net, struct fib_nh *nh);
 
@@ -172,10 +171,12 @@ extern int fib_table_dump(struct fib_table *table, struct sk_buff *skb,
 extern int fib_table_flush(struct fib_table *table);
 extern void fib_free_table(struct fib_table *tb);
 
+
+
 #ifndef CONFIG_IP_MULTIPLE_TABLES
 
-#define TABLE_LOCAL_INDEX	0
-#define TABLE_MAIN_INDEX	1
+#define TABLE_LOCAL_INDEX	(RT_TABLE_LOCAL & (FIB_TABLE_HASHSZ - 1))
+#define TABLE_MAIN_INDEX	(RT_TABLE_MAIN  & (FIB_TABLE_HASHSZ - 1))
 
 static inline struct fib_table *fib_get_table(struct net *net, u32 id)
 {
@@ -193,16 +194,17 @@ static inline struct fib_table *fib_new_table(struct net *net, u32 id)
 }
 
 static inline int fib_lookup(struct net *net, const struct flowi4 *flp,
-			     struct fib_result *res)
+			     struct fib_result *res, unsigned int flags)
 {
 	struct fib_table *table;
 
+	flags |= FIB_LOOKUP_NOREF;
 	table = fib_get_table(net, RT_TABLE_LOCAL);
-	if (!fib_table_lookup(table, flp, res, FIB_LOOKUP_NOREF))
+	if (!fib_table_lookup(table, flp, res, flags))
 		return 0;
 
 	table = fib_get_table(net, RT_TABLE_MAIN);
-	if (!fib_table_lookup(table, flp, res, FIB_LOOKUP_NOREF))
+	if (!fib_table_lookup(table, flp, res, flags))
 		return 0;
 	return -ENETUNREACH;
 }
@@ -215,7 +217,8 @@ extern void __net_exit fib4_rules_exit(struct net *net);
 extern u32 fib_rules_tclass(const struct fib_result *res);
 #endif
 
-extern int fib_lookup(struct net *n, struct flowi4 *flp, struct fib_result *res);
+extern int fib_lookup(struct net *n, struct flowi4 *flp, struct fib_result *res,
+			     unsigned int flags);
 
 extern struct fib_table *fib_new_table(struct net *net, u32 id);
 extern struct fib_table *fib_get_table(struct net *net, u32 id);
@@ -232,10 +235,10 @@ extern void fib_select_default(struct fib_result *res);
 
 /* Exported by fib_semantics.c */
 extern int ip_fib_check_default(__be32 gw, struct net_device *dev);
-extern int fib_sync_down_dev(struct net_device *dev, int force);
+extern int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force);
 extern int fib_sync_down_addr(struct net *net, __be32 local);
 extern void fib_update_nh_saddrs(struct net_device *dev);
-extern int fib_sync_up(struct net_device *dev);
+extern int fib_sync_up(struct net_device *dev, unsigned int nh_flags);
 extern void fib_select_multipath(struct fib_result *res);
 
 /* Exported by fib_trie.c */

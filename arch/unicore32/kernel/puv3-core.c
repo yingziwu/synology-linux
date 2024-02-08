@@ -181,6 +181,7 @@ enum {
 	SLEEP_SAVE_COUNT
 };
 
+
 static void puv3_cpu_pm_save(unsigned long *sleep_save)
 {
 /*	SAVE(PM_PLLDDRCFG); */
@@ -276,3 +277,4 @@ void __init puv3_core_init(void)
 			puv3_usb_resources, ARRAY_SIZE(puv3_usb_resources),
 			&puv3_usb_plat, sizeof(puv3_usb_plat));
 }
+

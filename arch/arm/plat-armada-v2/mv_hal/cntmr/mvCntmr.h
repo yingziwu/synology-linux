@@ -154,6 +154,7 @@ typedef struct {
 /*	get Counter/Timer Frequency */
 	MV_U32 mvCntmrFrqGet(MV_U32 cntmrNum);
 
+
 #ifdef __cplusplus
 }
 #endif

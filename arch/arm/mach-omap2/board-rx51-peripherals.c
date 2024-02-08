@@ -1104,3 +1104,4 @@ void __init rx51_peripherals_init(void)
 
 	rx51_charger_init();
 }
+

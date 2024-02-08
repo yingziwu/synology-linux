@@ -22,6 +22,7 @@
 #ifndef __ASM_ARCH_I2C_H
 #define __ASM_ARCH_I2C_H
 
+
 #if defined(CONFIG_ARCH_M86XXX)
 	#include <mach/comcerto-2000/i2c.h>
 #else

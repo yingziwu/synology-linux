@@ -718,6 +718,7 @@ static int32_t dwc_otg_handle_pwrdn_idsts_change(dwc_otg_device_t *otg_dev)
 		DWC_SPINLOCK(core_if->lock);
 	}
 	
+
 	return 1;
 }
 

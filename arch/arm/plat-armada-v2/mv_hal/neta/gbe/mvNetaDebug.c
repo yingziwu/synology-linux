@@ -797,3 +797,4 @@ void mvNetaPonTxpRegs(int port, int txp)
 		mvEthRegPrint2(NETA_TXQ_NEW_BYTES_REG(port, txp, txq), "NETA_TXQ_NEW_BYTES_REG", txq);
 }
 #endif /* CONFIG_MV_PON */
+

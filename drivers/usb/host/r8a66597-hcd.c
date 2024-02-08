@@ -1274,7 +1274,7 @@ static void set_td_timer(struct r8a66597 *r8a66597, struct r8a66597_td *td)
 			time = 30;
 			break;
 		default:
-			time = 300;
+			time = 50;
 			break;
 		}
 
@@ -1460,6 +1460,7 @@ static void packet_write(struct r8a66597 *r8a66597, u16 pipenum)
 	} else
 		pipe_irq_enable(r8a66597, urb, pipenum);
 }
+
 
 static void check_next_phase(struct r8a66597 *r8a66597, int status)
 {
@@ -1789,6 +1790,7 @@ static void r8a66597_td_timer(unsigned long _r8a66597)
 		pipe = td->pipe;
 		pipe_stop(r8a66597, pipe);
 
+		/* Select a different address or endpoint */
 		new_td = td;
 		do {
 			list_move_tail(&new_td->queue,
@@ -1798,7 +1800,8 @@ static void r8a66597_td_timer(unsigned long _r8a66597)
 				new_td = td;
 				break;
 			}
-		} while (td != new_td && td->address == new_td->address);
+		} while (td != new_td && td->address == new_td->address &&
+			td->pipe->info.epnum == new_td->pipe->info.epnum);
 
 		start_transfer(r8a66597, new_td);
 
@@ -2567,3 +2570,4 @@ static void __exit r8a66597_cleanup(void)
 	platform_driver_unregister(&r8a66597_driver);
 }
 module_exit(r8a66597_cleanup);
+

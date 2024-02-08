@@ -487,6 +487,7 @@ fec_restart(struct net_device *ndev, int duplex)
 			writel((fep->phy_interface == PHY_INTERFACE_MODE_RMII) ?
 					1 : 0, fep->hwp + FEC_MIIGSK_CFGR);
 
+
 			/* re-enable the gasket */
 			writel(2, fep->hwp + FEC_MIIGSK_ENR);
 		}
@@ -534,6 +535,7 @@ fec_stop(struct net_device *ndev)
 	if (id_entry->driver_data & FEC_QUIRK_ENET_MAC)
 		writel(2, fep->hwp + FEC_ECNTRL);
 }
+
 
 static void
 fec_timeout(struct net_device *ndev)
@@ -617,6 +619,7 @@ fec_enet_tx(struct net_device *ndev)
 	fep->dirty_tx = bdp;
 	spin_unlock(&fep->hw_lock);
 }
+
 
 /* During a receive, the cur_rx points to the current incoming buffer.
  * When we update through the ring, if the next incoming buffer has
@@ -775,6 +778,8 @@ fec_enet_interrupt(int irq, void *dev_id)
 
 	return ret;
 }
+
+
 
 /* ------------------------------------------------------------------------- */
 static void __inline__ fec_get_mac(struct net_device *ndev)

@@ -26,6 +26,7 @@
 #include <linux/slab.h>
 #include "pci.h"
 
+
 void pci_update_resource(struct pci_dev *dev, int resno)
 {
 	struct pci_bus_region region;
@@ -128,6 +129,8 @@ void pci_disable_bridge_window(struct pci_dev *dev)
 }
 #endif	/* CONFIG_PCI_QUIRKS */
 
+
+
 static int __pci_assign_resource(struct pci_bus *bus, struct pci_dev *dev,
 		int resno, resource_size_t size, resource_size_t align)
 {
@@ -185,7 +188,8 @@ static int pci_revert_fw_address(struct resource *res, struct pci_dev *dev,
 	return ret;
 }
 
-static int _pci_assign_resource(struct pci_dev *dev, int resno, int size, resource_size_t min_align)
+static int _pci_assign_resource(struct pci_dev *dev, int resno,
+				resource_size_t size, resource_size_t min_align)
 {
 	struct resource *res = dev->resource + resno;
 	struct pci_bus *bus;
@@ -276,6 +280,7 @@ int pci_assign_resource(struct pci_dev *dev, int resno)
 	}
 	return ret;
 }
+
 
 /* Sort resources by alignment */
 void pdev_sort_resources(struct pci_dev *dev, struct resource_list *head)

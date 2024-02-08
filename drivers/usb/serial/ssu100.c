@@ -62,6 +62,7 @@ static const struct usb_device_id id_table[] = {
 
 MODULE_DEVICE_TABLE(usb, id_table);
 
+
 static struct usb_driver ssu100_driver = {
 	.name			       = "ssu100",
 	.probe			       = usb_serial_probe,
@@ -77,7 +78,6 @@ struct ssu100_port_private {
 	spinlock_t status_lock;
 	u8 shadowLSR;
 	u8 shadowMSR;
-	wait_queue_head_t delta_msr_wait; /* Used for TIOCMIWAIT */
 	struct async_icount icount;
 };
 
@@ -104,11 +104,20 @@ static inline int ssu100_setdevice(struct usb_device *dev, u8 *data)
 	return ssu100_control_msg(dev, QT_SET_GET_DEVICE, x, 0);
 }
 
+
 static inline int ssu100_getdevice(struct usb_device *dev, u8 *data)
 {
-	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-			       QT_SET_GET_DEVICE, 0xc0, 0, 0,
-			       data, 3, 300);
+	int ret;
+
+	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+			      QT_SET_GET_DEVICE, 0xc0, 0, 0,
+			      data, 3, 300);
+	if (ret < 3) {
+		if (ret >= 0)
+			ret = -EIO;
+	}
+
+	return ret;
 }
 
 static inline int ssu100_getregister(struct usb_device *dev,
@@ -116,11 +125,19 @@ static inline int ssu100_getregister(struct usb_device *dev,
 				     unsigned short reg,
 				     u8 *data)
 {
-	return usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
-			       QT_SET_GET_REGISTER, 0xc0, reg,
-			       uart, data, sizeof(*data), 300);
+	int ret;
 
+	ret = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
+			      QT_SET_GET_REGISTER, 0xc0, reg,
+			      uart, data, sizeof(*data), 300);
+	if (ret < sizeof(*data)) {
+		if (ret >= 0)
+			ret = -EIO;
+	}
+
+	return ret;
 }
+
 
 static inline int ssu100_setregister(struct usb_device *dev,
 				     unsigned short uart,
@@ -223,6 +240,7 @@ out:	kfree(data);
 
 }
 
+
 static void ssu100_set_termios(struct tty_struct *tty,
 			       struct usb_serial_port *port,
 			       struct ktermios *old_termios)
@@ -265,6 +283,7 @@ static void ssu100_set_termios(struct tty_struct *tty,
 
 	dbg("%s - got baud = %d\n", __func__, baud);
 
+
 	divisor = MAX_BAUD_RATE / baud;
 	remainder = MAX_BAUD_RATE % baud;
 	if (((remainder * 2) >= baud) && (baud != 110))
@@ -299,6 +318,7 @@ static void ssu100_set_termios(struct tty_struct *tty,
 
 }
 
+
 static int ssu100_open(struct tty_struct *tty, struct usb_serial_port *port)
 {
 	struct usb_device *dev = port->serial->dev;
@@ -317,8 +337,10 @@ static int ssu100_open(struct tty_struct *tty, struct usb_serial_port *port)
 				 QT_OPEN_CLOSE_CHANNEL,
 				 QT_TRANSFER_IN, 0x01,
 				 0, data, 2, 300);
-	if (result < 0) {
+	if (result < 2) {
 		dbg("%s - open failed %i", __func__, result);
+		if (result >= 0)
+			result = -EIO;
 		kfree(data);
 		return result;
 	}
@@ -381,14 +403,18 @@ static int wait_modem_info(struct usb_serial_port *port, unsigned int arg)
 	spin_unlock_irqrestore(&priv->status_lock, flags);
 
 	while (1) {
-		wait_event_interruptible(priv->delta_msr_wait,
-					 ((priv->icount.rng != prev.rng) ||
+		wait_event_interruptible(port->delta_msr_wait,
+					 (port->serial->disconnected ||
+					  (priv->icount.rng != prev.rng) ||
 					  (priv->icount.dsr != prev.dsr) ||
 					  (priv->icount.dcd != prev.dcd) ||
 					  (priv->icount.cts != prev.cts)));
 
 		if (signal_pending(current))
 			return -ERESTARTSYS;
+
+		if (port->serial->disconnected)
+			return -EIO;
 
 		spin_lock_irqsave(&priv->status_lock, flags);
 		cur = priv->icount;
@@ -431,6 +457,8 @@ static int ssu100_get_icount(struct tty_struct *tty,
 	return 0;
 }
 
+
+
 static int ssu100_ioctl(struct tty_struct *tty,
 		    unsigned int cmd, unsigned long arg)
 {
@@ -470,7 +498,6 @@ static int ssu100_attach(struct usb_serial *serial)
 	}
 
 	spin_lock_init(&priv->status_lock);
-	init_waitqueue_head(&priv->delta_msr_wait);
 	usb_set_serial_port_data(port, priv);
 
 	return ssu100_initdevice(serial->dev);
@@ -556,7 +583,7 @@ static void ssu100_update_msr(struct usb_serial_port *port, u8 msr)
 			priv->icount.dcd++;
 		if (msr & UART_MSR_TERI)
 			priv->icount.rng++;
-		wake_up_interruptible(&priv->delta_msr_wait);
+		wake_up_interruptible(&port->delta_msr_wait);
 	}
 }
 
@@ -589,10 +616,10 @@ static void ssu100_update_lsr(struct usb_serial_port *port, u8 lsr,
 			if (*tty_flag == TTY_NORMAL)
 				*tty_flag = TTY_FRAME;
 		}
-		if (lsr & UART_LSR_OE){
+		if (lsr & UART_LSR_OE) {
 			priv->icount.overrun++;
-			if (*tty_flag == TTY_NORMAL)
-				*tty_flag = TTY_OVERRUN;
+			tty_insert_flip_char(tty_port_tty_get(&port->port),
+					     0, TTY_OVERRUN);
 		}
 	}
 
@@ -613,11 +640,8 @@ static int ssu100_process_packet(struct urb *urb,
 	if ((len >= 4) &&
 	    (packet[0] == 0x1b) && (packet[1] == 0x1b) &&
 	    ((packet[2] == 0x00) || (packet[2] == 0x01))) {
-		if (packet[2] == 0x00) {
+		if (packet[2] == 0x00)
 			ssu100_update_lsr(port, packet[3], &flag);
-			if (flag == TTY_OVERRUN)
-				tty_insert_flip_char(tty, 0, TTY_OVERRUN);
-		}
 		if (packet[2] == 0x01)
 			ssu100_update_msr(port, packet[3]);
 

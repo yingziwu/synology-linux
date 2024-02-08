@@ -63,6 +63,7 @@ static struct ivg_slice {
 	struct ivgx *istop;
 } ivg7_13[IVG13 - IVG7 + 1];
 
+
 /*
  * Search SIC_IAR and fill tables with the irqvalues
  * and their positions in the SIC_ISR register.

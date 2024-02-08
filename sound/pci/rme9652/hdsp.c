@@ -125,6 +125,7 @@ MODULE_FIRMWARE("digiface_firmware_rev11.bin");
 #define HDSP_playbackRmsLevel   4612  /* 26 * 64 bit values */
 #define HDSP_inputRmsLevel      4868  /* 26 * 64 bit values */
 
+
 /* This is for H9652 cards
    Peak values are read downward from the base
    Rms values are read upward
@@ -603,6 +604,7 @@ static void snd_hammerfall_free_buffer(struct snd_dma_buffer *dmab, struct pci_d
 	}
 }
 
+
 static DEFINE_PCI_DEVICE_TABLE(snd_hdsp_ids) = {
 	{
 		.vendor = PCI_VENDOR_ID_XILINX,
@@ -795,6 +797,7 @@ static int hdsp_get_iobox_version (struct hdsp *hdsp)
 	return 0;
 }
 
+
 #ifdef HDSP_FW_LOADER
 static int hdsp_request_fw_loader(struct hdsp *hdsp);
 #endif
@@ -828,6 +831,7 @@ static int hdsp_check_for_firmware (struct hdsp *hdsp, int load_on_demand)
 	}
 	return 0;
 }
+
 
 static int hdsp_fifo_wait(struct hdsp *hdsp, int count, int timeout)
 {
@@ -890,6 +894,7 @@ static int hdsp_write_gain(struct hdsp *hdsp, unsigned int addr, unsigned short 
 			return 0;
 
 		hdsp->mixer_matrix[addr] = data;
+
 
 		/* `addr' addresses a 16-bit wide address, but
 		   the address space accessed via hdsp_write
@@ -3158,7 +3163,7 @@ static int snd_hdsp_get_dds_offset(struct snd_kcontrol *kcontrol, struct snd_ctl
 {
 	struct hdsp *hdsp = snd_kcontrol_chip(kcontrol);
 
-	ucontrol->value.enumerated.item[0] = hdsp_dds_offset(hdsp);
+	ucontrol->value.integer.value[0] = hdsp_dds_offset(hdsp);
 	return 0;
 }
 
@@ -3170,7 +3175,7 @@ static int snd_hdsp_put_dds_offset(struct snd_kcontrol *kcontrol, struct snd_ctl
 
 	if (!snd_hdsp_use_is_exclusive(hdsp))
 		return -EBUSY;
-	val = ucontrol->value.enumerated.item[0];
+	val = ucontrol->value.integer.value[0];
 	spin_lock_irq(&hdsp->lock);
 	if (val != hdsp_dds_offset(hdsp))
 		change = (hdsp_set_dds_offset(hdsp, val) == 0) ? 1 : 0;
@@ -3254,6 +3259,7 @@ HDSP_PRECISE_POINTER("Precise Pointer", 0),
 HDSP_USE_MIDI_TASKLET("Use Midi Tasklet", 0),
 };
 
+
 static int hdsp_rpm_input12(struct hdsp *hdsp)
 {
 	switch (hdsp->control_register & HDSP_RPM_Inp12) {
@@ -3269,6 +3275,7 @@ static int hdsp_rpm_input12(struct hdsp *hdsp)
 	return 1;
 }
 
+
 static int snd_hdsp_get_rpm_input12(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct hdsp *hdsp = snd_kcontrol_chip(kcontrol);
@@ -3276,6 +3283,7 @@ static int snd_hdsp_get_rpm_input12(struct snd_kcontrol *kcontrol, struct snd_ct
 	ucontrol->value.enumerated.item[0] = hdsp_rpm_input12(hdsp);
 	return 0;
 }
+
 
 static int hdsp_set_rpm_input12(struct hdsp *hdsp, int mode)
 {
@@ -3303,6 +3311,7 @@ static int hdsp_set_rpm_input12(struct hdsp *hdsp, int mode)
 	return 0;
 }
 
+
 static int snd_hdsp_put_rpm_input12(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct hdsp *hdsp = snd_kcontrol_chip(kcontrol);
@@ -3325,6 +3334,7 @@ static int snd_hdsp_put_rpm_input12(struct snd_kcontrol *kcontrol, struct snd_ct
 	return change;
 }
 
+
 static int snd_hdsp_info_rpm_input(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_info *uinfo)
 {
 	static char *texts[] = {"Phono +6dB", "Phono 0dB", "Phono -6dB", "Line 0dB", "Line -6dB"};
@@ -3337,6 +3347,7 @@ static int snd_hdsp_info_rpm_input(struct snd_kcontrol *kcontrol, struct snd_ctl
 	strcpy(uinfo->value.enumerated.name, texts[uinfo->value.enumerated.item]);
 	return 0;
 }
+
 
 static int hdsp_rpm_input34(struct hdsp *hdsp)
 {
@@ -3353,6 +3364,7 @@ static int hdsp_rpm_input34(struct hdsp *hdsp)
 	return 1;
 }
 
+
 static int snd_hdsp_get_rpm_input34(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct hdsp *hdsp = snd_kcontrol_chip(kcontrol);
@@ -3360,6 +3372,7 @@ static int snd_hdsp_get_rpm_input34(struct snd_kcontrol *kcontrol, struct snd_ct
 	ucontrol->value.enumerated.item[0] = hdsp_rpm_input34(hdsp);
 	return 0;
 }
+
 
 static int hdsp_set_rpm_input34(struct hdsp *hdsp, int mode)
 {
@@ -3387,6 +3400,7 @@ static int hdsp_set_rpm_input34(struct hdsp *hdsp, int mode)
 	return 0;
 }
 
+
 static int snd_hdsp_put_rpm_input34(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
 	struct hdsp *hdsp = snd_kcontrol_chip(kcontrol);
@@ -3409,11 +3423,13 @@ static int snd_hdsp_put_rpm_input34(struct snd_kcontrol *kcontrol, struct snd_ct
 	return change;
 }
 
+
 /* RPM Bypass switch */
 static int hdsp_rpm_bypass(struct hdsp *hdsp)
 {
 	return (hdsp->control_register & HDSP_RPM_Bypass) ? 1 : 0;
 }
+
 
 static int snd_hdsp_get_rpm_bypass(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
@@ -3422,6 +3438,7 @@ static int snd_hdsp_get_rpm_bypass(struct snd_kcontrol *kcontrol, struct snd_ctl
 	ucontrol->value.integer.value[0] = hdsp_rpm_bypass(hdsp);
 	return 0;
 }
+
 
 static int hdsp_set_rpm_bypass(struct hdsp *hdsp, int on)
 {
@@ -3432,6 +3449,7 @@ static int hdsp_set_rpm_bypass(struct hdsp *hdsp, int on)
 	hdsp_write(hdsp, HDSP_controlRegister, hdsp->control_register);
 	return 0;
 }
+
 
 static int snd_hdsp_put_rpm_bypass(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
@@ -3449,6 +3467,7 @@ static int snd_hdsp_put_rpm_bypass(struct snd_kcontrol *kcontrol, struct snd_ctl
 	return change;
 }
 
+
 static int snd_hdsp_info_rpm_bypass(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_info *uinfo)
 {
 	static char *texts[] = {"On", "Off"};
@@ -3462,11 +3481,13 @@ static int snd_hdsp_info_rpm_bypass(struct snd_kcontrol *kcontrol, struct snd_ct
 	return 0;
 }
 
+
 /* RPM Disconnect switch */
 static int hdsp_rpm_disconnect(struct hdsp *hdsp)
 {
 	return (hdsp->control_register & HDSP_RPM_Disconnect) ? 1 : 0;
 }
+
 
 static int snd_hdsp_get_rpm_disconnect(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
@@ -3475,6 +3496,7 @@ static int snd_hdsp_get_rpm_disconnect(struct snd_kcontrol *kcontrol, struct snd
 	ucontrol->value.integer.value[0] = hdsp_rpm_disconnect(hdsp);
 	return 0;
 }
+
 
 static int hdsp_set_rpm_disconnect(struct hdsp *hdsp, int on)
 {
@@ -3485,6 +3507,7 @@ static int hdsp_set_rpm_disconnect(struct hdsp *hdsp, int on)
 	hdsp_write(hdsp, HDSP_controlRegister, hdsp->control_register);
 	return 0;
 }
+
 
 static int snd_hdsp_put_rpm_disconnect(struct snd_kcontrol *kcontrol, struct snd_ctl_elem_value *ucontrol)
 {
@@ -4048,6 +4071,7 @@ static int snd_hdsp_set_defaults(struct hdsp *hdsp)
 		                 HDSP_SPDIFInputCoaxial |
 		                 hdsp_encode_latency(7) |
 		                 HDSP_LineOut;
+
 
 	hdsp_write(hdsp, HDSP_controlRegister, hdsp->control_register);
 
@@ -4765,6 +4789,7 @@ static int snd_hdsp_playback_release(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+
 static int snd_hdsp_capture_open(struct snd_pcm_substream *substream)
 {
 	struct hdsp *hdsp = snd_pcm_substream_chip(substream);
@@ -5258,6 +5283,7 @@ static int snd_hdsp_create_alsa_devices(struct snd_card *card, struct hdsp *hdsp
 		snd_printk(KERN_ERR "Hammerfall-DSP: Error creating pcm interface\n");
 		return err;
 	}
+
 
 	if ((err = snd_hdsp_create_midi(card, hdsp, 0)) < 0) {
 		snd_printk(KERN_ERR "Hammerfall-DSP: Error creating first midi interface\n");

@@ -148,3 +148,4 @@ int speakup_paste_selection(struct tty_struct *tty)
 	current->state = TASK_RUNNING;
 	return 0;
 }
+

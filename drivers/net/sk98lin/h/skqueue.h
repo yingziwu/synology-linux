@@ -31,6 +31,7 @@
 #ifndef _SKQUEUE_H_
 #define _SKQUEUE_H_
 
+
 /*
  * define the event classes to be served
  */
@@ -88,6 +89,7 @@ extern	void SkEventQueue(SK_AC *pAC, SK_U32 Class, SK_U32 Event,
 	SK_EVPARA Para);
 extern	int SkEventDispatcher(SK_AC *pAC, SK_IOC Ioc);
 
+
 /* Define Error Numbers and messages */
 #define	SKERR_Q_E001	(SK_ERRBASE_QUEUE+0)
 #define	SKERR_Q_E001MSG	"Event queue overflow"
@@ -100,3 +102,4 @@ extern	int SkEventDispatcher(SK_AC *pAC, SK_IOC Ioc);
 #define	SKERR_Q_E005	(SKERR_Q_E001+4)
 #define	SKERR_Q_E005MSG	"Event scheduler called in Init Level 0 or 1"
 #endif	/* _SKQUEUE_H_ */
+

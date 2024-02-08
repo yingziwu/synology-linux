@@ -38,6 +38,7 @@
 #include <asm/irq.h>
 #include <asm/delay.h>
 
+
 MODULE_AUTHOR("Stephen Street");
 MODULE_DESCRIPTION("PXA2xx SSP SPI Controller");
 MODULE_LICENSE("GPL");
@@ -469,6 +470,7 @@ static int map_dma_buffers(struct driver_data *drv_data)
 	} else
 		drv_data->rx_map_len = drv_data->len;
 
+
 	/* Modify setup if tx buffer is null */
 	if (drv_data->tx == NULL) {
 		*drv_data->null_dma_buf = 0;
@@ -850,6 +852,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 	u32 irq_mask = (read_SSCR1(reg) & SSCR1_TIE) ?
 			drv_data->mask_sr : drv_data->mask_sr & ~SSSR_TFS;
 
+
 	int left;
            
 	u32 tmp_sssr = read_SSSR(reg);
@@ -883,6 +886,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 			return IRQ_HANDLED;
 	}
 	
+
 	spi_dbg("in the interrupt_transfer\n");
 	
 	if (irq_status & SSSR_ROR) {
@@ -890,6 +894,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 		return IRQ_HANDLED;
 	}
 	
+
 	if (irq_status & SSSR_TINT) {
 		write_SSSR_CS(drv_data,SSSR_TINT);
 		if (drv_data->read(drv_data)) {
@@ -897,6 +902,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 			return IRQ_HANDLED;
 		}
 	}
+
 
 	if (irq_status & SSSR_TFS) {
 
@@ -916,6 +922,7 @@ static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
 		 */
 	      	tx_count =  (fifo_depth - 1) - tmp_sssr; 
 	
+	 
                 if (left <= tx_count) {
 		        if (left > 0) {
 		        	drv_data->read(drv_data);
@@ -1037,6 +1044,10 @@ static irqreturn_t ssp_int(int irq, void *dev_id)
 	/* Ignore possible writes if we don't need to write */
 	if (!(sccr1_reg & SSCR1_TIE))
 		mask &= ~SSSR_TFS;
+
+	/* Ignore RX timeout interrupt if it is disabled */
+	if (!(sccr1_reg & SSCR1_TINTE))
+		mask &= ~SSSR_TINT;
 
 	if (!(status & mask))
 		return IRQ_NONE;

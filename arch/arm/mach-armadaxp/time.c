@@ -28,6 +28,7 @@
 #include <linux/delay.h>
 #include <linux/io.h>
 
+
 #include "boardEnv/mvBoardEnvLib.h"
 #include "cpu/mvCpu.h"
 
@@ -49,6 +50,7 @@ extern unsigned int master_cpu_id;
 #define  TIMER_RELOAD(x)	(MV_CNTMR_REGS_OFFSET + 0x0010 + (8 * x))
 #define  TIMER_VAL(x)		(MV_CNTMR_REGS_OFFSET + 0x0014 + (8 * x))
 #define  INT_TIMER_CLR(x)	(~(1 << (8*x)))
+
 
 #define  LCL_TIMER_BASE		(0x21000 | 0x40)
 #define  LCL_TIMER_CTRL		(LCL_TIMER_BASE + 0x0000)
@@ -80,6 +82,8 @@ static unsigned int soc_timer_id;
 
 static DEFINE_CLOCK_DATA(cd);
 
+
+
 unsigned long long notrace sched_clock(void)
 {
 	u32 cyc = ~MV_REG_READ(TIMER_VAL(soc_timer_id));
@@ -97,6 +101,8 @@ static void __init setup_sched_clock(unsigned long tclk)
 	init_sched_clock(&cd, axp_update_sched_clock, 32, tclk);
 }
 
+
+
 /*
  * Clocksource handling.
  */
@@ -113,6 +119,7 @@ static struct clocksource axp_clksrc = {
 	.mask		= CLOCKSOURCE_MASK(32),
 	.flags		= CLOCK_SOURCE_IS_CONTINUOUS,
 };
+
 
 /*
  * Clockevent handling.
@@ -134,6 +141,7 @@ int axp_clkevt_next_event(unsigned long delta, struct clock_event_device *dev)
 
 	/* Setup new clockevent timer value */
 	MV_REG_WRITE(LCL_TIMER0_VAL, delta);
+
 
 	/* Enable the timer */
 	u = MV_REG_READ(LCL_TIMER_CTRL);
@@ -181,6 +189,7 @@ static void axp_clkevt_mode(enum clock_event_mode mode, struct clock_event_devic
 		//axp_irq_mask(IRQ_LOCALTIMER);
 		axp_irq_mask(irq_get_irq_data(IRQ_LOCALTIMER));
 
+
 		/* ACK pending timer interrupt */
 		MV_REG_WRITE(LCL_TIMER_CAUSE, LCL_INT_TIMER0_CLR);
 	}
@@ -204,6 +213,7 @@ static struct irqaction axp_timer_irq = {
 	.handler	= axp_timer_interrupt,
 	.dev_id         = &axp_clkevt,
 };
+
 
 /*
  * Setup the local clock events for a CPU.
@@ -306,6 +316,7 @@ struct sys_timer axp_timer = {
 	.init = axp_timer_init,
 };
 
+
 #if defined (CONFIG_SMP) && defined (CONFIG_LOCAL_TIMERS)
 /*
  * Used on SMP for either the local timer or IPI_TIMER
@@ -360,6 +371,7 @@ int __cpuinit local_timer_setup(struct clock_event_device *clk)
 	static int cpu0_flag = 0;
 	int cpu = smp_processor_id();
 	struct clock_event_device **this_cpu_clk;
+
 
 	if (!axp_local_clockevent) {
 		int err;

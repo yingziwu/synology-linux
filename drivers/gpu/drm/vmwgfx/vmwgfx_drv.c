@@ -25,6 +25,7 @@
  *
  **************************************************************************/
 #include <linux/module.h>
+#include <linux/console.h>
 
 #include "drmP.h"
 #include "vmwgfx_drv.h"
@@ -227,6 +228,7 @@ static void vmw_print_capabilities(uint32_t capabilities)
 		DRM_INFO("  Screen Object 2.\n");
 }
 
+
 /**
  * vmw_execbuf_prepare_dummy_query - Initialize a query result structure at
  * the start of a buffer object.
@@ -269,6 +271,7 @@ static void vmw_dummy_query_bo_prepare(struct vmw_private *dev_priv)
 	ttm_bo_unreserve(bo);
 }
 
+
 /**
  * vmw_dummy_query_bo_create - create a bo to hold a dummy query result
  *
@@ -289,6 +292,7 @@ static int vmw_dummy_query_bo_create(struct vmw_private *dev_priv)
 			     0, 0, false, NULL,
 			     &dev_priv->dummy_query_bo);
 }
+
 
 static int vmw_request_device(struct vmw_private *dev_priv)
 {
@@ -485,9 +489,11 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
 	if (unlikely(ret != 0))
 		goto out_err0;
 
+
 	vmw_master_init(&dev_priv->fbdev_master);
 	ttm_lock_set_kill(&dev_priv->fbdev_master.lock, false, SIGTERM);
 	dev_priv->active_master = &dev_priv->fbdev_master;
+
 
 	ret = ttm_bo_device_init(&dev_priv->bdev,
 				 dev_priv->bo_global_ref.ref.object,
@@ -496,21 +502,6 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
 	if (unlikely(ret != 0)) {
 		DRM_ERROR("Failed initializing TTM buffer object driver.\n");
 		goto out_err1;
-	}
-
-	ret = ttm_bo_init_mm(&dev_priv->bdev, TTM_PL_VRAM,
-			     (dev_priv->vram_size >> PAGE_SHIFT));
-	if (unlikely(ret != 0)) {
-		DRM_ERROR("Failed initializing memory manager for VRAM.\n");
-		goto out_err2;
-	}
-
-	dev_priv->has_gmr = true;
-	if (ttm_bo_init_mm(&dev_priv->bdev, VMW_PL_GMR,
-			   dev_priv->max_gmr_ids) != 0) {
-		DRM_INFO("No GMR memory available. "
-			 "Graphics memory resources are very limited.\n");
-		dev_priv->has_gmr = false;
 	}
 
 	dev_priv->mmio_mtrr = drm_mtrr_add(dev_priv->mmio_start,
@@ -565,6 +556,22 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
 	if (unlikely(dev_priv->fman == NULL))
 		goto out_no_fman;
 
+
+	ret = ttm_bo_init_mm(&dev_priv->bdev, TTM_PL_VRAM,
+			     (dev_priv->vram_size >> PAGE_SHIFT));
+	if (unlikely(ret != 0)) {
+		DRM_ERROR("Failed initializing memory manager for VRAM.\n");
+		goto out_no_vram;
+	}
+
+	dev_priv->has_gmr = true;
+	if (ttm_bo_init_mm(&dev_priv->bdev, VMW_PL_GMR,
+			   dev_priv->max_gmr_ids) != 0) {
+		DRM_INFO("No GMR memory available. "
+			 "Graphics memory resources are very limited.\n");
+		dev_priv->has_gmr = false;
+	}
+
 	/* Need to start the fifo to check if we can do screen objects */
 	ret = vmw_3d_resource_inc(dev_priv, true);
 	if (unlikely(ret != 0))
@@ -615,6 +622,10 @@ out_no_kms:
 		vmw_3d_resource_dec(dev_priv, false);
 	}
 out_no_fifo:
+	if (dev_priv->has_gmr)
+		(void) ttm_bo_clean_mm(&dev_priv->bdev, VMW_PL_GMR);
+	(void)ttm_bo_clean_mm(&dev_priv->bdev, TTM_PL_VRAM);
+out_no_vram:
 	vmw_fence_manager_takedown(dev_priv->fman);
 out_no_fman:
 	if (dev_priv->stealth)
@@ -628,10 +639,6 @@ out_err4:
 out_err3:
 	drm_mtrr_del(dev_priv->mmio_mtrr, dev_priv->mmio_start,
 		     dev_priv->mmio_size, DRM_MTRR_WC);
-	if (dev_priv->has_gmr)
-		(void) ttm_bo_clean_mm(&dev_priv->bdev, VMW_PL_GMR);
-	(void)ttm_bo_clean_mm(&dev_priv->bdev, TTM_PL_VRAM);
-out_err2:
 	(void)ttm_bo_device_release(&dev_priv->bdev);
 out_err1:
 	vmw_ttm_global_release(dev_priv);
@@ -660,6 +667,11 @@ static int vmw_driver_unload(struct drm_device *dev)
 	}
 	vmw_kms_close(dev_priv);
 	vmw_overlay_close(dev_priv);
+
+	if (dev_priv->has_gmr)
+		(void)ttm_bo_clean_mm(&dev_priv->bdev, VMW_PL_GMR);
+	(void)ttm_bo_clean_mm(&dev_priv->bdev, TTM_PL_VRAM);
+
 	vmw_fence_manager_takedown(dev_priv->fman);
 	if (dev_priv->stealth)
 		pci_release_region(dev->pdev, 2);
@@ -670,9 +682,6 @@ static int vmw_driver_unload(struct drm_device *dev)
 	iounmap(dev_priv->mmio_virt);
 	drm_mtrr_del(dev_priv->mmio_mtrr, dev_priv->mmio_start,
 		     dev_priv->mmio_size, DRM_MTRR_WC);
-	if (dev_priv->has_gmr)
-		(void)ttm_bo_clean_mm(&dev_priv->bdev, VMW_PL_GMR);
-	(void)ttm_bo_clean_mm(&dev_priv->bdev, TTM_PL_VRAM);
 	(void)ttm_bo_device_release(&dev_priv->bdev);
 	vmw_ttm_global_release(dev_priv);
 	idr_destroy(&dev_priv->surface_idr);
@@ -819,6 +828,7 @@ static void vmw_master_destroy(struct drm_device *dev,
 	kfree(vmaster);
 }
 
+
 static int vmw_master_set(struct drm_device *dev,
 			  struct drm_file *file_priv,
 			  bool from_open)
@@ -920,6 +930,7 @@ static void vmw_master_drop(struct drm_device *dev,
 	if (dev_priv->enable_fb)
 		vmw_fb_on(dev_priv);
 }
+
 
 static void vmw_remove(struct pci_dev *pdev)
 {
@@ -1132,6 +1143,12 @@ static int vmw_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
 static int __init vmwgfx_init(void)
 {
 	int ret;
+
+#ifdef CONFIG_VGA_CONSOLE
+	if (vgacon_text_force())
+		return -EINVAL;
+#endif
+
 	ret = drm_pci_init(&driver, &vmw_pci_driver);
 	if (ret)
 		DRM_ERROR("Failed initializing DRM.\n");

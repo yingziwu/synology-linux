@@ -982,6 +982,7 @@ static void open_sap(unsigned char type, struct net_device *dev)
 	writeb(CMD_IN_SRB, ti->mmio + ACA_OFFSET + ACA_SET + ISRA_ODD);
 }
 
+
 /*****************************************************************************/
 
 static void tok_set_multicast_list(struct net_device *dev)
@@ -1665,6 +1666,7 @@ static void tr_tx(struct net_device *dev)
 }				/*tr_tx */
 
 /*****************************************************************************/
+
 
 #define RECEIVE_BUFFER_OFST     6
 #define LAN_HDR_LENGTH_OFST     8

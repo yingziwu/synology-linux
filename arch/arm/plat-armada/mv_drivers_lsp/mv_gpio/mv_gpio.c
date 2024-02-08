@@ -142,6 +142,8 @@ static int mv_gpio_request(struct gpio_chip *chip, unsigned pin)
 	return -EINVAL;
 }
 
+
+
 struct mv_gpio_regs {
 	int data_out;
 	int data_out_enable;
@@ -211,6 +213,7 @@ static int mv_gpio_resume(struct platform_device *dev)
 
 	return 0;
 }
+
 
 static struct platform_driver mv_gpio_driver = {
 	.probe    = mv_gpio_probe,

@@ -62,6 +62,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
+
 #ifndef __INCmvCommonh
 #define __INCmvCommonh
 
@@ -122,6 +124,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #else
     #error "CPU endianess isn't defined!\n"
 #endif
+
 
 /* Bit field definitions */
 #define NO_BIT      0x00000000
@@ -219,6 +222,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* Memory cached, No HW cache coherency, Cache coherency must be in SW */
 #define MV_CACHE_COHER_SW       3
 
+
 /* Macro for testing aligment. Positive if number is NOT aligned   */
 #define MV_IS_NOT_ALIGN(number, align)      ((number) & ((align) - 1))
 
@@ -231,6 +235,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* This macro returns absolute value                                        */
 #define MV_ABS(number)  (((int)(number) < 0) ? -(int)(number) : (int)(number))
+
 
 /* Bit fields manipulation macros                                           */
 
@@ -298,5 +303,6 @@ void        mvSizePrint(MV_U32);
 MV_U32 mvLog2(MV_U32 num);
 
 #endif /* MV_ASMLANGUAGE */
+
 
 #endif	/* __INCmvCommonh */

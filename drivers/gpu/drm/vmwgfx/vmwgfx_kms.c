@@ -27,8 +27,10 @@
 
 #include "vmwgfx_kms.h"
 
+
 /* Might need a hrtimer here? */
 #define VMWGFX_PRESENT_RATE ((HZ / 60 > 0) ? HZ / 60 : 1)
+
 
 struct vmw_clip_rect {
 	int x1, x2, y1, y2;
@@ -153,6 +155,7 @@ err_unreserve:
 
 	return ret;
 }
+
 
 void vmw_cursor_update_position(struct vmw_private *dev_priv,
 				bool show, int x, int y)
@@ -401,6 +404,7 @@ void vmw_framebuffer_surface_destroy(struct drm_framebuffer *framebuffer)
 		vmw_framebuffer_to_vfbs(framebuffer);
 	struct vmw_master *vmaster = vmw_master(vfbs->master);
 
+
 	mutex_lock(&vmaster->fb_surf_mutex);
 	list_del(&vfbs->head);
 	mutex_unlock(&vmaster->fb_surf_mutex);
@@ -538,6 +542,7 @@ static int do_surface_dirty_sou(struct vmw_private *dev_priv,
 		if (num == 0)
 			continue;
 
+
 		/* recalculate package length */
 		fifo_size = sizeof(*cmd) + sizeof(SVGASignedRect) * num;
 		cmd->header.size = cpu_to_le32(fifo_size - sizeof(cmd->header));
@@ -547,6 +552,7 @@ static int do_surface_dirty_sou(struct vmw_private *dev_priv,
 		if (unlikely(ret != 0))
 			break;
 	}
+
 
 	kfree(cmd);
 out_free_tmp:
@@ -1442,6 +1448,7 @@ int vmw_kms_cursor_bypass_ioctl(struct drm_device *dev, void *data,
 	struct drm_crtc *crtc;
 	int ret = 0;
 
+
 	mutex_lock(&dev->mode_config.mutex);
 	if (arg->flags & DRM_VMW_CURSOR_BYPASS_ALL) {
 
@@ -1582,6 +1589,7 @@ bool vmw_kms_validate_mode_vram(struct vmw_private *dev_priv,
 	return ((u64) pitch * (u64) height) < (u64) dev_priv->vram_size;
 }
 
+
 /**
  * Function called by DRM code called with vbl_lock held.
  */
@@ -1604,6 +1612,7 @@ int vmw_enable_vblank(struct drm_device *dev, int crtc)
 void vmw_disable_vblank(struct drm_device *dev, int crtc)
 {
 }
+
 
 /*
  * Small shared kms functions.
@@ -1802,6 +1811,7 @@ static void vmw_guess_mode_timing(struct drm_display_mode *mode)
 	mode->vrefresh = drm_mode_vrefresh(mode);
 }
 
+
 int vmw_du_connector_fill_modes(struct drm_connector *connector,
 				uint32_t max_width, uint32_t max_height)
 {
@@ -1816,6 +1826,14 @@ int vmw_du_connector_fill_modes(struct drm_connector *connector,
 		DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_PVSYNC)
 	};
 	int i;
+	u32 assumed_bpp = 2;
+
+	/*
+	 * If using screen objects, then assume 32-bpp because that's what the
+	 * SVGA device is assuming
+	 */
+	if (dev_priv->sou_priv)
+		assumed_bpp = 4;
 
 	/* Add preferred mode */
 	{
@@ -1826,8 +1844,9 @@ int vmw_du_connector_fill_modes(struct drm_connector *connector,
 		mode->vdisplay = du->pref_height;
 		vmw_guess_mode_timing(mode);
 
-		if (vmw_kms_validate_mode_vram(dev_priv, mode->hdisplay * 2,
-					       mode->vdisplay)) {
+		if (vmw_kms_validate_mode_vram(dev_priv,
+						mode->hdisplay * assumed_bpp,
+						mode->vdisplay)) {
 			drm_mode_probed_add(connector, mode);
 		} else {
 			drm_mode_destroy(dev, mode);
@@ -1849,7 +1868,8 @@ int vmw_du_connector_fill_modes(struct drm_connector *connector,
 		    bmode->vdisplay > max_height)
 			continue;
 
-		if (!vmw_kms_validate_mode_vram(dev_priv, bmode->hdisplay * 2,
+		if (!vmw_kms_validate_mode_vram(dev_priv,
+						bmode->hdisplay * assumed_bpp,
 						bmode->vdisplay))
 			continue;
 
@@ -1876,6 +1896,7 @@ int vmw_du_connector_set_property(struct drm_connector *connector,
 {
 	return 0;
 }
+
 
 int vmw_kms_update_layout_ioctl(struct drm_device *dev, void *data,
 				struct drm_file *file_priv)

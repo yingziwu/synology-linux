@@ -27,6 +27,7 @@
  *
  */
 
+
 #ifndef __RNDIS_H__
 #define __RNDIS_H__
 
@@ -65,7 +66,9 @@
 #define MESSAGE_REQUEST_RF_CH1          0x0C
 #define MESSAGE_REQUEST_RF_CH2          0x0D
 
+
 #define VIAUSB20_PACKET_HEADER          0x04
+
 
 /*---------------------  Export Classes  ----------------------------*/
 

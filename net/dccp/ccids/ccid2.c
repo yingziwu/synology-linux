@@ -27,6 +27,7 @@
 #include "../feat.h"
 #include "ccid2.h"
 
+
 #ifdef CONFIG_IP_DCCP_CCID2_DEBUG
 static int ccid2_debug;
 #define ccid2_pr_debug(format, a...)	DCCP_PR_DEBUG(ccid2_debug, format, ##a)
@@ -138,6 +139,9 @@ static void ccid2_hc_tx_rto_expire(unsigned long data)
 	}
 
 	ccid2_pr_debug("RTO_EXPIRE\n");
+
+	if (sk->sk_state == DCCP_CLOSED)
+		goto out;
 
 	/* back-off timer */
 	hc->tx_rto <<= 1;

@@ -175,6 +175,8 @@ static void chnl_flowctrl_cb(struct cflayer *layr, enum caif_ctrlcmd flow,
 		flow == CAIF_CTRLCMD_REMOTE_SHUTDOWN_IND ?
 		 "REMOTE_SHUTDOWN" : "UKNOWN CTRL COMMAND");
 
+
+
 	switch (flow) {
 	case CAIF_CTRLCMD_FLOW_OFF_IND:
 		priv->flowenabled = false;
@@ -413,6 +415,7 @@ static void ipcaif_net_setup(struct net_device *dev)
 	init_waitqueue_head(&priv->netmgmt_wq);
 }
 
+
 static int ipcaif_fill_info(struct sk_buff *skb, const struct net_device *dev)
 {
 	struct chnl_net *priv;
@@ -424,6 +427,7 @@ static int ipcaif_fill_info(struct sk_buff *skb, const struct net_device *dev)
 		    priv->conn_req.sockaddr.u.dgm.connection_id);
 	loop = priv->conn_req.protocol == CAIFPROTO_DATAGRAM_LOOP;
 	NLA_PUT_U8(skb, IFLA_CAIF_LOOPBACK, loop);
+
 
 	return 0;
 nla_put_failure:
@@ -460,7 +464,6 @@ static int ipcaif_newlink(struct net *src_net, struct net_device *dev,
 	ASSERT_RTNL();
 	caifdev = netdev_priv(dev);
 	caif_netlink_parms(data, &caifdev->conn_req);
-	dev_net_set(caifdev->netdev, src_net);
 
 	ret = register_netdevice(dev);
 	if (ret)
@@ -502,6 +505,7 @@ static const struct nla_policy ipcaif_policy[IFLA_CAIF_MAX + 1] = {
 	[IFLA_CAIF_IPV6_CONNID]	      = { .type = NLA_U32 },
 	[IFLA_CAIF_LOOPBACK]	      = { .type = NLA_U8 }
 };
+
 
 static struct rtnl_link_ops ipcaif_link_ops __read_mostly = {
 	.kind		= "caif",

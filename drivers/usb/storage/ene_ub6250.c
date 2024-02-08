@@ -32,6 +32,7 @@
 MODULE_DESCRIPTION("Driver for ENE UB6250 reader");
 MODULE_LICENSE("GPL");
 
+
 /*
  * The table of devices
  */
@@ -69,6 +70,8 @@ static struct us_unusual_dev ene_ub6250_unusual_dev_list[] = {
 };
 
 #undef UNUSUAL_DEV
+
+
 
 /* ENE bin code len */
 #define ENE_BIN_CODE_LEN    0x800
@@ -141,6 +144,7 @@ static struct us_unusual_dev ene_ub6250_unusual_dev_list[] = {
 #define MS_REG_MNG_SYSFLG_BOOT	0x00	/* system block */
 #define MS_REG_MNG_RESERVED	0xc3
 #define MS_REG_MNG_DEFAULT	(MS_REG_MNG_SCMS_COPY_OK | MS_REG_MNG_ATFLG_OTHER | MS_REG_MNG_SYSFLG_USER | MS_REG_MNG_RESERVED)
+
 
 #define MS_MAX_PAGES_PER_BLOCK		32
 #define MS_MAX_INITIAL_ERROR_BLOCKS 	10
@@ -230,6 +234,7 @@ static struct us_unusual_dev ene_ub6250_unusual_dev_list[] = {
 #define ms_lib_iswritable(pdx) ((ms_lib_ctrl_check((pdx), MS_LIB_CTRL_RDONLY) == 0) && (ms_lib_ctrl_check(pdx, MS_LIB_CTRL_WRPROTECT) == 0))
 #define ms_lib_clear_pagemap(pdx) memset((pdx)->MS_Lib.pagemap, 0, sizeof((pdx)->MS_Lib.pagemap))
 #define memstick_logaddr(logadr1, logadr0) ((((u16)(logadr1)) << 8) | (logadr0))
+
 
 struct SD_STATUS {
 	u8    Insert:1;
@@ -420,11 +425,16 @@ struct ms_lib_ctrl {
 	unsigned char copybuf[512];
 };
 
+
 /* SD Block Length */
 /* 2^9 = 512 Bytes, The HW maximum read/write data length */
 #define SD_BLOCK_LEN  9
 
 struct ene_ub6250_info {
+
+	/* I/O bounce buffer */
+	u8		*bbuf;
+
 	/* for 6250 code */
 	struct SD_STATUS	SD_Status;
 	struct MS_STATUS	MS_Status;
@@ -472,8 +482,11 @@ static int ene_load_bincode(struct us_data *us, unsigned char flag);
 
 static void ene_ub6250_info_destructor(void *extra)
 {
+	struct ene_ub6250_info *info = (struct ene_ub6250_info *) extra;
+
 	if (!extra)
 		return;
+	kfree(info->bbuf);
 }
 
 static int ene_send_scsi_cmd(struct us_data *us, u8 fDir, void *buf, int use_sg)
@@ -594,6 +607,7 @@ static int sd_scsi_mode_sense(struct us_data *us, struct scsi_cmnd *srb)
 		usb_stor_set_xfer_buf(mediaWP, 12, srb);
 	else
 		usb_stor_set_xfer_buf(mediaNoWP, 12, srb);
+
 
 	return USB_STOR_TRANSPORT_GOOD;
 }
@@ -836,8 +850,9 @@ static int ms_read_readpage(struct us_data *us, u32 PhyBlockAddr,
 		u8 PageNum, u32 *PageBuf, struct ms_lib_type_extdat *ExtraDat)
 {
 	struct bulk_cb_wrap *bcb = (struct bulk_cb_wrap *) us->iobuf;
+	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+	u8 *bbuf = info->bbuf;
 	int result;
-	u8 ExtBuf[4];
 	u32 bn = PhyBlockAddr * 0x20 + PageNum;
 
 	/* printk(KERN_INFO "MS --- MS_ReaderReadPage,
@@ -865,6 +880,7 @@ static int ms_read_readpage(struct us_data *us, u32 PhyBlockAddr,
 	if (result != USB_STOR_XFER_GOOD)
 		return USB_STOR_TRANSPORT_ERROR;
 
+
 	/* Read Extra Data */
 	memset(bcb, 0, sizeof(struct bulk_cb_wrap));
 	bcb->Signature = cpu_to_le32(US_BULK_CB_SIGN);
@@ -879,7 +895,7 @@ static int ms_read_readpage(struct us_data *us, u32 PhyBlockAddr,
 	bcb->CDB[2]     = (unsigned char)(PhyBlockAddr>>16);
 	bcb->CDB[6]     = 0x01;
 
-	result = ene_send_scsi_cmd(us, FDIR_READ, &ExtBuf, 0);
+	result = ene_send_scsi_cmd(us, FDIR_READ, bbuf, 0);
 	if (result != USB_STOR_XFER_GOOD)
 		return USB_STOR_TRANSPORT_ERROR;
 
@@ -888,9 +904,9 @@ static int ms_read_readpage(struct us_data *us, u32 PhyBlockAddr,
 	ExtraDat->status0  = 0x10;  /* Not yet,fireware support */
 
 	ExtraDat->status1  = 0x00;  /* Not yet,fireware support */
-	ExtraDat->ovrflg   = ExtBuf[0];
-	ExtraDat->mngflg   = ExtBuf[1];
-	ExtraDat->logadr   = memstick_logaddr(ExtBuf[2], ExtBuf[3]);
+	ExtraDat->ovrflg   = bbuf[0];
+	ExtraDat->mngflg   = bbuf[1];
+	ExtraDat->logadr   = memstick_logaddr(bbuf[2], bbuf[3]);
 
 	return USB_STOR_TRANSPORT_GOOD;
 }
@@ -1054,6 +1070,7 @@ static void ms_lib_free_writebuf(struct us_data *us)
 	}
 }
 
+
 static void ms_lib_free_allocatedarea(struct us_data *us)
 {
 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
@@ -1073,6 +1090,7 @@ static void ms_lib_free_allocatedarea(struct us_data *us)
 	info->MS_Lib.NumberOfPhyBlock = 0;
 	info->MS_Lib.NumberOfLogBlock = 0;
 }
+
 
 static int ms_lib_alloc_writebuf(struct us_data *us)
 {
@@ -1314,8 +1332,9 @@ static int ms_lib_read_extra(struct us_data *us, u32 PhyBlock,
 				u8 PageNum, struct ms_lib_type_extdat *ExtraDat)
 {
 	struct bulk_cb_wrap *bcb = (struct bulk_cb_wrap *) us->iobuf;
+	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+	u8 *bbuf = info->bbuf;
 	int result;
-	u8 ExtBuf[4];
 
 	/* printk("MS_LibReadExtra --- PhyBlock = %x, PageNum = %x\n", PhyBlock, PageNum); */
 	memset(bcb, 0, sizeof(struct bulk_cb_wrap));
@@ -1330,7 +1349,7 @@ static int ms_lib_read_extra(struct us_data *us, u32 PhyBlock,
 	bcb->CDB[2]     = (unsigned char)(PhyBlock>>16);
 	bcb->CDB[6]     = 0x01;
 
-	result = ene_send_scsi_cmd(us, FDIR_READ, &ExtBuf, 0);
+	result = ene_send_scsi_cmd(us, FDIR_READ, bbuf, 0);
 	if (result != USB_STOR_XFER_GOOD)
 		return USB_STOR_TRANSPORT_ERROR;
 
@@ -1338,9 +1357,9 @@ static int ms_lib_read_extra(struct us_data *us, u32 PhyBlock,
 	ExtraDat->intr     = 0x80;  /* Not yet, waiting for fireware support */
 	ExtraDat->status0  = 0x10;  /* Not yet, waiting for fireware support */
 	ExtraDat->status1  = 0x00;  /* Not yet, waiting for fireware support */
-	ExtraDat->ovrflg   = ExtBuf[0];
-	ExtraDat->mngflg   = ExtBuf[1];
-	ExtraDat->logadr   = memstick_logaddr(ExtBuf[2], ExtBuf[3]);
+	ExtraDat->ovrflg   = bbuf[0];
+	ExtraDat->mngflg   = bbuf[1];
+	ExtraDat->logadr   = memstick_logaddr(bbuf[2], bbuf[3]);
 
 	return USB_STOR_TRANSPORT_GOOD;
 }
@@ -1351,6 +1370,7 @@ static int ms_libsearch_block_from_physical(struct us_data *us, u16 phyblk)
 	u16 blk;
 	struct ms_lib_type_extdat extdat; /* need check */
 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+
 
 	if (phyblk >= info->MS_Lib.NumberOfPhyBlock)
 		return MS_LB_ERROR;
@@ -1543,9 +1563,9 @@ static int ms_lib_scan_logicalblocknumber(struct us_data *us, u16 btBlk1st)
 	u16 PhyBlock, newblk, i;
 	u16 LogStart, LogEnde;
 	struct ms_lib_type_extdat extdat;
-	u8 buf[0x200];
 	u32 count = 0, index = 0;
 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+	u8 *bbuf = info->bbuf;
 
 	for (PhyBlock = 0; PhyBlock < info->MS_Lib.NumberOfPhyBlock;) {
 		ms_lib_phy_to_log_range(PhyBlock, &LogStart, &LogEnde);
@@ -1559,14 +1579,16 @@ static int ms_lib_scan_logicalblocknumber(struct us_data *us, u16 btBlk1st)
 			}
 
 			if (count == PhyBlock) {
-				ms_lib_read_extrablock(us, PhyBlock, 0, 0x80, &buf);
+				ms_lib_read_extrablock(us, PhyBlock, 0, 0x80,
+						bbuf);
 				count += 0x80;
 			}
 			index = (PhyBlock % 0x80) * 4;
 
-			extdat.ovrflg = buf[index];
-			extdat.mngflg = buf[index+1];
-			extdat.logadr = memstick_logaddr(buf[index+2], buf[index+3]);
+			extdat.ovrflg = bbuf[index];
+			extdat.mngflg = bbuf[index+1];
+			extdat.logadr = memstick_logaddr(bbuf[index+2],
+					bbuf[index+3]);
 
 			if ((extdat.ovrflg & MS_REG_OVR_BKST) != MS_REG_OVR_BKST_OK) {
 				ms_lib_setacquired_errorblock(us, PhyBlock);
@@ -1611,6 +1633,7 @@ static int ms_lib_scan_logicalblocknumber(struct us_data *us, u16 btBlk1st)
 
 	return MS_STATUS_SUCCESS;
 }
+
 
 static int ms_scsi_read(struct us_data *us, struct scsi_cmnd *srb)
 {
@@ -2054,9 +2077,9 @@ static int ene_ms_init(struct us_data *us)
 {
 	struct bulk_cb_wrap *bcb = (struct bulk_cb_wrap *) us->iobuf;
 	int result;
-	u8 buf[0x200];
 	u16 MSP_BlockSize, MSP_UserAreaBlocks;
 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+	u8 *bbuf = info->bbuf;
 
 	printk(KERN_INFO "transport --- ENE_MSInit\n");
 
@@ -2075,13 +2098,13 @@ static int ene_ms_init(struct us_data *us)
 	bcb->CDB[0]     = 0xF1;
 	bcb->CDB[1]     = 0x01;
 
-	result = ene_send_scsi_cmd(us, FDIR_READ, &buf, 0);
+	result = ene_send_scsi_cmd(us, FDIR_READ, bbuf, 0);
 	if (result != USB_STOR_XFER_GOOD) {
 		printk(KERN_ERR "Execution MS Init Code Fail !!\n");
 		return USB_STOR_TRANSPORT_ERROR;
 	}
 	/* the same part to test ENE */
-	info->MS_Status = *(struct MS_STATUS *)&buf[0];
+	info->MS_Status = *(struct MS_STATUS *) bbuf;
 
 	if (info->MS_Status.Insert && info->MS_Status.Ready) {
 		printk(KERN_INFO "Insert     = %x\n", info->MS_Status.Insert);
@@ -2090,15 +2113,15 @@ static int ene_ms_init(struct us_data *us)
 		printk(KERN_INFO "IsMSPHG    = %x\n", info->MS_Status.IsMSPHG);
 		printk(KERN_INFO "WtP= %x\n", info->MS_Status.WtP);
 		if (info->MS_Status.IsMSPro) {
-			MSP_BlockSize      = (buf[6] << 8) | buf[7];
-			MSP_UserAreaBlocks = (buf[10] << 8) | buf[11];
+			MSP_BlockSize      = (bbuf[6] << 8) | bbuf[7];
+			MSP_UserAreaBlocks = (bbuf[10] << 8) | bbuf[11];
 			info->MSP_TotalBlock = MSP_BlockSize * MSP_UserAreaBlocks;
 		} else {
 			ms_card_init(us); /* Card is MS (to ms.c)*/
 		}
 		US_DEBUGP("MS Init Code OK !!\n");
 	} else {
-		US_DEBUGP("MS Card Not Ready --- %x\n", buf[0]);
+		US_DEBUGP("MS Card Not Ready --- %x\n", bbuf[0]);
 		return USB_STOR_TRANSPORT_ERROR;
 	}
 
@@ -2108,9 +2131,9 @@ static int ene_ms_init(struct us_data *us)
 static int ene_sd_init(struct us_data *us)
 {
 	int result;
-	u8  buf[0x200];
 	struct bulk_cb_wrap *bcb = (struct bulk_cb_wrap *) us->iobuf;
 	struct ene_ub6250_info *info = (struct ene_ub6250_info *) us->extra;
+	u8 *bbuf = info->bbuf;
 
 	US_DEBUGP("transport --- ENE_SDInit\n");
 	/* SD Init Part-1 */
@@ -2144,15 +2167,15 @@ static int ene_sd_init(struct us_data *us)
 	bcb->Flags              = 0x80;
 	bcb->CDB[0]             = 0xF1;
 
-	result = ene_send_scsi_cmd(us, FDIR_READ, &buf, 0);
+	result = ene_send_scsi_cmd(us, FDIR_READ, bbuf, 0);
 	if (result != USB_STOR_XFER_GOOD) {
 		US_DEBUGP("Execution SD Init Code Fail !!\n");
 		return USB_STOR_TRANSPORT_ERROR;
 	}
 
-	info->SD_Status =  *(struct SD_STATUS *)&buf[0];
+	info->SD_Status =  *(struct SD_STATUS *) bbuf;
 	if (info->SD_Status.Insert && info->SD_Status.Ready) {
-		ene_get_card_status(us, (unsigned char *)&buf);
+		ene_get_card_status(us, bbuf);
 		US_DEBUGP("Insert     = %x\n", info->SD_Status.Insert);
 		US_DEBUGP("Ready      = %x\n", info->SD_Status.Ready);
 		US_DEBUGP("IsMMC      = %x\n", info->SD_Status.IsMMC);
@@ -2160,22 +2183,25 @@ static int ene_sd_init(struct us_data *us)
 		US_DEBUGP("HiSpeed    = %x\n", info->SD_Status.HiSpeed);
 		US_DEBUGP("WtP        = %x\n", info->SD_Status.WtP);
 	} else {
-		US_DEBUGP("SD Card Not Ready --- %x\n", buf[0]);
+		US_DEBUGP("SD Card Not Ready --- %x\n", bbuf[0]);
 		return USB_STOR_TRANSPORT_ERROR;
 	}
 	return USB_STOR_TRANSPORT_GOOD;
 }
 
+
 static int ene_init(struct us_data *us)
 {
 	int result;
-	u8  misc_reg03 = 0;
+	u8  misc_reg03;
 	struct ene_ub6250_info *info = (struct ene_ub6250_info *)(us->extra);
+	u8 *bbuf = info->bbuf;
 
-	result = ene_get_card_type(us, REG_CARD_STATUS, &misc_reg03);
+	result = ene_get_card_type(us, REG_CARD_STATUS, bbuf);
 	if (result != USB_STOR_XFER_GOOD)
 		return USB_STOR_TRANSPORT_ERROR;
 
+	misc_reg03 = bbuf[0];
 	if (misc_reg03 & 0x01) {
 		if (!info->SD_Status.Ready) {
 			result = ene_sd_init(us);
@@ -2286,12 +2312,14 @@ static int ene_transport(struct scsi_cmnd *srb, struct us_data *us)
 	return 0;
 }
 
+
 static int ene_ub6250_probe(struct usb_interface *intf,
 			 const struct usb_device_id *id)
 {
 	int result;
-	u8  misc_reg03 = 0;
+	u8  misc_reg03;
 	struct us_data *us;
+	struct ene_ub6250_info *info;
 
 	result = usb_stor_probe1(&us, intf, id,
 		   (id - ene_ub6250_usb_ids) + ene_ub6250_unusual_dev_list);
@@ -2299,11 +2327,16 @@ static int ene_ub6250_probe(struct usb_interface *intf,
 		return result;
 
 	/* FIXME: where should the code alloc extra buf ? */
-	if (!us->extra) {
-		us->extra = kzalloc(sizeof(struct ene_ub6250_info), GFP_KERNEL);
-		if (!us->extra)
-			return -ENOMEM;
-		us->extra_destructor = ene_ub6250_info_destructor;
+	us->extra = kzalloc(sizeof(struct ene_ub6250_info), GFP_KERNEL);
+	if (!us->extra)
+		return -ENOMEM;
+	us->extra_destructor = ene_ub6250_info_destructor;
+
+	info = (struct ene_ub6250_info *)(us->extra);
+	info->bbuf = kmalloc(512, GFP_KERNEL);
+	if (!info->bbuf) {
+		kfree(us->extra);
+		return -ENOMEM;
 	}
 
 	us->transport_name = "ene_ub6250";
@@ -2315,12 +2348,13 @@ static int ene_ub6250_probe(struct usb_interface *intf,
 		return result;
 
 	/* probe card type */
-	result = ene_get_card_type(us, REG_CARD_STATUS, &misc_reg03);
+	result = ene_get_card_type(us, REG_CARD_STATUS, info->bbuf);
 	if (result != USB_STOR_XFER_GOOD) {
 		usb_stor_disconnect(intf);
 		return USB_STOR_TRANSPORT_ERROR;
 	}
 
+	misc_reg03 = info->bbuf[0];
 	if (!(misc_reg03 & 0x01)) {
 		pr_info("ums_eneub6250: The driver only supports SD/MS card. "
 			"To use SM card, please build driver/staging/keucr\n");
@@ -2328,6 +2362,7 @@ static int ene_ub6250_probe(struct usb_interface *intf,
 
 	return result;
 }
+
 
 #ifdef CONFIG_PM
 

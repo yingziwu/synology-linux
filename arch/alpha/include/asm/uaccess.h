@@ -4,6 +4,7 @@
 #include <linux/errno.h>
 #include <linux/sched.h>
 
+
 /*
  * The fs value determines whether argument validity checking should be
  * performed or not.  If get_fs() == USER_DS, checking is performed, with
@@ -335,6 +336,7 @@ __asm__ __volatile__("1: stb %r2,%1\n"				\
 }
 #endif
 
+
 /*
  * Complex access routines
  */
@@ -369,14 +371,6 @@ __copy_tofrom_user_nocheck(void *to, const void *from, long len)
 	return __cu_len;
 }
 
-extern inline long
-__copy_tofrom_user(void *to, const void *from, long len, const void __user *validate)
-{
-	if (__access_ok((unsigned long)validate, len, get_fs()))
-		len = __copy_tofrom_user_nocheck(to, from, len);
-	return len;
-}
-
 #define __copy_to_user(to,from,n)					\
 ({									\
 	__chk_user_ptr(to);						\
@@ -394,13 +388,19 @@ __copy_tofrom_user(void *to, const void *from, long len, const void __user *vali
 extern inline long
 copy_to_user(void __user *to, const void *from, long n)
 {
-	return __copy_tofrom_user((__force void *)to, from, n, to);
+	if (likely(__access_ok((unsigned long)to, n, get_fs())))
+		n = __copy_tofrom_user_nocheck((__force void *)to, from, n);
+	return n;
 }
 
 extern inline long
 copy_from_user(void *to, const void __user *from, long n)
 {
-	return __copy_tofrom_user(to, (__force void *)from, n, from);
+	if (likely(__access_ok((unsigned long)from, n, get_fs())))
+		n = __copy_tofrom_user_nocheck(to, (__force void *)from, n);
+	else
+		memset(to, 0, n);
+	return n;
 }
 
 extern void __do_clear_user(void);

@@ -279,6 +279,7 @@ void radeon_ib_pool_fini(struct radeon_device *rdev)
 	}
 }
 
+
 /*
  * Ring.
  */
@@ -423,6 +424,7 @@ void radeon_ring_fini(struct radeon_device *rdev)
 		radeon_bo_unref(&ring_obj);
 	}
 }
+
 
 /*
  * Debugfs info

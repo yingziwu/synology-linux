@@ -289,11 +289,13 @@ struct eepro_local {
 #define ee_SIZE 0x40 /* total EEprom Size */
 #define ee_Checksum 0xBABA /* initial and final value for adding checksum */
 
+
 /* Card identification via EEprom:   */
 #define ee_addr_vendor 0x10  /* Word offset for EISA Vendor ID */
 #define ee_addr_id 0x11      /* Word offset for Card ID */
 #define ee_addr_SN 0x12      /* Serial Number */
 #define ee_addr_CRC_8 0x14   /* CRC over last thee Bytes */
+
 
 #define ee_vendor_intel0 0x25  /* Vendor ID Intel */
 #define ee_vendor_intel1 0xD4
@@ -1027,6 +1029,7 @@ static int eepro_open(struct net_device *dev)
 		outb((temp_reg & 0xf8) | irqrmap2[dev->irq], ioaddr + INT_NO_REG);
 	else outb((temp_reg & 0xf8) | irqrmap[dev->irq], ioaddr + INT_NO_REG);
 
+
 	temp_reg = inb(ioaddr + INT_NO_REG);
 	if (lp->eepro == LAN595FX || lp->eepro == LAN595FX_10ISA)
 		outb((temp_reg & 0xf0) | irqrmap2[dev->irq] | 0x08,ioaddr+INT_NO_REG);
@@ -1034,6 +1037,7 @@ static int eepro_open(struct net_device *dev)
 
 	if (net_debug > 3)
 		printk(KERN_DEBUG "eepro_open: content of INT Reg is %x\n", temp_reg);
+
 
 	/* Initialize the RCV and XMT upper and lower limits */
 	outb(lp->rcv_lower_limit >> 8, ioaddr + RCV_LOWER_LIMIT_REG);
@@ -1129,6 +1133,7 @@ static void eepro_tx_timeout (struct net_device *dev)
 	eepro_complete_selreset(ioaddr);
 }
 
+
 static netdev_tx_t eepro_send_packet(struct sk_buff *skb,
 				     struct net_device *dev)
 {
@@ -1177,6 +1182,7 @@ static netdev_tx_t eepro_send_packet(struct sk_buff *skb,
 	return NETDEV_TX_OK;
 }
 
+
 /*	The typical workload of the driver:
 	Handle the network interface interrupts. */
 
@@ -1215,6 +1221,7 @@ eepro_interrupt(int irq, void *dev_id)
 		if (status & TX_INT) {
 			if (net_debug > 4)
  				printk(KERN_DEBUG "%s: packet transmit interrupt.\n", dev->name);
+
 
 			eepro_dis_int(ioaddr);
 

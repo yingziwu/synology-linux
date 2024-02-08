@@ -41,6 +41,7 @@
 char SBEid_pmcc4_comet_tblc[] =
   "@(#)comet_tables.c - $Revision: 1.2 $      (c) Copyright 2004-2005 SBE, Inc.";
 
+
 #include <linux/types.h>
 
 /*****************************************************************************
@@ -386,6 +387,8 @@ u_int8_t    TWV_E1_120Ohm[25][5] =      /* E1 120 Ohm */
 /*  { 0x10 }                Output Amplitude */
 };
 
+
+
 u_int8_t    TWV_E1_75Ohm[25][5] =       /* E1 75 Ohm */
 {
 #ifdef PMCC4_DOES_NOT_SUPPORT
@@ -416,6 +419,7 @@ u_int8_t    TWV_E1_75Ohm[25][5] =       /* E1 75 Ohm */
 #endif
     {0x0C}                      /* Output Amplitude */
 };
+
 
 u_int32_t T1_Equalizer[256] =   /* T1 Receiver Equalizer */
 {
@@ -484,6 +488,7 @@ u_int32_t T1_Equalizer[256] =   /* T1 Receiver Equalizer */
         0xFC2343C0, 0xFC2343C0, 0xFD2343C0, 0xFC2143C0, /* 248 - 251 */
         0xFC2143C0, 0xFC2153C0, 0xFD2153C0, 0xFC2153C0  /* 252 - 255 */
 };
+
 
 u_int32_t   E1_Equalizer[256] = /* E1 Receiver Equalizer */
 {

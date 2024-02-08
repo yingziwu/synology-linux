@@ -79,6 +79,7 @@ static const u8 W83L786NG_PWM_ENABLE_SHIFT[] = {2, 4};
 /* FAN Duty Cycle, be used to control */
 static const u8 W83L786NG_REG_PWM[] = {0x81, 0x87};
 
+
 static inline u8
 FAN_TO_REG(long rpm, int div)
 {
@@ -346,6 +347,7 @@ static struct sensor_device_attribute sda_fan_div[] = {
 		    store_fan_div, 1),
 };
 
+
 /* read/write the temperature, includes measured value and limits */
 
 static ssize_t
@@ -445,8 +447,11 @@ store_pwm(struct device *dev, struct device_attribute *attr,
 	struct w83l786ng_data *data = i2c_get_clientdata(client);
 	u32 val = SENSORS_LIMIT(simple_strtoul(buf, NULL, 10), 0, 255);
 
+	val = DIV_ROUND_CLOSEST(val, 0x11);
+
 	mutex_lock(&data->update_lock);
-	data->pwm[nr] = val;
+	data->pwm[nr] = val * 0x11;
+	val |= w83l786ng_read_value(client, W83L786NG_REG_PWM[nr]) & 0xf0;
 	w83l786ng_write_value(client, W83L786NG_REG_PWM[nr], val);
 	mutex_unlock(&data->update_lock);
 	return count;
@@ -469,7 +474,7 @@ store_pwm_enable(struct device *dev, struct device_attribute *attr,
 	mutex_lock(&data->update_lock);
 	reg = w83l786ng_read_value(client, W83L786NG_REG_FAN_CFG);
 	data->pwm_enable[nr] = val;
-	reg &= ~(0x02 << W83L786NG_PWM_ENABLE_SHIFT[nr]);
+	reg &= ~(0x03 << W83L786NG_PWM_ENABLE_SHIFT[nr]);
 	reg |= (val - 1) << W83L786NG_PWM_ENABLE_SHIFT[nr];
 	w83l786ng_write_value(client, W83L786NG_REG_FAN_CFG, reg);
 	mutex_unlock(&data->update_lock);
@@ -538,6 +543,7 @@ static struct sensor_device_attribute sda_tolerance[] = {
 	SENSOR_ATTR(pwm2_tolerance, S_IWUSR | S_IRUGO,
 		    show_tolerance, store_tolerance, 1),
 };
+
 
 #define IN_UNIT_ATTRS(X)	\
 	&sda_in_input[X].dev_attr.attr,		\
@@ -737,10 +743,12 @@ static struct w83l786ng_data *w83l786ng_update_device(struct device *dev)
 			    ((pwmcfg >> W83L786NG_PWM_MODE_SHIFT[i]) & 1)
 			    ? 0 : 1;
 			data->pwm_enable[i] =
-			    ((pwmcfg >> W83L786NG_PWM_ENABLE_SHIFT[i]) & 2) + 1;
-			data->pwm[i] = w83l786ng_read_value(client,
-			    W83L786NG_REG_PWM[i]);
+			    ((pwmcfg >> W83L786NG_PWM_ENABLE_SHIFT[i]) & 3) + 1;
+			data->pwm[i] =
+			    (w83l786ng_read_value(client, W83L786NG_REG_PWM[i])
+			     & 0x0f) * 0x11;
 		}
+
 
 		/* Update the temperature sensors */
 		for (i = 0; i < 2; i++) {

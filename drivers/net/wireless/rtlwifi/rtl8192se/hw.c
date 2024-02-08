@@ -924,7 +924,7 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 	struct rtl_pci *rtlpci = rtl_pcidev(rtl_pcipriv(hw));
 	struct rtl_efuse *rtlefuse = rtl_efuse(rtl_priv(hw));
 	u8 tmp_byte = 0;
-
+	unsigned long flags;
 	bool rtstatus = true;
 	u8 tmp_u1b;
 	int err = false;
@@ -935,6 +935,16 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 	u8 secr_value = 0x0;
 
 	rtlpci->being_init_adapter = true;
+
+	/* As this function can take a very long time (up to 350 ms)
+	 * and can be called with irqs disabled, reenable the irqs
+	 * to let the other devices continue being serviced.
+	 *
+	 * It is safe doing so since our own interrupts will only be enabled
+	 * in a subsequent step.
+	 */
+	local_save_flags(flags);
+	local_irq_enable();
 
 	rtlpriv->intf_ops->disable_aspm(hw);
 
@@ -969,7 +979,8 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 	/* 3. Initialize MAC/PHY Config by MACPHY_reg.txt */
 	if (rtl92s_phy_mac_config(hw) != true) {
 		RT_TRACE(rtlpriv, COMP_ERR, DBG_EMERG, ("MAC Config failed\n"));
-		return rtstatus;
+		err = rtstatus;
+		goto exit;
 	}
 
 	/* Make sure BB/RF write OK. We should prevent enter IPS. radio off. */
@@ -979,7 +990,8 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 	/* 4. Initialize BB After MAC Config PHY_reg.txt, AGC_Tab.txt */
 	if (rtl92s_phy_bb_config(hw) != true) {
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_EMERG, ("BB Config failed\n"));
-		return rtstatus;
+		err = rtstatus;
+		goto exit;
 	}
 
 	/* 5. Initiailze RF RAIO_A.txt RF RAIO_B.txt */
@@ -1015,7 +1027,8 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 
 	if (rtl92s_phy_rf_config(hw) != true) {
 		RT_TRACE(rtlpriv, COMP_INIT, DBG_DMESG, ("RF Config failed\n"));
-		return rtstatus;
+		err = rtstatus;
+		goto exit;
 	}
 
 	/* After read predefined TXT, we must set BB/MAC/RF
@@ -1089,8 +1102,9 @@ int rtl92se_hw_init(struct ieee80211_hw *hw)
 
 	rtlpriv->cfg->ops->led_control(hw, LED_CTL_POWER_ON);
 	rtl92s_dm_init(hw);
+exit:
+	local_irq_restore(flags);
 	rtlpci->being_init_adapter = false;
-
 	return err;
 }
 
@@ -1160,6 +1174,7 @@ static int _rtl92se_set_media_status(struct ieee80211_hw *hw,
 	rtl_write_dword(rtlpriv, TCR, temp & (~BIT(8)));
 	rtl_write_dword(rtlpriv, TCR, temp | BIT(8));
 
+
 	return 0;
 }
 
@@ -1226,6 +1241,7 @@ void rtl92se_disable_interrupt(struct ieee80211_hw *hw)
 
 	synchronize_irq(rtlpci->pdev->irq);
 }
+
 
 static u8 _rtl92s_set_sysclk(struct ieee80211_hw *hw, u8 data)
 {
@@ -1358,6 +1374,7 @@ static void _rtl92se_gen_refreshledstate(struct ieee80211_hw *hw)
 		rtl92se_sw_led_off(hw, pLed0);
 }
 
+
 static void _rtl92se_power_domain_init(struct ieee80211_hw *hw)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -1427,6 +1444,7 @@ static void _rtl92se_power_domain_init(struct ieee80211_hw *hw)
 	/* Set Digital Vdd to Retention isolation Path. */
 	tmpu2b = rtl_read_word(rtlpriv, REG_SYS_ISO_CTRL);
 	rtl_write_word(rtlpriv, REG_SYS_ISO_CTRL, (tmpu2b | BIT(11)));
+
 
 	/* For warm reboot NIC disappera bug. */
 	tmpu2b = rtl_read_word(rtlpriv, REG_SYS_FUNC_EN);

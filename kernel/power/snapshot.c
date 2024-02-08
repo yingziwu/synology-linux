@@ -958,6 +958,7 @@ static inline void do_copy_page(long *dst, long *src)
 		*dst++ = *src++;
 }
 
+
 /**
  *	safe_copy_page - check if the page we are going to copy is marked as
  *		present in the kernel page tables (this always is the case if
@@ -974,6 +975,7 @@ static void safe_copy_page(void *dst, struct page *s_page)
 		kernel_map_pages(s_page, 1, 0);
 	}
 }
+
 
 #ifdef CONFIG_HIGHMEM
 static inline struct page *
@@ -1388,7 +1390,11 @@ int hibernate_preallocate_memory(void)
 	 * highmem and non-highmem zones separately.
 	 */
 	pages_highmem = preallocate_image_highmem(highmem / 2);
-	alloc = (count - max_size) - pages_highmem;
+	alloc = count - max_size;
+	if (alloc > pages_highmem)
+		alloc -= pages_highmem;
+	else
+		alloc = 0;
 	pages = preallocate_image_memory(alloc, avail_normal);
 	if (pages < alloc) {
 		/* We have exhausted non-highmem pages, try highmem. */

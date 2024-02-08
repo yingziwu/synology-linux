@@ -159,6 +159,7 @@ enum si_stat_indexes {
 	/* Number of asyncronous messages received. */
 	SI_STAT_incoming_messages,
 
+
 	/* This *must* remain last, add new values above this. */
 	SI_NUM_STATS
 };
@@ -990,6 +991,7 @@ static int ipmi_thread_busy_wait(enum si_sm_result smi_result,
 	return 1;
 }
 
+
 /*
  * A busy-waiting loop for speeding up IPMI operation.
  *
@@ -1027,6 +1029,7 @@ static int ipmi_thread(void *data)
 	}
 	return 0;
 }
+
 
 static void poll(void *send_info)
 {
@@ -1145,14 +1148,14 @@ static int smi_start_processing(void       *send_info,
 
 	new_smi->intf = intf;
 
-	/* Try to claim any interrupts. */
-	if (new_smi->irq_setup)
-		new_smi->irq_setup(new_smi);
-
 	/* Set up the timer that drives the interface. */
 	setup_timer(&new_smi->si_timer, smi_timeout, (long)new_smi);
 	new_smi->last_timeout_jiffies = jiffies;
 	mod_timer(&new_smi->si_timer, jiffies + SI_TIMEOUT_JIFFIES);
+
+	/* Try to claim any interrupts. */
+	if (new_smi->irq_setup)
+		new_smi->irq_setup(new_smi);
 
 	/*
 	 * Check if the user forcefully enabled the daemon.
@@ -1313,6 +1316,7 @@ MODULE_PARM_DESC(kipmid_max_busy_us,
 		 "Max time (in microseconds) to busy-wait for IPMI data before"
 		 " sleeping. 0 (default) means to wait forever. Set to 100-500"
 		 " if kipmid is using up a lot of CPU time.");
+
 
 static void std_irq_cleanup(struct smi_info *info)
 {
@@ -2675,7 +2679,7 @@ static int wait_for_msg_done(struct smi_info *smi_info)
 		    smi_result == SI_SM_CALL_WITH_TICK_DELAY) {
 			schedule_timeout_uninterruptible(1);
 			smi_result = smi_info->handlers->event(
-				smi_info->si_sm, 100);
+				smi_info->si_sm, jiffies_to_usecs(1));
 		} else if (smi_result == SI_SM_CALL_WITHOUT_DELAY) {
 			smi_result = smi_info->handlers->event(
 				smi_info->si_sm, 0);
@@ -3377,6 +3381,7 @@ static int __devinit init_ipmi_si(void)
 		printk(KERN_ERR PFX "Unable to register driver: %d\n", rv);
 		return rv;
 	}
+
 
 	/* Parse out the si_type string into its components. */
 	str = si_type_str;

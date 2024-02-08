@@ -24,12 +24,15 @@
 #define CRC32_POLYNOMIAL                0xEDB88320L
 #define CRC_TABLE_ENTRIES                       256
 
+
+
 static      u_int32_t crcTableInit;
 
 #ifdef STATIC_CRC_TABLE
 static u_int32_t CRCTable[CRC_TABLE_ENTRIES];
 
 #endif
+
 
 /***************************************************************************
 *
@@ -61,6 +64,7 @@ genCrcTable (u_int32_t *CRCTable)
 
     crcTableInit++;
 }
+
 
 /***************************************************************************
 *

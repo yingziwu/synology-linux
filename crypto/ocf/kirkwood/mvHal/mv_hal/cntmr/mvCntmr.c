@@ -178,6 +178,7 @@ MV_STATUS mvCntmrCtrlSet(MV_U32 countNum, MV_CNTMR_CTRL *pCtrl)
 	/* read control register */
 	cntmrCtrl = MV_REG_READ(CNTMR_CTRL_REG);
 
+
 	if (pCtrl->enable)	/* enable counter\timer */
 	{
 		cntmrCtrl |= CTCR_ARM_TIMER_EN(countNum);
@@ -287,6 +288,7 @@ MV_STATUS mvCntmrEnable(MV_U32 countNum)
 
 	/* enable counter\timer */
 	cntmrCtrl |= CTCR_ARM_TIMER_EN(countNum);
+
 
 	MV_REG_WRITE(CNTMR_CTRL_REG,cntmrCtrl);
 

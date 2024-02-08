@@ -128,3 +128,4 @@ int snd_cs5535audio_resume(struct pci_dev *pci)
 
 	return 0;
 }
+

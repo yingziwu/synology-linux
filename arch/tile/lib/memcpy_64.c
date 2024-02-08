@@ -206,6 +206,7 @@ int USERCOPY_FUNC(void *__restrict dstv, const void *__restrict srcv, size_t n)
 	return RETVAL;
 }
 
+
 #ifdef USERCOPY_FUNC
 #undef ST1
 #undef ST2

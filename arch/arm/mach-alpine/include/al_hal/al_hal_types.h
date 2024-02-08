@@ -67,6 +67,7 @@ typedef int AL_RETURN;
 #define unlikely(x)	(x)
 #endif
 
+
 #ifdef __GNUC__
 #if !defined(__packed)
 #define __packed __attribute__ ((packed))

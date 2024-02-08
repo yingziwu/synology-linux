@@ -26,6 +26,7 @@
 #include <linux/mISDNhw.h>
 #include "ipac.h"
 
+
 #define DBUSY_TIMER_VALUE	80
 #define ARCOFI_USE		1
 
@@ -893,6 +894,7 @@ waitforCEC(struct hscx_hw *hx)
 		pr_info("%s: B%1d CEC timeout\n", hx->ip->name, hx->bch.nr);
 }
 
+
 static void
 waitforXFW(struct hscx_hw *hx)
 {
@@ -1154,7 +1156,7 @@ mISDNipac_irq(struct ipac_hw *ipac, int maxloop)
 
 	if (ipac->type & IPAC_TYPE_IPACX) {
 		ista = ReadIPAC(ipac, ISACX_ISTA);
-		while (ista && cnt--) {
+		while (ista && --cnt) {
 			pr_debug("%s: ISTA %02x\n", ipac->name, ista);
 			if (ista & IPACX__ICA)
 				ipac_irq(&ipac->hscx[0], ista);
@@ -1166,7 +1168,7 @@ mISDNipac_irq(struct ipac_hw *ipac, int maxloop)
 		}
 	} else if (ipac->type & IPAC_TYPE_IPAC) {
 		ista = ReadIPAC(ipac, IPAC_ISTA);
-		while (ista && cnt--) {
+		while (ista && --cnt) {
 			pr_debug("%s: ISTA %02x\n", ipac->name, ista);
 			if (ista & (IPAC__ICD | IPAC__EXD)) {
 				istad = ReadISAC(isac, ISAC_ISTA);
@@ -1184,7 +1186,7 @@ mISDNipac_irq(struct ipac_hw *ipac, int maxloop)
 			ista = ReadIPAC(ipac, IPAC_ISTA);
 		}
 	} else if (ipac->type & IPAC_TYPE_HSCX) {
-		while (cnt) {
+		while (--cnt) {
 			ista = ReadIPAC(ipac, IPAC_ISTAB + ipac->hscx[1].off);
 			pr_debug("%s: B2 ISTA %02x\n", ipac->name, ista);
 			if (ista)
@@ -1195,7 +1197,6 @@ mISDNipac_irq(struct ipac_hw *ipac, int maxloop)
 				mISDNisac_irq(isac, istad);
 			if (0 == (ista | istad))
 				break;
-			cnt--;
 		}
 	}
 	if (cnt > maxloop) /* only for ISAC/HSCX without PCI IRQ test */
@@ -1447,6 +1448,8 @@ free_ipac(struct ipac_hw *ipac)
 static const char *HSCXVer[] =
 {"A1", "?1", "A2", "?3", "A3", "V2.1", "?6", "?7",
  "?8", "?9", "?10", "?11", "?12", "?13", "?14", "???"};
+
+
 
 static void
 hscx_init(struct hscx_hw *hx)

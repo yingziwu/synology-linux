@@ -1230,6 +1230,7 @@ arch_ptrace (struct task_struct *child, long request,
 	}
 }
 
+
 /* "asmlinkage" so the input arguments are preserved... */
 
 asmlinkage long
@@ -1553,6 +1554,7 @@ void do_gpregs_get(struct unw_frame_info *info, void *arg)
 	 *      ar.rsc ar.bsp ar.bspstore ar.rnat
 	 *      ar.ccv ar.unat ar.fpsr ar.pfs ar.lc ar.ec
 	 */
+
 
 	/* Skip r0 */
 	if (dst->count > 0 && dst->pos < ELF_GR_OFFSET(1)) {

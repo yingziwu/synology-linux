@@ -17,6 +17,7 @@
 
 #include <mach/board.h>
 
+
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_NEW_LEDS)
@@ -51,6 +52,7 @@ void __init at91_gpio_leds(struct gpio_led *leds, int nr)
 #else
 void __init at91_gpio_leds(struct gpio_led *leds, int nr) {}
 #endif
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -89,6 +91,7 @@ void __init at91_pwm_leds(struct gpio_led *leds, int nr)
 void __init at91_pwm_leds(struct gpio_led *leds, int nr){}
 #endif
 
+
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_LEDS)
@@ -121,6 +124,7 @@ static inline void at91_led_toggle(unsigned int led)
 	else
 		at91_led_off(led);
 }
+
 
 /*
  * Handle LED events.
@@ -163,6 +167,7 @@ static void at91_leds_event(led_event_t evt)
 	local_irq_restore(flags);
 }
 
+
 static int __init leds_init(void)
 {
 	if (!at91_leds_timer || !at91_leds_cpu)
@@ -175,6 +180,7 @@ static int __init leds_init(void)
 }
 
 __initcall(leds_init);
+
 
 void __init at91_init_leds(u8 cpu_led, u8 timer_led)
 {

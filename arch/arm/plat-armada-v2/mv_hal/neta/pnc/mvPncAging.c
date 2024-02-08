@@ -126,6 +126,7 @@ void    mvPncAgingCntrWrite(int tid, MV_U32 w32)
 	MV_MEMIO32_WRITE(va, w32);
 }
 
+
 MV_U32  mvPncAgingCntrRead(int tid)
 {
 	MV_U32  va, w32;

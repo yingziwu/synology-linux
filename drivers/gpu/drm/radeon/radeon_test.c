@@ -26,6 +26,7 @@
 #include "radeon_reg.h"
 #include "radeon.h"
 
+
 /* Test BO GTT->VRAM and VRAM->GTT GPU copies across the whole GTT aperture */
 void radeon_test_moves(struct radeon_device *rdev)
 {

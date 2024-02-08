@@ -1999,10 +1999,10 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 
 	if (mem_only) {
 		if (pci_enable_device_mem(pdev))
-			goto probe_out;
+			return ret;
 	} else {
 		if (pci_enable_device(pdev))
-			goto probe_out;
+			return ret;
 	}
 
 	/* This may fail but that's ok */
@@ -2012,7 +2012,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	if (!ha) {
 		ql_log_pci(ql_log_fatal, pdev, 0x0009,
 		    "Unable to allocate memory for ha.\n");
-		goto probe_out;
+		goto disable_device;
 	}
 	ql_dbg_pci(ql_dbg_init, pdev, 0x000a,
 	    "Memory allocated for ha=%p.\n", ha);
@@ -2023,6 +2023,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	ha->mem_only = mem_only;
 	spin_lock_init(&ha->hardware_lock);
 	spin_lock_init(&ha->vport_slock);
+	mutex_init(&ha->optrom_mutex);
 
 	/* Set ISP-type information. */
 	qla2x00_set_isp_flags(ha);
@@ -2176,6 +2177,7 @@ qla2x00_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
 	req->max_q_depth = MAX_Q_DEPTH;
 	if (ql2xmaxqdepth != 0 && ql2xmaxqdepth <= 0xffffU)
 		req->max_q_depth = ql2xmaxqdepth;
+
 
 	base_vha = qla2x00_create_host(sht, ha);
 	if (!base_vha) {
@@ -2432,7 +2434,7 @@ probe_hw_failed:
 	kfree(ha);
 	ha = NULL;
 
-probe_out:
+disable_device:
 	pci_disable_device(pdev);
 	return ret;
 }
@@ -4083,6 +4085,7 @@ uint32_t qla82xx_error_recovery(scsi_qla_host_t *base_vha)
 		qla2x00_abort_isp_cleanup(base_vha);
 	}
 
+
 	fn = PCI_FUNC(ha->pdev->devfn);
 	while (fn > 0) {
 		fn--;
@@ -4228,6 +4231,7 @@ qla2xxx_pci_slot_reset(struct pci_dev *pdev)
 	if (ha->isp_ops->abort_isp(base_vha) == QLA_SUCCESS)
 		ret =  PCI_ERS_RESULT_RECOVERED;
 	clear_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
+
 
 exit_slot_reset:
 	ql_dbg(ql_dbg_aer, base_vha, 0x900e,

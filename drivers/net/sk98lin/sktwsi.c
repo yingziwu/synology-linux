@@ -178,6 +178,7 @@ SK_U8	Bit)	/* Bit to send */
 	I2C_CLK_LOW(IoC);
 }	/* SkI2cSndBit*/
 
+
 /*
  * Signal a start to the TWSI Bus.
  *
@@ -210,6 +211,7 @@ SK_IOC	IoC)	/* I/O Context */
 	SkDgWaitTime(IoC, NS2BCLK(T_CLK_LOW));
 }	/* SkI2cStart */
 
+
 void SkI2cStop(
 SK_IOC	IoC)	/* I/O Context */
 {
@@ -239,6 +241,7 @@ SK_IOC	IoC)	/* I/O Context */
 	 */
 	SkDgWaitTime(IoC, NS2BCLK(T_BUS_IDLE));
 }	/* SkI2cStop */
+
 
 /*
  * Receive just one bit via the TWSI bus.
@@ -272,6 +275,7 @@ SK_IOC	IoC)	/* I/O Context */
 	return(Bit);
 }	/* SkI2cRcvBit */
 
+
 /*
  * Receive an ACK.
  *
@@ -287,6 +291,7 @@ SK_IOC	IoC)	/* I/O Context */
 	return(SkI2cRcvBit(IoC) != 0);
 }	/* SkI2cRcvAck */
 
+
 /*
  * Send an NACK.
  */
@@ -299,6 +304,7 @@ SK_IOC	IoC)	/* I/O Context */
 	SkI2cSndBit(IoC, 1);
 }	/* SkI2cSndNAck */
 
+
 /*
  * Send an ACK.
  */
@@ -310,6 +316,7 @@ SK_IOC IoC)	/* I/O Context */
 	 */
 	SkI2cSndBit(IoC, 0);
 }	/* SkI2cSndAck */
+
 
 /*
  * Send one byte to the TWSI device and wait for ACK.
@@ -333,6 +340,7 @@ int		Byte)	/* byte to send */
 
 	return(SkI2cRcvAck(IoC));
 }	/* SkI2cSndByte */
+
 
 /*
  * Receive one byte and ack it.
@@ -360,6 +368,7 @@ int		Last)	/* Last Byte Flag */
 
 	return(Byte);
 }	/* SkI2cRcvByte */
+
 
 /*
  * Start dialog and send device address
@@ -427,6 +436,7 @@ int		Event)	/* complete event to wait for (I2C_READ or I2C_WRITE) */
 	return(0);
 }	/* SkI2cWait */
 
+
 /*
  * waits for a completion of a TWSI transfer
  *
@@ -492,6 +502,7 @@ int		I2cBurst)	/* TWSI Burst Flag */
 	return(SkI2cWait(pAC, IoC, I2C_WRITE));
 }	/* SkI2cWrite*/
 
+
 #ifdef SK_DIAG
 /*
  * reads a single byte or 4 bytes from the TWSI device
@@ -521,6 +532,7 @@ int		I2cBurst)	/* TWSI Burst Flag */
 	return(Data);
 }	/* SkI2cRead */
 #endif /* SK_DIAG */
+
 
 /*
  * read a sensor's value
@@ -591,6 +603,7 @@ SK_AC	*pAC)	/* Adapter Context */
 	pAC->I2c.InitLevel = SK_INIT_DATA;
 	return(0);
 }	/* SkI2cInit0*/
+
 
 /*
  * Do the init state 1 initialization
@@ -889,6 +902,7 @@ SK_IOC	IoC)	/* I/O Context */
 	return(0);
 }	/* SkI2cInit1 */
 
+
 /*
  * Init level 2: Start first sensor read.
  */
@@ -918,6 +932,7 @@ SK_IOC	IoC)	/* I/O Context */
 
 	return(0);
 }	/* SkI2cInit2*/
+
 
 /*
  * Initialize TWSI devices
@@ -957,6 +972,7 @@ int		Level)	/* Init Level */
 	return(0);
 }	/* SkI2cInit */
 
+
 #ifndef SK_DIAG
 /*
  * Interrupt service function for the TWSI Interface
@@ -979,6 +995,7 @@ SK_IOC	IoC)	/* I/O Context */
 	Para.Para64 = 0;
 	SkEventQueue(pAC, SKGE_I2C, SK_I2CEV_IRQ, Para);
 }	/* SkI2cIsr */
+
 
 /*
  * Check this sensors Value against the threshold and send events.
@@ -1205,6 +1222,7 @@ SK_SENSOR	*pSen)
 	}
 }	/* SkI2cCheckSensor */
 
+
 /*
  * The only Event to be served is the timeout event
  *
@@ -1342,3 +1360,4 @@ SK_EVPARA	Para)	/* Event specific Parameter */
 }	/* SkI2cEvent*/
 
 #endif /* !SK_DIAG */
+

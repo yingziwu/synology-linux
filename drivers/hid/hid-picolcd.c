@@ -240,6 +240,7 @@ struct picolcd_data {
 #define PICOLCD_READY_FB 4
 };
 
+
 /* Find a given report */
 #define picolcd_in_report(id, dev) picolcd_report(id, dev, HID_INPUT_REPORT)
 #define picolcd_out_report(id, dev) picolcd_report(id, dev, HID_OUTPUT_REPORT)
@@ -703,6 +704,7 @@ static struct fb_ops picolcdfb_ops = {
 	.fb_set_par   = picolcd_set_par,
 };
 
+
 /* Callback from deferred IO workqueue */
 static void picolcd_fb_deferred_io(struct fb_info *info, struct list_head *pagelist)
 {
@@ -713,6 +715,7 @@ static const struct fb_deferred_io picolcd_fb_defio = {
 	.delay = HZ / PICOLCDFB_UPDATE_RATE_DEFAULT,
 	.deferred_io = picolcd_fb_deferred_io,
 };
+
 
 /*
  * The "fb_update_rate" sysfs attribute
@@ -1421,7 +1424,7 @@ static ssize_t picolcd_operation_mode_store(struct device *dev,
 		buf += 10;
 		cnt -= 10;
 	}
-	if (!report)
+	if (!report || report->maxfield != 1)
 		return -EINVAL;
 
 	while (cnt > 0 && (buf[cnt-1] == '\n' || buf[cnt-1] == '\r'))
@@ -1467,6 +1470,7 @@ static ssize_t picolcd_operation_mode_delay_store(struct device *dev,
 
 static DEVICE_ATTR(operation_mode_delay, 0644, picolcd_operation_mode_delay_show,
 		picolcd_operation_mode_delay_store);
+
 
 #ifdef CONFIG_DEBUG_FS
 /*
@@ -1818,6 +1822,7 @@ static const struct file_operations picolcd_debug_flash_fops = {
 	.write    = picolcd_debug_flash_write,
 	.llseek   = generic_file_llseek,
 };
+
 
 /*
  * Helper code for HID report level dumping/debugging
@@ -2376,6 +2381,12 @@ static int picolcd_raw_event(struct hid_device *hdev,
 
 	if (!data)
 		return 1;
+
+	if (size > 64) {
+		hid_warn(hdev, "invalid size value (%d) for picolcd raw event\n",
+				size);
+		return 0;
+	}
 
 	if (report->id == REPORT_KEY_STATE) {
 		if (data->input_keys)

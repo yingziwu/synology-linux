@@ -73,6 +73,7 @@ enum chips { lm78, lm79 };
 #define LM78_REG_CHIPID 0x49
 #define LM78_REG_I2C_ADDR 0x48
 
+
 /* Conversions. Rounding and limit checking is only done on the TO_REG 
    variants. */
 
@@ -89,6 +90,8 @@ static inline u8 FAN_TO_REG(long rpm, int div)
 {
 	if (rpm <= 0)
 		return 255;
+	if (rpm > 1350000)
+		return 1;
 	return SENSORS_LIMIT((1350000 + rpm * div / 2) / (rpm * div), 1, 254);
 }
 
@@ -99,7 +102,7 @@ static inline int FAN_FROM_REG(u8 val, int div)
 
 /* TEMP: mC (-128C to +127C)
    REG: 1C/bit, two's complement */
-static inline s8 TEMP_TO_REG(int val)
+static inline s8 TEMP_TO_REG(long val)
 {
 	int nval = SENSORS_LIMIT(val, -128000, 127000) ;
 	return nval<0 ? (nval-500)/1000 : (nval+500)/1000;
@@ -139,10 +142,12 @@ struct lm78_data {
 	u16 alarms;		/* Register encoding, combined */
 };
 
+
 static int lm78_read_value(struct lm78_data *data, u8 reg);
 static int lm78_write_value(struct lm78_data *data, u8 reg, u8 value);
 static struct lm78_data *lm78_update_device(struct device *dev);
 static void lm78_init_device(struct lm78_data *data);
+
 
 /* 7 Voltages */
 static ssize_t show_in(struct device *dev, struct device_attribute *da,

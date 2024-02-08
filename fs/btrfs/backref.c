@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2011 STRATO.  All rights reserved.
  *
@@ -128,6 +131,68 @@ struct __prelim_ref {
 	u64 parent;
 	u64 wanted_disk_byte;
 };
+
+#ifdef MY_ABC_HERE
+static int u64_list_add(struct list_head *target_list, u64 in1, u64 in2)
+{
+	struct u64_list *tmp = NULL;
+
+	if (!target_list) {
+		return -EINVAL;
+	}
+
+	tmp = kmalloc(sizeof(struct u64_list), GFP_NOFS);
+	if (!tmp) {
+		return -ENOMEM;
+	}
+
+	INIT_LIST_HEAD(&tmp->list);
+	tmp->val1 = in1;
+	tmp->val2 = in2;
+	list_add(&tmp->list, target_list);
+
+	return 0;
+}
+
+void u64_list_free(struct list_head *target_list)
+{
+	struct list_head *cur_node;
+	struct list_head *next_node;
+
+	list_for_each_safe(cur_node, next_node, target_list) {
+		list_del(cur_node);
+		kfree(list_entry(cur_node, struct u64_list, list));
+	}
+}
+
+static int get_roots_no_dedup(struct list_head *head, u64 root_count, struct list_head *roots_no_dedup)
+{
+	struct __prelim_ref *ref;
+	int ret = 0;
+	int count;
+	int i;
+
+	if (!roots_no_dedup) {
+		return -EINVAL;
+	}
+
+	list_for_each_entry(ref, head, list) {
+		if (!(0 == ref->parent && ref->count && ref->root_id)) {
+			continue;
+		}
+
+		count = ref->count * (int)root_count;
+		for (i = 0; i < count; i++) {
+			ret = u64_list_add(roots_no_dedup, ref->root_id, 0);
+			if (0 > ret) {
+				return ret;
+			}
+		}
+	}
+
+	return ret;
+}
+#endif
 
 static struct kmem_cache *btrfs_prelim_ref_cache;
 
@@ -844,6 +909,162 @@ static int __add_keyed_refs(struct btrfs_fs_info *fs_info,
 	return ret;
 }
 
+#ifdef MY_ABC_HERE
+static int find_parent_nodes_nodedup(struct btrfs_trans_handle *trans,
+			     struct btrfs_fs_info *fs_info, u64 bytenr, u64 root_count,
+			     u64 time_seq, struct list_head *refs, struct list_head *roots_no_dedup)
+{
+	struct btrfs_key key;
+	struct btrfs_path *path;
+	struct btrfs_delayed_ref_root *delayed_refs = NULL;
+	struct btrfs_delayed_ref_head *head;
+	int info_level = 0;
+	int ret;
+	struct list_head prefs_delayed;
+	struct list_head prefs;
+	struct __prelim_ref *ref;
+	u64 total_refs = 0;
+
+	INIT_LIST_HEAD(&prefs);
+	INIT_LIST_HEAD(&prefs_delayed);
+
+	key.objectid = bytenr;
+	key.offset = (u64)-1;
+	if (btrfs_fs_incompat(fs_info, SKINNY_METADATA))
+		key.type = BTRFS_METADATA_ITEM_KEY;
+	else
+		key.type = BTRFS_EXTENT_ITEM_KEY;
+
+	path = btrfs_alloc_path();
+	if (!path)
+		return -ENOMEM;
+	if (!trans) {
+		path->search_commit_root = 1;
+		path->skip_locking = 1;
+	}
+
+	/*
+	 * grab both a lock on the path and a lock on the delayed ref head.
+	 * We need both to get a consistent picture of how the refs look
+	 * at a specified point in time
+	 */
+again:
+	head = NULL;
+
+	ret = btrfs_search_slot(trans, fs_info->extent_root, &key, path, 0, 0);
+	if (ret < 0)
+		goto out;
+	BUG_ON(ret == 0);
+
+	if (trans) {
+		/*
+		 * look if there are updates for this ref queued and lock the
+		 * head
+		 */
+		delayed_refs = &trans->transaction->delayed_refs;
+		spin_lock(&delayed_refs->lock);
+		head = btrfs_find_delayed_ref_head(trans, bytenr);
+		if (head) {
+			if (!mutex_trylock(&head->mutex)) {
+				atomic_inc(&head->node.refs);
+				spin_unlock(&delayed_refs->lock);
+
+				btrfs_release_path(path);
+
+				/*
+				 * Mutex was contended, block until it's
+				 * released and try again
+				 */
+				mutex_lock(&head->mutex);
+				mutex_unlock(&head->mutex);
+				btrfs_put_delayed_ref(&head->node);
+				goto again;
+			}
+			spin_unlock(&delayed_refs->lock);
+			ret = __add_delayed_refs(head, time_seq,
+						 &prefs_delayed, &total_refs);
+			mutex_unlock(&head->mutex);
+			if (ret)
+				goto out;
+		} else {
+			spin_unlock(&delayed_refs->lock);
+		}
+	}
+
+	if (path->slots[0]) {
+		struct extent_buffer *leaf;
+		int slot;
+
+		path->slots[0]--;
+		leaf = path->nodes[0];
+		slot = path->slots[0];
+		btrfs_item_key_to_cpu(leaf, &key, slot);
+		if (key.objectid == bytenr &&
+		    (key.type == BTRFS_EXTENT_ITEM_KEY ||
+		     key.type == BTRFS_METADATA_ITEM_KEY)) {
+			ret = __add_inline_refs(fs_info, path, bytenr,
+						&info_level, &prefs,
+						&total_refs);
+			if (ret)
+				goto out;
+			ret = __add_keyed_refs(fs_info, path, bytenr,
+					       info_level, &prefs);
+			if (ret)
+				goto out;
+		}
+	}
+	btrfs_release_path(path);
+
+	list_splice_init(&prefs_delayed, &prefs);
+
+	ret = __add_missing_keys(fs_info, &prefs);
+	if (ret)
+		goto out;
+
+	__merge_refs(&prefs, 1);
+
+	ret = __resolve_indirect_refs(fs_info, path, time_seq, &prefs,
+				      NULL, total_refs);
+	if (ret)
+		goto out;
+
+	__merge_refs(&prefs, 2);
+
+	ret = get_roots_no_dedup(&prefs, root_count, roots_no_dedup);
+	if (ret) {
+		goto out;
+	}
+
+	while (!list_empty(&prefs)) {
+		ref = list_first_entry(&prefs, struct __prelim_ref, list);
+		WARN_ON(ref->count < 0);
+		if (ref->count && ref->parent) {
+			ret = u64_list_add(refs, ref->parent, ref->count * root_count);
+			if (0 > ret) {
+				goto out;
+			}
+		}
+		list_del(&ref->list);
+		kmem_cache_free(btrfs_prelim_ref_cache, ref);
+	}
+
+out:
+	btrfs_free_path(path);
+	while (!list_empty(&prefs)) {
+		ref = list_first_entry(&prefs, struct __prelim_ref, list);
+		list_del(&ref->list);
+		kmem_cache_free(btrfs_prelim_ref_cache, ref);
+	}
+	while (!list_empty(&prefs_delayed)) {
+		ref = list_first_entry(&prefs_delayed, struct __prelim_ref,
+				       list);
+		list_del(&ref->list);
+		kmem_cache_free(btrfs_prelim_ref_cache, ref);
+	}
+	return ret;
+}
+#endif /* #ifdef MY_ABC_HERE */
+
 /*
  * this adds all existing backrefs (inline backrefs, backrefs and delayed
  * refs) for the given bytenr to the refs list, merges duplicates and resolves
@@ -1089,6 +1310,46 @@ static int btrfs_find_all_leafs(struct btrfs_trans_handle *trans,
 	return 0;
 }
 
+#ifdef MY_ABC_HERE
+static int __btrfs_find_all_roots_nodedup(struct btrfs_trans_handle *trans,
+				  struct btrfs_fs_info *fs_info, u64 bytenr,
+				  u64 time_seq, struct list_head *roots_no_dedup)
+{
+	LIST_HEAD(unresolved_roots);
+	struct list_head *tmp;
+	struct u64_list *node;
+	u64 root_count = 1;
+	int ret;
+
+	while (1) {
+		ret = find_parent_nodes_nodedup(trans, fs_info, bytenr, root_count,
+					time_seq, &unresolved_roots, roots_no_dedup);
+
+		if (ret < 0 && ret != -ENOENT) {
+			goto out;
+		}
+
+		if (list_empty(&unresolved_roots)) {
+			break;
+		}
+
+		tmp = unresolved_roots.next;
+		node = list_entry(tmp, struct u64_list, list);
+		bytenr = node->val1;
+		root_count = node->val2;
+		list_del(unresolved_roots.next);
+		kfree(node);
+
+		cond_resched();
+	}
+	ret = 0;
+
+out:
+	u64_list_free(&unresolved_roots);
+	return ret;
+}
+#endif
+
 /*
  * walk all backrefs for a given extent to find all roots that reference this
  * extent. Walking a backref means finding all extents that reference this
@@ -1139,6 +1400,22 @@ static int __btrfs_find_all_roots(struct btrfs_trans_handle *trans,
 	ulist_free(tmp);
 	return 0;
 }
+
+#ifdef MY_ABC_HERE
+int btrfs_find_all_roots_nodedup(struct btrfs_trans_handle *trans,
+			 struct btrfs_fs_info *fs_info, u64 bytenr,
+			 u64 time_seq, struct list_head *roots_no_dedup)
+{
+	int ret;
+
+	if (!trans)
+		down_read(&fs_info->commit_root_sem);
+	ret = __btrfs_find_all_roots_nodedup(trans, fs_info, bytenr, time_seq, roots_no_dedup);
+	if (!trans)
+		up_read(&fs_info->commit_root_sem);
+	return ret;
+}
+#endif
 
 int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
 			 struct btrfs_fs_info *fs_info, u64 bytenr,

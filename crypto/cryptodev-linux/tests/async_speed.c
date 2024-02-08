@@ -60,6 +60,7 @@ static void value2human(double bytes, double time, double* data, double* speed,c
 	sprintf(metric, "%sB", units[unit]);
 }
 
+
 int encrypt_data(struct session_op *sess, int fdc, int chunksize, int alignmask)
 {
 	struct crypt_op cop;

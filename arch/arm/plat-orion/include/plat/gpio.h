@@ -33,4 +33,5 @@ void __init orion_gpio_init(int gpio_base, int ngpio,
  */
 void orion_gpio_irq_handler(int irqoff);
 
+
 #endif

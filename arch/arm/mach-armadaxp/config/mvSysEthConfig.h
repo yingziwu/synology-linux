@@ -173,6 +173,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  #error "Ethernet-DRAM undefined"
 #endif /* ETHER_DRAM_COHER */
 
+
 /****************************************************************/
 /************* Ethernet driver configuration ********************/
 /****************************************************************/

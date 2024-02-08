@@ -1264,6 +1264,7 @@ int ldc_bind(struct ldc_channel *lp, const char *name)
 		return err;
 	}
 
+
 	spin_lock_irqsave(&lp->lock, flags);
 
 	enable_irq(lp->cfg.rx_irq);
@@ -1338,7 +1339,7 @@ int ldc_connect(struct ldc_channel *lp)
 	if (!(lp->flags & LDC_FLAG_ALLOCED_QUEUES) ||
 	    !(lp->flags & LDC_FLAG_REGISTERED_QUEUES) ||
 	    lp->hs_state != LDC_HS_OPEN)
-		err = -EINVAL;
+		err = ((lp->hs_state > LDC_HS_OPEN) ? 0 : -EINVAL);
 	else
 		err = start_handshake(lp);
 

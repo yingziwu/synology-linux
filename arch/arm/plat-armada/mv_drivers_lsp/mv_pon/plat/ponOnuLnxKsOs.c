@@ -448,6 +448,7 @@ int onuPonTimerDisable(S_OnuPonTimer *timerId)
   return (0);
 }
 
+
 /* ========================================================================== */
 /* ===========================  ISR SECTION  ================================ */
 /* ========================================================================== */
@@ -563,6 +564,7 @@ irqreturn_t onuPonIrqRoutine(int irq, void *arg)
 {
 #ifdef CONFIG_MV_GPON_MODULE
 
+
 #ifdef MV_GPON_HW_INTERRUPT
   onuGponIsrRoutine(0, 0);
 #else /* SW_INTERRUPT - TASKLET */
@@ -576,7 +578,9 @@ irqreturn_t onuPonIrqRoutine(int irq, void *arg)
   tasklet_hi_schedule(&(irqId->onuPonTasklet));
 #endif /* MV_GPON_HW_INTERRUPT */
 
+
 #else /* CONFIG_MV_EPON_MODULE */
+
 
 #ifdef MV_EPON_HW_INTERRUPT
   onuEponIsrRoutine(0, 0);
@@ -590,6 +594,7 @@ irqreturn_t onuPonIrqRoutine(int irq, void *arg)
   currentInterruptStatus = interruptStatus;
   tasklet_hi_schedule(&(irqId->onuPonTasklet));
 #endif /* MV_GPON_HW_INTERRUPT */
+
 
 #endif /* CONFIG_MV_GPON_MODULE */
 

@@ -71,6 +71,7 @@
 #define TYPE_CTL_CTS        0xc400
 #define TYPE_CTL_ACK        0xd400
 
+
 //#define WEP_IV_MASK         0xFFFFFF00
 
 #else //if LITTLE_ENDIAN
@@ -109,6 +110,7 @@
 #define TYPE_CTL_CTS        0x00c4
 #define TYPE_CTL_ACK        0x00d4
 
+
 //#define WEP_IV_MASK         0x00FFFFFF
 
 #endif //#ifdef __BIG_ENDIAN
@@ -125,6 +127,7 @@ typedef struct tagSEthernetHeader {
     WORD    wType;
 } __attribute__ ((__packed__))
 SEthernetHeader, *PSEthernetHeader;
+
 
 //
 // 802_3 packet

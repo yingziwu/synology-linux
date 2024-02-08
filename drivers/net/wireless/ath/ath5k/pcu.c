@@ -213,6 +213,7 @@ void ath5k_hw_update_mib_counters(struct ath5k_hw *ah)
 	stats->beacons += ath5k_hw_reg_read(ah, AR5K_BEACON_CNT);
 }
 
+
 /******************\
 * ACK/CTS Timeouts *
 \******************/
@@ -313,6 +314,7 @@ static int ath5k_hw_set_cts_timeout(struct ath5k_hw *ah, unsigned int timeout)
 
 	return 0;
 }
+
 
 /*******************\
 * RX filter Control *
@@ -482,6 +484,7 @@ void ath5k_hw_set_rx_filter(struct ath5k_hw *ah, u32 filter)
 		ath5k_hw_reg_write(ah, data, AR5K_PHY_ERR_FIL);
 
 }
+
 
 /****************\
 * Beacon control *

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -57,6 +58,7 @@ disclaimer.
 #else
 #define DP(fmt,args...)
 #endif
+
 
 /* global variables from 'regdump' */
 static struct proc_dir_entry *mv_eth_tool;
@@ -628,6 +630,8 @@ static int proc_calc_metrics(char *page, char **start, off_t off,
         return len;
 }
 
+
+
 int mv_eth_tool_read (char *page, char **start, off_t off,
                             int count, int *eof, void *data) {
 	unsigned int len = 0;
@@ -637,6 +641,8 @@ int mv_eth_tool_read (char *page, char **start, off_t off,
 
 	return proc_calc_metrics(page, start, off, count, eof, len);
 }
+
+
 
 int __init start_mv_eth_tool(void)
 {

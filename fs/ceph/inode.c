@@ -96,6 +96,7 @@ const struct inode_operations ceph_file_iops = {
 	.removexattr = ceph_removexattr,
 };
 
+
 /*
  * We use a 'frag tree' to keep track of the MDS's directory fragments
  * for a given inode (usually there is just a single fragment).  We
@@ -257,6 +258,7 @@ static int ceph_fill_dirfrag(struct inode *inode,
 		goto out;
 	}
 
+
 	/* find/add this frag to store mds delegation info */
 	frag = __get_or_create_frag(ci, id);
 	if (IS_ERR(frag)) {
@@ -279,6 +281,7 @@ out:
 	mutex_unlock(&ci->i_fragtree_mutex);
 	return err;
 }
+
 
 /*
  * initialize a newly allocated inode.
@@ -425,6 +428,7 @@ void ceph_destroy_inode(struct inode *inode)
 
 	call_rcu(&inode->i_rcu, ceph_i_callback);
 }
+
 
 /*
  * Helpers to fill in size, ctime, mtime, and atime.  We have to be
@@ -863,9 +867,9 @@ static void ceph_set_dentry_offset(struct dentry *dn)
 
 	spin_lock(&dir->d_lock);
 	spin_lock_nested(&dn->d_lock, DENTRY_D_LOCK_NESTED);
-	list_move(&dn->d_u.d_child, &dir->d_subdirs);
+	list_move(&dn->d_child, &dir->d_subdirs);
 	dout("set_dentry_offset %p %lld (%p %p)\n", dn, di->offset,
-	     dn->d_u.d_child.prev, dn->d_u.d_child.next);
+	     dn->d_child.prev, dn->d_child.next);
 	spin_unlock(&dn->d_lock);
 	spin_unlock(&dir->d_lock);
 }
@@ -1251,7 +1255,7 @@ retry_lookup:
 			/* reorder parent's d_subdirs */
 			spin_lock(&parent->d_lock);
 			spin_lock_nested(&dn->d_lock, DENTRY_D_LOCK_NESTED);
-			list_move(&dn->d_u.d_child, &parent->d_subdirs);
+			list_move(&dn->d_child, &parent->d_subdirs);
 			spin_unlock(&dn->d_lock);
 			spin_unlock(&parent->d_lock);
 		}
@@ -1407,6 +1411,7 @@ out:
 	iput(inode);
 }
 
+
 /*
  * called by trunc_wq; take i_mutex ourselves
  *
@@ -1496,6 +1501,7 @@ retry:
 	if (wake)
 		wake_up_all(&ci->i_cap_wq);
 }
+
 
 /*
  * symlinks
@@ -1750,6 +1756,7 @@ int ceph_do_getattr(struct inode *inode, int mask)
 	dout("do_getattr result=%d\n", err);
 	return err;
 }
+
 
 /*
  * Check inode permissions.  We verify we have a valid value for

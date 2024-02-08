@@ -15,6 +15,7 @@
 	orr	\rv, \rv, #0x00012000
 	.endm
 
+
 #if 0
 	.macro	addruart,rx, tmp
 	mrc	p15, 0, \rx, c1, c0

@@ -47,6 +47,7 @@ module_param(ap, int, 0);
 MODULE_PARM_DESC(ap, "If non-zero Access Point firmware will be loaded");
 MODULE_DEVICE_TABLE(usb, zd1201_table);
 
+
 static int zd1201_fw_upload(struct usb_device *dev, int apfw)
 {
 	const struct firmware *fw_entry;
@@ -97,9 +98,11 @@ static int zd1201_fw_upload(struct usb_device *dev, int apfw)
 		goto exit;
 
 	err = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0), 0x4,
-	    USB_DIR_IN | 0x40, 0,0, &ret, sizeof(ret), ZD1201_FW_TIMEOUT);
+	    USB_DIR_IN | 0x40, 0, 0, buf, sizeof(ret), ZD1201_FW_TIMEOUT);
 	if (err < 0)
 		goto exit;
+
+	memcpy(&ret, buf, sizeof(ret));
 
 	if (ret & 0x80) {
 		err = -EIO;
@@ -1552,6 +1555,7 @@ static int zd1201_get_power(struct net_device *dev,
 
 	return 0;
 }
+
 
 static const iw_handler zd1201_iw_handler[] =
 {

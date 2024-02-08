@@ -104,6 +104,7 @@ static int xtensa_irq_retrigger(struct irq_data *d)
 	return 1;
 }
 
+
 static struct irq_chip xtensa_irq_chip = {
 	.name		= "xtensa",
 	.irq_enable	= xtensa_irq_enable,

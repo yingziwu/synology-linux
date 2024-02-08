@@ -443,6 +443,7 @@ typedef struct _synclinkmp_info {
 #define OVRN	BIT3
 #define CRCE	BIT2
 
+
 /*
  * Global linked list of SyncLink devices
  */
@@ -495,10 +496,12 @@ static struct pci_driver synclinkmp_pci_driver = {
 	.remove		= __devexit_p(synclinkmp_remove_one),
 };
 
+
 static struct tty_driver *serial_driver;
 
 /* number of characters left in xmit buffer before we ask for more */
 #define WAKEUP_CHARS 256
+
 
 /* tty callbacks */
 
@@ -623,6 +626,7 @@ static u16 read_reg16(SLMP_INFO *info, unsigned char addr);
 static void write_reg16(SLMP_INFO *info, unsigned char addr, u16 val);
 static unsigned char read_status_reg(SLMP_INFO * info);
 static void write_control_reg(SLMP_INFO * info);
+
 
 static unsigned char rx_active_fifo_level = 16;	// rx request FIFO activation level in bytes
 static unsigned char tx_active_fifo_level = 16;	// tx request FIFO activation level in bytes
@@ -1956,6 +1960,7 @@ static void hdlcdev_exit(SLMP_INFO *info)
 
 #endif /* CONFIG_HDLC */
 
+
 /* Return next bottom half action to perform.
  * Return Value:	BH action code or 0 if nothing to do.
  */
@@ -2278,6 +2283,7 @@ static void isr_txeom(SLMP_INFO * info, unsigned char status)
 		}
 	}
 }
+
 
 /*
  * handle tx status interrupts
@@ -3131,6 +3137,7 @@ static int wait_mgsl_event(SLMP_INFO * info, int __user *mask_ptr)
 	remove_wait_queue(&info->event_wait_q, &wait);
 	set_current_state(TASK_RUNNING);
 
+
 	if (mask & (MgslEvent_ExitHuntMode + MgslEvent_IdleReceived)) {
 		spin_lock_irqsave(&info->lock,flags);
 		if (!waitqueue_active(&info->event_wait_q)) {
@@ -3899,6 +3906,7 @@ static const struct tty_operations ops = {
 	.proc_fops = &synclinkmp_proc_fops,
 };
 
+
 static void synclinkmp_cleanup(void)
 {
 	int rc;
@@ -4586,6 +4594,7 @@ static void hdlc_mode(SLMP_INFO *info)
 	}
 	write_reg(info, MD2, RegValue);
 
+
 	/* RXS, Receive clock source
 	 *
 	 * 07      Reserved, must be 0
@@ -5099,6 +5108,7 @@ static bool irq_test(SLMP_INFO *info)
 	write_reg(info, (unsigned char)(timer + TEPR), 0);	/* timer expand prescale */
 	write_reg16(info, (unsigned char)(timer + TCONR), 1);	/* timer constant */
 
+
 	/* TMCS, Timer Control/Status Register
 	 *
 	 * 07      CMF, Compare match flag (read only) 1=match
@@ -5494,6 +5504,7 @@ static void status_timeout(unsigned long context)
 	unsigned long flags;
 	unsigned char delta;
 
+
 	spin_lock_irqsave(&info->lock,flags);
 	get_signals(info);
 	spin_unlock_irqrestore(&info->lock,flags);
@@ -5521,6 +5532,7 @@ static void status_timeout(unsigned long context)
 	mod_timer(&info->status_timer, jiffies + msecs_to_jiffies(10));
 }
 
+
 /* Register Access Routines -
  * All registers are memory mapped
  */
@@ -5534,6 +5546,7 @@ static void status_timeout(unsigned long context)
 		else if (Addr > 0x1f && Addr < 0x60) \
 			RegAddr += 0x20;	/* MSCI access */ \
 	}
+
 
 static unsigned char read_reg(SLMP_INFO * info, unsigned char Addr)
 {
@@ -5569,6 +5582,7 @@ static void write_control_reg(SLMP_INFO * info)
 	unsigned char *RegAddr = (unsigned char *)info->statctrl_base;
 	*RegAddr = info->port_array[0]->ctrlreg_value;
 }
+
 
 static int __devinit synclinkmp_init_one (struct pci_dev *dev,
 					  const struct pci_device_id *ent)

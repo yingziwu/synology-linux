@@ -531,6 +531,7 @@ kern_rtt_fill:						\
 	nop; nop; nop; nop; nop;			\
 	nop; nop; nop; nop;
 
+
 /* Normal 64bit fill */
 #define FILL_1_GENERIC(ASI)				\
 	add	%sp, STACK_BIAS + 0x00, %g1;		\
@@ -587,6 +588,7 @@ user_rtt_fill_64bit:					\
 	ba,a,pt	%xcc, user_rtt_fill_fixup;		\
 	ba,a,pt	%xcc, user_rtt_fill_fixup;		\
 	ba,a,pt	%xcc, user_rtt_fill_fixup;
+
 
 /* Normal 32bit fill */
 #define FILL_2_GENERIC(ASI)				\
@@ -645,6 +647,7 @@ user_rtt_fill_32bit:					\
 	ba,a,pt	%xcc, user_rtt_fill_fixup;		\
 	ba,a,pt	%xcc, user_rtt_fill_fixup;		\
 	ba,a,pt	%xcc, user_rtt_fill_fixup;
+
 
 #define FILL_1_NORMAL FILL_1_GENERIC(ASI_AIUP)
 #define FILL_2_NORMAL FILL_2_GENERIC(ASI_AIUP)

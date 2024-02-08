@@ -80,6 +80,7 @@
 #define    MEI_DEV_ID_PPT_2	0x1CBA    /* Pantherpoint PPT */
 #define    MEI_DEV_ID_PPT_3	0x1DBA    /* Pantherpoint PPT */
 
+
 /*
  * MEI HW Section
  */
@@ -93,6 +94,7 @@
 #define ME_CB_RW   8
 /* ME_CSR_HA - ME Control Status Host Access register (read only) */
 #define ME_CSR_HA  0xC
+
 
 /* register bits of H_CSR (Host Control Status register) */
 /* Host Circular Buffer Depth - maximum number of 32-bit entries in CB */
@@ -111,6 +113,7 @@
 #define H_IS              0x00000002
 /* Host Interrupt Enable */
 #define H_IE              0x00000001
+
 
 /* register bits of ME_CSR_HA (ME Control Status Host Access register) */
 /* ME CB (Circular Buffer) Depth HRA (Host Read Access) - host read only
@@ -209,10 +212,12 @@ struct mei_msg_hdr {
 	u32 msg_complete:1;
 } __packed;
 
+
 struct hbm_cmd {
 	u8 cmd:7;
 	u8 is_response:1;
 } __packed;
+
 
 struct mei_bus_message {
 	struct hbm_cmd cmd;
@@ -279,6 +284,7 @@ struct hbm_props_request {
 	u8 reserved[2];
 } __packed;
 
+
 struct hbm_props_response {
 	struct hbm_cmd cmd;
 	u8 address;
@@ -322,5 +328,6 @@ struct mei_me_client {
 	u8 client_id;
 	u8 mei_flow_ctrl_creds;
 } __packed;
+
 
 #endif

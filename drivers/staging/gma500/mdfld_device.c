@@ -711,3 +711,4 @@ const struct psb_ops mdfld_chip_ops = {
 	.power_down = mdfld_power_down,
 	.power_up = mdfld_power_up,
 };
+

@@ -207,6 +207,7 @@ void WriteRAM(ctrl_S * hSpiGci, uInt8 channel, uInt16 address, uInt32 data)
 	WriteRegister(hSpiGci, channel, RAM_ADDR_LO, addrByte);
 }
 
+
 /*
 ** Function: spiGci_ResetWrapper
 **
@@ -244,6 +245,7 @@ uInt8 ctrl_ReadRegisterWrapper (void * hSpiGci, uInt8 channel,uInt8 regAddr)
 	return ReadRegister(hSpiGci, channel, regAddr);
 }
 
+
 /*
 ** Function: spiGci_WriteRegisterWrapper
 **
@@ -264,6 +266,7 @@ int ctrl_WriteRegisterWrapper (void * hSpiGci, uInt8 channel,  uInt8 regAddr, uI
 	return 0;
 }
 
+
 /*
 ** Function: SPI_ReadRAMWrapper
 **
@@ -282,6 +285,7 @@ ramData ctrl_ReadRAMWrapper (void * hSpiGci, uInt8 channel, uInt16 ramAddr)
 {
 	return ReadRAM(hSpiGci, channel, ramAddr);;
 }
+
 
 /*
 ** Function: SPI_WriteRAMWrapper
@@ -302,6 +306,7 @@ int ctrl_WriteRAMWrapper (void * hSpiGci, uInt8 channel, uInt16 ramAddr, ramData
 	WriteRAM(hSpiGci, channel, ramAddr, data);
 	return 0;
 }
+
 
 /*
 ** $Log: dummy_spi.c,v $

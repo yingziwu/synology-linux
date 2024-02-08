@@ -36,6 +36,7 @@
 
 /*---------------------  Export Definitions -------------------------*/
 
+
 //WPA related
 
 typedef enum { WPA_ALG_NONE, WPA_ALG_WEP, WPA_ALG_TKIP, WPA_ALG_CCMP } wpa_alg;

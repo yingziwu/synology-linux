@@ -335,6 +335,7 @@ static void start_pmu(void *data)
 		pmu_regs.pmncnt[i] = 0;
 	}
 
+
 	/* disable PMU and clear CCNT & PMNx */
 	pmu_regs.pmcr = A9_Read_PMCR();
 	pmu_regs.pmcr &= ~0x1;

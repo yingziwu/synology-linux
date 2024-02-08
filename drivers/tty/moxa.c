@@ -1149,6 +1149,7 @@ static void moxa_dtr_rts(struct tty_port *port, int onoff)
 	MoxaPortLineCtrl(ch, onoff, onoff);
 }
 
+
 static int moxa_open(struct tty_struct *tty, struct file *filp)
 {
 	struct moxa_board_conf *brd;
@@ -1321,6 +1322,7 @@ static void moxa_stop(struct tty_struct *tty)
 	MoxaPortTxDisable(ch);
 	set_bit(TXSTOPPED, &ch->statusflags);
 }
+
 
 static void moxa_start(struct tty_struct *tty)
 {
@@ -1976,6 +1978,7 @@ static int MoxaPortReadData(struct moxa_port *port)
 	return total;
 }
 
+
 static int MoxaPortTxQueue(struct moxa_port *port)
 {
 	void __iomem *ofsAddr = port->tableAddr;
@@ -2032,6 +2035,7 @@ static int moxa_get_serial_info(struct moxa_port *info,
 	return copy_to_user(retinfo, &tmp, sizeof(*retinfo)) ? -EFAULT : 0;
 }
 
+
 static int moxa_set_serial_info(struct moxa_port *info,
 		struct serial_struct __user *new_info)
 {
@@ -2060,6 +2064,8 @@ static int moxa_set_serial_info(struct moxa_port *info,
 	info->type = new_serial.type;
 	return 0;
 }
+
+
 
 /*****************************************************************************
  *	Static local functions: 					     *

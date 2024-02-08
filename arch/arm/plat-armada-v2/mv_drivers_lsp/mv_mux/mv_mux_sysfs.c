@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -57,6 +58,7 @@ static ssize_t mv_mux_help(char *b)
 	return o;
 }
 
+
 static ssize_t mv_mux_show(struct device *dev,
 				  struct device_attribute *attr, char *buf)
 {
@@ -69,6 +71,7 @@ static ssize_t mv_mux_show(struct device *dev,
 
 	return mv_mux_help(buf);
 }
+
 
 static ssize_t mv_mux_netdev_store(struct device *dev,
 					struct device_attribute *attr, const char *buf, size_t len)
@@ -202,6 +205,7 @@ static DEVICE_ATTR(debug,        S_IWUSR, mv_mux_show, mv_mux_store);
 static DEVICE_ATTR(mux_dump,     S_IWUSR, mv_mux_show, mv_mux_netdev_store);
 static DEVICE_ATTR(help,         S_IRUSR, mv_mux_show, NULL);
 
+
 static struct attribute *mv_mux_attrs[] = {
 
 	&dev_attr_add.attr,
@@ -239,6 +243,7 @@ int __init mv_mux_sysfs_init(void)
 
 	return err;
 }
+
 
 module_init(mv_mux_sysfs_init);
 

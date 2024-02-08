@@ -4,7 +4,7 @@
 #ifndef _ASM_X86_UNISTD_64_H
 #define _ASM_X86_UNISTD_64_H
 
-#if 1  
+#if 1 //SYNO
 #include <linux/syno.h>
 #endif
 
@@ -12,6 +12,13 @@
 #define __SYSCALL(a, b)
 #endif
 
+/*
+ * This file contains the system call numbers.
+ *
+ * Note: holes are not allowed.
+ */
+
+/* at least 8 syscall per cacheline */
 #define __NR_read				0
 __SYSCALL(__NR_read, sys_read)
 #define __NR_write				1
@@ -233,6 +240,7 @@ __SYSCALL(__NR_getuid, sys_getuid)
 #define __NR_syslog				103
 __SYSCALL(__NR_syslog, sys_syslog)
 
+/* at the very end the stuff that never runs during the benchmarks */
 #define __NR_getgid				104
 __SYSCALL(__NR_getgid, sys_getgid)
 #define __NR_setuid				105
@@ -297,6 +305,7 @@ __SYSCALL(__NR_utime, sys_utime)
 #define __NR_mknod				133
 __SYSCALL(__NR_mknod, sys_mknod)
 
+/* Only needed for a.out */
 #define __NR_uselib				134
 __SYSCALL(__NR_uselib, sys_ni_syscall)
 #define __NR_personality			135
@@ -414,14 +423,17 @@ __SYSCALL(__NR_quotactl, sys_quotactl)
 #define __NR_nfsservctl				180
 __SYSCALL(__NR_nfsservctl, sys_ni_syscall)
 
+/* reserved for LiS/STREAMS */
 #define __NR_getpmsg				181
 __SYSCALL(__NR_getpmsg, sys_ni_syscall)
 #define __NR_putpmsg				182
 __SYSCALL(__NR_putpmsg, sys_ni_syscall)
 
+/* reserved for AFS */
 #define __NR_afs_syscall			183
 __SYSCALL(__NR_afs_syscall, sys_ni_syscall)
 
+/* reserved for tux */
 #define __NR_tuxcall				184
 __SYSCALL(__NR_tuxcall, sys_ni_syscall)
 
@@ -468,7 +480,7 @@ __SYSCALL(__NR_sched_setaffinity, sys_sched_setaffinity)
 #define __NR_sched_getaffinity			204
 __SYSCALL(__NR_sched_getaffinity, sys_sched_getaffinity)
 #define __NR_set_thread_area			205
-__SYSCALL(__NR_set_thread_area, sys_ni_syscall)	 
+__SYSCALL(__NR_set_thread_area, sys_ni_syscall)	/* use arch_prctl */
 #define __NR_io_setup				206
 __SYSCALL(__NR_io_setup, sys_io_setup)
 #define __NR_io_destroy				207
@@ -480,7 +492,7 @@ __SYSCALL(__NR_io_submit, sys_io_submit)
 #define __NR_io_cancel				210
 __SYSCALL(__NR_io_cancel, sys_io_cancel)
 #define __NR_get_thread_area			211
-__SYSCALL(__NR_get_thread_area, sys_ni_syscall)	 
+__SYSCALL(__NR_get_thread_area, sys_ni_syscall)	/* use arch_prctl */
 #define __NR_lookup_dcookie			212
 __SYSCALL(__NR_lookup_dcookie, sys_lookup_dcookie)
 #define __NR_epoll_create			213
@@ -713,7 +725,7 @@ __SYSCALL(__NR_recvfile, sys_recvfile)
 #define SYNOCaselessLStat(arg1, arg2)           syscall(__NR_SYNOCaselessLStat, arg1, arg2)
 __SYSCALL(__NR_SYNOCaselessStat, sys_SYNOCaselessStat)
 __SYSCALL(__NR_SYNOCaselessLStat, sys_SYNOCaselessLStat)
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNOEcryptName                     410
@@ -737,6 +749,12 @@ __SYSCALL(__NR_SYNOACLGetPerm, sys_SYNOACLGetPerm)
 #endif
 
 #ifdef MY_ABC_HERE
+#define __NR_SYNOFlushAggregate                 415
+#define SYNOFlushAggregate(arg1)                syscall(__NR_SYNOFlushAggregate, arg1)
+__SYSCALL(__NR_SYNOFlushAggregate, sys_SYNOFlushAggregate)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
 #define __NR_SYNOStat                           419
 #define __NR_SYNOFStat                          420
 #define __NR_SYNOLStat                          421
@@ -747,7 +765,7 @@ __SYSCALL(__NR_SYNOACLGetPerm, sys_SYNOACLGetPerm)
 __SYSCALL(__NR_SYNOStat, sys_SYNOStat)
 __SYSCALL(__NR_SYNOFStat, sys_SYNOFStat)
 __SYSCALL(__NR_SYNOLStat, sys_SYNOLStat)
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNONotifyInit                     422
@@ -765,12 +783,109 @@ __SYSCALL(__NR_SYNONotifyAddWatch32, sys_SYNONotifyAddWatch32)
 #define __NR_SYNONotifyRemoveWatch32            426
 #define SYNONotifyRemoveWatch32(arg1,arg2,arg3) syscall(__NR_SYNONotifyRemoveWatch32, arg1, arg2, arg3)
 __SYSCALL(__NR_SYNONotifyRemoveWatch32, sys_SYNONotifyRemoveWatch32)
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNOArchiveOverwrite               427
 #define SYNOArchiveOverwrite(arg1, arg2)        syscall(__NR_SYNOArchiveOverwrite, arg1, arg2)
 __SYSCALL(__NR_SYNOArchiveOverwrite, sys_SYNOArchiveOverwrite)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_utime                          802
+#define syno_utime(arg1, arg2)                   syscall(__NR_syno_utime, arg1, arg2)
+__SYSCALL(__NR_syno_utime, sys_syno_utime)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_archive_bit                     803
+#define syno_archive_bit(arg1, arg2)              syscall(__NR_syno_archive_bit, arg1, arg2)
+__SYSCALL(__NR_syno_archive_bit, sys_syno_archive_bit)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_recv_file                           804
+#define syno_recv_file(arg1,arg2,arg3,arg4,arg5)      syscall(__NR_syno_recv_file, arg1, arg2, arg3, arg4, arg5)
+__SYSCALL(__NR_syno_recv_file, sys_syno_recv_file)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_mtd_alloc                       805
+#define syno_mtd_alloc(arg1)                      syscall(__NR_syno_mtd_alloc, arg1)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_caseless_stat                   806
+#define __NR_syno_caseless_lstat                  807
+
+#define syno_caseless_stat(arg1, arg2)            syscall(__NR_syno_caseless_stat, arg1, arg2)
+#define syno_caseless_lstat(arg1, arg2)           syscall(__NR_syno_caseless_lstat, arg1, arg2)
+__SYSCALL(__NR_syno_caseless_stat, sys_syno_caseless_stat)
+__SYSCALL(__NR_syno_caseless_lstat, sys_syno_caseless_lstat)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_ecrypt_name                     810
+#define syno_ecrypt_name(arg1, arg2)              syscall(__NR_syno_ecrypt_name, arg1, arg2)
+__SYSCALL(__NR_syno_ecrypt_name, sys_syno_ecrypt_name)
+#define __NR_syno_decrypt_name                    811
+#define syno_decrypt_name(arg1, arg2, arg3)       syscall(__NR_syno_decrypt_name, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_decrypt_name, sys_syno_decrypt_name)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_acl_check_perm                   812
+#define syno_acl_check_perm(arg1, arg2)         syscall(__NR_syno_acl_check_perm, arg1, arg2)
+__SYSCALL(__NR_syno_acl_check_perm, sys_syno_acl_check_perm)
+#define __NR_syno_acl_is_support                   813
+#define syno_acl_is_support(arg1, arg2, arg3)   syscall(__NR_syno_acl_is_support, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_acl_is_support, sys_syno_acl_is_support)
+#define __NR_syno_acl_get_perm                     814
+#define syno_acl_get_perm(arg1, arg2)           syscall(__NR_syno_acl_get_perm, arg1, arg2)
+__SYSCALL(__NR_syno_acl_get_perm, sys_syno_acl_get_perm)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_flush_aggregate                 815
+#define syno_flush_aggregate(arg1)                syscall(__NR_syno_flush_aggregate, arg1)
+__SYSCALL(__NR_syno_flush_aggregate, sys_syno_flush_aggregate)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_stat                           819
+#define __NR_syno_fstat                          820
+#define __NR_syno_lstat                          821
+
+#define syno_stat(arg1, arg2, arg3)              syscall(__NR_syno_stat, arg1, arg2, arg3)
+#define syno_fstat(arg1, arg2, arg3)             syscall(__NR_syno_fstat, arg1, arg2, arg3)
+#define syno_lstat(arg1, arg2, arg3)             syscall(__NR_syno_lstat, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_stat, sys_syno_stat)
+__SYSCALL(__NR_syno_fstat, sys_syno_fstat)
+__SYSCALL(__NR_syno_lstat, sys_syno_lstat)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_notify_init                     822
+#define syno_notify_init(arg1)                    syscall(__NR_syno_notify_init, arg1)
+__SYSCALL(__NR_syno_notify_init, sys_syno_notify_init)
+#define __NR_syno_notify_add_watch                 823
+#define syno_notify_add_watch(arg1, arg2, arg3)    syscall(__NR_syno_notify_add_watch, arg1, arg2, arg3)
+__SYSCALL(__NR_syno+notify_add_watch, sys_syno_notify_add_watch)
+#define __NR_syno_notify_remove_watch              824
+#define syno_notify_remove_watch(arg1, arg2, arg3) syscall(__NR_syno_notify_remove_watch, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_notify_remove_watch, sys_syno_notify_remove_watch)
+#define __NR_syno_notify_add_watch32               825
+#define syno_notify_add_watch32(arg1, arg2, arg3)  syscall(__NR_syno_notify_add_watch32, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_notify_add_watch32, sys_syno_notify_add_watch32)
+#define __NR_syno_notify_remove_watch32            826
+#define syno_notify_remove_watch32(arg1,arg2,arg3) syscall(__NR_syno_notify_remove_watch32, arg1, arg2, arg3)
+__SYSCALL(__NR_syno_notify_remove_watch32, sys_syno_notify_remove_watch32)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_archive_overwrite               827
+#define syno_archive_overwrite(arg1, arg2)        syscall(__NR_syno_archive_overwrite, arg1, arg2)
+__SYSCALL(__NR_syno_archive_overwrite, sys_syno_archive_overwrite)
 #endif
 
 #ifdef MY_ABC_HERE
@@ -889,7 +1004,7 @@ __syscall_return(type,__res); \
 #define __ARCH_WANT_SYS_RT_SIGSUSPEND
 #define __ARCH_WANT_SYS_TIME
 #define __ARCH_WANT_COMPAT_SYS_TIME
-#endif	 
+#endif	/* __NO_STUBS */
 
 #ifdef __KERNEL__
 
@@ -898,7 +1013,13 @@ __syscall_return(type,__res); \
 #define NR_syscalls (__NR_syscall_max + 1)
 #endif
 
+/*
+ * "Conditional" syscalls
+ *
+ * What we want is __attribute__((weak,alias("sys_ni_syscall"))),
+ * but it doesn't work on all toolchains, so we just do it by hand
+ */
 #define cond_syscall(x) asm(".weak\t" #x "\n\t.set\t" #x ",sys_ni_syscall")
-#endif	 
+#endif	/* __KERNEL__ */
 
-#endif  
+#endif /* _ASM_X86_UNISTD_64_H */

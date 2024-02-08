@@ -1571,3 +1571,4 @@ int evergreen_cs_parse(struct radeon_cs_parser *p)
 	p->track = NULL;
 	return 0;
 }
+

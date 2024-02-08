@@ -616,6 +616,7 @@ static int comcerto_i2c_probe(struct platform_device *pdev)
 		goto err2;
 	}
 
+
 	comcerto_i2c_reset(i2c);
 
 	if (!force_poll) {
@@ -740,3 +741,4 @@ static void __exit comcerto_i2c_exit(void)
 
 module_init(comcerto_i2c_init);
 module_exit(comcerto_i2c_exit);
+

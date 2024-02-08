@@ -36,6 +36,7 @@
 #include "xfs_vnodeops.h"
 #include "xfs_trace.h"
 
+
 static int xfs_swap_extents(
 	xfs_inode_t	*ip,	/* target inode */
 	xfs_inode_t	*tip,	/* tmp inode */
@@ -209,6 +210,7 @@ xfs_swap_extents(
 	int		error = 0;
 	int		aforkblks = 0;
 	int		taforkblks = 0;
+	xfs_extnum_t	nextents;
 	__uint64_t	tmp;
 
 	tempifp = kmem_alloc(sizeof(xfs_ifork_t), KM_MAYFAIL);
@@ -393,7 +395,8 @@ xfs_swap_extents(
 		 * pointer.  Otherwise it's already NULL or
 		 * pointing to the extent.
 		 */
-		if (ip->i_d.di_nextents <= XFS_INLINE_EXTS) {
+		nextents = ip->i_df.if_bytes / (uint)sizeof(xfs_bmbt_rec_t);
+		if (nextents <= XFS_INLINE_EXTS) {
 			ifp->if_u1.if_extents =
 				ifp->if_u2.if_inline_ext;
 		}
@@ -412,7 +415,8 @@ xfs_swap_extents(
 		 * pointer.  Otherwise it's already NULL or
 		 * pointing to the extent.
 		 */
-		if (tip->i_d.di_nextents <= XFS_INLINE_EXTS) {
+		nextents = tip->i_df.if_bytes / (uint)sizeof(xfs_bmbt_rec_t);
+		if (nextents <= XFS_INLINE_EXTS) {
 			tifp->if_u1.if_extents =
 				tifp->if_u2.if_inline_ext;
 		}
@@ -422,6 +426,7 @@ xfs_swap_extents(
 		tilf_fields |= XFS_ILOG_DBROOT;
 		break;
 	}
+
 
 	xfs_trans_ijoin(tp, ip, XFS_ILOCK_EXCL | XFS_IOLOCK_EXCL);
 	xfs_trans_ijoin(tp, tip, XFS_ILOCK_EXCL | XFS_IOLOCK_EXCL);

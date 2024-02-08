@@ -1280,6 +1280,7 @@ static void handleEdmaError(MV_SATA_ADAPTER *pAdapter, MV_U8 channelIndex)
 	MV_U32 eDmaErrorCause = 0;
 	MV_BUS_ADDR_T ioBaseAddr = pAdapter->adapterIoBaseAddress;
 
+
 	eDmaErrorCause = MV_REG_READ_DWORD(ioBaseAddr,
 					   getEdmaRegOffset(channelIndex) + MV_EDMA_INTERRUPT_ERROR_CAUSE_REG_OFFSET);
 
@@ -6978,6 +6979,7 @@ MV_BOOLEAN mvSataSetInterfaceSpeed(MV_SATA_ADAPTER *pAdapter, MV_U8 channelIndex
 			}
 			mvOsSemRelease(&pSataChannel->semaphore);
 		}
+
 
 		if (ifSpeed == MV_SATA_IF_SPEED_1_5_GBPS) {
 			pAdapter->limitInterfaceSpeed[channelIndex] = MV_TRUE;

@@ -105,6 +105,7 @@ $bss_loop:
 	ldo             ASM_PGD_ENTRY_SIZE(%r4),%r4
 #endif
 
+
 	/* Now initialize the PTEs themselves.  We use RWX for
 	 * everything ... it will get remapped correctly later */
 	ldo		0+_PAGE_KERNEL_RWX(%r0),%r3 /* Hardwired 0 phys addr start */
@@ -194,6 +195,8 @@ common_stext:
 	ldw             MEM_PDC_HI(%r0),%r6
 	depd            %r6, 31, 32, %r3        /* move to upper word */
 
+	mfctl		%cr30,%r6		/* PCX-W2 firmware bug */
+
 	ldo             PDC_PSW(%r0),%arg0              /* 21 */
 	ldo             PDC_PSW_SET_DEFAULTS(%r0),%arg1 /* 2 */
 	ldo             PDC_PSW_WIDE_BIT(%r0),%arg2     /* 2 */
@@ -202,6 +205,8 @@ common_stext:
 	copy            %r0,%arg3
 
 stext_pdc_ret:
+	mtctl		%r6,%cr30		/* restore task thread info */
+
 	/* restore rfi target address*/
 	ldd             TI_TASK-THREAD_SZ_ALGN(%sp), %r10
 	tophys_r1       %r10

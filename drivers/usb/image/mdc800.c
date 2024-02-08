@@ -16,6 +16,7 @@
  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 /*
  *	USB-Kernel Driver for the Mustek MDC800 Digital Camera
  *	(c) 1999/2000 Henning Zabel <henning@uni-paderborn.de>
@@ -121,13 +122,16 @@
 /* Minor Number of the device (create with mknod /dev/mustek c 180 32) */
 #define MDC800_DEVICE_MINOR_BASE 32
 
+
 /**************************************************************************
 	Data and structs
 ***************************************************************************/
 
+
 typedef enum {
 	NOT_CONNECTED, READY, WORKING, DOWNLOAD
 } mdc800_state;
+
 
 /* Data for the driver */
 struct mdc800_data
@@ -151,11 +155,13 @@ struct mdc800_data
 	wait_queue_head_t	write_wait;
 	int			written;
 
+
 	struct urb *   		download_urb;
 	char*			download_urb_buffer;
 	wait_queue_head_t	download_wait;
 	int			downloaded;
 	int			download_left;		// Bytes left to download ?
+
 
 	/* Device Data */
 	char			out [64];	// Answer Buffer
@@ -172,6 +178,7 @@ struct mdc800_data
 	int			pic_len;
 	int			minor;
 };
+
 
 /* Specification of the Endpoints */
 static struct usb_endpoint_descriptor mdc800_ed [4] =
@@ -221,6 +228,7 @@ static struct usb_endpoint_descriptor mdc800_ed [4] =
 /* The Variable used by the driver */
 static struct mdc800_data* mdc800;
 
+
 /***************************************************************************
 	The USB Part of the driver
 ****************************************************************************/
@@ -233,6 +241,7 @@ static int mdc800_endpoint_equals (struct usb_endpoint_descriptor *a,struct usb_
 		&& ( a->wMaxPacketSize   == b->wMaxPacketSize   )
 	);
 }
+
 
 /*
  * Checks whether the camera responds busy
@@ -249,6 +258,7 @@ static int mdc800_isBusy (char* ch)
 	return 1;
 }
 
+
 /*
  * Checks whether the Camera is ready
  */
@@ -263,6 +273,8 @@ static int mdc800_isReady (char *ch)
 	}
 	return 1;
 }
+
+
 
 /*
  * USB IRQ Handler for InputLine
@@ -323,6 +335,7 @@ static void mdc800_usb_irq (struct urb *urb)
 	}
 }
 
+
 /*
  * Waits a while until the irq responds that camera is ready
  *
@@ -357,6 +370,7 @@ static int mdc800_usb_waitForIRQ (int mode, int msec)
 	return 0;
 }
 
+
 /*
  * The write_urb callback function
  */
@@ -373,6 +387,7 @@ static void mdc800_usb_write_notify (struct urb *urb)
 	mdc800->written = 1;
 	wake_up (&mdc800->write_wait);
 }
+
 
 /*
  * The download_urb callback function
@@ -400,6 +415,7 @@ static void mdc800_usb_download_notify (struct urb *urb)
 	wake_up (&mdc800->download_wait);
 }
 
+
 /***************************************************************************
 	Probing for the Camera
  ***************************************************************************/
@@ -411,6 +427,7 @@ static struct usb_class_driver mdc800_class = {
 	.fops =		&mdc800_device_ops,
 	.minor_base =	MDC800_DEVICE_MINOR_BASE,
 };
+
 
 /*
  * Callback to search the Mustek MDC800 on the USB Bus
@@ -425,6 +442,7 @@ static int mdc800_usb_probe (struct usb_interface *intf,
 	int retval;
 
 	dbg ("(mdc800_usb_probe) called.");
+
 
 	if (mdc800->dev != NULL)
 	{
@@ -472,6 +490,7 @@ static int mdc800_usb_probe (struct usb_interface *intf,
 			return -ENODEV;
 		}
 	}
+
 
 	dev_info(&intf->dev, "Found Mustek MDC800 on USB.\n");
 
@@ -527,6 +546,7 @@ static int mdc800_usb_probe (struct usb_interface *intf,
 	return 0;
 }
 
+
 /*
  * Disconnect USB device (maybe the MDC800)
  */
@@ -557,6 +577,7 @@ static void mdc800_usb_disconnect (struct usb_interface *intf)
 	}
 	dev_info(&intf->dev, "Mustek MDC800 disconnected from USB.\n");
 }
+
 
 /***************************************************************************
 	The Misc device Part (file_operations)
@@ -591,6 +612,7 @@ static int mdc800_getAnswerSize (char command)
 			return 0;
 	}
 }
+
 
 /*
  * Init the device: (1) alloc mem (2) Increase MOD Count ..
@@ -641,6 +663,7 @@ error_out:
 	return errn;
 }
 
+
 /*
  * Close the Camera and release Memory
  */
@@ -665,6 +688,7 @@ static int mdc800_device_release (struct inode* inode, struct file *file)
 	mutex_unlock(&mdc800->io_lock);
 	return retval;
 }
+
 
 /*
  * The Device read callback Function
@@ -759,6 +783,7 @@ static ssize_t mdc800_device_read (struct file *file, char __user *buf, size_t l
 	mutex_unlock(&mdc800->io_lock);
 	return len-left;
 }
+
 
 /*
  * The Device write callback Function
@@ -875,6 +900,7 @@ static ssize_t mdc800_device_write (struct file *file, const char __user *buf, s
 					mdc800_usb_waitForIRQ (0,TO_DOWNLOAD_GET_BUSY);
 					break;
 
+
 				default:
 					if (answersize)
 					{
@@ -924,6 +950,7 @@ static ssize_t mdc800_device_write (struct file *file, const char __user *buf, s
 	return i;
 }
 
+
 /***************************************************************************
 	Init and Cleanup this driver (Structs and types)
 ****************************************************************************/
@@ -938,6 +965,8 @@ static const struct file_operations mdc800_device_ops =
 	.release =	mdc800_device_release,
 	.llseek =	noop_llseek,
 };
+
+
 
 static const struct usb_device_id mdc800_table[] = {
 	{ USB_DEVICE(MDC800_VENDOR_ID, MDC800_PRODUCT_ID) },
@@ -955,6 +984,8 @@ static struct usb_driver mdc800_usb_driver =
 	.disconnect =	mdc800_usb_disconnect,
 	.id_table =	mdc800_table
 };
+
+
 
 /************************************************************************
 	Init and Cleanup this driver (Main Functions)
@@ -1032,6 +1063,7 @@ cleanup_on_fail:
 	return retval;
 }
 
+
 static void __exit usb_mdc800_cleanup (void)
 {
 	usb_deregister (&mdc800_usb_driver);
@@ -1054,3 +1086,4 @@ module_exit (usb_mdc800_cleanup);
 MODULE_AUTHOR( DRIVER_AUTHOR );
 MODULE_DESCRIPTION( DRIVER_DESC );
 MODULE_LICENSE("GPL");
+

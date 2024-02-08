@@ -51,6 +51,8 @@ extern "C" {
 * Unit Registers
 */
 
+
+
 struct al_macsec_configuration {
 	/* [0x0] TX MACSEC configuration */
 	uint32_t conf_macsec_tx;
@@ -168,9 +170,11 @@ struct al_macsec_regs {
 	struct al_macsec_statistics statistics;     /* [0x140] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** conf_macsec_tx register ****/
 /* 1 - MACsec mechanism enabled for TX packets0 - Bypass Tx MACs ... */
@@ -340,3 +344,5 @@ struct al_macsec_regs {
 #endif /* __AL_HAL_ETH_MACSEC_REGS_H */
 
 /** @} end of ... group */
+
+

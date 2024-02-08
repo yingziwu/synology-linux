@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __INCVRTBRGPEXH
 #define __INCVRTBRGPEXH
 
+
 /* Global Functions prototypes */
 /* mvPexInit - Initialize PEX interfaces*/
 MV_STATUS mvPexVrtBrgInit(MV_U32 pexIf);
@@ -76,5 +77,6 @@ MV_U32 mvPexVrtBrgConfigRead (MV_U32 pexIf, MV_U32 bus, MV_U32 dev,
 /* mvPexConfigWrite - Write to configuration space */
 MV_STATUS mvPexVrtBrgConfigWrite(MV_U32 pexIf, MV_U32 bus, MV_U32 dev,
                            MV_U32 func, MV_U32 regOff, MV_U32 data);
+
 
 #endif /* #ifndef __INCPEXH */

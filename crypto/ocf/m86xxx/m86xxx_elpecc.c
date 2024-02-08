@@ -74,6 +74,7 @@
 #include <asm/io.h>
 #include "uio.h"
 
+
 #include "m86xxx_spacc.h"
 
 U32 _mmap;
@@ -90,6 +91,7 @@ U32 _mmap;
 #define CURVE_384_ORDER_FULL_SIZE 64
 
 #define CURVE_MAX_DATA_SIZE	256
+
 
 typedef struct ec_curve_data_
 {
@@ -109,6 +111,7 @@ typedef struct ec_curve_data_
   U8 np[CURVE_MAX_DATA_SIZE];   // inverse of n mod R
   U8 n[CURVE_MAX_DATA_SIZE];    // order of the curve
 } EC_CURVE_DATA;
+
 
 #define CLUE_MAX_CURVES 16
 
@@ -160,7 +163,9 @@ typedef struct ec_curve_data_
 #error "Should define Clue load"
 #endif
 
+
 static EC_CURVE_DATA *curve_data[CLUE_MAX_CURVES];
+
 
 void clue_ec_init (U32 mmap)
 {
@@ -357,6 +362,7 @@ S16 clue_ec_load_curve_pver (U16 curve)
   a = (U8 *) pc->a;
   b = (U8 *) pc->b;
 
+
   //A6  <- a, (curve)
   p = CLUE_REGION_A_PAGE (_mmap, clue_page_size (size), 6);
   MEMCPY32EX_R (p, (U32 *) a, size >> 2);
@@ -396,8 +402,10 @@ S16 clue_ec_load_curve_data (U16 curve)
   MEMCPY32EX_R (p, (U32 *) r, size >> 2);
   PDUMPWORD (EDDUMP, p, size, "//r_sqr_mod_m", 1);
 
+
   return SPACC_CRYPTO_OK;
 }
+
 
 S16 clue_ec_load_curve_modulus (U16 curve)
 {
@@ -479,6 +487,7 @@ S16 pars_clue_ec_dsa_sign(void *p1, void *p2, U8 *e, U16 size, U16 ksize, U8 *r,
 }
 #endif
 
+
 /////////////////////////////////////////////// clue ecc
 //point multiplication: k*P(x,y)
 //intputs:      k, key
@@ -550,6 +559,8 @@ S16 clue_ec_point_mult (U8 * k, U8 * x, U8 * y, U8 * rx, U8 * ry, U16 size, U16 
 }
 #endif
 
+
+
 /////////////////////////////////////////////// clue ecc
 //point multiplication: k*G(x,y)
 //intputs:      k, key
@@ -563,6 +574,7 @@ S16 clue_ec_point_mult_base (U8 * k, U8 * rx, U8 * ry, U16 size, U16 ksize)
   S16 ret = SPACC_CRYPTO_OK;
   U32 *p;
   U8 kbuf[CURVE_MAX_DATA_SIZE];
+
 
   if ((rx == 0) || (ry == 0) || (ksize < 2) || (ksize > CURVE_MAX_DATA_SIZE)) {
     ret = SPACC_CRYPTO_INVALID_ARGUMENT;
@@ -627,9 +639,11 @@ S16 clue_ec_point_double (U8 * x, U8 * y, U8 * rx, U8 * ry, U16 size)
     p = CLUE_REGION_B_PAGE (_mmap, clue_page_size (size), 3);
     MEMCPY32EX_R (p, (U32 *) y, size >> 2);
 
+
     //clean C1
     //p = CLUE_REGION_C_PAGE (_mmap, clue_page_size (size), 1);
     //MEMSET32 (p, 0, clue_page_size (size) >> 2);
+
 
     //do operation
     CLUE_POINT_DOUBLE (_mmap);
@@ -691,9 +705,11 @@ S16 clue_ec_point_add (U8 * x1, U8 * y1, U8 * x2, U8 * y2, U8 * rx, U8 * ry,
     MEMCPY32EX_R (p, (U32 *) y2, size >> 2);
     PDUMPWORD (EDDUMP, p, size, "//y2", 1);
 
+
     //clean C1
     //p = CLUE_REGION_C_PAGE (_mmap, clue_page_size (size), 1);
     //MEMSET32 (p, 0, clue_page_size (size) >> 2);
+
 
     //do operation
     CLUE_POINT_ADD (_mmap);
@@ -742,9 +758,11 @@ S16 clue_ec_point_verify (U8 * x, U8 * y, U16 size)
     p = CLUE_REGION_B_PAGE (_mmap, clue_page_size (size), 2);
     MEMCPY32EX_R (p, (U32 *) y, size >> 2);
 
+
     //clean C0
     p = CLUE_REGION_C_PAGE (_mmap, clue_page_size (size), 0);
     MEMSET32 (p, 0, clue_page_size (size) >> 2);
+
 
     //do operation
     CLUE_POINT_VERIFY (_mmap);
@@ -765,6 +783,7 @@ S16 clue_ec_point_verify (U8 * x, U8 * y, U16 size)
   return ret;
 }
 #endif
+
 
 //modular multiplication: c=a*b mod m
 //intputs:      a
@@ -791,6 +810,7 @@ S16 clue_ec_mod_mult (U8 * a, U8 * b, U8 * c, S16 size)
     p = CLUE_REGION_B_PAGE (_mmap, clue_page_size (size), 0);
     MEMCPY32EX_R (p, (U32 *) b, size >> 2);
 
+
     //do operation
     CLUE_MOD_MULT (_mmap);
     if ((clue_start_engine (size)) != SPACC_CRYPTO_OK) {
@@ -808,6 +828,7 @@ S16 clue_ec_mod_mult (U8 * a, U8 * b, U8 * c, S16 size)
   return ret;
 }
 #endif
+
 
 //modular inversion: c=1/b mod m
 //intputs:  a=1
@@ -883,6 +904,8 @@ S16 clue_ec_mod_div (U8 * a, U8 * b, U8 * c, S16 size)
     p = CLUE_REGION_A_PAGE (_mmap, clue_page_size (size), 0);
     MEMCPY32EX_R (p, (U32 *) b, size >> 2);
 
+
+
     //clean C1
     //p = CLUE_REGION_C_PAGE (_mmap, clue_page_size (size), 1);
     //MEMSET32 (p, 0, clue_page_size (size) >> 2);
@@ -902,6 +925,7 @@ S16 clue_ec_mod_div (U8 * a, U8 * b, U8 * c, S16 size)
   return ret;
 }
 #endif
+
 
 //modular addition:   c=a+b mod m
 //intputs:      
@@ -929,6 +953,8 @@ S16 clue_ec_mod_add (U8 * a, U8 * b, U8 * c, S16 size)
     MEMCPY32EX_R (p, (U32 *) b, size >> 2);
     PDUMPWORD (EDDUMP, p, size, "//b", 1);
 
+
+
     //do operation
     CLUE_MOD_ADD (_mmap);
     if ((clue_start_engine (size)) != SPACC_CRYPTO_OK) {
@@ -938,6 +964,7 @@ S16 clue_ec_mod_add (U8 * a, U8 * b, U8 * c, S16 size)
       ret = SPACC_CRYPTO_FAILED;
     }
 
+
     //get result, output c <- A0 
     p = CLUE_REGION_A_PAGE (_mmap, clue_page_size (size), 0);
     MEMCPY32EX_R ((U32 *) c, p, size >> 2);
@@ -946,6 +973,7 @@ S16 clue_ec_mod_add (U8 * a, U8 * b, U8 * c, S16 size)
   return ret;
 }
 #endif
+
 
 //modular subtraction:    c=a-b mod m
 //intputs:      a
@@ -970,6 +998,7 @@ S16 clue_ec_mod_sub (U8 * a, U8 * b, U8 * c, S16 size)
     p = CLUE_REGION_B_PAGE (_mmap, clue_page_size (size), 0);
     MEMCPY32EX_R (p, (U32 *) b, size >> 2);
     PDUMPWORD (EDDUMP, p, size, "//b", 1);
+
 
     //do operation
     CLUE_MOD_SUB (_mmap);
@@ -1014,6 +1043,7 @@ S16 clue_ec_mod_red (U8 * a, U8 * c, S16 size)
     //for hardware do endian swap
     //MEMCPY32HTONL_R (p, (U32 *) a, size >> 2);
     PDUMPWORD (EDDUMP, p, size, "//a", 1);
+
 
     //carry must be clear before calling
     //CLUE_CLEAR_CARRY(_mmap);

@@ -74,7 +74,7 @@
 #endif
 
 int boot_cpuid = 0;
-int __initdata spinning_secondaries;
+int spinning_secondaries;
 u64 ppc64_pft_size;
 
 /* Pick defaults since we might want to patch instructions
@@ -339,6 +339,7 @@ static void __init initialize_cache_info(void)
 	DBG(" <- initialize_cache_info()\n");
 }
 
+
 /*
  * Do some initial setup of the system.  The parameters are those which 
  * were passed in from the bootloader.
@@ -508,6 +509,23 @@ static void __init exc_lvl_early_init(void)
 #endif
 
 /*
+ * Emergency stacks are used for a range of things, from asynchronous
+ * NMIs (system reset, machine check) to synchronous, process context.
+ * We set preempt_count to zero, even though that isn't necessarily correct. To
+ * get the right value we'd need to copy it from the previous thread_info, but
+ * doing that might fault causing more problems.
+ * TODO: what to do with accounting?
+ */
+static void emerg_stack_init_thread_info(struct thread_info *ti, int cpu)
+{
+	ti->task = NULL;
+	ti->cpu = cpu;
+	ti->preempt_count = 0;
+	ti->local_flags = 0;
+	ti->flags = 0;
+}
+
+/*
  * Stack space used when we detect a bad kernel stack pointer, and
  * early in SMP boots before relocation is enabled.
  */
@@ -524,12 +542,20 @@ static void __init emergency_stack_init(void)
 	 * Since we use these as temporary stacks during secondary CPU
 	 * bringup, we need to get at them in real mode. This means they
 	 * must also be within the RMO region.
+	 *
+	 * The IRQ stacks allocated elsewhere in this file are zeroed and
+	 * initialized in kernel/irq.c. These are initialized here in order
+	 * to have emergency stacks available as early as possible.
 	 */
 	limit = min(safe_stack_limit(), ppc64_rma_size);
 
 	for_each_possible_cpu(i) {
 		unsigned long sp;
+		struct thread_info *ti;
 		sp  = memblock_alloc_base(THREAD_SIZE, THREAD_SIZE, limit);
+		ti = __va(sp);
+		memset(ti, 0, THREAD_SIZE);
+		emerg_stack_init_thread_info(ti, i);
 		sp += THREAD_SIZE;
 		paca[i].emergency_sp = __va(sp);
 	}
@@ -591,6 +617,7 @@ void __init setup_arch(char **cmdline_p)
 
 	ppc64_boot_msg(0x15, "Setup Done");
 }
+
 
 /* ToDo: do something useful if ppc_md is not yet setup. */
 #define PPC64_LINUX_FUNCTION 0x0f000000
@@ -672,7 +699,9 @@ void __init setup_per_cpu_areas(void)
 }
 #endif
 
+
 #ifdef CONFIG_PPC_INDIRECT_IO
 struct ppc_pci_io ppc_pci_io;
 EXPORT_SYMBOL(ppc_pci_io);
 #endif /* CONFIG_PPC_INDIRECT_IO */
+

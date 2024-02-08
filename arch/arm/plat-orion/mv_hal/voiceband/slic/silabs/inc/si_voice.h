@@ -30,6 +30,8 @@
 #include "si_voice_ctrl.h"
 #include "si_voice_timer_intf.h"
 
+
+
 /** @defgroup SIVOICE SiVoice definitions
 
  * @{
@@ -48,6 +50,7 @@
 
 /** @} CHIPFAM */
 /*****************************************************************************/
+
 
 /*
 * Workaroud for building on windows systems
@@ -76,6 +79,7 @@ typedef struct	{
 		system_getTime_fptr getTime_fptr; /**< user provided timestamp function */
 		int usermodeStatus; /**< ProSLIC only*/
 } SiVoiceControlInterfaceType;
+
 
 typedef enum {
 	SI3210,
@@ -134,6 +138,7 @@ typedef enum {
 	F,
 	G
 }revisionType ;
+
 
 typedef enum {
     UNKNOWN, /**< Channel type has not been initalized or is still unknown */
@@ -196,6 +201,7 @@ typedef enum {
     RC_REINIT_REQUIRED = 255   /**< Soft Reset Required */
 } errorCodeType;
 
+
 /**
 * Generic BOM option tags - please refer to your PCB design
 * for which design you're using.
@@ -235,6 +241,7 @@ typedef struct	{
 
 typedef SiVoiceDeviceType *SiVoiceDeviceType_ptr; /**< Shortcut typedef */
 
+
 /**
 ** This is the main ProSLIC channel object
 */
@@ -247,6 +254,7 @@ typedef struct	{
 		int channelEnable; /**<  is the channel enabled or not? If not, this channel is not initialized */
 		bomOptionsType bomOption; /**< Device/PCB specific */
 } SiVoiceChanType;
+
 
 typedef SiVoiceChanType *SiVoiceChanType_ptr;
 

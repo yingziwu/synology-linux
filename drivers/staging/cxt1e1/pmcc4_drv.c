@@ -2,6 +2,7 @@
  * $Id: pmcc4_drv.c,v 3.1 2007/08/15 23:32:17 rickd PMCC4_3_1B $
  */
 
+
 /*-----------------------------------------------------------------------------
  * pmcc4_drv.c -
  *
@@ -114,6 +115,7 @@ char        OSSIid_pmcc4_drvc[] =
 #define STATIC  static
 #endif
 
+
 #define KERN_WARN KERN_WARNING
 
 /* forward references */
@@ -149,6 +151,7 @@ ci_t       *c4_list = 0;
 ci_t       *CI;                 /* dummy pointer to board ZEROE's data -
                                  * DEBUG USAGE */
 
+
 void
 sbecom_set_loglevel (int d)
 {
@@ -174,6 +177,7 @@ sbecom_set_loglevel (int d)
     }
 }
 
+
 mch_t      *
 c4_find_chan (int channum)
 {
@@ -194,6 +198,7 @@ c4_find_chan (int channum)
             }
     return 0;
 }
+
 
 ci_t       *__init
 c4_new (void *hi)
@@ -221,6 +226,7 @@ c4_new (void *hi)
         CI = ci;                    /* DEBUG, only board 0 usage */
     return ci;
 }
+
 
 /***
  * Check port state and set LED states using watchdog or ioctl...
@@ -521,6 +527,7 @@ checkPorts (ci_t * ci)
 #endif                              /*** CONFIG_SBE_PMCC4_NCOMM ***/
 }
 
+
 STATIC void
 c4_watchdog (ci_t * ci)
 {
@@ -534,6 +541,7 @@ c4_watchdog (ci_t * ci)
     checkPorts (ci);
     ci->wd_notify = 0;
 }
+
 
 void
 c4_cleanup (void)
@@ -564,6 +572,7 @@ c4_cleanup (void)
     }
 }
 
+
 /*
  * This function issues a write to all comet chips and expects the same data
  * to be returned from the subsequent read.  This determines the board build
@@ -592,6 +601,7 @@ c4_get_portcfg (ci_t * ci)
     }
     return mask;
 }
+
 
 /* nothing herein should generate interrupts */
 
@@ -707,6 +717,7 @@ c4_init (ci_t * ci, u_char *func0, u_char *func1)
         }
     }
 
+
     {
         /*
          * Set LEDs through their paces to supply visual proof that LEDs are
@@ -724,6 +735,7 @@ c4_init (ci_t * ci, u_char *func0, u_char *func1)
     OS_init_watchdog (&ci->wd, (void (*) (void *)) c4_watchdog, ci, WATCHDOG_TIMEOUT);
     return SBE_DRVR_SUCCESS;
 }
+
 
 /* better be fully setup to handle interrupts when you call this */
 
@@ -751,6 +763,7 @@ c4_init2 (ci_t * ci)
     OS_start_watchdog (&ci->wd);
     return SBE_DRVR_SUCCESS;
 }
+
 
 /* This function sets the loopback mode (or clears it, as the case may be). */
 
@@ -800,6 +813,7 @@ c4_loop_port (ci_t * ci, int portnum, u_int8_t cmd)
     return 0;
 }
 
+
 /* c4_frame_rw: read or write the comet register specified
  * (modifies use of port_param to non-standard use of struct)
  * Specifically:
@@ -838,6 +852,7 @@ c4_frame_rw (ci_t * ci, struct sbecom_port_param * pp)
     pp->portStatus = (u_int8_t) data;
     return 0;
 }
+
 
 /* c4_pld_rw: read or write the pld register specified
  * (modifies use of port_param to non-standard use of struct)
@@ -933,6 +948,7 @@ c4_musycc_rw (ci_t * ci, struct c4_musycc_param * mcp)
         data = pci_read_32 ((u_int32_t *) dph);
         //pr_info("c4_musycc_rw: REG addr %p  read data %x (portno %x offset %x RAM ramread %x)\n", dph, data, portnum, offset, ramread); /* RLD DEBUG */
     }
+
 
     if (mcp->RWportnum & 0x80)
     {                               /* control says this is a register
@@ -1068,6 +1084,7 @@ c4_set_port (ci_t * ci, int portnum)
     return 0;
 }
 
+
 unsigned int max_int = 0;
 
 status_t
@@ -1162,6 +1179,7 @@ c4_del_chan_stats (int channum)
     return 0;
 }
 
+
 status_t
 c4_set_chan (int channum, struct sbecom_chan_param * p)
 {
@@ -1211,6 +1229,7 @@ c4_set_chan (int channum, struct sbecom_chan_param * p)
     }
     return 0;
 }
+
 
 status_t
 c4_get_chan (int channum, struct sbecom_chan_param * p)
@@ -1284,6 +1303,7 @@ c4_fifo_free (mpi_t * pi, int chan)
         if (pi->fifomap[i] == chan)
             pi->fifomap[i] = -1;
 }
+
 
 status_t
 c4_chan_up (ci_t * ci, int channum)
@@ -1524,6 +1544,7 @@ c4_stopwd (ci_t * ci)
     SD_SEM_GIVE (&ci->sem_wdbusy);
 }
 
+
 void
 sbecom_get_brdinfo (ci_t * ci, struct sbe_brd_info * bip, u_int8_t *bsn)
 {
@@ -1582,6 +1603,7 @@ sbecom_get_brdinfo (ci_t * ci, struct sbe_brd_info * bip, u_int8_t *bsn)
     bip->brd_sn = sn;
 }
 
+
 status_t
 c4_get_iidinfo (ci_t * ci, struct sbe_iid_info * iip)
 {
@@ -1595,6 +1617,7 @@ c4_get_iidinfo (ci_t * ci, struct sbe_iid_info * iip)
     strncpy (iip->iname, np, CHNM_STRLEN - 1);
     return 0;
 }
+
 
 #ifdef CONFIG_SBE_PMCC4_NCOMM
 void        (*nciInterrupt[MAX_BOARDS][4]) (void);
@@ -1652,6 +1675,7 @@ c4_ebus_intr_th_handler (void *devp)
     return IRQ_RETVAL (handled);
 }
 
+
 unsigned long
 wanpmcC4T1E1_getBaseAddress (int cardID, int deviceID)
 {
@@ -1673,5 +1697,6 @@ wanpmcC4T1E1_getBaseAddress (int cardID, int deviceID)
 }
 
 #endif                          /*** CONFIG_SBE_PMCC4_NCOMM ***/
+
 
 /***  End-of-File  ***/

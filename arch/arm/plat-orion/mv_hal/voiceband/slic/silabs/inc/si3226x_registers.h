@@ -134,6 +134,7 @@ PDN_STAT  =  99,
 USERMODE_ENABLE = 126
 };
 
+
 /*
 ** This defines the neumomics for the SI3226 RAM locations (revB)
 */
@@ -1251,5 +1252,6 @@ enum {
 #define DAA_CNTL            74
 #define DCDC_VREF_MIN       VBAT_TRACK_MIN
 #define DCDC_VREF_MIN_RNG   VBAT_TRACK_MIN_RNG
+
 
 #endif

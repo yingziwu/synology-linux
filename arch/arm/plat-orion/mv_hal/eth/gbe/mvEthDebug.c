@@ -302,6 +302,7 @@ void    ethPortRegs(int port)
                 MV_REG_READ( ETH_RX_CUR_DESC_PTR_REG(port, 0) ) );
 }
 
+
 /* Print Giga Ethernet UNIT registers */
 void    ethRegs(int port)
 {
@@ -355,6 +356,7 @@ void ethClearCounters(int port)
     return;
 }
 
+
 /* Print counters of the Ethernet port */
 void    ethPortCounters(int port)
 {
@@ -393,6 +395,7 @@ void    ethPortCounters(int port)
                                  &regValHigh);
     mvOsPrintf("GoodOctetsSent              = 0x%08x%08x\n", regValHigh, regValue);
 
+
     mvOsPrintf("\n\t FC Control Counters\n");
 
     regValue = mvEthMibCounterRead(pHndl, ETH_MIB_UNREC_MAC_CONTROL_RECEIVED, NULL);
@@ -406,6 +409,7 @@ void    ethPortCounters(int port)
 
     regValue = mvEthMibCounterRead(pHndl, ETH_MIB_FC_SENT, NULL);
     mvOsPrintf("FCFramesSent                = %u\n", regValue);
+
 
     mvOsPrintf("\n\t RX Errors\n");
 
@@ -443,6 +447,7 @@ void    ethPortCounters(int port)
 
     regValue = mvEthMibCounterRead(pHndl, ETH_MIB_LATE_COLLISION, NULL);
     mvOsPrintf("TxLateCollisions            = %u\n", regValue);
+
 
     mvOsPrintf("\n");
     regValue = MV_REG_READ( ETH_RX_DISCARD_PKTS_CNTR_REG(port));
@@ -513,6 +518,7 @@ void    ethUcastSet(int port, char* macStr, int queue)
         mvEthMacAddrSet(pHndl, macAddr, queue);
     }
 }
+
 
 void    ethPortUcastShow(int port)
 {
@@ -587,6 +593,7 @@ void    ethPortMcast(int port)
         }
     }
 }
+
 
 /* Print status of Ethernet port */
 void    mvEthPortShow(void* pHndl)
@@ -665,6 +672,7 @@ void    mvEthQueuesShow(void* pHndl, int rxQueue, int txQueue, int mode)
         mvOsPrintf("CURR_RX_DESC_PTR        : 0x%X = 0x%08x\n",
             ETH_RX_CUR_DESC_PTR_REG(port, rxQueue),
             MV_REG_READ( ETH_RX_CUR_DESC_PTR_REG(port, rxQueue)));
+
 
         if(pQueueCtrl->pFirstDescr != NULL)
         {

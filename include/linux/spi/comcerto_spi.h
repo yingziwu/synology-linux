@@ -99,6 +99,7 @@ struct spi_client_conf
 #define COMCERTO_SPI_IDR                  0x58
 #define COMCERTO_SPI_DR                   0x60
 
+
 /* SR - status register bits */
 #define BUSY		(1<<0)	/* SSI busy flag, serial transfer in progress */
 #define TFNF		(1<<1)	/* Transmit FIFO not full */
@@ -124,6 +125,7 @@ struct spi_client_conf
 #define RXFIR		(1<<4)	/* Receive FIFO full interrupt status */
 #define MSTIR		(1<<5)	/* Multi-Master contention interrupt status */
 
+
 /* Interrupt mask register */
 #define TXEIM		(1<<0)	/* Transmit FIFO empty interrupt status */
 #define TXOIM		(1<<1)	/* Transmit FIFO overflow interrupt status */
@@ -131,6 +133,7 @@ struct spi_client_conf
 #define RXOIM		(1<<3)	/* Receive FIFO overflow interrupt status */
 #define RXFIM		(1<<4)	/* Receive FIFO full interrupt status */
 #define MSTIM		(1<<5)	/* Multi-Master contention interrupt status */
+
 
 #define SPI_TRANSFER_MODE_WRITE_ONLY	0x01
 #define SPI_TRANSFER_MODE_READ_ONLY	0x02
@@ -203,5 +206,6 @@ struct spi_client
 
 //int spi_writeread_mem(struct spi_client *client, u8 fs, u8 *rbuffer, int rlen, u8 *wbuffer, int wlen);
 int spi_writeread_mem(struct spi_adapter *adapter, u8 fs, u8 *rbuffer, int rlen, u8 *wbuffer, int wlen);
+
 
 #endif /* _COMCERTO_SPI_H */

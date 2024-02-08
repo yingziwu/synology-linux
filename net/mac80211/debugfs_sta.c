@@ -101,6 +101,7 @@ static ssize_t sta_inactive_ms_read(struct file *file, char __user *userbuf,
 }
 STA_OPS(inactive_ms);
 
+
 static ssize_t sta_connected_time_read(struct file *file, char __user *userbuf,
 					size_t count, loff_t *ppos)
 {
@@ -122,6 +123,8 @@ static ssize_t sta_connected_time_read(struct file *file, char __user *userbuf,
 	return simple_read_from_buffer(userbuf, count, ppos, buf, res);
 }
 STA_OPS(connected_time);
+
+
 
 static ssize_t sta_last_seq_ctrl_read(struct file *file, char __user *userbuf,
 				      size_t count, loff_t *ppos)

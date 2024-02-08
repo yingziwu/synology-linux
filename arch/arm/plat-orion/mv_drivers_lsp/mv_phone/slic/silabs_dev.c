@@ -353,6 +353,7 @@ static int silabs_control_interface(unsigned long arg)
 {
 	SilabsModCtrlObjType data;
 
+
 	/* Get user data */
 	if(copy_from_user(&data, (void*)arg, sizeof(SilabsModCtrlObjType))) {
 		printk("%s: copy_from_user failed\n", __func__);
@@ -716,6 +717,7 @@ static int silabs_channel_set_line_feed(unsigned long arg)
 
 	return 0;
 }
+
 
 int silabs_get_event(unsigned long arg)
 {

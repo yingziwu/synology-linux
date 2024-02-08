@@ -50,6 +50,7 @@ MODULE_DESCRIPTION("Broadcom 802.11n wireless LAN fullmac driver.");
 MODULE_SUPPORTED_DEVICE("Broadcom 802.11n WLAN fullmac cards");
 MODULE_LICENSE("Dual BSD/GPL");
 
+
 /* Interface control information */
 struct brcmf_if {
 	struct brcmf_info *info;	/* back pointer to brcmf_info */
@@ -78,6 +79,7 @@ struct brcmf_info {
 
 /* Error bits */
 module_param(brcmf_msg_level, int, 0);
+
 
 static int brcmf_net2idx(struct brcmf_info *drvr_priv, struct net_device *ndev)
 {

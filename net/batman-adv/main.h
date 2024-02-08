@@ -123,6 +123,7 @@ enum dbg_level {
 	DBG_ALL    = 7
 };
 
+
 /*
  *  Vis
  */
@@ -200,6 +201,7 @@ static inline int compare_eth(const void *data1, const void *data2)
 {
 	return (memcmp(data1, data2, ETH_ALEN) == 0 ? 1 : 0);
 }
+
 
 #define atomic_dec_not_zero(v)	atomic_add_unless((v), -1, 0)
 

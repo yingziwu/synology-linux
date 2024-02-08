@@ -207,6 +207,8 @@ typedef struct xfs_icdinode {
 		((ip)->i_d.di_nextents = (n)) : \
 		((ip)->i_d.di_anextents = (n)))
 
+
+
 #ifdef __KERNEL__
 
 struct bhv_desc;
@@ -409,6 +411,7 @@ static inline void xfs_ifunlock(xfs_inode_t *ip)
 	{ XFS_ILOCK_EXCL,	"ILOCK_EXCL" }, \
 	{ XFS_ILOCK_SHARED,	"ILOCK_SHARED" }, \
 	{ XFS_IUNLOCK_NONOTIFY,	"IUNLOCK_NONOTIFY" }
+
 
 /*
  * Flags for lockdep annotations.

@@ -66,6 +66,7 @@ typedef struct tagSMICHDR {
     DWORD   adwHDR2[4];
 } SMICHDR, *PSMICHDR;
 
+
 typedef struct tagSTX_NAF_G_RTS
 {
     //RsvTime
@@ -172,6 +173,7 @@ typedef struct tagSTX_NAF_G_CTS
 
 } TX_NAF_G_CTS, *PTX_NAF_G_CTS;
 
+
 typedef struct tagSTX_NAF_G_CTS_MIC
 {
     //RsvTime
@@ -179,6 +181,7 @@ typedef struct tagSTX_NAF_G_CTS_MIC
     WORD            wReserved2;
     WORD            wTxRrvTime_b;
     WORD            wTxRrvTime_a;
+
 
     SMICHDR         sMICHDR;
 
@@ -204,6 +207,7 @@ typedef struct tagSTX_NAF_G_CTS_MIC
 
 } TX_NAF_G_CTS_MIC, *PTX_NAF_G_CTS_MIC;
 
+
 typedef struct tagSTX_NAF_G_BEACON
 {
     WORD            wFIFOCtl;
@@ -224,7 +228,9 @@ typedef struct tagSTX_NAF_G_BEACON
     WORD            wDuration_a;
     WORD            wTimeStampOff_a;
 
+
 } TX_NAF_G_BEACON, *PTX_NAF_G_BEACON;
+
 
 typedef struct tagSTX_NAF_AB_RTS
 {
@@ -247,7 +253,9 @@ typedef struct tagSTX_NAF_AB_RTS
     WORD            wDuration_ab;
     WORD            wTimeStampOff_ab;
 
+
 } TX_NAF_AB_RTS, *PTX_NAF_AB_RTS;
+
 
 typedef struct tagSTX_NAF_AB_RTS_MIC
 {
@@ -272,7 +280,10 @@ typedef struct tagSTX_NAF_AB_RTS_MIC
     WORD            wDuration_ab;
     WORD            wTimeStampOff_ab;
 
+
 } TX_NAF_AB_RTS_MIC, *PTX_NAF_AB_RTS_MIC;
+
+
 
 typedef struct tagSTX_NAF_AB_CTS
 {
@@ -305,6 +316,7 @@ typedef struct tagSTX_NAF_AB_CTS_MIC
     WORD            wTimeStampOff_ab;
 
 } TX_NAF_AB_CTS_MIC, *PTX_NAF_AB_CTS_MIC;
+
 
 typedef struct tagSTX_NAF_AB_BEACON
 {
@@ -363,6 +375,7 @@ typedef struct tagSTX_AF_G_RTS
 
 } TX_AF_G_RTS, *PTX_AF_G_RTS;
 
+
 typedef struct tagSTX_AF_G_RTS_MIC
 {
     //RsvTime
@@ -408,6 +421,8 @@ typedef struct tagSTX_AF_G_RTS_MIC
 
 } TX_AF_G_RTS_MIC, *PTX_AF_G_RTS_MIC;
 
+
+
 typedef struct tagSTX_AF_G_CTS
 {
     //RsvTime
@@ -442,6 +457,7 @@ typedef struct tagSTX_AF_G_CTS
 
 } TX_AF_G_CTS, *PTX_AF_G_CTS;
 
+
 typedef struct tagSTX_AF_G_CTS_MIC
 {
     //RsvTime
@@ -449,6 +465,7 @@ typedef struct tagSTX_AF_G_CTS_MIC
     WORD            wReserved2;
     WORD            wTxRrvTime_b;
     WORD            wTxRrvTime_a;
+
 
     SMICHDR         sMICHDR;
 
@@ -478,6 +495,8 @@ typedef struct tagSTX_AF_G_CTS_MIC
 
 } TX_AF_G_CTS_MIC, *PTX_AF_G_CTS_MIC;
 
+
+
 typedef struct tagSTX_AF_A_RTS
 {
     //RsvTime
@@ -504,6 +523,7 @@ typedef struct tagSTX_AF_A_RTS
     WORD            wDuration_a_f1;
 
 } TX_AF_A_RTS, *PTX_AF_A_RTS;
+
 
 typedef struct tagSTX_AF_A_RTS_MIC
 {
@@ -534,6 +554,8 @@ typedef struct tagSTX_AF_A_RTS_MIC
 
 } TX_AF_A_RTS_MIC, *PTX_AF_A_RTS_MIC;
 
+
+
 typedef struct tagSTX_AF_A_CTS
 {
     //RsvTime
@@ -550,6 +572,7 @@ typedef struct tagSTX_AF_A_CTS
     WORD            wDuration_a_f1;
 
 } TX_AF_A_CTS, *PTX_AF_A_CTS;
+
 
 typedef struct tagSTX_AF_A_CTS_MIC
 {
@@ -569,6 +592,7 @@ typedef struct tagSTX_AF_A_CTS_MIC
     WORD            wDuration_a_f1;
 
 } TX_AF_A_CTS_MIC, *PTX_AF_A_CTS_MIC;
+
 
 //
 // union with all of the TX Buffer Type
@@ -596,6 +620,7 @@ typedef union tagUTX_BUFFER_CONTAINER
 
 } TX_BUFFER_CONTAINER, *PTX_BUFFER_CONTAINER;
 
+
 //
 // Remote NDIS message format
 //
@@ -611,10 +636,12 @@ typedef struct tagSTX_BUFFER
     WORD                            wFragCtl;
     WORD                            wReserved;
 
+
     // Actual message
     TX_BUFFER_CONTAINER             BufferHeader;
 
 } TX_BUFFER, *PTX_BUFFER;
+
 
 //
 // Remote NDIS message format
@@ -632,6 +659,7 @@ typedef struct tagSBEACON_BUFFER
     TX_BUFFER_CONTAINER             BufferHeader;
 
 } BEACON_BUFFER, *PBEACON_BUFFER;
+
 
 /*---------------------  Export Variables  --------------------------*/
 

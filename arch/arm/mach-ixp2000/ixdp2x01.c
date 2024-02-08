@@ -127,6 +127,7 @@ void __init ixdp2x01_init_irq(void)
 	irq_set_chained_handler(IRQ_IXP2000_PCIB, ixdp2x01_irq_handler);
 }
 
+
 /*************************************************************************
  * IXDP2x01 memory map
  *************************************************************************/
@@ -142,6 +143,7 @@ static void __init ixdp2x01_map_io(void)
 	ixp2000_map_io();
 	iotable_init(&ixdp2x01_io_desc, 1);
 }
+
 
 /*************************************************************************
  * IXDP2x01 serial ports
@@ -209,6 +211,7 @@ static void ixdp2x01_uart_init(void)
 	platform_device_register(&ixdp2x01_serial_device1);
 	platform_device_register(&ixdp2x01_serial_device2);
 }
+
 
 /*************************************************************************
  * IXDP2x01 timer tick configuration
@@ -312,6 +315,7 @@ static int __init ixdp2x01_pci_map_irq(const struct pci_dev *dev, u8 slot,
 	return -1;
 }
 
+
 static int ixdp2x01_pci_setup(int nr, struct pci_sys_data *sys)
 {
 	sys->mem_offset = 0xe0000000;
@@ -409,6 +413,7 @@ static void __init ixdp2x01_init_machine(void)
 	ixdp2x01_uart_init();
 }
 
+
 #ifdef CONFIG_ARCH_IXDP2401
 MACHINE_START(IXDP2401, "Intel IXDP2401 Development Platform")
 	/* Maintainer: MontaVista Software, Inc. */
@@ -443,3 +448,5 @@ MACHINE_START(IXDP28X5, "Intel IXDP2805/2855 Development Platform")
 	.init_machine	= ixdp2x01_init_machine,
 MACHINE_END
 #endif
+
+

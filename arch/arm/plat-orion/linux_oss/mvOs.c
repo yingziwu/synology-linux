@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -58,6 +59,8 @@ static MV_U32 read_p15_c0 (void);
 
 #define ARM_ID_ASCII_OFFS	24
 #define ARM_ID_ASCII_MASK	(0xff << ARM_ID_ASCII_OFFS)
+
+
 
 void* mvOsIoCachedMalloc( void* osHandle, MV_U32 size, MV_ULONG* pPhyAddr,
 			  MV_U32 *memHandle)
@@ -189,6 +192,8 @@ MV_U32 mvOsCpuAsciiGet( MV_VOID )
 {
     return ((read_p15_c0() & ARM_ID_ASCII_MASK ) >> ARM_ID_ASCII_OFFS);
 }
+
+
 
 /*
 static unsigned long read_p15_c0 (void)

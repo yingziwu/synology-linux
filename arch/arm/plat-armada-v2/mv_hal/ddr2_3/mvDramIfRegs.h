@@ -183,6 +183,7 @@ extern "C" {
 #define REG_DRAM_PIN_MUXING_ADDR				0x19D4
 #define DRAM_PIN_MUXING_PUP3_EN					(1 << 8)
 
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

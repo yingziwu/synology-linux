@@ -160,6 +160,7 @@ static void __exit empeg_exit(void)
 	usb_serial_deregister(&empeg_device);
 }
 
+
 module_init(empeg_init);
 module_exit(empeg_exit);
 

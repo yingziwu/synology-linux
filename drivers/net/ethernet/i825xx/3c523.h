@@ -23,6 +23,7 @@
  */
 #define SCP_DEFAULT_ADDRESS 0xfffff4
 
+
 /*
  * System Configuration Pointer Struct
  */
@@ -36,6 +37,7 @@ struct scp_struct
   unsigned short zero_dum3;
   char          *iscp;		/* pointer to the iscp-block */
 };
+
 
 /*
  * Intermediate System Configuration Pointer (ISCP)

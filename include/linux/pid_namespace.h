@@ -72,6 +72,7 @@ static inline void put_pid_ns(struct pid_namespace *ns)
 {
 }
 
+
 static inline void zap_pid_ns_processes(struct pid_namespace *ns)
 {
 	BUG();

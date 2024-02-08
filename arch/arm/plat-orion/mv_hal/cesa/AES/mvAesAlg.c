@@ -12,6 +12,7 @@
 
 #include "mvAesBoxes.dat"
 
+
 MV_U8 mul1(MV_U8 aa, MV_U8 bb);
 void KeyAddition(MV_U8 a[4][MAXBC], MV_U8 rk[4][MAXBC], MV_U8 BC);
 void ShiftRow128Enc(MV_U8 a[4][MAXBC]);
@@ -20,12 +21,14 @@ void Substitution(MV_U8 a[4][MAXBC], MV_U8 box[256]);
 void MixColumn(MV_U8 a[4][MAXBC], MV_U8 rk[4][MAXBC]);
 void InvMixColumn(MV_U8 a[4][MAXBC]);
 
+
 #define mul(aa, bb) (mask[bb] & Alogtable[aa + Logtable[bb]])
 
 MV_U8 mul1(MV_U8 aa, MV_U8 bb)
 {
     return mask[bb] & Alogtable[aa + Logtable[bb]];
 }
+
 
 void KeyAddition(MV_U8 a[4][MAXBC], MV_U8 rk[4][MAXBC], MV_U8 BC)
 {
@@ -203,6 +206,7 @@ int rijndaelKeySched (MV_U8 k[4][MAXKC], int keyBits, int blockBits, MV_U8 W[MAX
 	default : return (-3); /* this cannot happen */
 	}
 
+
 	for(j = 0; j < KC; j++)
 		for(i = 0; i < 4; i++)
 			tk[i][j] = k[i][j];
@@ -235,6 +239,8 @@ int rijndaelKeySched (MV_U8 k[4][MAXKC], int keyBits, int blockBits, MV_U8 W[MAX
 	return 0;
 }
 
+
+
 int rijndaelEncrypt128(MV_U8 a[4][MAXBC], MV_U8 rk[MAXROUNDS+1][4][MAXBC], int rounds)
 {
 	/* Encryption of one block.
@@ -266,6 +272,7 @@ int rijndaelEncrypt128(MV_U8 a[4][MAXBC], MV_U8 rk[MAXROUNDS+1][4][MAXBC], int r
 
 	return 0;
 }
+
 
 int rijndaelDecrypt128(MV_U8 a[4][MAXBC], MV_U8 rk[MAXROUNDS+1][4][MAXBC], int rounds)
 {

@@ -43,6 +43,7 @@ __arch_iounmap(void __iomem *addr)
 #define __io(a)			__typesafe_io(a)
 #define __mem_pci(a)		(a)
 
+
 /*****************************************************************************
  * Helpers to access Orion registers
  ****************************************************************************/
@@ -52,5 +53,6 @@ __arch_iounmap(void __iomem *addr)
  */
 #define orion5x_setbits(r, mask)	writel(readl(r) | (mask), (r))
 #define orion5x_clrbits(r, mask)	writel(readl(r) & ~(mask), (r))
+
 
 #endif

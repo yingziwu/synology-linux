@@ -333,13 +333,13 @@ fail:
 	return -ENODEV;
 }
 
+
 static int mxl111sf_ep6_streaming_ctrl(struct dvb_usb_adapter *adap, int onoff)
 {
 	struct dvb_usb_device *d = adap->dev;
 	struct mxl111sf_state *state = d->priv;
 	struct mxl111sf_adap_state *adap_state = adap->fe_adap[adap->active_fe].priv;
 	int ret = 0;
-	u8 tmp;
 
 	deb_info("%s(%d)\n", __func__, onoff);
 
@@ -752,6 +752,7 @@ static struct usb_device_id mxl111sf_table[] = {
 	{}		/* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, mxl111sf_table);
+
 
 #define MXL111SF_EP4_BULK_STREAMING_CONFIG		\
 	.streaming_ctrl = mxl111sf_ep4_streaming_ctrl,	\

@@ -1146,6 +1146,7 @@ static int dib7000m_identify(struct dib7000m_state *state)
 	return 0;
 }
 
+
 static int dib7000m_get_frontend(struct dvb_frontend* fe,
 				struct dvb_frontend_parameters *fep)
 {

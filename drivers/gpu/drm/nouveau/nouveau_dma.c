@@ -340,3 +340,4 @@ nouveau_dma_wait(struct nouveau_channel *chan, int slots, int size)
 
 	return 0;
 }
+

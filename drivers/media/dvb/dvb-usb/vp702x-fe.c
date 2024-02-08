@@ -348,6 +348,7 @@ error:
 	return NULL;
 }
 
+
 static struct dvb_frontend_ops vp702x_fe_ops = {
 	.info = {
 		.name           = "Twinhan DST-like frontend (VP7021/VP7020) DVB-S",

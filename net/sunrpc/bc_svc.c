@@ -39,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static const struct rpc_call_ops nfs41_callback_ops = {
 };
 
+
 /*
  * Send the callback reply
  */
@@ -59,3 +60,4 @@ int bc_send(struct rpc_rqst *req)
 	dprintk("RPC:       bc_send ret= %d\n", ret);
 	return ret;
 }
+

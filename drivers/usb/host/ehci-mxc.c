@@ -192,6 +192,7 @@ static int ehci_mxc_drv_probe(struct platform_device *pdev)
 		clk_enable(priv->phy1clk);
 	}
 
+
 	/* call platform specific init function */
 	if (pdata->init) {
 		ret = pdata->init(pdev);
@@ -295,7 +296,7 @@ static int __exit ehci_mxc_drv_remove(struct platform_device *pdev)
 	if (pdata && pdata->exit)
 		pdata->exit(pdev);
 
-	if (pdata->otg)
+	if (pdata && pdata->otg)
 		otg_shutdown(pdata->otg);
 
 	usb_remove_hcd(hcd);

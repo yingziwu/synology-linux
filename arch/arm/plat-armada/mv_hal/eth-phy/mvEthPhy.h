@@ -147,6 +147,8 @@ MV_VOID		mvEthE1512PhyBasicInit(MV_U32 ethPortNum);
 
 /* MV_VOID		mvEthInternal3FEPhyBasicInit(MV_U32 port); */
 
+
+
 #ifdef __cplusplus
 }
 #endif

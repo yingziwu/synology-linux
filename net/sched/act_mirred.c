@@ -201,13 +201,12 @@ static int tcf_mirred(struct sk_buff *skb, const struct tc_action *a,
 out:
 	if (err) {
 		m->tcf_qstats.overlimits++;
-		/* should we be asking for packet to be dropped?
-		 * may make sense for redirect case only
-		 */
-		retval = TC_ACT_SHOT;
-	} else {
+		if (m->tcfm_eaction != TCA_EGRESS_MIRROR)
+			retval = TC_ACT_SHOT;
+		else
+			retval = m->tcf_action;
+	} else
 		retval = m->tcf_action;
-	}
 	spin_unlock(&m->tcf_lock);
 
 	return retval;
@@ -259,6 +258,7 @@ static int mirred_device_event(struct notifier_block *unused,
 static struct notifier_block mirred_device_notifier = {
 	.notifier_call = mirred_device_event,
 };
+
 
 static struct tc_action_ops act_mirred_ops = {
 	.kind		=	"mirred",

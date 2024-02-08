@@ -83,6 +83,7 @@ bool g_launched_app_exit = false;
 
 unsigned long long g_sample_count;
 
+
 static bool g_image_loaded;
 
 extern struct miscdevice px_css_d;
@@ -646,6 +647,7 @@ static int query_request(struct query_request_data * rd)
 		mask |= KDR_HS_LAUNCHED_APP_EXIT;
 		g_launched_app_exit = false;
 	}
+
 
 	if (g_image_loaded)
 	{
@@ -1248,6 +1250,7 @@ static unsigned int px_css_d_poll(struct file *fp, struct poll_table_struct *wai
 
 	if (g_image_loaded)
 		mask |= POLLIN | POLLRDNORM;
+
 
 	return mask;
 }

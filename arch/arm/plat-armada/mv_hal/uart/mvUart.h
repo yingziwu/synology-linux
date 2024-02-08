@@ -58,6 +58,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *******************************************************************************/
 
+
 #ifndef __INCmvUarth
 #define __INCmvUarth
 
@@ -98,6 +99,7 @@ extern "C" {
 		MV_U8 scr;	/* 7 =1c-1f */
 		MV_U8 pad8[3];
 	} MV_UART_PORT;
+
 
 #define mvUartBase(port)  \
                 ((MV_UART_PORT *)(INTER_REGS_BASE + MV_UART_REGS_OFFSET(port)))

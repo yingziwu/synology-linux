@@ -39,6 +39,7 @@ MODULE_AUTHOR("Takashi Iwai <tiwai@suse.de>");
 MODULE_DESCRIPTION("Common routines for Digigram VX drivers");
 MODULE_LICENSE("GPL");
 
+
 /*
  * vx_check_reg_bit - wait for the specified bit is set/reset on a register
  * @reg: register to check
@@ -93,6 +94,7 @@ static int vx_send_irq_dsp(struct vx_core *chip, int num)
 	vx_outb(chip, CVR, (nirq >> 1) | CVR_HC);
 	return 0;
 }
+
 
 /*
  * vx_reset_chk - reset CHK bit on ISR
@@ -224,6 +226,7 @@ static int vx_read_status(struct vx_core *chip, struct vx_rmh *rmh)
 	return vx_transfer_end(chip, IRQ_MESS_WRITE_END);
 }
 
+
 #define MASK_MORE_THAN_1_WORD_COMMAND   0x00008000
 #define MASK_1_WORD_COMMAND             0x00ff7fff
 
@@ -333,6 +336,7 @@ int vx_send_msg_nolock(struct vx_core *chip, struct vx_rmh *rmh)
 	return vx_read_status(chip, rmh);
 }
 
+
 /*
  * vx_send_msg - send a DSP message with spinlock
  * @rmh: the rmh record to send and receive
@@ -350,6 +354,7 @@ int vx_send_msg(struct vx_core *chip, struct vx_rmh *rmh)
 	spin_unlock_irqrestore(&chip->lock, flags);
 	return err;
 }
+
 
 /*
  * vx_send_rih_nolock - send an RIH to xilinx
@@ -391,6 +396,7 @@ int vx_send_rih_nolock(struct vx_core *chip, int cmd)
 	}
 	return 0;
 }
+
 
 /*
  * vx_send_rih - send an RIH with spinlock
@@ -487,6 +493,7 @@ static int vx_test_irq_src(struct vx_core *chip, unsigned int *ret)
 	return err;
 }
 
+
 /*
  * vx_interrupt - soft irq handler
  */
@@ -529,6 +536,7 @@ static void vx_interrupt(unsigned long private_data)
 	/* update the pcm streams */
 	vx_pcm_update_intr(chip, events);
 }
+
 
 /**
  * snd_vx_irq_handler - interrupt handler
@@ -584,6 +592,7 @@ static void vx_reset_board(struct vx_core *chip, int cold_reset)
 	vx_set_iec958_status(chip, chip->uer_bits);
 }
 
+
 /*
  * proc interface
  */
@@ -638,6 +647,7 @@ static void vx_proc_init(struct vx_core *chip)
 	if (! snd_card_proc_new(chip->card, "vx-status", &entry))
 		snd_info_set_text_ops(entry, chip, vx_proc_read);
 }
+
 
 /**
  * snd_vx_dsp_boot - load the DSP boot

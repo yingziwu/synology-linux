@@ -57,4 +57,5 @@ struct dsa_platform_data {
 extern bool dsa_uses_dsa_tags(void *dsa_ptr);
 extern bool dsa_uses_trailer_tags(void *dsa_ptr);
 
+
 #endif

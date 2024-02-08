@@ -82,6 +82,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /* ARM Timers Registers Map                */
 /*******************************************/
 
+
 /* ARM Timers Control Register */
 /* CPU_TIMERS_CTRL_REG (CTCR) */
 
@@ -101,6 +102,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CTCR_ARM_TIMER_AUTO_EN(cntr)	(1 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
 #define CTCR_ARM_TIMER_AUTO_DIS(cntr)	(0 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
 
+
 /* ARM Timer\Watchdog Reload Register */
 /* CNTMR_RELOAD_REG (TRR) */
 
@@ -113,5 +115,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TVR_ARM_TIMER_OFFS			0
 #define TVR_ARM_TIMER_MASK			0xffffffff
 #define TVR_ARM_TIMER_MAX			0xffffffff
+
+
 
 #endif /* __INCmvTmrwtdgRegsh */

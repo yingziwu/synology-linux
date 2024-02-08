@@ -38,6 +38,7 @@
 
 #include "hwmutex.h"
 
+
 struct hw_master *hw_master_glob = NULL;
 
 #define to_hw_mutex_ops() (hw_master_glob->ops)
@@ -158,6 +159,7 @@ do_wait_common(struct hw_mutex_operations *hmutex_ops, struct hw_mutex *hmutex, 
     }
 }
 
+
 /*
   * hw_mutex_lock - acquire the mutex
   * @mutex: the mutex to be acquired
@@ -271,6 +273,7 @@ void hw_mutex_unlock(uint8_t mutex)
 }
 EXPORT_SYMBOL(hw_mutex_unlock);
 
+
 int __devinit hw_mutex_register (struct hw_master *pmaster)
 {
 	if (WARN_ON(pmaster == NULL)) return -EINVAL;
@@ -294,3 +297,7 @@ void __devexit hw_mutex_unregister(struct hw_master *pmaster)
 	hw_master_glob = NULL;
 }
 EXPORT_SYMBOL(hw_mutex_unregister);
+
+
+
+

@@ -297,6 +297,7 @@ struct si_info {
  * Use si_setcore() or si_setcoreidx() to change the association to another core
  */
 
+
 /* AMBA Interconnect exported externs */
 extern uint ai_flag(struct si_pub *sih);
 extern void ai_setint(struct si_pub *sih, int siflag);

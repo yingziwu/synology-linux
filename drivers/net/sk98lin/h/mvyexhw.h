@@ -1440,7 +1440,11 @@
 #define	PCIE_ACKTIM_X1_LATTO_MSK		SHIFT0(0xffff)	/* AckLatTOX1 */
 #define	PCIE_ACKTIM_X1_LATTO_BASE		0
 
+
+
 /* -------------------- */
+
+
 
 /*
  *
@@ -4781,7 +4785,11 @@
 #define	RE_TRF_RSPTR_MSK				SHIFT0(0x1f)		/* Read Shadow Level */
 #define	RE_TRF_RSPTR_BASE				BIT_0
 
+
+
 /* -------------------- */
+
+
 
 /*
  *
@@ -5034,6 +5042,9 @@
 #define	PAR_LOADTSTCNT			BIT_4S			/* LoadTstCnt */
 /*		Bit(s) PAR_RSRV_3_0 reserved */
 
+
+
 /* -------------------- */
+
 
 #endif	/* __INC_SKY3HW_H */

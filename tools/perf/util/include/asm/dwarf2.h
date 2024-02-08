@@ -8,3 +8,4 @@
 #define CFI_ENDPROC
 
 #endif	/* PERF_DWARF2_H */
+

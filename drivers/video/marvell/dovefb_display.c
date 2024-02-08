@@ -149,6 +149,7 @@ static const struct file_operations display_fops = {
 	.unlocked_ioctl = display_ioctl,
 };
 
+
 static int __init
 dovefb_display_init(void)
 {
@@ -199,3 +200,4 @@ module_exit(dovefb_display_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Display mode driver");
+

@@ -18,6 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
  
+
 #if !defined (AUTOCONF_INCLUDED)
 #if 0
 	#include <linux/config.h>
@@ -65,6 +66,7 @@ int spi_write_mem(struct spi_client *client, u8 fs, u8 *buffer, int len)
 	return rc;
 }
 
+
 /**
  * spi_write_single -
  *
@@ -85,6 +87,7 @@ int spi_writen(struct spi_client *client, u4 value)
 	return spi_write_mem(client, 4, (u8 *)&value, 1);
 }
 
+
 /**
  * spi_writeb -
  *
@@ -94,6 +97,7 @@ int spi_writeb(struct spi_client *client, u8 value)
 {
 	return spi_write_mem(client, 8, &value, 1);
 }
+
 
 /**
  * spi_writew -
@@ -134,6 +138,7 @@ int spi_read_mem(struct spi_client *client, u8 fs, u8 *buffer, int len)
 	return rc;
 }
 
+
 /**
  * spi_read_single -
  *
@@ -154,6 +159,7 @@ int spi_readn(struct spi_client *client, u4 *value)
 	return spi_read_mem(client, 4, (u8 *)value, 1);
 }
 
+
 /**
  * spi_readb -
  *
@@ -164,6 +170,7 @@ int spi_readb(struct spi_client *client, u8 *value)
 	return spi_read_mem(client, 8, value, 1);
 }
 
+
 /**
  * spi_readw -
  *
@@ -173,6 +180,7 @@ int spi_readw(struct spi_client *client, u16 *value)
 {
 	return spi_read_mem(client, 16, (u8 *)value, 1);
 }
+
 
 /**
  * spi_read_mem -

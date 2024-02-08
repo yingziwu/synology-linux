@@ -1299,6 +1299,7 @@ static int sd_switch_function(struct rtsx_chip *chip, u8 bus_width)
 			continue;
 		}
 
+
 		if (func_to_switch) {
 			break;
 		}
@@ -2649,6 +2650,7 @@ SD_UNLOCK_ENTRY:
 	return STATUS_SUCCESS;
 }
 
+
 static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 {
 	struct sd_info *sd_card = &(chip->sd_card);
@@ -2776,6 +2778,7 @@ static int mmc_test_switch_bus(struct rtsx_chip *chip, u8 width)
 
 	TRACE_RET(chip, SWITCH_FAIL);
 }
+
 
 static int mmc_switch_timing_bus(struct rtsx_chip *chip, int switch_ddr)
 {
@@ -2909,6 +2912,7 @@ static int mmc_switch_timing_bus(struct rtsx_chip *chip, int switch_ddr)
 
 	return STATUS_SUCCESS;
 }
+
 
 static int reset_mmc(struct rtsx_chip *chip)
 {

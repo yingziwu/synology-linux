@@ -63,6 +63,7 @@ enum {
 #define ALARM0_STATUS			(1 << 2)
 #define ALARM1_STATUS			(1 << 1)
 
+
 struct max8925_rtc_info {
 	struct rtc_device	*rtc_dev;
 	struct max8925_chip	*chip;
@@ -313,3 +314,4 @@ module_exit(max8925_rtc_exit);
 MODULE_DESCRIPTION("Maxim MAX8925 RTC driver");
 MODULE_AUTHOR("Haojian Zhuang <haojian.zhuang@marvell.com>");
 MODULE_LICENSE("GPL");
+

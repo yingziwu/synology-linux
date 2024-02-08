@@ -441,6 +441,7 @@ p9_parse_header(struct p9_fcall *pdu, int32_t *size, int8_t *type, int16_t *tag,
 	if (size)
 		*size = r_size;
 
+
 rewind_and_exit:
 	if (rewind)
 		pdu->offset = offset;
@@ -650,6 +651,7 @@ static int p9_client_flush(struct p9_client *c, struct p9_req_t *oldreq)
 	if (IS_ERR(req))
 		return PTR_ERR(req);
 
+
 	/* if we haven't received a response for oldreq,
 	   remove it from the list. */
 	spin_lock(&c->lock);
@@ -738,8 +740,7 @@ p9_client_rpc(struct p9_client *c, int8_t type, const char *fmt, ...)
 		goto reterr;
 	}
 	/* Wait for the response */
-	err = wait_event_interruptible(*req->wq,
-				       req->status >= REQ_STATUS_RCVD);
+	err = wait_event_killable(*req->wq, req->status >= REQ_STATUS_RCVD);
 
 	if (req->status == REQ_STATUS_ERROR) {
 		P9_DPRINTK(P9_DEBUG_ERROR, "req_status error %d\n", req->t_err);
@@ -822,7 +823,8 @@ static struct p9_req_t *p9_client_zc_rpc(struct p9_client *c, int8_t type,
 	if (err < 0) {
 		if (err == -EIO)
 			c->status = Disconnected;
-		goto reterr;
+		if (err != -ERESTARTSYS)
+			goto reterr;
 	}
 	if (req->status == REQ_STATUS_ERROR) {
 		P9_DPRINTK(P9_DEBUG_ERROR, "req_status error %d\n", req->t_err);
@@ -1082,6 +1084,7 @@ struct p9_fid *p9_client_attach(struct p9_client *clnt, struct p9_fid *afid,
 	struct p9_fid *fid;
 	struct p9_qid qid;
 
+
 	P9_DPRINTK(P9_DEBUG_9P, ">>> TATTACH afid %d uname %s aname %s\n",
 		   afid ? afid->fid : -1, uname, aname);
 	fid = p9_fid_create(clnt);
@@ -1146,6 +1149,7 @@ struct p9_fid *p9_client_walk(struct p9_fid *oldfid, uint16_t nwname,
 		fid->uid = oldfid->uid;
 	} else
 		fid = oldfid;
+
 
 	P9_DPRINTK(P9_DEBUG_9P, ">>> TWALK fids %d,%d nwname %ud wname[0] %s\n",
 		oldfid->fid, fid->fid, nwname, wnames ? wnames[0] : NULL);
@@ -1503,6 +1507,7 @@ p9_client_read(struct p9_fid *fid, char *data, char __user *udata, u64 offset,
 	struct p9_req_t *req;
 	struct p9_client *clnt;
 	int err, rsize, non_zc = 0;
+
 
 	P9_DPRINTK(P9_DEBUG_9P, ">>> TREAD fid %d offset %llu %d\n",
 		   fid->fid, (long long unsigned) offset, count);
@@ -2049,6 +2054,10 @@ int p9_client_readdir(struct p9_fid *fid, char *data, u32 count, u64 offset)
 	if (err) {
 		trace_9p_protocol_dump(clnt, req->rc);
 		goto free_and_error;
+	}
+	if (rsize < count) {
+		pr_err("bogus RREADDIR count (%d > %d)\n", count, rsize);
+		count = rsize;
 	}
 
 	P9_DPRINTK(P9_DEBUG_9P, "<<< RREADDIR count %d\n", count);

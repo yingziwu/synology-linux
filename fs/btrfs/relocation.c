@@ -523,6 +523,7 @@ static int update_backref_cache(struct btrfs_trans_handle *trans,
 	return 1;
 }
 
+
 static int should_ignore_root(struct btrfs_root *root)
 {
 	struct btrfs_root *reloc_root;
@@ -574,6 +575,9 @@ static int is_cowonly_root(u64 root_objectid)
 	    root_objectid == BTRFS_TREE_LOG_OBJECTID ||
 	    root_objectid == BTRFS_CSUM_TREE_OBJECTID ||
 	    root_objectid == BTRFS_UUID_TREE_OBJECTID ||
+#ifdef CONFIG_BTRFS_FS_SYNO_USRQUOTA
+	    root_objectid == BTRFS_USRQUOTA_TREE_OBJECTID ||
+#endif
 	    root_objectid == BTRFS_QUOTA_TREE_OBJECTID)
 		return 1;
 	return 0;

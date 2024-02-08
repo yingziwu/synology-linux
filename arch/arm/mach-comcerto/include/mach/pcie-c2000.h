@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+
 #ifndef __PCIE_C2000__
 #define __PCIE_C2000__
 
@@ -67,6 +68,7 @@ struct pcie_port {
 
 /* PCIe PM related defines */
 #define PCI_CAP_PM 0x40
+
 
 /* The following register definitions are as per "DWC_regs_rev04.doc" document */
 

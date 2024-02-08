@@ -506,6 +506,7 @@ static int __devinit mpc52xx_lpbfifo_probe(struct platform_device *op)
 	return -ENODEV;
 }
 
+
 static int __devexit mpc52xx_lpbfifo_remove(struct platform_device *op)
 {
 	if (lpbfifo.dev != &op->dev)

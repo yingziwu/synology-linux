@@ -195,6 +195,7 @@ static inline u64 calc_diff(u64 a, u64 b)
 		return b - a;
 }
 
+
 /*
 ** Calculate the best PLL parameters to get the closest output frequency.
 ** out_freq = (Fin * N / M) / X;
@@ -322,6 +323,7 @@ static void calc_best_clock_div(struct dovefb_info *info,  u32 tar_freq, u32 f_i
 	return;
 }
 
+
 /*
  * The hardware clock divider has an integer and a fractional
  * stage:
@@ -382,6 +384,7 @@ static void set_clock_divider(struct dovefb_layer_info *dfli,
 
 	do_div(div_result, m->pixclock);
 	needed_pixclk = (u32)div_result;
+
 
 	calc_best_clock_div(info, needed_pixclk, dmi->lcd_ref_clk, &m_div, &n_div,
 			&k_div, &full_div, &is_half_div, &lcd_div);
@@ -1094,6 +1097,7 @@ static int dovefb_fb_sync(struct fb_info *info)
 	return 0; /*wait_for_vsync(dfli);*/
 }
 
+
 /*
  *  dovefb_handle_irq(two lcd controllers)
  */
@@ -1124,6 +1128,7 @@ int dovefb_gfx_handle_irq(u32 isr, struct dovefb_layer_info *dfli)
 	wake_up(&dfli->w_intr_wq);
 	return 1;
 }
+
 
 static u32 dovefb_moveHWC2SRAM(struct dovefb_layer_info *dfli, u32 size)
 {
@@ -1167,6 +1172,7 @@ static u32 dovefb_moveHWC2SRAM(struct dovefb_layer_info *dfli, u32 size)
 
 	return 0;
 }
+
 
 static u32 dovefb_set_cursor(struct fb_info *info,
 			      struct _sCursorConfig *cursor_cfg)
@@ -1239,6 +1245,7 @@ static u32 dovefb_set_cursor(struct fb_info *info,
 
 	return 0;
 }
+
 
 static int dovefb_gfx_ioctl(struct fb_info *info, unsigned int cmd,
 		unsigned long arg)
@@ -1473,6 +1480,7 @@ static int dovefb_fill_edid(struct fb_info *fi,
 	return ret;
 }
 
+
 static void dovefb_set_defaults(struct dovefb_layer_info *dfli)
 {
 	unsigned int x;
@@ -1690,6 +1698,7 @@ static int dovefb_init_mode(struct fb_info *fi,
 
 	return ret;
 }
+
 
 #ifdef CONFIG_PM
 int dovefb_gfx_suspend(struct dovefb_layer_info *dfli, pm_message_t mesg)

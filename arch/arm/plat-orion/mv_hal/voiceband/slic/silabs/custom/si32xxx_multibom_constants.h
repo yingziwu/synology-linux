@@ -7,6 +7,7 @@
 ** explicitly selected.
 */
 
+
 #ifndef SI32XXX_CONSTANTS_H
 #define SI32XXX_CONSTANTS_H
 
@@ -63,6 +64,7 @@ enum {
 	PCM_16LIN_WB
 };
 
+
 /** General Parameters */
 enum{
   SI3217X_GEN_PARAM_FLYBACK,
@@ -82,5 +84,6 @@ enum {
   SI3226X_GEN_PARAM_QCUK,
   SI3226X_GEN_PARAM_LCQCUK
 };
+
 
 #endif

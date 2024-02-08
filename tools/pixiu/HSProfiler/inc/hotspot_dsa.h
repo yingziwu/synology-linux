@@ -22,11 +22,14 @@
 
 #include "BufferInfo.h"
 
+
 struct px_hotspot_dsa
 {
 	unsigned long         sample_count;
 //	struct RingBufferInfo sample_buf_info;
 //	struct RingBufferInfo module_buf_info;
 };
+
+
 
 #endif /* __PX_HOTSPOT_DSA_H__ */

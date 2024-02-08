@@ -338,6 +338,7 @@ static void start_pmu(void *data)
 		pmu_regs.pmncnt[i] = 0;
 	}
 
+
 	/* disable PMU and clear CCNT & PMNx */
 	pmu_regs.pmnc = PJ4B_Read_PMNC();
 	pmu_regs.pmnc &= ~0x1;

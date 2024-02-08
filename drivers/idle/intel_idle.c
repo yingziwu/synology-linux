@@ -229,7 +229,7 @@ static struct cpuidle_state atom_cstates[MWAIT_MAX_NUM_CSTATES] = {
 		.enter = &intel_idle },
 };
 
-static int get_driver_data(int cstate)
+static long get_driver_data(int cstate)
 {
 	int driver_data;
 	switch (cstate) {
@@ -386,6 +386,7 @@ static int intel_idle_probe(void)
 
 	pr_debug(PREFIX "MWAIT substates: 0x%x\n", mwait_substates);
 
+
 	if (boot_cpu_data.x86 != 6)	/* family 6 */
 		return -ENODEV;
 
@@ -511,6 +512,7 @@ static int intel_idle_cpuidle_driver_init(void)
 	return 0;
 }
 
+
 /*
  * intel_idle_cpuidle_devices_init()
  * allocate, initialize, register cpuidle_devices
@@ -566,6 +568,7 @@ static int intel_idle_cpuidle_devices_init(void)
 	return 0;
 }
 
+
 static int __init intel_idle_init(void)
 {
 	int retval;
@@ -581,8 +584,9 @@ static int __init intel_idle_init(void)
 	intel_idle_cpuidle_driver_init();
 	retval = cpuidle_register_driver(&intel_idle_driver);
 	if (retval) {
+		struct cpuidle_driver *drv = cpuidle_get_driver();
 		printk(KERN_DEBUG PREFIX "intel_idle yielding to %s",
-			cpuidle_get_driver()->name);
+			drv ? drv->name : "none");
 		return retval;
 	}
 

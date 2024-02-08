@@ -135,6 +135,8 @@ static MV_U32 mvEthMruGet(MV_U32 maxRxPktSize);
 
 static void mvEthPortSgmiiConfig(int port);
 
+
+
 /******************************************************************************/
 /*                      EthDrv Initialization functions                       */
 /******************************************************************************/
@@ -246,6 +248,8 @@ void   mvEthMemAttrGet(MV_BOOL* pIsSram, MV_BOOL* pIsSwCoher)
     if(pIsSwCoher != NULL)
         *pIsSwCoher = isSwCoher;
 }
+
+
 
 /******************************************************************************/
 /*                      Port Initialization functions                         */
@@ -789,6 +793,7 @@ MV_STATUS mvEthPortDown(void* pEthPortHndl)
     return MV_OK;
 }
 
+
 /*******************************************************************************
 * ethPortEnable - Enable the Ethernet port and Start RX and TX.
 *
@@ -831,6 +836,7 @@ MV_STATUS   mvEthPortEnable(void* pEthPortHndl)
 
     return MV_NOT_READY;
 }
+
 
 /*******************************************************************************
 * mvEthPortDisable - Stop RX and TX activities and Disable the Ethernet port.
@@ -928,6 +934,8 @@ MV_PKT_INFO*    mvEthPortForceTxDone(void* pEthPortHndl, int txQueue)
     return NULL;
 }
 
+
+
 /*******************************************************************************
 * mvEthPortForceRx - Get next buffer from RX queue in spite of buffer ownership.
 *
@@ -978,6 +986,7 @@ MV_PKT_INFO*    mvEthPortForceRx(void* pEthPortHndl, int rxQueue)
     pQueueCtrl->pCurrentDescr = RX_NEXT_DESC_PTR(pRxDesc, pQueueCtrl);
     return pPktInfo;
 }
+
 
 /******************************************************************************/
 /*                          Port Configuration functions                      */
@@ -1185,6 +1194,7 @@ MV_STATUS   mvEthMaxRxSizeSet(void* pPortHndl, int maxRxSize)
 
     return MV_OK;
 }
+
 
 /******************************************************************************/
 /*                      MAC Filtering functions                               */
@@ -1636,8 +1646,10 @@ static MV_BOOL ethSetUcastAddr(int portNo, MV_U8 lastNibble, int queue)
     tblOffset = (lastNibble / 4) * 4; /* Register offset from unicast table base*/
     regOffset = lastNibble % 4;     /* Entry offset within the above register */
 
+
     unicastReg = MV_REG_READ( (ETH_DA_FILTER_UCAST_BASE(portNo) +
                                tblOffset));
+
 
     if(queue == -1)
     {
@@ -1764,9 +1776,11 @@ static MV_BOOL ethSetOtherMcastAddr(int ethPortNum, MV_U8 crc8, int queue)
     return MV_TRUE;
 }
 
+
 /******************************************************************************/
 /*                      MIB Counters functions                                */
 /******************************************************************************/
+
 
 /*******************************************************************************
 * mvEthMibCounterRead - Read a MIB counter
@@ -1837,6 +1851,7 @@ void  mvEthMibCountersClear(void* pPortHandle)
     for(i=ETH_MIB_GOOD_OCTETS_RECEIVED_LOW; i<ETH_MIB_LATE_COLLISION; i+=4)
         dummy = MV_REG_READ((ETH_MIB_COUNTERS_BASE(portNo) + i));
 }
+
 
 /******************************************************************************/
 /*                        RX Dispatching configuration routines               */
@@ -1946,6 +1961,7 @@ MV_STATUS   mvEthVlanPrioRxQueue(void* pPortHandle, int vlanPrio, int vlanPrioQu
     return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvEthBpduRxQueue - Configure RX queue to capture BPDU packets.
 *
@@ -2005,6 +2021,7 @@ MV_STATUS   mvEthBpduRxQueue(void* pPortHandle, int bpduQueue)
     return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvEthArpRxQueue - Configure RX queue to capture ARP packets.
 *
@@ -2054,6 +2071,7 @@ MV_STATUS   mvEthArpRxQueue(void* pPortHandle, int arpQueue)
 
     return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvEthTcpRxQueue - Configure RX queue to capture TCP packets.
@@ -2105,6 +2123,7 @@ MV_STATUS   mvEthTcpRxQueue(void* pPortHandle, int tcpQueue)
     return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvEthUdpRxQueue - Configure RX queue to capture UDP packets.
 *
@@ -2155,6 +2174,7 @@ MV_STATUS   mvEthUdpRxQueue(void* pPortHandle, int udpQueue)
 
     return MV_OK;
 }
+
 
 /******************************************************************************/
 /*                          Link, Speed, Duplex, FlowControl routines         */
@@ -2508,6 +2528,7 @@ MV_STATUS mvEthDSAModeSet(void* pPortHandle, MV_ETH_DSA_TAG_MODE dsaMode)
 		break;
     }
 
+
     MV_REG_WRITE(ETH_PORT_MARVELL_HEADER_REG(port), mvHeaderReg);
 
     return MV_OK;
@@ -2606,15 +2627,18 @@ void    mvEthStatusGet(void* pPortHandle, MV_ETH_PORT_STATUS* pStatus)
     else
         pStatus->duplex = MV_ETH_DUPLEX_HALF;
 
+
     if(regValue & ETH_ENABLE_RCV_FLOW_CTRL_MASK)
         pStatus->flowControl = MV_ETH_FC_ENABLE;
     else
         pStatus->flowControl = MV_ETH_FC_DISABLE;
 }
 
+
 /******************************************************************************/
 /*                         PHY Control Functions                              */
 /******************************************************************************/
+
 
 /*******************************************************************************
 * mvEthPhyAddrSet - Set the ethernet port PHY address.

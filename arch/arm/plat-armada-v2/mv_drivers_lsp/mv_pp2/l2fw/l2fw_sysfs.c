@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -37,6 +38,7 @@ disclaimer.
 #include "mv_eth_l2sec.h"
 #endif
 #include "linux/inet.h"
+
 
 static ssize_t mv_l2fw_help(char *buf)
 {
@@ -83,6 +85,8 @@ static ssize_t mv_l2fw_show(struct device *dev,
 
 	return off;
 }
+
+
 
 static ssize_t mv_l2fw_hex_store(struct device *dev, struct device_attribute *attr,
 				const char *buf, size_t len)
@@ -148,6 +152,8 @@ static ssize_t mv_l2fw_ip_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
+
 static ssize_t mv_l2fw_store(struct device *dev,
 				   struct device_attribute *attr, const char *buf, size_t len)
 {
@@ -189,6 +195,7 @@ static ssize_t mv_l2fw_store(struct device *dev,
 
 }
 
+
 static DEVICE_ATTR(l2fw,		S_IWUSR, mv_l2fw_show, mv_l2fw_store);
 static DEVICE_ATTR(bind,		S_IWUSR, mv_l2fw_show, mv_l2fw_store);
 static DEVICE_ATTR(lookup,		S_IWUSR, mv_l2fw_show, mv_l2fw_store);
@@ -205,6 +212,8 @@ static DEVICE_ATTR(cesa_chan,		S_IWUSR, NULL,  mv_l2fw_store);
 #ifdef CONFIG_MV_L2FW_XOR
 static DEVICE_ATTR(xor,		S_IWUSR, mv_l2fw_show, mv_l2fw_store);
 #endif
+
+
 
 static struct attribute *mv_l2fw_attrs[] = {
 	&dev_attr_l2fw.attr,

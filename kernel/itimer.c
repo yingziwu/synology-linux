@@ -26,7 +26,7 @@
  */
 static struct timeval itimer_get_remtime(struct hrtimer *timer)
 {
-	ktime_t rem = hrtimer_get_remaining(timer);
+	ktime_t rem = __hrtimer_get_remaining(timer, true);
 
 	/*
 	 * Racy but safe: if the itimer expires after the above
@@ -113,6 +113,7 @@ SYSCALL_DEFINE2(getitimer, int, which, struct itimerval __user *, value)
 	}
 	return error;
 }
+
 
 /*
  * The timer is automagically restarted, when interval != 0

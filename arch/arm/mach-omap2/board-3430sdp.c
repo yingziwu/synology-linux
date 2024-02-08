@@ -176,6 +176,7 @@ static void sdp3430_panel_disable_tv(struct omap_dss_device *dssdev)
 {
 }
 
+
 static struct omap_dss_device sdp3430_lcd_device = {
 	.name			= "lcd",
 	.driver_name		= "sharp_ls_panel",
@@ -206,6 +207,7 @@ static struct omap_dss_device sdp3430_tv_device = {
 	.platform_enable	= sdp3430_panel_enable_tv,
 	.platform_disable	= sdp3430_panel_disable_tv,
 };
+
 
 static struct omap_dss_device *sdp3430_dss_devices[] = {
 	&sdp3430_lcd_device,

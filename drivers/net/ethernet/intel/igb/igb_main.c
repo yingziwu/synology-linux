@@ -553,6 +553,7 @@ exit:
 	return;
 }
 
+
 /**
  * igb_read_clock - read raw cycle counter (to be used by time counter)
  */
@@ -1253,6 +1254,7 @@ static int igb_init_interrupt_scheme(struct igb_adapter *adapter)
 		dev_err(&pdev->dev, "Invalid q_vector to ring mapping\n");
 		goto err_map_queues;
 	}
+
 
 	return 0;
 err_map_queues:
@@ -6608,6 +6610,8 @@ static int __igb_shutdown(struct pci_dev *pdev, bool *enable_wake)
 
 	if (netif_running(netdev))
 		igb_close(netdev);
+	else
+		igb_reset(adapter);
 
 	igb_clear_interrupt_scheme(adapter);
 

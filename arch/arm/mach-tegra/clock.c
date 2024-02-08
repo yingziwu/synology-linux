@@ -276,6 +276,7 @@ int clk_set_rate(struct clk *c, unsigned long rate)
 }
 EXPORT_SYMBOL(clk_set_rate);
 
+
 /* Must be called with clocks lock and all indvidual clock locks held */
 unsigned long clk_get_rate_all_locked(struct clk *c)
 {
@@ -480,6 +481,7 @@ static void clk_unlock_all(void)
 }
 
 static struct dentry *clk_debugfs_root;
+
 
 static void clock_tree_show_one(struct seq_file *s, struct clk *c, int level)
 {

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -145,6 +146,7 @@ extern void mv_early_printk(char *fmt, ...);
 #define CPU_MEMIO_CACHED_ADDR(x)    (void *)x
 #define CPU_MEMIO_UNCACHED_ADDR(x)  (void *)x
 
+
 /* CPU architecture dependent 32, 16, 8 bit read/write IO addresses */
 #define MV_MEMIO32_WRITE(addr, data)    \
 	((*((volatile unsigned int *)(addr))) = ((unsigned int)(data)))
@@ -163,6 +165,7 @@ extern void mv_early_printk(char *fmt, ...);
 
 #define MV_MEMIO8_READ(addr)            \
 	((*((volatile unsigned char *)(addr))))
+
 
 /* No Fast Swap implementation (in assembler) for ARM */
 #define MV_32BIT_LE_FAST(val)            MV_32BIT_LE(val)
@@ -238,6 +241,7 @@ static inline void mvOsBridgeReorderWA(void)
 }
 #endif
 
+
 /* Flash APIs */
 #define MV_FL_8_READ            MV_MEMIO8_READ
 #define MV_FL_16_READ           MV_MEMIO_LE16_READ
@@ -251,6 +255,7 @@ static inline void mvOsBridgeReorderWA(void)
 #define MV_FL_8_DATA_WRITE      MV_MEMIO8_WRITE
 #define MV_FL_16_DATA_WRITE     MV_MEMIO16_WRITE
 #define MV_FL_32_DATA_WRITE     MV_MEMIO32_WRITE
+
 
 /* CPU cache information */
 #define CPU_I_CACHE_LINE_SIZE   32    /* 2do: replace 32 with linux core macro */
@@ -498,8 +503,13 @@ static inline void mvOsPrefetch(const void *ptr)
 		: "cc");
 }
 
+
 /* Flush CPU pipe */
 #define CPU_PIPE_FLUSH
+
+
+
+
 
 /* register manipulations  */
 
@@ -635,6 +645,7 @@ extern int reg_arry_index;
 */
 #define MV_ASM_WAIT_FOR_INTERRUPT      __asm__ volatile("mcr  p15, 0, r0, c7, c0, 4");
 
+
 /* ARM architecture APIs */
 MV_U32  mvOsCpuRevGet(MV_VOID);
 MV_U32  mvOsCpuPartGet(MV_VOID);
@@ -651,3 +662,5 @@ void mvOsIoCachedFree(void *osHandle, MV_U32 size, MV_ULONG phyAddr, void *pVirt
 int  mvOsRand(void);
 
 #endif /* _MV_OS_LNX_H_ */
+
+

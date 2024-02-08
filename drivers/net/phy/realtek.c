@@ -1,7 +1,21 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * drivers/net/phy/realtek.c
+ *
+ * Driver for Realtek PHYs
+ *
+ * Author: Johnson Leung <r58129@freescale.com>
+ *
+ * Copyright (c) 2004 Freescale Semiconductor, Inc.
+ *
+ * This program is free software; you can redistribute  it and/or modify it
+ * under  the terms of  the GNU General  Public License as published by the
+ * Free Software Foundation;  either version 2 of the  License, or (at your
+ * option) any later version.
+ *
+ */
 #include <linux/phy.h>
 #include <linux/module.h>
 
@@ -61,6 +75,7 @@ static int rtl8211e_config_intr(struct phy_device *phydev)
 }
 #endif
 
+/* RTL8211B */
 #if defined(CONFIG_ARCH_GEN3) || defined(MY_DEF_HERE)
 static struct phy_driver rtl8211b_driver = {
 #else
@@ -91,7 +106,7 @@ static struct phy_driver rtl821x_driver = {
 };
 
 #if defined(CONFIG_ARCH_GEN3) || defined(MY_DEF_HERE)
- 
+/* RTL8211E */
 static struct phy_driver rtl8211e_driver = {
 	.phy_id		= 0x001cc915,
 	.name		= "RTL8211E Gigabit Ethernet",

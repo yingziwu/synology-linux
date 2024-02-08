@@ -395,6 +395,7 @@ union hv_x64_msr_hypercall_contents {
 	};
 };
 
+
 enum {
 	VMBUS_MESSAGE_CONNECTION_ID	= 1,
 	VMBUS_MESSAGE_PORT_ID		= 1,
@@ -420,7 +421,9 @@ enum {
 #define HV_X64_MAX			5
 #define HV_CAPS_MAX			8
 
+
 #define HV_HYPERCALL_PARAM_ALIGN	sizeof(u64)
+
 
 /* Service definitions */
 
@@ -456,6 +459,7 @@ static const uuid_le VMBUS_SERVICE_ID = {
 
 #define MAX_NUM_CPUS	32
 
+
 struct hv_input_signal_event_buffer {
 	u64 align8;
 	struct hv_input_signal_event event;
@@ -481,9 +485,14 @@ struct hv_context {
 
 	void *synic_message_page[MAX_NUM_CPUS];
 	void *synic_event_page[MAX_NUM_CPUS];
+	/*
+	 * buffer to post messages to the host.
+	 */
+	void *post_msg_page[MAX_NUM_CPUS];
 };
 
 extern struct hv_context hv_context;
+
 
 /* Hv Interface */
 
@@ -501,7 +510,9 @@ extern void hv_synic_init(void *irqarg);
 
 extern void hv_synic_cleanup(void *arg);
 
+
 /* Interface */
+
 
 int hv_ringbuffer_init(struct hv_ring_buffer_info *ring_info, void *buffer,
 		   u32 buflen);
@@ -535,6 +546,7 @@ void hv_ringbuffer_get_debuginfo(struct hv_ring_buffer_info *ring_info,
 /* The value here must be in multiple of 32 */
 /* TODO: Need to make this configurable */
 #define MAX_NUM_CHANNELS_SUPPORTED	256
+
 
 enum vmbus_connect_state {
 	DISCONNECTED,
@@ -576,6 +588,7 @@ struct vmbus_connection {
 	struct workqueue_struct *work_queue;
 };
 
+
 struct vmbus_msginfo {
 	/* Bookkeeping stuff */
 	struct list_head msglist_entry;
@@ -583,6 +596,7 @@ struct vmbus_msginfo {
 	/* The message itself */
 	unsigned char msg[0];
 };
+
 
 extern struct vmbus_connection vmbus_connection;
 
@@ -601,6 +615,7 @@ void vmbus_device_unregister(struct hv_device *device_obj);
 
 struct vmbus_channel *relid2channel(u32 relid);
 
+
 /* Connection interface */
 
 int vmbus_connect(void);
@@ -610,5 +625,6 @@ int vmbus_post_msg(void *buffer, size_t buflen);
 int vmbus_set_event(u32 child_relid);
 
 void vmbus_on_event(unsigned long data);
+
 
 #endif /* _HYPERV_VMBUS_H */

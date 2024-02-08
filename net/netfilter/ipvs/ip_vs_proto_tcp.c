@@ -84,6 +84,7 @@ tcp_conn_schedule(int af, struct sk_buff *skb, struct ip_vs_proto_data *pd,
 	return 1;
 }
 
+
 static inline void
 tcp_fast_csum_update(int af, struct tcphdr *tcph,
 		     const union nf_inet_addr *oldip,
@@ -104,6 +105,7 @@ tcp_fast_csum_update(int af, struct tcphdr *tcph,
 						~csum_unfold(tcph->check))));
 }
 
+
 static inline void
 tcp_partial_csum_update(int af, struct tcphdr *tcph,
 		     const union nf_inet_addr *oldip,
@@ -123,6 +125,7 @@ tcp_partial_csum_update(int af, struct tcphdr *tcph,
 				ip_vs_check_diff2(oldlen, newlen,
 						csum_unfold(tcph->check))));
 }
+
 
 static int
 tcp_snat_handler(struct sk_buff *skb,
@@ -202,6 +205,7 @@ tcp_snat_handler(struct sk_buff *skb,
 	}
 	return 1;
 }
+
 
 static int
 tcp_dnat_handler(struct sk_buff *skb,
@@ -283,6 +287,7 @@ tcp_dnat_handler(struct sk_buff *skb,
 	return 1;
 }
 
+
 static int
 tcp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp)
 {
@@ -329,6 +334,7 @@ tcp_csum_check(int af, struct sk_buff *skb, struct ip_vs_protocol *pp)
 
 	return 1;
 }
+
 
 #define TCP_DIR_INPUT		0
 #define TCP_DIR_OUTPUT		4
@@ -568,6 +574,7 @@ static inline __u16 tcp_app_hashkey(__be16 port)
 		& TCP_APP_TAB_MASK;
 }
 
+
 static int tcp_register_app(struct net *net, struct ip_vs_app *inc)
 {
 	struct ip_vs_app *i;
@@ -594,6 +601,7 @@ static int tcp_register_app(struct net *net, struct ip_vs_app *inc)
 	return ret;
 }
 
+
 static void
 tcp_unregister_app(struct net *net, struct ip_vs_app *inc)
 {
@@ -605,6 +613,7 @@ tcp_unregister_app(struct net *net, struct ip_vs_app *inc)
 	list_del(&inc->p_list);
 	spin_unlock_bh(&ipvs->tcp_app_lock);
 }
+
 
 static int
 tcp_app_conn_bind(struct ip_vs_conn *cp)
@@ -649,6 +658,7 @@ tcp_app_conn_bind(struct ip_vs_conn *cp)
 	return result;
 }
 
+
 /*
  *	Set LISTEN timeout. (ip_vs_conn_put will setup timer)
  */
@@ -682,6 +692,7 @@ static void __ip_vs_tcp_exit(struct net *net, struct ip_vs_proto_data *pd)
 {
 	kfree(pd->timeout_table);
 }
+
 
 struct ip_vs_protocol ip_vs_protocol_tcp = {
 	.name =			"TCP",

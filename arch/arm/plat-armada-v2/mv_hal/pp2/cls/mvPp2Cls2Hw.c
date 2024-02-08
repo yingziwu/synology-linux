@@ -203,6 +203,8 @@ void 	mvPp2ClsC2QosHwClearAll()
 		for (tbl_line = 0; tbl_line < MV_PP2_CLS_C2_QOS_PRIO_TBL_SIZE; tbl_line++)
 			mvPp2ClsC2QosHwWrite(tbl_id, 0/*PRIO*/, tbl_line, &c2);
 
+
+
 }
 /*-------------------------------------------------------------------------------*/
 
@@ -496,6 +498,7 @@ int mvPp2ClsC2SwWordsDump(MV_PP2_CLS_C2_ENTRY *c2)
 	return MV_OK;
 }
 
+
 /*-------------------------------------------------------------------------------*/
 
 int mvPp2ClsC2SwDump(MV_PP2_CLS_C2_ENTRY *c2)
@@ -554,6 +557,7 @@ int mvPp2ClsC2SwDump(MV_PP2_CLS_C2_ENTRY *c2)
 			((c2->sram.regs.actions & ACT_FLOW_ID_EN_MASK) >> ACT_FLOW_ID_EN));
 	mvOsPrintf("\n\n");
 
+
 	/*------------------------------*/
 	/*	qos_attr 0x1B64		*/
 	/*------------------------------*/
@@ -585,6 +589,8 @@ int mvPp2ClsC2SwDump(MV_PP2_CLS_C2_ENTRY *c2)
 
 	mvOsPrintf("0x%2.2x\t", int32bit);
 	mvOsPrintf("\n\n");
+
+
 
 	/*------------------------------*/
 	/*	hwf_attr 0x1B68		*/
@@ -800,6 +806,7 @@ int mvPp2ClsC2ColorSet(MV_PP2_CLS_C2_ENTRY *c2, int cmd, int from)
 	else
 		c2->sram.regs.action_tbl &= ~(1 << ACT_TBL_COLOR);
 
+
 	return MV_OK;
 }
 /*-------------------------------------------------------------------------------*/
@@ -876,6 +883,7 @@ int mvPp2ClsC2GpidSet(MV_PP2_CLS_C2_ENTRY *c2, int cmd, int gpid, int from)
 int mvPp2ClsC2QueueHighSet(MV_PP2_CLS_C2_ENTRY *c2, int cmd, int queue, int from)
 {
 	PTR_VALIDATE(c2);
+
 
 	POS_RANGE_VALIDATE(cmd, UPDATE_AND_LOCK);
 	POS_RANGE_VALIDATE(queue, ACT_QOS_ATTR_MDF_HIGH_Q_MAX);
@@ -1131,6 +1139,7 @@ int mvPp2ClsC2HitCntrsDump()
 		if (cnt != 0)
 			mvOsPrintf("INDEX: 0x%8.8X	VAL: 0x%8.8X\n", i, cnt);
 	}
+
 
 	return MV_OK;
 }

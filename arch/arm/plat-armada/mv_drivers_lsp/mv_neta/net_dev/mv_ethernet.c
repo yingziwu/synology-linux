@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -77,6 +78,7 @@ static int mv_eth_start(struct net_device *dev)
 	if (priv->flags & MV_ETH_F_CONNECT_LINUX)
 		for (group = 0; group < CONFIG_MV_ETH_NAPI_GROUPS; group++)
 			napi_enable(priv->napiGroup[group]);
+
 
 	if ((priv->flags & MV_ETH_F_LINK_UP) && !(priv->flags & MV_ETH_F_EXT_SWITCH)) {
 
@@ -152,6 +154,7 @@ int mv_eth_stop(struct net_device *dev)
 
 	return 0;
 }
+
 
 int mv_eth_change_mtu(struct net_device *dev, int mtu)
 {
@@ -354,6 +357,7 @@ void mv_eth_set_multicast_list(struct net_device *dev)
 }
 #endif /* CONFIG_MV_ETH_PNC */
 
+
 int     mv_eth_set_mac_addr(struct net_device *dev, void *addr)
 {
 	if (!netif_running(dev)) {
@@ -381,6 +385,7 @@ error:
 	printk(KERN_ERR "%s: set mac addr failed\n", dev->name);
 	return -1;
 }
+
 
 /************************************************************
  * mv_eth_open -- Restore MAC address and call to   *

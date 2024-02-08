@@ -152,6 +152,7 @@ MV_U32 mvPexModeGet(MV_U32 pexIf, MV_PEX_MODE *pexMode)
 	if (pexIf >= MV_PEX_MAX_IF)
 		return MV_BAD_PARAM;
 
+
 	pexData = MV_REG_READ(PEX_CTRL_REG(pexIf));
 
 	switch (pexData & PXCR_DEV_TYPE_CTRL_MASK) {

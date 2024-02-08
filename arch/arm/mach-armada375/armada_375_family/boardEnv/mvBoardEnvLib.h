@@ -354,6 +354,7 @@ typedef struct _boardInfo {
 	{ MV_CONFIG_DEVICE_BUS_MODULE, 0x3,	0,	1,	0,	{0 } },\
 };
 
+
 /* Boot device bus width */
 #define MSAR_0_BOOT_DEV_BUS_WIDTH_OFFS          3
 /* Bus width field meaning for NOR/NAND */

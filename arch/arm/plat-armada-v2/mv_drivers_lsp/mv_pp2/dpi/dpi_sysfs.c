@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -34,6 +35,7 @@ disclaimer.
 #include "mvCommon.h"
 #include "mvTypes.h"
 #include "dpi/mvPp2DpiHw.h"
+
 
 static ssize_t dpi_help(char *b)
 {
@@ -268,6 +270,7 @@ static struct attribute *dpi_attrs[] = {
 	&dev_attr_do_req.attr,
 	NULL
 };
+
 
 static struct attribute_group mv_dpi_group = {
 	.name = "dpi",

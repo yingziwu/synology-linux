@@ -134,6 +134,7 @@ static int __devinit snd_card_cs46xx_probe(struct pci_dev *pci,
 		return err;
 	}
 
+
 	snd_cs46xx_gameport(chip);
 
 	strcpy(card->driver, "CS46xx");

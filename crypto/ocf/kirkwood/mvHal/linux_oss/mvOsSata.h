@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -63,6 +64,7 @@ disclaimer.
 #include <asm/io.h>
 #include "mvOs.h"
 
+
 /* Definitions */
 #define MV_DEFAULT_QUEUE_DEPTH 2
 #define MV_SATA_SUPPORT_EDMA_SINGLE_DATA_REGION
@@ -103,6 +105,7 @@ disclaimer.
 #define MV_REG_READ_WORD(base, offset)          readw(base + offset)
 #define MV_REG_READ_DWORD(base, offset)         readl(base + offset)
 
+
 /* Typedefs    */
 
 /* System dependant typedefs */
@@ -114,12 +117,14 @@ typedef char            *MV_CHAR_PTR;
 typedef void            *MV_BUS_ADDR_T;
 typedef unsigned long   MV_CPU_FLAGS;
 
+
 /* Structures  */
 /* System dependent structure */
 typedef struct mvOsSemaphore
 {
   int notUsed;
 } MV_OS_SEMAPHORE;
+
 
 /* Functions (User implemented)*/
 

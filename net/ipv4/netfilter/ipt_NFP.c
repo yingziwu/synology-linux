@@ -59,6 +59,7 @@ void nfp_print_info(struct ipt_nfp_info *info)
 	}
 }
 
+
 static unsigned int
 target(struct sk_buff *skb, const struct xt_action_param *param)
 {
@@ -176,6 +177,7 @@ target(struct sk_buff *skb, const struct xt_action_param *param)
 
 	return NF_ACCEPT;
 }
+
 
 static int check(const struct xt_tgchk_param *par)
 {

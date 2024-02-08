@@ -40,6 +40,8 @@
 
 extern int (*access_process_vm_func)(struct task_struct *tsk, unsigned long addr, void *buf, int len, int write);
 
+
+
 #define COND_EQ         0x0
 #define COND_NE         0x1
 #define COND_CS         0x2
@@ -608,6 +610,7 @@ static int arm_displace_ldc_ldc2_literal(struct pt_regs * regs, struct displaced
 
 	return 0;
 }
+
 
 static int arm_stc_stc2_pre_handler(struct pt_regs * regs, struct displaced_desc * dsc)
 {
@@ -1202,6 +1205,7 @@ static int arm_str_strb_immed_literal_post_handler(struct pt_regs * regs, struct
 	/* save the value of R0 to Rt */
 	//write_reg_value(rt, regs->ARM_r0, regs);
 
+
 	/* save the value of R1 to Rn */
 	if (wback)
 		write_reg_value(rn, regs->ARM_r1, regs);
@@ -1348,6 +1352,7 @@ static int arm_displace_ldr_str_ldrb_strb(struct pt_regs * regs, struct displace
 	unsigned int orig_inst = dsc->orig_inst;
 	int load = px_get_bit(orig_inst, 20);
 
+
 	if (load)
 	{
 		return arm_displace_ldr_ldrb(regs, dsc);
@@ -1444,6 +1449,7 @@ static int arm_displace_dp_reg(struct pt_regs * regs, struct displaced_desc * ds
 
 	return 0;
 }
+
 
 static int arm_dp_reg_shift_reg_pre_handler(struct pt_regs * regs, struct displaced_desc * dsc)
 {
@@ -1888,12 +1894,14 @@ static int arm_displace_ldrh_strh_ldrsh_strsh_ldrsb_strsb_immed_literal_post_han
 	/* set value of R2 to Rt */
 	write_reg_value(rt, regs->ARM_r2, regs);
 
+
 	/* restore registers value */
 	write_reg_value(0, dsc->orig_regs.ARM_r0, regs);
 	write_reg_value(2, dsc->orig_regs.ARM_r2, regs);
 
 	return 0;
 }
+
 
 static int arm_displace_ldrh_strh_ldrsh_strsh_ldrsb_strsb(struct pt_regs * regs, struct displaced_desc * dsc)
 {
@@ -2455,6 +2463,7 @@ static int arm_ext_reg_load_store_post_handler(struct pt_regs * regs, struct dis
 	return 0;
 }
 
+
 static int arm_displace_ext_reg_load_store(struct pt_regs * regs, struct displaced_desc * dsc)
 {
 	unsigned int orig_inst = dsc->orig_inst;
@@ -3003,6 +3012,7 @@ static int thumb16_displace_ldr_literal(struct pt_regs * regs, struct displaced_
 	return 0;
 }
 
+
 static int thumb16_cbnz_cbz_pre_handler(struct pt_regs * regs, struct displaced_desc * dsc)
 {
 	dsc->displaced_insts[0].inst = THUMB16_NOP_INST;
@@ -3089,6 +3099,7 @@ static int thumb16_pop_post_handler(struct pt_regs * regs, struct displaced_desc
 
 	return -1;
 }
+
 
 static int thumb16_displace_pop(struct pt_regs * regs, struct displaced_desc * dsc)
 {
@@ -3631,6 +3642,7 @@ static int thumb32_displace_vldr(struct pt_regs * regs, struct displaced_desc * 
 	return 0;
 }
 
+
 static int thumb32_displace_ext_reg_load_str(struct pt_regs * regs, struct displaced_desc * dsc)
 {
 	unsigned int orig_inst = dsc->orig_inst;
@@ -3974,6 +3986,7 @@ static int thumb32_displace_ldrd_literal(struct pt_regs * regs, struct displaced
 
 	return 0;
 }
+
 
 static int thumb32_tbb_tbh_pre_handler(struct pt_regs * regs, struct displaced_desc * dsc)
 {
@@ -4346,6 +4359,7 @@ static int thumb32_displace_branch_misc_control(struct pt_regs * regs, struct di
 
 	orig_inst = dsc->orig_inst;
 
+
 	split_thumb32_inst(orig_inst, &inst1, &inst2);
 
 	op1 = px_get_bits(inst2, 12, 14);
@@ -4480,6 +4494,7 @@ static int thumb32_displace_vst(struct pt_regs * regs, struct displaced_desc * d
 	dsc->post_handler  = &thumb32_vst_post_handler;
 	return 0;
 }
+
 
 static int thumb32_pld_pldw_pli_pre_handler(struct pt_regs * regs, struct displaced_desc * dsc)
 {
@@ -4805,6 +4820,7 @@ static int thumb32_displace_ldr_reg(struct pt_regs * regs, struct displaced_desc
 
 	return 0;
 }
+
 
 static int thumb32_displace_ldr(struct pt_regs * regs, struct displaced_desc * dsc)
 {

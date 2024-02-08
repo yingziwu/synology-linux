@@ -41,6 +41,7 @@
 #include <asm/ppc-pci.h>
 #include <asm/rtas.h>
 
+
 /** Overview:
  *  EEH, or "Extended Error Handling" is a PCI bridge technology for
  *  dealing with PCI bus errors that can't be dealt with within the
@@ -1237,6 +1238,7 @@ static void eeh_add_device_late(struct pci_dev *dev)
 	pdn->pcidev = dev;
 
 	pci_addr_cache_insert_device(dev);
+	eeh_sysfs_add_device(dev);
 }
 
 void eeh_add_device_tree_late(struct pci_bus *bus)
@@ -1253,29 +1255,6 @@ void eeh_add_device_tree_late(struct pci_bus *bus)
 	}
 }
 EXPORT_SYMBOL_GPL(eeh_add_device_tree_late);
-
-/**
- * eeh_add_sysfs_files - Add EEH sysfs files for the indicated PCI bus
- * @bus: PCI bus
- *
- * This routine must be used to add EEH sysfs files for PCI
- * devices which are attached to the indicated PCI bus. The PCI bus
- * is added after system boot through hotplug or dlpar.
- */
-void eeh_add_sysfs_files(struct pci_bus *bus)
-{
-	struct pci_dev *dev;
-
-	list_for_each_entry(dev, &bus->devices, bus_list) {
-		eeh_sysfs_add_device(dev);
-		if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE) {
-			struct pci_bus *subbus = dev->subordinate;
-			if (subbus)
-				eeh_add_sysfs_files(subbus);
-		}
-	}
-}
-EXPORT_SYMBOL_GPL(eeh_add_sysfs_files);
 
 /**
  * eeh_remove_device - undo EEH setup for the indicated pci device

@@ -964,6 +964,7 @@ int mv_switch_init(struct mv_switch_pdata *plat_data)
 	mv_mux_switch_ops_set(&switch_ops);
 	mv_mux_switch_attach(gbe_port, preset, default_vid, tag_mode, plat_data->switch_cpu_port);
 
+
 #ifdef SWITCH_DEBUG
 	/* for debug: */
 	mv_switch_status_print();
@@ -2815,6 +2816,7 @@ int mv_switch_egr_rate_limit_set(unsigned int lport, GT_PIRL_ELIMIT_MODE mode, u
 
 	rc = grcSetELimitMode(qd_dev, lport, mode);
 	SW_IF_ERROR_STR(rc, "failed to call grcSetELimitMode()\n");
+
 
 	rc = grcSetEgressRate(qd_dev, lport, &fRate);
 	SW_IF_ERROR_STR(rc, "failed to call grcSetEgressRate()\n");
@@ -5286,6 +5288,7 @@ static void __exit mv_switch_cleanup_module(void)
 	platform_driver_unregister(&mv_switch_driver);
 }
 module_exit(mv_switch_cleanup_module);
+
 
 MODULE_DESCRIPTION("Marvell Internal Switch Driver - www.marvell.com");
 MODULE_AUTHOR("Dmitri Epshtein <dima@marvell.com>");

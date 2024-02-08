@@ -53,6 +53,7 @@ int		mvCpuCntrsMap(int counter, MV_CPU_CNTRS_OPS op)
 	return event;
 }
 
+
 int	mvCpuCntrsStart(int idx, int event)
 {
 	MV_U32 enable;
@@ -90,3 +91,4 @@ MV_VOID	mvCpuCntrsInit(MV_VOID)
 
 	mrvl_pj4b_write_pmnc(pmnc);
 }
+

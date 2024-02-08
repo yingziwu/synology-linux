@@ -77,6 +77,8 @@ static const struct backlight_ops sharp_ls_bl_ops = {
 	.update_status  = sharp_ls_bl_update_status,
 };
 
+
+
 static int sharp_ls_panel_probe(struct omap_dss_device *dssdev)
 {
 	struct backlight_properties props;

@@ -50,6 +50,18 @@ config EXT4_FS_XATTR
 
 	  You need this for POSIX ACL support on ext4.
 
+config EXT4_FS_SYNO_ACL
+	bool "Ext4 Synology Access Control Lists"
+	depends on EXT4_FS_XATTR
+        depends on !EXT4_FS_POSIX_ACL
+        select FS_SYNO_ACL
+        default n
+	help
+	  Synology Access Control Lists (ACLs) support Windows permissions for users and
+	  groups beyond the owner/group/world scheme.
+
+	  If you don't know what Access Control Lists are, say N
+
 config EXT4_FS_POSIX_ACL
 	bool "Ext4 POSIX Access Control Lists"
 	depends on EXT4_FS_XATTR
@@ -82,4 +94,5 @@ config EXT4_DEBUG
 	  Enables run-time debugging support for the ext4 filesystem.
 
 	  If you select Y here, then you will be able to turn on debugging
-	  with a command such as "echo 1 > /sys/kernel/debug/ext4/mballoc-debug"
+	  with a command such as:
+		echo 1 > /sys/module/ext4/parameters/mballoc_debug

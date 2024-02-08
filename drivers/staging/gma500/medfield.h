@@ -63,6 +63,7 @@
 #define DSI_POWER_STATE_ULPS_EXIT			(0x1 << 1)
 #define DSI_POWER_STATE_ULPS_OFFSET			(0x1)
 
+
 #define DSI_ONE_DATA_LANE				(0x1)
 #define DSI_TWO_DATA_LANE				(0x2)
 #define DSI_THREE_DATA_LANE				(0X3)
@@ -264,3 +265,4 @@ struct panel_funcs {
 	int (*reset)(int pipe);
 	void (*drv_ic_init)(struct mdfld_dsi_config *dsi_config, int pipe);
 };
+

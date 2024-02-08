@@ -26,4 +26,5 @@ struct mv_xor_platform_data {
 	size_t				pool_size;
 };
 
+
 #endif

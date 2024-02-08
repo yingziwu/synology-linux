@@ -86,6 +86,7 @@ static tal_mmp_ops_t tdm_dev_ops;
 static atomic_t tdm_init, rx_ready, tx_ready;
 static unsigned char *rx_buff_p = NULL, *tx_buff_p = NULL;
 
+
 /* Forward declarations */
 static int tdm_dev_tdm_start(unsigned long arg);
 static ssize_t tdm_dev_read(struct file *file_p, char __user *buf, size_t size, loff_t * ppos);
@@ -116,6 +117,7 @@ static struct miscdevice tdm_dev_misc_dev = {
 	.name = TDM_DEV_NAME,
 	.fops = &tdm_dev_fops,
 };
+
 
 static int __init tdm_dev_init(void)
 {
@@ -361,3 +363,5 @@ module_exit(tdm_dev_exit);
 MODULE_DESCRIPTION("Marvell Telephony Test Device - www.marvell.com");
 MODULE_AUTHOR("Eran Ben-Avi <benavi@marvell.com>");
 MODULE_LICENSE("GPL");
+
+

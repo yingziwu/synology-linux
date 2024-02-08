@@ -93,6 +93,7 @@ ahd_calc_syncsrate(u_int period_factor)
 	return (10000000 / (period_factor * 4 * 10));
 }
 
+
 static void
 copy_mem_info(struct info_str *info, char *data, int len)
 {

@@ -79,6 +79,7 @@
 #define NON_SECURE		(1 << 1)
 #define INSTRUCTION		(1 << 2)
 
+
 #define AWUSER_COHERENT(x)		((((x) << 1) | 1) << 19)
 #define AWPROT(x)			((x) << 16)
 #define AWCACHE(x)			((x) << 12)
@@ -157,11 +158,13 @@ struct mdma_xor_struct {
 	dma_addr_t *xor_dest;
 };
 
+
 extern struct comcerto_memcpy_inbound_fdesc *mdma_in_desc;
 extern struct comcerto_memcpy_outbound_fdesc *mdma_out_desc;
 
 extern struct comcerto_xor_inbound_fdesc *xor_in_fdesc[];
 extern struct comcerto_xor_outbound_fdesc *xor_out_fdesc[];
+
 
 static inline void comcerto_dma_set_in_bdesc(u32 idx, u32 addr, u32 ctrl)
 {
@@ -235,3 +238,4 @@ static inline void comcerto_dma_sg_init(struct comcerto_dma_sg *sg)
 #endif
 
 #endif /* C2K_DMA_H_ */
+

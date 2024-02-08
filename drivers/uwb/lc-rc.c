@@ -56,8 +56,11 @@ static struct uwb_rc *uwb_rc_find_by_index(int index)
 	struct uwb_rc *rc = NULL;
 
 	dev = class_find_device(&uwb_rc_class, NULL, &index, uwb_rc_index_match);
-	if (dev)
+	if (dev) {
 		rc = dev_get_drvdata(dev);
+		put_device(dev);
+	}
+
 	return rc;
 }
 
@@ -85,6 +88,7 @@ static void uwb_rc_sys_release(struct device *dev)
 	kfree(rc);
 }
 
+
 void uwb_rc_init(struct uwb_rc *rc)
 {
 	struct uwb_dev *uwb_dev = &rc->uwb_dev;
@@ -105,6 +109,7 @@ void uwb_rc_init(struct uwb_rc *rc)
 	uwb_rc_pal_init(rc);
 }
 EXPORT_SYMBOL_GPL(uwb_rc_init);
+
 
 struct uwb_rc *uwb_rc_alloc(void)
 {
@@ -135,6 +140,7 @@ static int uwb_rc_sys_add(struct uwb_rc *rc)
 {
 	return sysfs_create_group(&rc->uwb_dev.dev.kobj, &rc_attr_group);
 }
+
 
 static void __uwb_rc_sys_rm(struct uwb_rc *rc)
 {
@@ -181,6 +187,8 @@ int uwb_rc_mac_addr_setup(struct uwb_rc *rc)
 	return 0;
 }
 
+
+
 static int uwb_rc_setup(struct uwb_rc *rc)
 {
 	int result;
@@ -220,6 +228,7 @@ error_ie_setup:
 error:
 	return result;
 }
+
 
 /**
  * Register a new UWB radio controller
@@ -289,6 +298,7 @@ error_rc_start:
 	return result;
 }
 EXPORT_SYMBOL_GPL(uwb_rc_add);
+
 
 static int uwb_dev_offair_helper(struct device *dev, void *priv)
 {
@@ -361,7 +371,9 @@ struct uwb_rc *__uwb_rc_try_get(struct uwb_rc *target_rc)
 	if (dev) {
 		rc = dev_get_drvdata(dev);
 		__uwb_rc_get(rc);
+		put_device(dev);
 	}
+
 	return rc;
 }
 EXPORT_SYMBOL_GPL(__uwb_rc_try_get);
@@ -414,8 +426,11 @@ struct uwb_rc *uwb_rc_get_by_grandpa(const struct device *grandpa_dev)
 
 	dev = class_find_device(&uwb_rc_class, NULL, (void *)grandpa_dev,
 				find_rc_grandpa);
-	if (dev)
+	if (dev) {
 		rc = dev_get_drvdata(dev);
+		put_device(dev);
+	}
+
 	return rc;
 }
 EXPORT_SYMBOL_GPL(uwb_rc_get_by_grandpa);
@@ -448,8 +463,10 @@ struct uwb_rc *uwb_rc_get_by_dev(const struct uwb_dev_addr *addr)
 
 	dev = class_find_device(&uwb_rc_class, NULL, (void *)addr,
 				find_rc_dev);
-	if (dev)
+	if (dev) {
 		rc = dev_get_drvdata(dev);
+		put_device(dev);
+	}
 
 	return rc;
 }

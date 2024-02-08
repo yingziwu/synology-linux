@@ -71,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gbe/mvPp2Gbe.h"
 #include "mvPp2Wol.h"
 
+
 void        mvPp2WolRegs(void)
 {
 	int    i, reg;
@@ -86,6 +87,7 @@ void        mvPp2WolRegs(void)
 	mvPp2PrintReg(MV_PP2_WOL_INTR_CAUSE_REG, "MV_PP2_WOL_INTR_CAUSE_REG");
 	mvPp2PrintReg(MV_PP2_WOL_INTR_MASK_REG,  "MV_PP2_WOL_INTR_MASK_REG");
 	mvPp2PrintReg(MV_PP2_WOL_PTRN_SIZE_REG,  "MV_PP2_WOL_PTRN_SIZE_REG");
+
 
 	for (i = 0; i < MV_PP2_WOL_PTRN_NUM; i++) {
 		mvOsPrintf("\nWoL Wakeup Frame pattern #%d\n", i);

@@ -443,6 +443,7 @@ struct mvs_task_list {
 	struct list_head list;
 };
 
+
 /******************** function prototype *********************/
 void mvs_get_sas_addr(void *buf, u32 buflen);
 void mvs_tag_clear(struct mvs_info *mvi, u32 tag);
@@ -482,3 +483,4 @@ void mvs_update_phyinfo(struct mvs_info *mvi, int i, int get_st);
 int mvs_int_rx(struct mvs_info *mvi, bool self_clear);
 struct mvs_device *mvs_find_dev_by_reg_set(struct mvs_info *mvi, u8 reg_set);
 #endif
+

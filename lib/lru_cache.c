@@ -223,6 +223,7 @@ static struct hlist_head *lc_hash_slot(struct lru_cache *lc, unsigned int enr)
 	return  lc->lc_slot + (enr % lc->nr_elements);
 }
 
+
 /**
  * lc_find - find element by label, if present in the hash table
  * @lc: The lru_cache object
@@ -306,6 +307,7 @@ static int lc_unused_element_available(struct lru_cache *lc)
 
 	return 0;
 }
+
 
 /**
  * lc_get - get element by label, maybe change the active set
@@ -440,6 +442,7 @@ void lc_changed(struct lru_cache *lc, struct lc_element *e)
 	smp_mb__after_clear_bit();
 	RETURN();
 }
+
 
 /**
  * lc_put - give up refcnt of @e

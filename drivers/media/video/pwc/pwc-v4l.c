@@ -1115,4 +1115,5 @@ const struct v4l2_ioctl_ops pwc_ioctl_ops = {
 	.vidioc_default		    = pwc_default,
 };
 
+
 /* vim: set cino= formatoptions=croql cindent shiftwidth=8 tabstop=8: */

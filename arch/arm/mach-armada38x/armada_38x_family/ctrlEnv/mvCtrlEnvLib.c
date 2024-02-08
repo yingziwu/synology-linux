@@ -387,6 +387,7 @@ MV_STATUS mvCtrlEnvInit(MV_VOID)
 {
 	MV_U32 i, gppMask;
 
+
 	/* If set to Auto detect, read board config info, update MPP group types*/
 	if (mvBoardConfigAutoDetectEnabled()) {
 		mvBoardInfoUpdate();
@@ -435,6 +436,7 @@ MV_STATUS mvCtrlEnvInit(MV_VOID)
 
 	/* Sdio_jtag_cell_oe_smp_en */
 	MV_REG_BIT_SET(PUP_EN_REG, BIT14);
+
 
 	/* XXX: Following setting should be configured by u-boot */
 	MV_REG_BIT_SET(SOC_DEV_MUX_REG, BIT0); /* Configure NAND flush enabled */
@@ -677,6 +679,7 @@ MV_U8 mvCtrlEthMaxCPUsGet(MV_VOID)
 	return mvCtrlEthMaxPortGet();
 }
 
+
 #if defined(MV_INCLUDE_SATA)
 /*******************************************************************************
 * mvCtrlSataMaxPortGet - Get Marvell controller number of Sata ports.
@@ -698,6 +701,7 @@ MV_U32 mvCtrlSataMaxPortGet(MV_VOID)
 {
 	return mvCtrlSocUnitInfoNumGet(SATA_UNIT_ID);
 }
+
 
 /*******************************************************************************
 * mvCtrlSataMaxUnitGet
@@ -937,6 +941,7 @@ MV_TDM_UNIT_TYPE mvCtrlTdmUnitTypeGet(MV_VOID)
 	return TDM_UNIT_2CH;
 }
 
+
 /*******************************************************************************
  * mvCtrlTdmUnitIrqGet
  *
@@ -1134,6 +1139,7 @@ static MV_VOID mvCtrlPexAddrDecShow(MV_VOID)
 
 	for (pexIf = 0; pexIf < boardPexInfo->boardPexIfNum; pexIf++) {
 		pexHWInf = pexIf;
+
 
 		if (MV_FALSE == mvCtrlPwrClckGet(PEX_UNIT_ID, pexHWInf))
 			continue;

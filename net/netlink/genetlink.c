@@ -134,6 +134,7 @@ int genl_register_mc_group(struct genl_family *family,
 	int err = 0;
 
 	BUG_ON(grp->name[0] == '\0');
+	BUG_ON(memchr(grp->name, '\0', GENL_NAMSIZ) == NULL);
 
 	genl_lock();
 
@@ -143,6 +144,7 @@ int genl_register_mc_group(struct genl_family *family,
 	else
 		id = find_first_zero_bit(mc_groups,
 					 mc_groups_longs * BITS_PER_LONG);
+
 
 	if (id >= mc_groups_longs * BITS_PER_LONG) {
 		size_t nlen = (mc_groups_longs + 1) * sizeof(unsigned long);

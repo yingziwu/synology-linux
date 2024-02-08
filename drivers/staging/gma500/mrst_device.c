@@ -57,6 +57,7 @@ static int mrst_device_ident(struct drm_device *dev)
 	return DEVICE_OAKTRAIL;
 }
 
+
 /* IPC message and command defines used to enable/disable mipi panel voltages */
 #define IPC_MSG_PANEL_ON_OFF    0xE9
 #define IPC_CMD_PANEL_ON        1
@@ -630,3 +631,4 @@ const struct psb_ops mrst_chip_ops = {
 
 	.i2c_bus = 2,
 };
+

@@ -144,6 +144,7 @@ static inline void print_memory_payload(dwc_otg_pcd_t * pcd,  dwc_ep_t * ep)
 #endif	
 }
 
+
 #ifdef DWC_UTE_CFI
 static inline void print_desc(struct dwc_otg_dma_desc *ddesc,
 			      const uint8_t * epname, int descnum)
@@ -3080,6 +3081,7 @@ static void dwc_otg_pcd_handle_noniso_bna(dwc_otg_pcd_ep_t * ep)
 		dma_desc = dwc_ep->desc_addr;
 	}
 	
+
 	for (i = start; i < dwc_ep->desc_cnt; ++i, ++dma_desc) {
 		sts.d32 = dma_desc->status.d32;
 		sts.b.bs = BS_HOST_READY;
@@ -3318,6 +3320,7 @@ void predict_nextep_seq( dwc_otg_core_if_t * core_if)
 	int i = 0;
 	volatile uint32_t *addr = &dev_global_regs->dtknqr1;
 
+
 	DWC_DEBUGPL(DBG_PCD,"dev_token_q_depth=%d\n",TOKEN_Q_DEPTH);
 
 	/* Read the DTKNQ Registers */
@@ -3456,6 +3459,7 @@ void predict_nextep_seq( dwc_otg_core_if_t * core_if)
 	resetctl.b.intknqflsh = 1;
 	DWC_WRITE_REG32(&core_if->core_global_regs->grstctl, resetctl.d32);
 	
+
 }
 
 /**
@@ -4080,6 +4084,7 @@ do { \
 	dctl_data_t dctl = {.d32 = 0 };
 	gintmsk_data_t gintmsk = {.d32 = 0 };
 
+
 	DWC_DEBUGPL(DBG_PCDV, "%s()\n", __func__);
 
 	/* Read in the device interrupt bits */
@@ -4591,6 +4596,7 @@ int32_t dwc_otg_pcd_handle_in_nak_effective(dwc_otg_pcd_t * pcd)
 		}						
 	}
 	
+
 	/* Disable the Global IN NAK Effective Interrupt */
 	intr_mask.b.ginnakeff = 1;
 	DWC_MODIFY_REG32(&GET_CORE_IF(pcd)->core_global_regs->gintmsk,

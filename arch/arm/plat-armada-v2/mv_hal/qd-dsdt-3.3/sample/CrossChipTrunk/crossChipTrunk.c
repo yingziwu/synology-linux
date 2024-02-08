@@ -186,6 +186,8 @@ GT_STATUS sampleCrossChipTrunk(GT_QD_DEV *dev[], TRUNK_MEMBER* tm)
     return GT_OK;
 }
 
+
+
 /*
     Assumption 1: Device ID, Cascading Port, CPU Port, and Interswitch Port are
         already set properly. For more information, please refer to the
@@ -246,6 +248,7 @@ GT_STATUS sampleFixedCrossChipTrunk(GT_QD_DEV *dev[])
         return status;
     }
 
+
     /*
      *    Set Trunk Route Table for the given Trunk ID.
     */
@@ -264,6 +267,7 @@ GT_STATUS sampleFixedCrossChipTrunk(GT_QD_DEV *dev[])
         return status;
     }
 
+
     /*
      *    Set Trunk Mask Table for load balancing.
     */
@@ -280,6 +284,7 @@ GT_STATUS sampleFixedCrossChipTrunk(GT_QD_DEV *dev[])
        TrunkMask[5]        1    1    1    1    1    1    1    1    0    1    0
        TrunkMask[6]        1    1    1    1    1    1    1    1    1    0    0
        TrunkMask[7]        1    1    1    1    1    1    1    1    0    0    0
+
 
        Trunk Mask Table for Device 1:
 

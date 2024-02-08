@@ -91,6 +91,7 @@ static struct pci_platform_pm_ops pci_pm =
 	.sleep_wake    = intel_pm_pci_sleep_wake,
 };
 
+
 static int __init intel_pm_pci_init(void)
 {
     memset(&external_pm_ops, 0x0, sizeof(intel_pm_pci_ops_t));
@@ -100,6 +101,7 @@ static int __init intel_pm_pci_init(void)
 	pci_set_platform_pm(&pci_pm);
 	return 0;
 }
+
 
 void intel_pm_register_callback(intel_pm_pci_ops_t * ops)
 {
@@ -145,6 +147,7 @@ int suspend_devices_rooted(struct device *root, pm_message_t state)
 
 EXPORT_SYMBOL(suspend_devices_rooted);
 
+
 int resume_devices_rooted(struct device *root, pm_message_t state)
 {
        struct klist_iter i;
@@ -165,3 +168,4 @@ int resume_devices_rooted(struct device *root, pm_message_t state)
 }
 
 EXPORT_SYMBOL(resume_devices_rooted);
+

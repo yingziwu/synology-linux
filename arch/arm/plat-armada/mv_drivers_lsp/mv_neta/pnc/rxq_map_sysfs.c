@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -39,6 +40,7 @@ disclaimer.
 #include "pnc/mvPnc.h"
 
 #include "net_dev/mv_netdev.h"
+
 
 static ssize_t rxq_map_help(char *buf)
 {
@@ -77,6 +79,7 @@ static ssize_t rxq_map_show(struct device *dev,
 
 	return 0;
 }
+
 
 static ssize_t rxq_map_2t_store(struct device *dev,
 			 struct device_attribute *attr, const char *buf, size_t len)
@@ -136,6 +139,7 @@ static ssize_t rxq_map_5t_store(struct device *dev,
 	return err ? -EINVAL : len;
 }
 
+
 static DEVICE_ATTR(help,		S_IRUSR, rxq_map_show, rxq_map_2t_store);
 static DEVICE_ATTR(dump_all,		S_IRUSR, rxq_map_show, rxq_map_2t_store);
 //static DEVICE_ATTR(dump,        S_IWUSR, rxq_map_show, rxq_map_2t_store);
@@ -181,6 +185,8 @@ int __devinit rxq_map_sysfs_init(struct kobject *kobj)
 out:
 	return err;
 }
+
+
 
 MODULE_AUTHOR("Yoni Farhadian");
 MODULE_DESCRIPTION("PNC rule to rxq map for Marvell NetA");

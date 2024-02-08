@@ -23,3 +23,4 @@ struct pxa2xx_udc_mach_info {
 	bool	gpio_pullup_inverted;
 	int	gpio_pullup;			/* high == pullup activated */
 };
+

@@ -579,6 +579,7 @@ MV_BOOL		mvCtrlPwrClckGet(MV_UNIT_ID unitId, MV_U32 index)
 MV_BOOL	  mvCtrlPwrClckGet(MV_UNIT_ID unitId, MV_U32 index) {return MV_TRUE;}
 #endif /* #if defined(MV_INCLUDE_CLK_PWR_CNTRL) */
 
+
 /*******************************************************************************
 * mvMPPConfigToSPI - Change MPP[3:0] configuration to SPI mode
 *
@@ -604,6 +605,7 @@ MV_VOID   mvMPPConfigToSPI(MV_VOID)
 
     MV_REG_WRITE(mvCtrlMppRegGet(0), mppVal);
 }
+
 
 /*******************************************************************************
 * mvMPPConfigToDefault - Change MPP[7:0] configuration to default configuration

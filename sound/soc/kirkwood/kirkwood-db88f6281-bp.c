@@ -60,6 +60,7 @@ static struct snd_soc_ops db88f6281_bp_client_ops = {
 	.hw_params = db88f6281_bp_client_hw_params,
 };
 
+
 static struct snd_soc_dai_link db88f6281_bp_client_dai[] = {
 {
 	.name = "CS42L51",
@@ -71,6 +72,7 @@ static struct snd_soc_dai_link db88f6281_bp_client_dai[] = {
 	.ops = &db88f6281_bp_client_ops,
 },
 };
+
 
 static struct snd_soc_card db88f6281_bp_client = {
 	.name = "DB88F6281-BP Client",

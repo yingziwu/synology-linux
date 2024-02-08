@@ -26,6 +26,7 @@
 
 #define NUMIRQ 4
 
+
 /*
 ** Defines structure for configuring gpio
 */
@@ -269,6 +270,8 @@ typedef struct {
 	ramData vov_ring_gnd;
 	ramData vcm_ring;
 } Si324x_Ring_Cfg;
+
+
 
 /*
 ** This defines names for the interrupts in the ProSLIC

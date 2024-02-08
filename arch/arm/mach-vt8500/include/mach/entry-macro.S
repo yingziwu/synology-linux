@@ -29,3 +29,4 @@
 	moveq	\irqnr, #0
 1001:
 	.endm
+

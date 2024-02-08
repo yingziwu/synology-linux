@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _SPI_DEV_H_
 #define _SPI_DEV_H_
 
+
 #define SPI_MOD_IOCTL_MAGIC	'z'
 
 #define SPI_MOD_IOCTL_MIN	1
@@ -88,5 +89,6 @@ typedef struct SpiModRWObj {
 /* APIs */
 int spi_module_init(void);
 void spi_module_exit(void);
+
 
 #endif /*_SPI_DEV_H_*/

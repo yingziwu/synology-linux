@@ -304,6 +304,7 @@ MV_STATUS mvUsbWinInit(MV_U32 dev, MV_UNIT_WIN_INFO *addrWinMap)
 	for (winNum = 0; winNum < MV_USB_MAX_ADDR_DECODE_WIN; winNum++)
 		MV_REG_BIT_RESET(MV_USB_WIN_CTRL_REG(dev, winNum), MV_USB_WIN_ENABLE_MASK);
 
+
 	/* Go through all windows in user table until table terminator          */
 	winNum = 0;
 	while ((usbAddrDecPrioTab[winPrioIndex] != TBL_TERM) && (winNum < MV_USB_MAX_ADDR_DECODE_WIN)) {

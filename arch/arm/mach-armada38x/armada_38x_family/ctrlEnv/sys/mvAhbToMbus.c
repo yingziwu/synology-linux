@@ -431,6 +431,7 @@ MV_STATUS mvAhbToMbusWinEnable(MV_U32 winNum, MV_BOOL enable)
 	if (winNum == MV_AHB_TO_MBUS_INTREG_WIN)
 		return (enable ? MV_OK : MV_ERROR);
 
+
 	if (enable == MV_TRUE) {
 		/* enable the window */
 		MV_REG_BIT_SET(AHB_TO_MBUS_WIN_CTRL_REG(winNum), ATMWCR_WIN_ENABLE);

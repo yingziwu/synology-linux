@@ -1,5 +1,7 @@
 #include "headers.h"
 
+
+
 #define DDR_DUMP_INTERNAL_DEVICE_MEMORY 0xBFC02B00
 #define MIPS_CLOCK_REG 	0x0f000820
 
@@ -352,6 +354,7 @@ static DDR_SET_NODE asT3B_DDRSetting100MHz[] = {//      # DPLL Clock Setting
 										{0x0F007018,0x01010000}
 							};
 
+
 #define T3LP_SKIP_CLOCK_PROGRAM_DUMP_133MHZ 9  //index for 0x0F007000
 static DDR_SET_NODE asT3LP_DDRSetting133MHz[]= {//	# DPLL Clock Setting
 								{0x0f000820,0x03F1365B},
@@ -527,6 +530,9 @@ static DDR_SET_NODE asT3LP_DDRSetting80MHz[]= {//	# DPLL Clock Setting
 								{0x0F007018,0x01010000}
 };
 
+
+
+
 ///T3 LP-B (UMA-B)
 
 #define T3LPB_SKIP_CLOCK_PROGRAM_DUMP_160MHZ 7  //index for 0x0F007000
@@ -585,6 +591,7 @@ static DDR_SET_NODE asT3LPB_DDRSetting160MHz[]= {//	# DPLL Clock Setting
 								{0x0F0070C8,0x00000104},
 								{0x0F007018,0x01010000}
 };
+
 
 #define T3LPB_SKIP_CLOCK_PROGRAM_DUMP_133MHZ 7  //index for 0x0F007000
 static DDR_SET_NODE asT3LPB_DDRSetting133MHz[]= {//	# DPLL Clock Setting
@@ -764,6 +771,7 @@ static DDR_SET_NODE asT3LPB_DDRSetting80MHz[]= {//	# DPLL Clock Setting
 								{0x0F007018,0x01010000}
 };
 
+
 int ddr_init(MINI_ADAPTER *Adapter)
 {
 	PDDR_SETTING psDDRSetting=NULL;
@@ -832,6 +840,8 @@ int ddr_init(MINI_ADAPTER *Adapter)
 		}
 		switch(Adapter->DDRSetting)
 		{
+
+
 
 			case DDR_80_MHZ:
 				psDDRSetting = asT3LPB_DDRSetting80MHz;
@@ -1275,3 +1285,5 @@ int download_ddr_settings(PMINI_ADAPTER Adapter)
 	}
 	return retval;
 }
+
+

@@ -48,6 +48,7 @@ void ce4100_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 
 }	
 
+
 int ce4100_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
 {
 	struct intelce_gpio_chip *c = to_intelce_gpio_chip(chip);

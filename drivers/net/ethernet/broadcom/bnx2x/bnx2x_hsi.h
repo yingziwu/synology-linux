@@ -33,6 +33,7 @@ struct license_key {
 	u32 reserved_b[4];
 };
 
+
 #define PORT_0              0
 #define PORT_1              1
 #define PORT_MAX            2
@@ -117,6 +118,7 @@ struct license_key {
 #define EPIO_CFG_EPIO30                     0x0000001f
 #define EPIO_CFG_EPIO31                     0x00000020
 
+
 struct shared_hw_cfg {			 /* NVRAM Offset */
 	/* Up to 16 bytes of NULL-terminated string */
 	u8  part_num[16];		    /* 0x104 */
@@ -170,6 +172,7 @@ struct shared_hw_cfg {			 /* NVRAM Offset */
 		#define SHARED_HW_CFG_LED_MAC4                       0x000c0000
 		#define SHARED_HW_CFG_LED_PHY8                       0x000d0000
 		#define SHARED_HW_CFG_LED_EXTPHY1                    0x000e0000
+
 
 	#define SHARED_HW_CFG_AN_ENABLE_MASK                0x3f000000
 		#define SHARED_HW_CFG_AN_ENABLE_SHIFT                24
@@ -276,6 +279,7 @@ struct shared_hw_cfg {			 /* NVRAM Offset */
 		#define SHARED_HW_CFG_MDC_MDIO_ACCESS2_BOTH          0x60000000
 		#define SHARED_HW_CFG_MDC_MDIO_ACCESS2_SWAPPED       0x80000000
 
+
 	u32 power_dissipated;			/* 0x11c */
 	#define SHARED_HW_CFG_POWER_MGNT_SCALE_MASK         0x00ff0000
 		#define SHARED_HW_CFG_POWER_MGNT_SCALE_SHIFT         16
@@ -352,6 +356,7 @@ struct shared_hw_cfg {			 /* NVRAM Offset */
 		#define SHARED_HW_CFG_E3_PORT_LAYOUT_4P_3210         0x05000000
 };
 
+
 /****************************************************************************
  * Port HW configuration                                                    *
  ****************************************************************************/
@@ -402,6 +407,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 
 	#define PORT_HW_CFG_SERDES_RX_DRV_EQUALIZER_MASK    0xffff0000
 	#define PORT_HW_CFG_SERDES_RX_DRV_EQUALIZER_SHIFT            16
+
 
 	/*  Default values: 2P-64, 4P-32 */
 	u32 pf_config;					    /* 0x158 */
@@ -489,6 +495,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 	  in the I2C Mux */
 	#define PORT_HW_CFG_E3_I2C_MUX0_MASK                0x01000000
 	#define PORT_HW_CFG_E3_I2C_MUX1_MASK                0x02000000
+
 
 	/*
 	 * The input pin I_FAULT which indicate over-current has occurred.
@@ -627,6 +634,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 	#define PORT_HW_CFG_NET_SERDES_IF_DXGXS                      0x04000000
 	#define PORT_HW_CFG_NET_SERDES_IF_KR2                        0x05000000
 
+
 	u32 speed_capability_mask2;			    /* 0x28C */
 	#define PORT_HW_CFG_SPEED_CAPABILITY2_D3_MASK       0x0000FFFF
 		#define PORT_HW_CFG_SPEED_CAPABILITY2_D3_SHIFT       0
@@ -650,6 +658,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 		#define PORT_HW_CFG_SPEED_CAPABILITY2_D0_10G         0x00400000
 		#define PORT_HW_CFG_SPEED_CAPABILITY2_D0_20G         0x00800000
 
+
 	/*  In the case where two media types (e.g. copper and fiber) are
 	      present and electrically active at the same time, PHY Selection
 	      will determine which of the two PHYs will be designated as the
@@ -669,6 +678,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 		#define PORT_HW_CFG_PHY_SWAPPED_SHIFT                3
 		#define PORT_HW_CFG_PHY_SWAPPED_DISABLED             0x00000000
 		#define PORT_HW_CFG_PHY_SWAPPED_ENABLED              0x00000008
+
 
 	/*  Address of the second external phy */
 	u32 external_phy_config2;			    /* 0x294 */
@@ -698,6 +708,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 		#define PORT_HW_CFG_XGXS_EXT_PHY2_TYPE_FAILURE       0x0000fd00
 		#define PORT_HW_CFG_XGXS_EXT_PHY2_TYPE_NOT_CONN      0x0000ff00
 
+
 	/*  4 times 16 bits for all 4 lanes. For some external PHYs (such as
 	      8706, 8726 and 8727) not all 4 values are needed. */
 	u16 xgxs_config2_rx[4];				    /* 0x296 */
@@ -725,6 +736,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 	#define PORT_HW_CFG_SWAP_PHY_POLARITY_MASK          0x00010000
 		#define PORT_HW_CFG_SWAP_PHY_POLARITY_DISABLED       0x00000000
 		#define PORT_HW_CFG_SWAP_PHY_POLARITY_ENABLED        0x00010000
+
 
 	u32 external_phy_config;
 	#define PORT_HW_CFG_XGXS_EXT_PHY_ADDR_MASK          0x000000ff
@@ -794,6 +806,7 @@ struct port_hw_cfg {		    /* port 0: 0x12c  port 1: 0x2bc */
 
 };
 
+
 /****************************************************************************
  * Shared Feature configuration                                             *
  ****************************************************************************/
@@ -836,6 +849,7 @@ struct shared_feat_cfg {		 /* NVRAM Offset */
 	#define SHARED_FEAT_CFG_LLDP_DEVICE_TYPE_ID_SHIFT            24
 
 };
+
 
 /****************************************************************************
  * Port Feature configuration                                               *
@@ -1066,6 +1080,7 @@ struct port_feat_cfg {		    /* port 0: 0x454  port 1: 0x4c8 */
 
 };
 
+
 /****************************************************************************
  * Device Information                                                       *
  ****************************************************************************/
@@ -1082,6 +1097,7 @@ struct shm_dev_info {				/* size */
 	struct port_feat_cfg     port_feature_config[PORT_MAX];/* 116*2=232 */
 
 };
+
 
 #if !defined(__LITTLE_ENDIAN) && !defined(__BIG_ENDIAN)
 	#error "Missing either LITTLE_ENDIAN or BIG_ENDIAN definition."
@@ -1200,6 +1216,7 @@ struct drv_port_mb {
 	u32 ext_phy_fw_version;
 
 };
+
 
 struct drv_func_mb {
 
@@ -1351,6 +1368,7 @@ struct drv_func_mb {
 
 };
 
+
 /****************************************************************************
  * Management firmware state                                                *
  ****************************************************************************/
@@ -1360,6 +1378,7 @@ struct drv_func_mb {
 struct mgmtfw_state {
 	u32 opaque[MGMTFW_STATE_WORD_SIZE];
 };
+
 
 /****************************************************************************
  * Multi-Function configuration                                             *
@@ -1605,6 +1624,7 @@ do {									   \
 	SHMEM_ARRAY_BITPOS(i, eb, fb));					   \
 } while (0)
 
+
 /****START OF DCBX STRUCTURES DECLARATIONS****/
 #define DCBX_MAX_NUM_PRI_PG_ENTRIES	8
 #define DCBX_PRI_PG_BITWIDTH		4
@@ -1624,6 +1644,7 @@ do {									   \
 #define FCOE_APP_IDX			0
 #define ISCSI_APP_IDX			1
 #define PREDEFINED_APP_IDX_MAX		2
+
 
 /* Big/Little endian have the same representation. */
 struct dcbx_ets_feature {
@@ -1688,6 +1709,7 @@ struct dcbx_app_priority_entry {
 	u16  app_id;
 #endif
 };
+
 
 /* FW structure in BE */
 struct dcbx_app_priority_feature {
@@ -1947,6 +1969,7 @@ struct shmem2_region {
 	u32 ocsd_req_update_interval;
 };
 
+
 struct emac_stats {
 	u32     rx_stat_ifhcinoctets;
 	u32     rx_stat_ifhcinbadoctets;
@@ -1997,6 +2020,7 @@ struct emac_stats {
 	u32     tx_stat_etherstatspktsover1522octets;
 	u32     tx_stat_dot3statsinternalmactransmiterrors;
 };
+
 
 struct bmac1_stats {
 	u32	tx_stat_gtpkt_lo;
@@ -2351,6 +2375,7 @@ union mac_stats {
 	struct mstat_stats	mstat_stats;
 };
 
+
 struct mac_stx {
 	/* in_bad_octets */
 	u32     rx_stat_ifhcinbadoctets_hi;
@@ -2472,6 +2497,7 @@ struct mac_stx {
 	u32     tx_stat_mac_ufl_lo;
 };
 
+
 #define MAC_STX_IDX_MAX                     2
 
 struct host_port_stats {
@@ -2484,6 +2510,7 @@ struct host_port_stats {
 
 	u32            host_port_stats_end;
 };
+
 
 struct host_func_stats {
 	u32     host_func_stats_start;
@@ -2527,6 +2554,7 @@ struct host_func_stats {
 #define BCM_5710_FW_ENGINEERING_VERSION		0
 #define BCM_5710_FW_COMPILE_FLAGS			1
 
+
 /*
  * attention bits
  */
@@ -2539,12 +2567,14 @@ struct atten_sp_status_block {
 	__le32 reserved1;
 };
 
+
 /*
  * The eth aggregative context of Cstorm
  */
 struct cstorm_eth_ag_context {
 	u32 __reserved0[10];
 };
+
 
 /*
  * dmae command structure
@@ -2646,6 +2676,7 @@ struct dmae_command {
 #endif
 };
 
+
 /*
  * common data for all protocols
  */
@@ -2688,6 +2719,7 @@ struct eth_tx_doorbell {
 #endif
 };
 
+
 /*
  * 3 lines. status block
  */
@@ -2704,6 +2736,7 @@ struct host_hc_status_block_e1x {
 	struct hc_status_block_e1x sb;
 };
 
+
 /*
  * 3 lines. status block
  */
@@ -2719,6 +2752,7 @@ struct hc_status_block_e2 {
 struct host_hc_status_block_e2 {
 	struct hc_status_block_e2 sb;
 };
+
 
 /*
  * 5 lines. slow-path status block
@@ -2737,6 +2771,7 @@ struct host_sp_status_block {
 	struct atten_sp_status_block atten_status_block;
 	struct hc_sp_status_block sp_sb;
 };
+
 
 /*
  * IGU driver acknowledgment register
@@ -2771,6 +2806,7 @@ struct igu_ack_register {
 #endif
 };
 
+
 /*
  * IGU driver acknowledgement register
  */
@@ -2790,6 +2826,7 @@ struct igu_backward_compatible {
 #define IGU_BACKWARD_COMPATIBLE_RESERVED_0_SHIFT 27
 	u32 reserved_2;
 };
+
 
 /*
  * IGU driver acknowledgement register
@@ -2825,6 +2862,7 @@ union igu_consprod_reg {
 	struct igu_backward_compatible backward_compatible;
 };
 
+
 /*
  * Igu control commands
  */
@@ -2833,6 +2871,7 @@ enum igu_ctrl_cmd {
 	IGU_CTRL_CMD_TYPE_WR,
 	MAX_IGU_CTRL_CMD
 };
+
 
 /*
  * Control register for the IGU command register
@@ -2851,6 +2890,7 @@ struct igu_ctrl_reg {
 #define IGU_CTRL_REG_UNUSED_SHIFT 21
 };
 
+
 /*
  * Igu interrupt command
  */
@@ -2862,6 +2902,7 @@ enum igu_int_cmd {
 	MAX_IGU_INT_CMD
 };
 
+
 /*
  * Igu segments
  */
@@ -2871,6 +2912,7 @@ enum igu_seg_access {
 	IGU_SEG_ACCESS_ATTN,
 	MAX_IGU_SEG_ACCESS
 };
+
 
 /*
  * Parser parsing flags field
@@ -2905,6 +2947,7 @@ struct parsing_flags {
 #define PARSING_FLAGS_RESERVED0_SHIFT 14
 };
 
+
 /*
  * Parsing flags for TCP ACK type
  */
@@ -2914,6 +2957,7 @@ enum prs_flags_ack_type {
 	MAX_PRS_FLAGS_ACK_TYPE
 };
 
+
 /*
  * Parsing flags for Ethernet address type
  */
@@ -2922,6 +2966,7 @@ enum prs_flags_eth_addr_type {
 	PRS_FLAG_ETHTYPE_UNICAST,
 	MAX_PRS_FLAGS_ETH_ADDR_TYPE
 };
+
 
 /*
  * Parsing flags for over-ethernet protocol
@@ -2934,6 +2979,7 @@ enum prs_flags_over_eth {
 	MAX_PRS_FLAGS_OVER_ETH
 };
 
+
 /*
  * Parsing flags for over-IP protocol
  */
@@ -2943,6 +2989,7 @@ enum prs_flags_over_ip {
 	PRS_FLAG_OVERIP_UDP,
 	MAX_PRS_FLAGS_OVER_IP
 };
+
 
 /*
  * SDM operation gen command (generate aggregative interrupt)
@@ -2961,6 +3008,7 @@ struct sdm_op_gen {
 #define SDM_OP_GEN_RESERVED_SHIFT 17
 };
 
+
 /*
  * Timers connection context
  */
@@ -2977,12 +3025,14 @@ struct timers_block_context {
 #define __TIMERS_BLOCK_CONTEXT_RESERVED0_SHIFT 3
 };
 
+
 /*
  * The eth aggregative context of Tstorm
  */
 struct tstorm_eth_ag_context {
 	u32 __reserved0[14];
 };
+
 
 /*
  * The eth aggregative context of Ustorm
@@ -3001,6 +3051,7 @@ struct ustorm_eth_ag_context {
 	u32 __reserved3[6];
 };
 
+
 /*
  * The eth aggregative context of Xstorm
  */
@@ -3018,6 +3069,7 @@ struct xstorm_eth_ag_context {
 	u32 reserved3[30];
 };
 
+
 /*
  * doorbell message sent to the chip
  */
@@ -3032,6 +3084,7 @@ struct doorbell {
 	u16 zero_fill2;
 #endif
 };
+
 
 /*
  * doorbell message sent to the chip
@@ -3048,10 +3101,12 @@ struct doorbell_set_prod {
 #endif
 };
 
+
 struct regpair {
 	__le32 lo;
 	__le32 hi;
 };
+
 
 /*
  * Classify rule opcodes in E2/E3
@@ -3063,6 +3118,7 @@ enum classify_rule {
 	MAX_CLASSIFY_RULE
 };
 
+
 /*
  * Classify rule types in E2/E3
  */
@@ -3071,6 +3127,7 @@ enum classify_rule_action_type {
 	CLASSIFY_RULE_ADD,
 	MAX_CLASSIFY_RULE_ACTION_TYPE
 };
+
 
 /*
  * client init ramrod data
@@ -3089,6 +3146,7 @@ struct client_init_general_data {
 	u8 traffic_type;
 	u32 reserved0;
 };
+
 
 /*
  * client init rx data
@@ -3194,6 +3252,7 @@ struct client_init_ramrod_data {
 	struct client_init_tx_data tx;
 };
 
+
 /*
  * client update ramrod data
  */
@@ -3218,6 +3277,7 @@ struct client_update_ramrod_data {
 	__le32 echo;
 };
 
+
 /*
  * The eth storm context of Cstorm
  */
@@ -3225,12 +3285,14 @@ struct cstorm_eth_st_context {
 	u32 __reserved0[4];
 };
 
+
 struct double_regpair {
 	u32 regpair0_lo;
 	u32 regpair0_hi;
 	u32 regpair1_lo;
 	u32 regpair1_hi;
 };
+
 
 /*
  * Ethernet address typesm used in ethernet tx BDs
@@ -3242,6 +3304,7 @@ enum eth_addr_type {
 	BROADCAST_ADDRESS,
 	MAX_ETH_ADDR_TYPE
 };
+
 
 /*
  *
@@ -3263,6 +3326,7 @@ struct eth_classify_cmd_header {
 	u8 reserved1;
 };
 
+
 /*
  * header for eth classification config ramrod
  */
@@ -3272,6 +3336,7 @@ struct eth_classify_header {
 	__le16 reserved1;
 	__le32 echo;
 };
+
 
 /*
  * Command for adding/removing a MAC classification rule
@@ -3285,6 +3350,7 @@ struct eth_classify_mac_cmd {
 	__le16 reserved1;
 };
 
+
 /*
  * Command for adding/removing a MAC-VLAN pair classification rule
  */
@@ -3296,6 +3362,7 @@ struct eth_classify_pair_cmd {
 	__le16 mac_msb;
 	__le16 vlan;
 };
+
 
 /*
  * Command for adding/removing a VLAN classification rule
@@ -3325,6 +3392,7 @@ struct eth_classify_rules_ramrod_data {
 	union eth_classify_rule_cmd rules[CLASSIFY_RULES_COUNT];
 };
 
+
 /*
  * The data contain client ID need to the ramrod
  */
@@ -3332,6 +3400,7 @@ struct eth_common_ramrod_data {
 	__le32 client_id;
 	__le32 reserved1;
 };
+
 
 /*
  * The eth storm context of Ustorm
@@ -3369,6 +3438,7 @@ struct eth_context {
 	struct cstorm_eth_st_context cstorm_st_context;
 };
 
+
 /*
  * union for sgl and raw data.
  */
@@ -3400,6 +3470,7 @@ struct eth_end_agg_rx_cqe {
 	union eth_sgl_or_raw_data sgl_or_raw_data;
 	__le32 reserved5[8];
 };
+
 
 /*
  * regular eth FP CQE parameters struct
@@ -3442,6 +3513,7 @@ struct eth_fast_path_rx_cqe {
 	__le32 reserved1[8];
 };
 
+
 /*
  * Command for setting classification flags for a client
  */
@@ -3477,6 +3549,7 @@ struct eth_filter_rules_cmd {
 	struct regpair reserved4;
 };
 
+
 /*
  * parameters for eth classification filters ramrod
  */
@@ -3484,6 +3557,7 @@ struct eth_filter_rules_ramrod_data {
 	struct eth_classify_header header;
 	struct eth_filter_rules_cmd rules[FILTER_RULES_COUNT];
 };
+
 
 /*
  * parameters for eth classification configuration ramrod
@@ -3493,6 +3567,7 @@ struct eth_general_rules_ramrod_data {
 	union eth_classify_rule_cmd rules[CLASSIFY_RULES_COUNT];
 };
 
+
 /*
  * The data for Halt ramrod
  */
@@ -3500,6 +3575,7 @@ struct eth_halt_ramrod_data {
 	__le32 client_id;
 	__le32 reserved0;
 };
+
 
 /*
  * Command for setting multicast classification for a client
@@ -3521,6 +3597,7 @@ struct eth_multicast_rules_cmd {
 	struct regpair reserved3;
 };
 
+
 /*
  * parameters for multicast classification ramrod
  */
@@ -3528,6 +3605,7 @@ struct eth_multicast_rules_ramrod_data {
 	struct eth_classify_header header;
 	struct eth_multicast_rules_cmd rules[MULTICAST_RULES_COUNT];
 };
+
 
 /*
  * Place holder for ramrods protocol specific data
@@ -3544,6 +3622,7 @@ union eth_ramrod_data {
 	struct ramrod_data general;
 };
 
+
 /*
  * RSS toeplitz hash type, as reported in CQE
  */
@@ -3559,6 +3638,7 @@ enum eth_rss_hash_type {
 	MAX_ETH_RSS_HASH_TYPE
 };
 
+
 /*
  * Ethernet RSS mode
  */
@@ -3570,6 +3650,7 @@ enum eth_rss_mode {
 	ETH_RSS_MODE_IP_DSCP,
 	MAX_ETH_RSS_MODE
 };
+
 
 /*
  * parameters for RSS update ramrod (E2)
@@ -3602,6 +3683,7 @@ struct eth_rss_update_ramrod_data {
 	__le32 reserved3;
 };
 
+
 /*
  * The eth Rx Buffer Descriptor
  */
@@ -3609,6 +3691,7 @@ struct eth_rx_bd {
 	__le32 addr_lo;
 	__le32 addr_hi;
 };
+
 
 /*
  * Eth Rx Cqe structure- general structure for ramrods
@@ -3652,6 +3735,7 @@ union eth_rx_cqe {
 	struct eth_end_agg_rx_cqe end_agg_cqe;
 };
 
+
 /*
  * Values for RX ETH CQE type field
  */
@@ -3663,6 +3747,7 @@ enum eth_rx_cqe_type {
 	MAX_ETH_RX_CQE_TYPE
 };
 
+
 /*
  * Type of SGL/Raw field in ETH RX fast path CQE
  */
@@ -3672,6 +3757,7 @@ enum eth_rx_fp_sel {
 	MAX_ETH_RX_FP_SEL
 };
 
+
 /*
  * The eth Rx SGE Descriptor
  */
@@ -3679,6 +3765,7 @@ struct eth_rx_sge {
 	__le32 addr_lo;
 	__le32 addr_hi;
 };
+
 
 /*
  * common data for all protocols
@@ -3720,6 +3807,7 @@ struct eth_spe {
 	union eth_specific_data data;
 };
 
+
 /*
  * Ethernet command ID for slow path elements
  */
@@ -3741,6 +3829,7 @@ enum eth_spqe_cmd_id {
 	MAX_ETH_SPQE_CMD_ID
 };
 
+
 /*
  * eth tpa update command
  */
@@ -3750,6 +3839,7 @@ enum eth_tpa_update_command {
 	TPA_UPDATE_DISABLE_COMMAND,
 	MAX_ETH_TPA_UPDATE_COMMAND
 };
+
 
 /*
  * Tx regular BD structure
@@ -3761,6 +3851,7 @@ struct eth_tx_bd {
 	__le16 nbytes;
 	u8 reserved[4];
 };
+
 
 /*
  * structure for easy accessibility to assembler
@@ -3893,6 +3984,7 @@ struct eth_tx_bds_array {
 	union eth_tx_bd_types bds[13];
 };
 
+
 /*
  * VLAN mode on TX BDs
  */
@@ -3904,6 +3996,7 @@ enum eth_tx_vlan_type {
 	MAX_ETH_TX_VLAN_TYPE
 };
 
+
 /*
  * Ethernet VLAN filtering mode in E1x
  */
@@ -3913,6 +4006,7 @@ enum eth_vlan_filter_mode {
 	ETH_VLAN_FILTER_CLASSIFY,
 	MAX_ETH_VLAN_FILTER_MODE
 };
+
 
 /*
  * MAC filtering configuration command header
@@ -3958,6 +4052,7 @@ struct mac_configuration_cmd {
 	struct mac_configuration_entry config_table[64];
 };
 
+
 /*
  * Set-MAC command type (in E1x)
  */
@@ -3966,6 +4061,7 @@ enum set_mac_action_type {
 	T_ETH_MAC_COMMAND_SET,
 	MAX_SET_MAC_ACTION_TYPE
 };
+
 
 /*
  * tpa update ramrod data
@@ -3986,12 +4082,14 @@ struct tpa_update_ramrod_data {
 	__le16 sge_pause_thr_high;
 };
 
+
 /*
  * approximate-match multicast filtering for E1H per function in Tstorm
  */
 struct tstorm_eth_approximate_match_multicast_filtering {
 	u32 mcast_add_hash_bit_array[8];
 };
+
 
 /*
  * Common configuration parameters per function in Tstorm
@@ -4017,6 +4115,7 @@ struct tstorm_eth_function_common_config {
 	__le16 vlan_id[2];
 };
 
+
 /*
  * MAC filtering configuration parameters per port in Tstorm
  */
@@ -4030,6 +4129,7 @@ struct tstorm_eth_mac_filter_config {
 	__le32 unmatched_unicast;
 };
 
+
 /*
  * tx only queue init ramrod data
  */
@@ -4037,6 +4137,7 @@ struct tx_queue_init_ramrod_data {
 	struct client_init_general_data general;
 	struct client_init_tx_data tx;
 };
+
 
 /*
  * Three RX producers for ETH
@@ -4058,6 +4159,7 @@ struct ustorm_eth_rx_producers {
 #endif
 };
 
+
 /*
  * cfc delete event data
  */
@@ -4066,6 +4168,7 @@ struct cfc_del_event_data {
 	u32 reserved0;
 	u32 reserved1;
 };
+
 
 /*
  * per-port SAFC demo variables
@@ -4084,6 +4187,7 @@ struct cmng_flags_per_port {
 #define __CMNG_FLAGS_PER_PORT_RESERVED0_SHIFT 4
 	u32 __reserved1;
 };
+
 
 /*
  * per-port rate shaping variables
@@ -4130,6 +4234,7 @@ struct cmng_struct_per_port {
 	struct cmng_flags_per_port flags;
 };
 
+
 /*
  * Protocol-common command ID for slow path elements
  */
@@ -4147,6 +4252,7 @@ enum common_spqe_cmd_id {
 	MAX_COMMON_SPQE_CMD_ID
 };
 
+
 /*
  * Per-protocol connection types
  */
@@ -4163,6 +4269,7 @@ enum connection_type {
 	MAX_CONNECTION_TYPE
 };
 
+
 /*
  * Cos modes
  */
@@ -4172,6 +4279,7 @@ enum cos_mode {
 	FW_WRR,
 	MAX_COS_MODE
 };
+
 
 /*
  * Dynamic HC counters set by the driver
@@ -4187,6 +4295,7 @@ struct cstorm_queue_zone_data {
 	struct hc_dynamic_drv_counter hc_dyn_drv_cnt;
 	struct regpair reserved[2];
 };
+
 
 /*
  * Vf-PF channel data in cstorm ram (non-triggered zone)
@@ -4234,6 +4343,7 @@ struct cstorm_vf_zone_data {
 	struct trigger_vf_zone trigger;
 };
 
+
 /*
  * Dynamic host coalescing init parameters, per state machine
  */
@@ -4252,6 +4362,7 @@ struct dynamic_hc_sm_config {
 struct dynamic_hc_config {
 	struct dynamic_hc_sm_config sm_config[HC_SB_MAX_SM];
 };
+
 
 struct e2_integ_data {
 #if defined(__BIG_ENDIAN)
@@ -4300,6 +4411,7 @@ struct e2_integ_data {
 #endif
 };
 
+
 /*
  * set mac event data
  */
@@ -4308,6 +4420,7 @@ struct eth_event_data {
 	u32 reserved0;
 	u32 reserved1;
 };
+
 
 /*
  * pf-vf event data
@@ -4353,6 +4466,7 @@ union event_data {
 	struct malicious_vf_event_data malicious_vf_event;
 };
 
+
 /*
  * per PF event ring data
  */
@@ -4369,6 +4483,7 @@ struct event_ring_data {
 #endif
 	u32 reserved0;
 };
+
 
 /*
  * event ring message element (each element is 128 bits)
@@ -4396,6 +4511,7 @@ union event_ring_elem {
 	struct event_ring_next next_page;
 };
 
+
 /*
  * Common event ring opcodes
  */
@@ -4421,6 +4537,7 @@ enum event_ring_opcode {
 	MAX_EVENT_RING_OPCODE
 };
 
+
 /*
  * Modes for fairness algorithm
  */
@@ -4430,6 +4547,7 @@ enum fairness_mode {
 	MAX_FAIRNESS_MODE
 };
 
+
 /*
  * per-vnic fairness variables
  */
@@ -4438,6 +4556,7 @@ struct fairness_vars_per_vn {
 	u32 vn_credit_delta;
 	u32 __reserved0;
 };
+
 
 /*
  * Priority and cos
@@ -4460,6 +4579,7 @@ struct flow_control_configuration {
 	__le32 reserved2;
 };
 
+
 /*
  *
  */
@@ -4470,6 +4590,7 @@ struct function_start_data {
 	u8 path_id;
 	u8 network_cos_mode;
 };
+
 
 /*
  * FW version stored in the Xstorm RAM
@@ -4497,12 +4618,14 @@ struct fw_version {
 #define __FW_VERSION_RESERVED_SHIFT 4
 };
 
+
 /*
  * Dynamic Host-Coalescing - Driver(host) counters
  */
 struct hc_dynamic_sb_drv_counters {
 	u32 dynamic_hc_drv_counter[HC_SB_MAX_DYNAMIC_INDICES];
 };
+
 
 /*
  * 2 bytes. configuration/state parameters for a single protocol index
@@ -4532,6 +4655,7 @@ struct hc_index_data {
 #define HC_INDEX_DATA_RESERVE_SHIFT 3
 #endif
 };
+
 
 /*
  * HC state-machine
@@ -4589,6 +4713,7 @@ struct hc_sb_data {
 	struct regpair rsrv1[2];
 };
 
+
 /*
  * Segment types for host coaslescing
  */
@@ -4597,6 +4722,7 @@ enum hc_segment {
 	HC_DEFAULT_SEGMENT,
 	MAX_HC_SEGMENT
 };
+
 
 /*
  * The fast-path status block meta-data
@@ -4617,6 +4743,7 @@ struct hc_sp_status_block_data {
 	struct pci_entity p_func;
 };
 
+
 /*
  * The fast-path status block meta-data
  */
@@ -4625,6 +4752,7 @@ struct hc_status_block_data_e1x {
 	struct hc_sb_data common;
 };
 
+
 /*
  * The fast-path status block meta-data
  */
@@ -4632,6 +4760,7 @@ struct hc_status_block_data_e2 {
 	struct hc_index_data index_data[HC_SB_MAX_INDICES_E2];
 	struct hc_sb_data common;
 };
+
 
 /*
  * IGU block operartion modes (in Everest2)
@@ -4642,6 +4771,7 @@ enum igu_mode {
 	MAX_IGU_MODE
 };
 
+
 /*
  * IP versions
  */
@@ -4650,6 +4780,7 @@ enum ip_ver {
 	IP_V6,
 	MAX_IP_VER
 };
+
 
 /*
  * Multi-function modes
@@ -4676,6 +4807,7 @@ struct per_pf_stats {
 	struct tstorm_per_pf_stats tstorm_pf_statistics;
 };
 
+
 /*
  * Protocol-common statistics collected by the Tstorm (per port)
  */
@@ -4694,6 +4826,7 @@ struct tstorm_per_port_stats {
 struct per_port_stats {
 	struct tstorm_per_port_stats tstorm_port_statistics;
 };
+
 
 /*
  * Protocol-common statistics collected by the Tstorm (per client)
@@ -4751,6 +4884,7 @@ struct per_queue_stats {
 	struct xstorm_per_queue_stats xstorm_queue_statistics;
 };
 
+
 /*
  * FW version stored in first line of pram
  */
@@ -4772,6 +4906,7 @@ struct pram_fw_version {
 #define __PRAM_FW_VERSION_RESERVED0_SHIFT 6
 };
 
+
 /*
  * Ethernet slow path element
  */
@@ -4789,6 +4924,7 @@ struct protocol_common_spe {
 	union protocol_common_specific_data data;
 };
 
+
 /*
  * a single rate shaping counter. can be used as protocol or vnic counter
  */
@@ -4803,12 +4939,14 @@ struct rate_shaping_counter {
 #endif
 };
 
+
 /*
  * per-vnic rate shaping variables
  */
 struct rate_shaping_vars_per_vn {
 	struct rate_shaping_counter vn_counter;
 };
+
 
 /*
  * The send queue element
@@ -4817,6 +4955,7 @@ struct slow_path_element {
 	struct spe_hdr hdr;
 	struct regpair protocol_data;
 };
+
 
 /*
  * Protocol-common statistics counter
@@ -4836,6 +4975,7 @@ struct stats_counter {
 	__le32 reserved7;
 };
 
+
 /*
  *
  */
@@ -4854,6 +4994,7 @@ struct stats_query_cmd_group {
 	struct stats_query_entry query[STATS_QUERY_CMD_COUNT];
 };
 
+
 /*
  * statistic command header
  */
@@ -4864,6 +5005,7 @@ struct stats_query_header {
 	__le32 reserved1;
 	struct regpair stats_counters_addrs;
 };
+
 
 /*
  * Types of statistcis query entry
@@ -4877,6 +5019,7 @@ enum stats_query_type {
 	MAX_STATS_QUERY_TYPE
 };
 
+
 /*
  * Indicate of the function status block state
  */
@@ -4886,6 +5029,7 @@ enum status_block_state {
 	SB_CLEANED,
 	MAX_STATUS_BLOCK_STATE
 };
+
 
 /*
  * Storm IDs (including attentions for IGU related enums)
@@ -4899,6 +5043,7 @@ enum storm_id {
 	MAX_STORM_ID
 };
 
+
 /*
  * Taffic types used in ETS and flow control algorithms
  */
@@ -4909,6 +5054,7 @@ enum traffic_type {
 	MAX_TRAFFIC_TYPE
 };
 
+
 /*
  * zone A per-queue data
  */
@@ -4916,12 +5062,14 @@ struct tstorm_queue_zone_data {
 	struct regpair reserved[4];
 };
 
+
 /*
  * zone B per-VF data
  */
 struct tstorm_vf_zone_data {
 	struct regpair reserved;
 };
+
 
 /*
  * zone A per-queue data
@@ -4931,12 +5079,14 @@ struct ustorm_queue_zone_data {
 	struct regpair reserved[3];
 };
 
+
 /*
  * zone B per-VF data
  */
 struct ustorm_vf_zone_data {
 	struct regpair reserved;
 };
+
 
 /*
  * data per VF-PF channel
@@ -4954,6 +5104,7 @@ struct vf_pf_channel_data {
 	u32 reserved1;
 };
 
+
 /*
  * State of VF-PF channel
  */
@@ -4963,12 +5114,14 @@ enum vf_pf_channel_state {
 	MAX_VF_PF_CHANNEL_STATE
 };
 
+
 /*
  * zone A per-queue data
  */
 struct xstorm_queue_zone_data {
 	struct regpair reserved[4];
 };
+
 
 /*
  * zone B per-VF data

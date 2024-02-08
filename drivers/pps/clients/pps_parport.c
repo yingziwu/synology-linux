@@ -19,6 +19,7 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 /*
  * TODO:
  * implement echo over SEL pin
@@ -46,6 +47,7 @@ MODULE_PARM_DESC(clear_wait,
 	"Maximum number of port reads when polling for signal clear,"
 	" zero turns clear edge capture off entirely");
 module_param(clear_wait, uint, 0);
+
 
 /* internal per port structure */
 struct pps_client_pp {
@@ -192,7 +194,7 @@ static void parport_detach(struct parport *port)
 	struct pps_client_pp *device;
 
 	/* FIXME: oooh, this is ugly! */
-	if (strcmp(pardev->name, KBUILD_MODNAME))
+	if (!pardev || strcmp(pardev->name, KBUILD_MODNAME))
 		/* not our port */
 		return;
 

@@ -10,6 +10,7 @@
  *    Author(s): Carsten Otte <cotte@de.ibm.com>
  */
 
+
 #ifndef ASM_KVM_HOST_H
 #define ASM_KVM_HOST_H
 #include <linux/hrtimer.h>
@@ -29,6 +30,7 @@ struct sca_entry {
 	__u64	sda;
 	__u64	reserved2[2];
 } __attribute__((packed));
+
 
 struct sca_block {
 	__u64	ipte_control;
@@ -221,6 +223,7 @@ struct kvm_s390_float_interrupt {
 	unsigned long idle_mask [(64 + sizeof(long) - 1) / sizeof(long)];
 	struct kvm_s390_local_interrupt *local_int[64];
 };
+
 
 struct kvm_vcpu_arch {
 	struct kvm_s390_sie_block *sie_block;

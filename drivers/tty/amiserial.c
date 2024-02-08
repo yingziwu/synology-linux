@@ -107,6 +107,7 @@ static unsigned char current_ctl_bits;
 static void change_speed(struct async_struct *info, struct ktermios *old);
 static void rs_wait_until_sent(struct tty_struct *tty, int timeout);
 
+
 static struct serial_state rs_table[1];
 
 #define NR_PORTS ARRAY_SIZE(rs_table)
@@ -114,6 +115,7 @@ static struct serial_state rs_table[1];
 #include <asm/uaccess.h>
 
 #define serial_isroot()	(capable(CAP_SYS_ADMIN))
+
 
 static inline int serial_paranoia_check(struct async_struct *info,
 					char *name, const char *routine)
@@ -684,6 +686,7 @@ static void shutdown(struct async_struct * info)
 	local_irq_restore(flags);
 }
 
+
 /*
  * This routine is called to set the UART divisor registers to match
  * the specified baud rate for a serial port.
@@ -1163,6 +1166,7 @@ check_and_exit:
 	return retval;
 }
 
+
 /*
  * get_lsr_info - get line status register info
  *
@@ -1188,6 +1192,7 @@ static int get_lsr_info(struct async_struct * info, unsigned int __user *value)
 		return -EFAULT;
 	return 0;
 }
+
 
 static int rs_tiocmget(struct tty_struct *tty)
 {
@@ -1926,6 +1931,7 @@ static void show_serial_version(void)
  	printk(KERN_INFO "%s version %s\n", serial_name, serial_version);
 }
 
+
 static const struct tty_operations serial_ops = {
 	.open = rs_open,
 	.close = rs_close,
@@ -2095,6 +2101,7 @@ static void __exit amiga_serial_exit(void)
 }
 
 module_exit(amiga_serial_exit);
+
 
 #if defined(CONFIG_SERIAL_CONSOLE) && !defined(MODULE)
 

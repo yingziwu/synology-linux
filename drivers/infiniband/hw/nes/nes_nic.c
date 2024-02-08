@@ -127,6 +127,7 @@ static int nes_netdev_poll(struct napi_struct *napi, int budget)
 	return nescq->rx_pkts_indicated;
 }
 
+
 /**
  * nes_netdev_open - Activate the network interface; ifconfig
  * ethx up.
@@ -216,6 +217,7 @@ static int nes_netdev_open(struct net_device *netdev)
 				((((u32)nesvnic->nic_index) << 16)));
 	}
 
+
 	nes_write32(nesdev->regs+NES_CQE_ALLOC, NES_CQE_ALLOC_NOTIFY_NEXT |
 			nesvnic->nic_cq.cq_number);
 	nes_read32(nesdev->regs+NES_CQE_ALLOC);
@@ -267,6 +269,7 @@ static int nes_netdev_open(struct net_device *netdev)
 
 	return 0;
 }
+
 
 /**
  * nes_netdev_stop
@@ -349,6 +352,7 @@ static int nes_netdev_stop(struct net_device *netdev)
 
 	return 0;
 }
+
 
 /**
  * nes_nic_send
@@ -458,6 +462,7 @@ static int nes_nic_send(struct sk_buff *skb, struct net_device *netdev)
 
 	return NETDEV_TX_OK;
 }
+
 
 /**
  * nes_netdev_start_xmit
@@ -693,6 +698,7 @@ tso_sq_no_longer_full:
 	return NETDEV_TX_OK;
 }
 
+
 /**
  * nes_netdev_get_stats
  */
@@ -783,6 +789,7 @@ static struct net_device_stats *nes_netdev_get_stats(struct net_device *netdev)
 	return &nesvnic->netstats;
 }
 
+
 /**
  * nes_netdev_tx_timeout
  */
@@ -793,6 +800,7 @@ static void nes_netdev_tx_timeout(struct net_device *netdev)
 	if (netif_msg_timer(nesvnic))
 		nes_debug(NES_DBG_NIC_TX, "%s: tx timeout\n", netdev->name);
 }
+
 
 /**
  * nes_netdev_set_mac_address
@@ -833,6 +841,7 @@ static int nes_netdev_set_mac_address(struct net_device *netdev, void *p)
 	}
 	return 0;
 }
+
 
 static void set_allmulti(struct nes_device *nesdev, u32 nic_active_bit)
 {
@@ -974,6 +983,7 @@ unlock:
 	spin_unlock_irqrestore(&nesadapter->resource_lock, flags);
 }
 
+
 /**
  * nes_netdev_change_mtu
  */
@@ -1022,6 +1032,7 @@ static int nes_netdev_change_mtu(struct net_device *netdev, int new_mtu)
 
 	return ret;
 }
+
 
 static const char nes_ethtool_stringset[][ETH_GSTRING_LEN] = {
 	"Link Change Interrupts",
@@ -1085,6 +1096,7 @@ static const char nes_ethtool_stringset[][ETH_GSTRING_LEN] = {
 };
 #define NES_ETHTOOL_STAT_COUNT  ARRAY_SIZE(nes_ethtool_stringset)
 
+
 /**
  * nes_netdev_get_sset_count
  */
@@ -1095,6 +1107,7 @@ static int nes_netdev_get_sset_count(struct net_device *netdev, int stringset)
 	else
 		return -EINVAL;
 }
+
 
 /**
  * nes_netdev_get_strings
@@ -1107,6 +1120,7 @@ static void nes_netdev_get_strings(struct net_device *netdev, u32 stringset,
 				&nes_ethtool_stringset,
 				sizeof(nes_ethtool_stringset));
 }
+
 
 /**
  * nes_netdev_get_ethtool_stats
@@ -1317,6 +1331,7 @@ static void nes_netdev_get_drvinfo(struct net_device *netdev,
 	drvinfo->regdump_len = 0;
 }
 
+
 /**
  * nes_netdev_set_coalesce
  */
@@ -1367,6 +1382,7 @@ static int nes_netdev_set_coalesce(struct net_device *netdev,
 	return 0;
 }
 
+
 /**
  * nes_netdev_get_coalesce
  */
@@ -1399,6 +1415,7 @@ static int nes_netdev_get_coalesce(struct net_device *netdev,
 	return 0;
 }
 
+
 /**
  * nes_netdev_get_pauseparam
  */
@@ -1411,6 +1428,7 @@ static void nes_netdev_get_pauseparam(struct net_device *netdev,
 	et_pauseparam->rx_pause = (nesvnic->nesdev->disable_rx_flow_control == 0) ? 1:0;
 	et_pauseparam->tx_pause = (nesvnic->nesdev->disable_tx_flow_control == 0) ? 1:0;
 }
+
 
 /**
  * nes_netdev_set_pauseparam
@@ -1459,6 +1477,7 @@ static int nes_netdev_set_pauseparam(struct net_device *netdev,
 
 	return 0;
 }
+
 
 /**
  * nes_netdev_get_settings
@@ -1523,6 +1542,7 @@ static int nes_netdev_get_settings(struct net_device *netdev, struct ethtool_cmd
 	return 0;
 }
 
+
 /**
  * nes_netdev_set_settings
  */
@@ -1553,6 +1573,7 @@ static int nes_netdev_set_settings(struct net_device *netdev, struct ethtool_cmd
 
 	return 0;
 }
+
 
 static const struct ethtool_ops nes_ethtool_ops = {
 	.get_link = ethtool_op_get_link,
@@ -1828,6 +1849,7 @@ struct net_device *nes_netdev_init(struct nes_device *nesdev,
 	return netdev;
 }
 
+
 /**
  * nes_netdev_destroy - destroy network device structure
  */
@@ -1846,6 +1868,7 @@ void nes_netdev_destroy(struct net_device *netdev)
 
 	free_netdev(netdev);
 }
+
 
 /**
  * nes_nic_cm_xmit -- CM calls this to send out pkts

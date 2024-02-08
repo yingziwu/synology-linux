@@ -94,6 +94,7 @@
 /* Write logging FIFO has valid transactions */
 #define AL_FABRIC_IRQ_WR_LOG_FIFO_VALID_A0		31
 
+
 /**
  * Get SW interrupt index corresponding to a given sys fabric irq index.
  *

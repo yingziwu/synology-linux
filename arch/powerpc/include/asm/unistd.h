@@ -4,9 +4,18 @@
 #ifndef _ASM_POWERPC_UNISTD_H_
 #define _ASM_POWERPC_UNISTD_H_
 
-#if 1  
+#if 1 //SYNO
 #include <linux/syno.h>
 #endif
+
+/*
+ * This file contains the system call numbers.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version
+ * 2 of the License, or (at your option) any later version.
+ */
 
 #define __NR_restart_syscall	  0
 #define __NR_exit		  1
@@ -145,7 +154,7 @@
 #define __NR_bdflush		134
 #define __NR_sysfs		135
 #define __NR_personality	136
-#define __NR_afs_syscall	137  
+#define __NR_afs_syscall	137 /* Syscall for Andrew File System */
 #define __NR_setfsuid		138
 #define __NR_setfsgid		139
 #define __NR__llseek		140
@@ -195,12 +204,12 @@
 #define __NR_capset		184
 #define __NR_sigaltstack	185
 #define __NR_sendfile		186
-#define __NR_getpmsg		187	 
-#define __NR_putpmsg		188	 
+#define __NR_getpmsg		187	/* some people actually want streams */
+#define __NR_putpmsg		188	/* some people actually want streams */
 #define __NR_vfork		189
-#define __NR_ugetrlimit		190	 
+#define __NR_ugetrlimit		190	/* SuS compliant getrlimit */
 #define __NR_readahead		191
-#ifndef __powerpc64__			 
+#ifndef __powerpc64__			/* these are 32-bit only */
 #define __NR_mmap2		192
 #define __NR_truncate64		193
 #define __NR_ftruncate64	194
@@ -236,7 +245,7 @@
 #define __NR_futex		221
 #define __NR_sched_setaffinity	222
 #define __NR_sched_getaffinity	223
- 
+/* 224 currently unused */
 #define __NR_tuxcall		225
 #ifndef __powerpc64__
 #define __NR_sendfile64		226
@@ -273,7 +282,7 @@
 #endif
 #define __NR_rtas		255
 #define __NR_sys_debug_setcontext 256
- 
+/* Number 257 is reserved for vserver */
 #define __NR_migrate_pages	258
 #define __NR_mbind		259
 #define __NR_get_mempolicy	260
@@ -399,13 +408,14 @@
 #define __NR_SYNOCaselessLStat64			407
 
 #if !defined(__KERNEL__)
- 
+/* direct SYNOCaselessStat to stat64 in 32-bit platform
+ * 64-bits arch has no stat64 support */
 #if (_FILE_OFFSET_BITS == 64)
 #define SYNOCaselessStat(arg1,arg2)                         syscall(__NR_SYNOCaselessStat64 , arg1,arg2)
 #define SYNOCaselessLStat(arg1,arg2)                         syscall(__NR_SYNOCaselessLStat64 , arg1,arg2)
-#endif  
-#endif  
-#endif  
+#endif /* _FILE_OFFSET_BITS */
+#endif /* __KERNEL__ */
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNOEcryptName                 410
@@ -421,7 +431,12 @@
 #define SYNOACLSysIsSupport(arg1, arg2, arg3)            syscall(__NR_SYNOACLIsSupport, arg1, arg2, arg3)
 #define __NR_SYNOACLGetPerm               414
 #define SYNOACLSysGetPerm(arg1, arg2)            syscall(__NR_SYNOACLGetPerm, arg1, arg2)
-#endif  
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_SYNOFlushAggregate       415
+#define SYNOFlushAggregate(arg1)      syscall(__NR_SYNOFlushAggregate, arg1)
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNOStat64              (__NR_SYSCALL_BASE+419)
@@ -429,14 +444,15 @@
 #define __NR_SYNOLStat64              (__NR_SYSCALL_BASE+421)
 
 #if !defined(__KERNEL__)
- 
+/* direct SYNOStat to stat64 in 32-bit platform
+ * 64-bits arch has no stat64 support */
 #if (_FILE_OFFSET_BITS == 64)
 #define SYNOStat(arg1, arg2, arg3)  syscall(__NR_SYNOStat64, arg1, arg2, arg3)
 #define SYNOFStat(arg1, arg2, arg3) syscall(__NR_SYNOFStat64, arg1, arg2, arg3)
 #define SYNOLStat(arg1, arg2, arg3) syscall(__NR_SYNOLStat64, arg1, arg2, arg3)
 #endif
-#endif  
-#endif  
+#endif /* __KERNEL__ */
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
 #define __NR_SYNONotifyInit		422
 #define SYNONotifyInit(arg1)	syscall(__NR_SYNONotifyInit, arg1)
@@ -448,18 +464,105 @@
 #define SYNONotifyAddWatch32(arg1, arg2, arg3)	syscall(__NR_SYNONotifyAddWatch32, arg1, arg2, arg3)
 #define __NR_SYNONotifyRemoveWatch32	426
 #define SYNONotifyRemoveWatch32(arg1, arg2, arg3)	syscall(__NR_SYNONotifyRemoveWatch32, arg1, arg2, arg3)
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
 #define __NR_SYNOArchiveOverwrite	427
 #define SYNOArchiveOverwrite(arg1, arg2)	syscall(__NR_SYNOArchiveOverwrite, arg1, arg2)
 #endif
 
+#ifdef MY_ABC_HERE
+#define __NR_syno_mtd_alloc			805
+#define syno_mtd_alloc(x)				syscall(__NR_syno_mtd_alloc, x)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_utime				802
+#define syno_utime(arg1, arg2)			syscall(__NR_syno_utime, arg1, arg2)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_archive_bit			803
+#define syno_archive_bit(arg1, arg2)		syscall(__NR_syno_archive_bit, arg1, arg2)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_recv_file				804
+#define syno_recv_file(arg1, arg2, arg3, arg4, arg5)	syscall(__NR_syno_recv_file, arg1, arg2, arg3, arg4, arg5)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_caseless_stat64			806
+#define __NR_syno_caseless_lstat64			807
+
+#if !defined(__KERNEL__)
+/* direct syno_caseless_stat to stat64 in 32-bit platform
+ * 64-bits arch has no stat64 support */
+#if (_FILE_OFFSET_BITS == 64)
+#define syno_caseless_stat(arg1,arg2)                         syscall(__NR_syno_caseless_stat64 , arg1,arg2)
+#define syno_caseless_lstat(arg1,arg2)                         syscall(__NR_syno_caseless_lstat64 , arg1,arg2)
+#endif /* _FILE_OFFSET_BITS */
+#endif /* __KERNEL__ */
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_ecrypt_name                 810
+#define __NR_syno_decrypt_name                811
+#define syno_ecrypt_name(arg1, arg2)          syscall(__NR_syno_ecrypt_name, arg1, arg2)
+#define syno_decrypt_name(arg1, arg2, arg3)         syscall(__NR_syno_decrypt_name, arg1, arg2, arg3)
+#endif
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_acl_check_perm               812
+#define syno_acl_check_perm(arg1, arg2)            syscall(__NR_syno_acl_check_perm, arg1, arg2)
+#define __NR_syno_acl_is_support               813
+#define syno_acl_is_support(arg1, arg2, arg3)            syscall(__NR_syno_acl_is_support, arg1, arg2, arg3)
+#define __NR_syno_acl_get_perm               814
+#define syno_acl_get_perm(arg1, arg2)            syscall(__NR_syno_acl_get_perm, arg1, arg2)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_flush_aggregate       815
+#define syno_flush_aggregate(arg1)      syscall(__NR_syno_flush_aggregate, arg1)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_stat64              (__NR_SYSCALL_BASE+819)
+#define __NR_syno_fstat64             (__NR_SYSCALL_BASE+820)
+#define __NR_syno_lstat64              (__NR_SYSCALL_BASE+821)
+
+#if !defined(__KERNEL__)
+/* direct SYNOStat to stat64 in 32-bit platform
+ * 64-bits arch has no stat64 support */
+#if (_FILE_OFFSET_BITS == 64)
+#define syno_stat(arg1, arg2, arg3)  syscall(__NR_syno_stat64, arg1, arg2, arg3)
+#define syno_fstat(arg1, arg2, arg3) syscall(__NR_syno_fstat64, arg1, arg2, arg3)
+#define syno_lstat(arg1, arg2, arg3) syscall(__NR_syno_lstat64, arg1, arg2, arg3)
+#endif
+#endif /* __KERNEL__ */
+#endif /* MY_ABC_HERE */
+#ifdef MY_ABC_HERE
+#define __NR_syno_notify_init		822
+#define syno_notify_init(arg1)	syscall(__NR_syno_notify_init, arg1)
+#define __NR_syno_notify_add_watch		823
+#define syno_notify_add_watch(arg1, arg2, arg3)	syscall(__NR_syno_notify_add_watch, arg1, arg2, arg3)
+#define __NR_syno_notify_remove_watch		824
+#define syno_notify_remove_watch(arg1, arg2, arg3)	syscall(__NR_syno_notify_remove_watch, arg1, arg2, arg3)
+#define __NR_syno_notify_add_watch32		825
+#define syno_notify_add_watch32(arg1, arg2, arg3)	syscall(__NR_syno_notify_add_watch32, arg1, arg2, arg3)
+#define __NR_syno_notify_remove_watch32	826
+#define syno_notify_remove_watch32(arg1, arg2, arg3)	syscall(__NR_syno_notify_remove_watch32, arg1, arg2, arg3)
+#endif /* MY_ABC_HERE */
+
+#ifdef MY_ABC_HERE
+#define __NR_syno_archive_overwrite	827
+#define syno_archive_overwrite(arg1, arg2)	syscall(__NR_syno_archive_overwrite, arg1, arg2)
+#endif
 #ifdef __KERNEL__
 
 #ifdef MY_ABC_HERE 
- 
-#define __NR_syscalls		450
+/* must match arch/powerpc/include/asm/systbl.h */
+#define __NR_syscalls		850
 #else
 #define __NR_syscalls		353
 #endif
@@ -506,10 +609,13 @@
 #define __ARCH_WANT_SYS_NEWFSTATAT
 #endif
 
+/*
+ * "Conditional" syscalls
+ */
 #define cond_syscall(x) \
 	asmlinkage long x (void) __attribute__((weak,alias("sys_ni_syscall")))
 
-#endif		 
-#endif		 
+#endif		/* __ASSEMBLY__ */
+#endif		/* __KERNEL__ */
 
-#endif  
+#endif /* _ASM_POWERPC_UNISTD_H_ */

@@ -353,6 +353,7 @@ static void __exit s3c24xx_uda134x_exit(void)
 	platform_driver_unregister(&s3c24xx_uda134x_driver);
 }
 
+
 module_init(s3c24xx_uda134x_init);
 module_exit(s3c24xx_uda134x_exit);
 

@@ -44,3 +44,4 @@ int s5p_mfc_init_shm(struct s5p_mfc_ctx *ctx)
 	wmb();
 	return 0;
 }
+

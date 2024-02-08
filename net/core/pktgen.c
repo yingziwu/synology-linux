@@ -568,7 +568,7 @@ static int pktgen_if_show(struct seq_file *seq, void *v)
 			   "     dst_min: %s  dst_max: %s\n",
 			   pkt_dev->dst_min, pkt_dev->dst_max);
 		seq_printf(seq,
-			   "        src_min: %s  src_max: %s\n",
+			   "     src_min: %s  src_max: %s\n",
 			   pkt_dev->src_min, pkt_dev->src_max);
 	}
 
@@ -719,6 +719,7 @@ static int pktgen_if_show(struct seq_file *seq, void *v)
 
 	return 0;
 }
+
 
 static int hex32_arg(const char __user *user_buffer, unsigned long maxlen,
 		     __u32 *num)
@@ -1270,6 +1271,7 @@ static ssize_t pktgen_if_write(struct file *file,
 		len = strn_len(&user_buffer[i], sizeof(pkt_dev->dst_max) - 1);
 		if (len < 0)
 			return len;
+
 
 		if (copy_from_user(buf, &user_buffer[i], len))
 			return -EFAULT;
@@ -1970,6 +1972,7 @@ static struct net_device *pktgen_dev_get_by_name(struct pktgen_dev *pkt_dev,
 	return dev_get_by_name(&init_net, b);
 }
 
+
 /* Associate pktgen_dev with a device. */
 
 static int pktgen_setup_dev(struct pktgen_dev *pkt_dev, const char *ifname)
@@ -2128,6 +2131,7 @@ static void pktgen_setup_inject(struct pktgen_dev *pkt_dev)
 	pkt_dev->nflows = 0;
 }
 
+
 static void spin(struct pktgen_dev *pkt_dev, ktime_t spin_until)
 {
 	ktime_t start_time, end_time;
@@ -2209,6 +2213,7 @@ static inline int f_pick(struct pktgen_dev *pkt_dev)
 
 	return pkt_dev->curfl;
 }
+
 
 #ifdef CONFIG_XFRM
 /* If there was already an IPSEC SA, we keep it as is, else
@@ -2465,6 +2470,7 @@ static void mod_cur_headers(struct pktgen_dev *pkt_dev)
 	pkt_dev->flows[flow].count++;
 }
 
+
 #ifdef CONFIG_XFRM
 static int pktgen_output_ipsec(struct sk_buff *skb, struct pktgen_dev *pkt_dev)
 {
@@ -2518,6 +2524,8 @@ static int process_ipsec(struct pktgen_dev *pkt_dev,
 		if (x) {
 			int ret;
 			__u8 *eth;
+			struct iphdr *iph;
+
 			nhead = x->props.header_len - skb_headroom(skb);
 			if (nhead > 0) {
 				ret = pskb_expand_head(skb, nhead, 0, GFP_ATOMIC);
@@ -2539,6 +2547,11 @@ static int process_ipsec(struct pktgen_dev *pkt_dev,
 			eth = (__u8 *) skb_push(skb, ETH_HLEN);
 			memcpy(eth, pkt_dev->hh, 12);
 			*(u16 *) &eth[12] = protocol;
+
+			/* Update IPv4 header len as well as checksum value */
+			iph = ip_hdr(skb);
+			iph->tot_len = htons(skb->len - ETH_HLEN);
+			ip_send_check(iph);
 		}
 	}
 	return 1;
@@ -2579,6 +2592,7 @@ static void pktgen_finalize_skb(struct pktgen_dev *pkt_dev, struct sk_buff *skb,
 		int frags = pkt_dev->nfrags;
 		int i, len;
 		int frag_len;
+
 
 		if (frags > MAX_SKB_FRAGS)
 			frags = MAX_SKB_FRAGS;
@@ -3467,8 +3481,10 @@ static int pktgen_thread_worker(void *arg)
 	pktgen_rem_thread(t);
 
 	/* Wait for kthread_stop */
-	while (!kthread_should_stop()) {
+	for (;;) {
 		set_current_state(TASK_INTERRUPTIBLE);
+		if (kthread_should_stop())
+			break;
 		schedule();
 	}
 	__set_current_state(TASK_RUNNING);

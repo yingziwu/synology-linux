@@ -33,6 +33,7 @@
 #define SNDRV_SEQ_OSS_MAX_SYNTH_NAME	30
 #define MAX_SYSEX_BUFLEN		128
 
+
 /*
  * definition of synth info records
  */
@@ -61,6 +62,7 @@ struct seq_oss_synth {
 	void *private_data;
 	snd_use_lock_t use_lock;
 };
+
 
 /*
  * device table
@@ -146,6 +148,7 @@ snd_seq_oss_synth_register(struct snd_seq_device *dev)
 	return 0;
 }
 
+
 int
 snd_seq_oss_synth_unregister(struct snd_seq_device *dev)
 {
@@ -183,6 +186,7 @@ snd_seq_oss_synth_unregister(struct snd_seq_device *dev)
 	return 0;
 }
 
+
 /*
  */
 static struct seq_oss_synth *
@@ -198,6 +202,7 @@ get_sdev(int dev)
 	spin_unlock_irqrestore(&register_lock, flags);
 	return rec;
 }
+
 
 /*
  * set up synth tables
@@ -259,6 +264,7 @@ snd_seq_oss_synth_setup(struct seq_oss_devinfo *dp)
 	}
 }
 
+
 /*
  * set up synth tables for MIDI emulation - /dev/music mode only
  */
@@ -292,6 +298,7 @@ snd_seq_oss_synth_setup_midi(struct seq_oss_devinfo *dp)
 	}
 }
 
+
 /*
  * clean up synth tables
  */
@@ -303,7 +310,7 @@ snd_seq_oss_synth_cleanup(struct seq_oss_devinfo *dp)
 	struct seq_oss_synth *rec;
 	struct seq_oss_synthinfo *info;
 
-	if (snd_BUG_ON(dp->max_synthdev >= SNDRV_SEQ_OSS_MAX_SYNTH_DEVS))
+	if (snd_BUG_ON(dp->max_synthdev > SNDRV_SEQ_OSS_MAX_SYNTH_DEVS))
 		return;
 	for (i = 0; i < dp->max_synthdev; i++) {
 		info = &dp->synths[i];
@@ -370,6 +377,7 @@ get_synthdev(struct seq_oss_devinfo *dp, int dev)
 	return rec;
 }
 
+
 /*
  * reset note and velocity on each channel.
  */
@@ -384,6 +392,7 @@ reset_channels(struct seq_oss_synthinfo *info)
 		info->ch[i].vel = 0;
 	}
 }
+
 
 /*
  * reset synth device:
@@ -438,6 +447,7 @@ snd_seq_oss_synth_reset(struct seq_oss_devinfo *dp, int dev)
 	snd_use_lock_free(&rec->use_lock);
 }
 
+
 /*
  * load a patch record:
  * call load_patch callback function
@@ -479,6 +489,7 @@ snd_seq_oss_synth_is_valid(struct seq_oss_devinfo *dp, int dev)
 	}
 	return 0;
 }
+
 
 /*
  * receive OSS 6 byte sysex packet:
@@ -552,6 +563,7 @@ snd_seq_oss_synth_addr(struct seq_oss_devinfo *dp, int dev, struct snd_seq_event
 	return 0;
 }
 
+
 /*
  * OSS compatible ioctl
  */
@@ -573,6 +585,7 @@ snd_seq_oss_synth_ioctl(struct seq_oss_devinfo *dp, int dev, unsigned int cmd, u
 	return rc;
 }
 
+
 /*
  * send OSS raw events - SEQ_PRIVATE and SEQ_VOLUME
  */
@@ -585,6 +598,7 @@ snd_seq_oss_synth_raw_event(struct seq_oss_devinfo *dp, int dev, unsigned char *
 	memcpy(ev->data.raw8.d, data, 8);
 	return snd_seq_oss_synth_addr(dp, dev, ev);
 }
+
 
 /*
  * create OSS compatible synth_info record
@@ -617,6 +631,7 @@ snd_seq_oss_synth_make_info(struct seq_oss_devinfo *dp, int dev, struct synth_in
 	}
 	return 0;
 }
+
 
 #ifdef CONFIG_PROC_FS
 /*

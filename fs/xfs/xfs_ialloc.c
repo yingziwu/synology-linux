@@ -37,6 +37,7 @@
 #include "xfs_error.h"
 #include "xfs_bmap.h"
 
+
 /*
  * Allocation group level functions.
  */
@@ -668,6 +669,7 @@ xfs_dialloc(
 	xfs_inobt_rec_incore_t trec;	/* temp inode allocation record */
 	struct xfs_perag *pag;
 
+
 	if (*IO_agbp == NULL) {
 		/*
 		 * We do not have an agbp, so select an initial allocation
@@ -825,6 +827,7 @@ nextag:
 			goto alloc_inode;
 		}
 
+
 		/*
 		 * In the same AG as parent, but parent's chunk is full.
 		 */
@@ -891,13 +894,13 @@ nextag:
 
 			/* free inodes to the left? */
 			if (useleft && trec.ir_freecount) {
-				rec = trec;
 				xfs_btree_del_cursor(cur, XFS_BTREE_NOERROR);
 				cur = tcur;
 
 				pag->pagl_leftrec = trec.ir_startino;
 				pag->pagl_rightrec = rec.ir_startino;
 				pag->pagl_pagino = pagino;
+				rec = trec;
 				goto alloc_inode;
 			}
 

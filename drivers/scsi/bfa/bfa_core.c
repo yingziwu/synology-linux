@@ -88,6 +88,8 @@ static bfa_ioc_mbox_mcfunc_t  bfa_mbox_isrs[BFI_MC_MAX] = {
 	NULL,
 };
 
+
+
 static void
 bfa_com_port_attach(struct bfa_s *bfa)
 {
@@ -1093,6 +1095,7 @@ bfa_iocfc_reset_cbfn(void *bfa_arg)
 	bfa_isr_enable(bfa);
 }
 
+
 /*
  * Query IOC memory requirement information.
  */
@@ -1318,6 +1321,7 @@ bfa_iocfc_disable(struct bfa_s *bfa)
 	bfa_ioc_disable(&bfa->ioc);
 }
 
+
 bfa_boolean_t
 bfa_iocfc_is_operational(struct bfa_s *bfa)
 {
@@ -1356,6 +1360,7 @@ bfa_iocfc_get_pbc_vports(struct bfa_s *bfa, struct bfi_pbc_vport_s *pbc_vport)
 	memcpy(pbc_vport, cfgrsp->pbc_cfg.vport, sizeof(cfgrsp->pbc_cfg.vport));
 	return cfgrsp->pbc_cfg.nvports;
 }
+
 
 /*
  * Use this function query the memory requirement of the BFA library.

@@ -343,3 +343,4 @@ ENTRY(iwmmxt_task_release)
 	.data
 concan_owner:
 	.word	0
+

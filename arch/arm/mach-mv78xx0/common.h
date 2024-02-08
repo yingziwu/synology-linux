@@ -49,4 +49,5 @@ void mv78xx0_i2c_init(void);
 
 extern struct sys_timer mv78xx0_timer;
 
+
 #endif

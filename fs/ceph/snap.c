@@ -53,6 +53,7 @@
  * console).
  */
 
+
 /*
  * increase ref count for the realm
  *
@@ -277,6 +278,7 @@ static int adjust_snap_realm_parent(struct ceph_mds_client *mdsc,
 	return 1;
 }
 
+
 static int cmpu64_rev(const void *a, const void *b)
 {
 	if (*(u64 *)a < *(u64 *)b)
@@ -285,6 +287,9 @@ static int cmpu64_rev(const void *a, const void *b)
 		return -1;
 	return 0;
 }
+
+
+static struct ceph_snap_context *empty_snapc;
 
 /*
  * build the snap context for a given realm.
@@ -327,9 +332,15 @@ static int build_snap_context(struct ceph_snap_realm *realm)
 		return 0;
 	}
 
+	if (num == 0 && realm->seq == empty_snapc->seq) {
+		ceph_get_snap_context(empty_snapc);
+		snapc = empty_snapc;
+		goto done;
+	}
+
 	/* alloc new snap context */
 	err = -ENOMEM;
-	if (num > ULONG_MAX / sizeof(u64) - sizeof(*snapc))
+	if (num > (SIZE_MAX - sizeof(*snapc)) / sizeof(u64))
 		goto fail;
 	snapc = kzalloc(sizeof(*snapc) + num*sizeof(u64), GFP_NOFS);
 	if (!snapc)
@@ -362,6 +373,7 @@ static int build_snap_context(struct ceph_snap_realm *realm)
 	dout("build_snap_context %llx %p: %p seq %lld (%d snaps)\n",
 	     realm->ino, realm, snapc, snapc->seq, snapc->num_snaps);
 
+done:
 	if (realm->cached_context)
 		ceph_put_snap_context(realm->cached_context);
 	realm->cached_context = snapc;
@@ -395,6 +407,7 @@ static void rebuild_snap_realms(struct ceph_snap_realm *realm)
 		rebuild_snap_realms(child);
 }
 
+
 /*
  * helper to allocate and decode an array of snapids.  free prior
  * instance, if any.
@@ -415,6 +428,7 @@ static int dup_array(u64 **dst, __le64 *src, int num)
 	}
 	return 0;
 }
+
 
 /*
  * When a snapshot is applied, the size/mtime inode metadata is queued
@@ -460,6 +474,9 @@ void ceph_queue_cap_snap(struct ceph_inode_info *ci)
 		   writes in progress now were started before the previous
 		   cap_snap.  lucky us. */
 		dout("queue_cap_snap %p already pending\n", inode);
+		kfree(capsnap);
+	} else if (ci->i_snap_realm->cached_context == empty_snapc) {
+		dout("queue_cap_snap %p empty snapc\n", inode);
 		kfree(capsnap);
 	} else if (dirty & (CEPH_CAP_AUTH_EXCL|CEPH_CAP_XATTR_EXCL|
 			    CEPH_CAP_FILE_EXCL|CEPH_CAP_FILE_WR)) {
@@ -714,6 +731,7 @@ fail:
 	return err;
 }
 
+
 /*
  * Send any cap_snaps that are queued for flush.  Try to carry
  * s_mutex across multiple snap flushes to avoid locking overhead.
@@ -748,6 +766,7 @@ static void flush_snaps(struct ceph_mds_client *mdsc)
 	}
 	dout("flush_snaps done\n");
 }
+
 
 /*
  * Handle a snap notification from the MDS.
@@ -919,4 +938,19 @@ out:
 	if (locked_rwsem)
 		up_write(&mdsc->snap_rwsem);
 	return;
+}
+
+int __init ceph_snap_init(void)
+{
+	empty_snapc = kzalloc(sizeof(struct ceph_snap_context), GFP_NOFS);
+	if (!empty_snapc)
+		return -ENOMEM;
+	atomic_set(&empty_snapc->nref, 1);
+	empty_snapc->seq = 1;
+	return 0;
+}
+
+void ceph_snap_exit(void)
+{
+	ceph_put_snap_context(empty_snapc);
 }

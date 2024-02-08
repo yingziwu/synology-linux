@@ -92,3 +92,4 @@ EXPORT_SYMBOL_GPL(dlm_new_lockspace);
 EXPORT_SYMBOL_GPL(dlm_release_lockspace);
 EXPORT_SYMBOL_GPL(dlm_lock);
 EXPORT_SYMBOL_GPL(dlm_unlock);
+

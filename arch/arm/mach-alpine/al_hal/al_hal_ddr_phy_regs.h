@@ -381,6 +381,7 @@ saving. Valid values are:
  */
 #define DWC_DDR_PHY_REGS_DSGCR_PUREN			0x00000001
 
+
 /* Register DSGCR field DQSGX */
 /**
  * DQSGX DQS Gate Extension: Specifies if set that the read DQS gating mustgate
@@ -1144,3 +1145,4 @@ automatically triggering after PHY initialization.
 #endif
 
 /** @} end of DDR group */
+

@@ -140,6 +140,7 @@ int cfg80211_wext_giwmode(struct net_device *dev, struct iw_request_info *info,
 }
 EXPORT_SYMBOL_GPL(cfg80211_wext_giwmode);
 
+
 int cfg80211_wext_giwrange(struct net_device *dev,
 			   struct iw_request_info *info,
 			   struct iw_point *data, char *extra)
@@ -252,6 +253,7 @@ int cfg80211_wext_giwrange(struct net_device *dev,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(cfg80211_wext_giwrange);
+
 
 /**
  * cfg80211_wext_freq - get wext frequency for non-"auto"
@@ -1036,6 +1038,7 @@ static int cfg80211_set_cipher_pairwise(struct wireless_dev *wdev, u32 cipher)
 	return 0;
 }
 
+
 static int cfg80211_set_key_mgt(struct wireless_dev *wdev, u32 key_mgt)
 {
 	int nr_akm_suites = 0;
@@ -1262,8 +1265,7 @@ static int cfg80211_wext_giwrate(struct net_device *dev,
 {
 	struct wireless_dev *wdev = dev->ieee80211_ptr;
 	struct cfg80211_registered_device *rdev = wiphy_to_dev(wdev->wiphy);
-	/* we are under RTNL - globally locked - so can use a static struct */
-	static struct station_info sinfo;
+	struct station_info sinfo = {};
 	u8 addr[ETH_ALEN];
 	int err;
 

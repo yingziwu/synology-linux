@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+
 	if (fseek(f, -4L, SEEK_END)) {
 		perror(argv[1]);
 	}

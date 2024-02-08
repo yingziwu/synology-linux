@@ -104,6 +104,7 @@ extern "C" {
 #define		MV_SPI_TCS_HOLD_OFFSET				12
 #define		MV_SPI_TCS_HOLD_MASK				(0xF << MV_SPI_TCS_HOLD_OFFSET)
 
+
 /* Serial Memory Interface Configuration Register Masks */
 #define		MV_SPI_CLK_PRESCALE_OFFSET			0	/* bit 0-4 */
 #define		MV_SPI_BYTE_LENGTH_OFFSET			5	/* bit 5 */
@@ -128,6 +129,7 @@ extern "C" {
 #define		MV_SPI_SPPR_0_MASK				(0x1 << MV_SPI_SPPR_0_OFFSET)
 #define		MV_SPI_SPPR_HI_OFFSET				6
 #define		MV_SPI_SPPR_HI_MASK				(0x3 << MV_SPI_SPPR_HI_OFFSET)
+
 
 #ifdef __cplusplus
 }

@@ -76,6 +76,8 @@ struct user_thread
 	unsigned long long  ts;                 /* the timestamp when the thread is created */
 };
 
+
+
 #define USER_THREAD_HASH 100
 static struct hlist_head user_thread_lists[USER_THREAD_HASH];
 
@@ -95,6 +97,8 @@ struct f_hook
 	ufunc_hook_pre_handler_t    entry_handler;          /* the callback function when function calls */
 	ufunc_hook_return_handler_t return_handler;         /* the callback function when function returns, set to NULL if don't want to hook on exit */
 };
+
+
 
 static int get_pthread_tid_hash(unsigned int data)
 {
@@ -199,6 +203,7 @@ static int clear_pthread_tid_lists(void)
 	return 0;
 }
 
+
 static int get_user_thread_hash(unsigned int data)
 {
 	return data % USER_THREAD_HASH;
@@ -265,6 +270,7 @@ static int get_exit_thread_hash(unsigned int data)
 {
 	return data % EXIT_THREAD_HASH;
 }
+
 
 /*
  * add the new exit thread information to the list
@@ -1134,6 +1140,7 @@ static int write_thread_broadcast_release_sync_info(struct task_struct * task,
 	return 0;
 }
 
+
 static int write_sync_obj_create_info(struct task_struct * task,
                                       unsigned int pc,
                                       unsigned long long ts,
@@ -1423,6 +1430,7 @@ static int pthread_join_entry_cb(struct task_struct * task,
 	return 0;
 }
 
+
 static int pthread_join_return_cb(struct task_struct * task,
                                   unsigned int         orig_inst,
                                   int                  orig_inst_size,
@@ -1642,6 +1650,7 @@ static int pthread_mutex_trylock_entry_cb(struct task_struct * task,
 	return 0;
 }
 
+
 static int pthread_mutex_trylock_return_cb(struct task_struct * task,
                                            unsigned int         orig_inst,
                                            int                  orig_inst_size,
@@ -1690,6 +1699,7 @@ static int pthread_mutex_timedlock_entry_cb(struct task_struct * task,
 
 	return 0;
 }
+
 
 static int pthread_mutex_timedlock_return_cb(struct task_struct * task,
                                              unsigned int         orig_inst,
@@ -2129,6 +2139,7 @@ static int pthread_cond_signal_entry_cb(struct task_struct * task,
 	return 0;
 }
 
+
 static int pthread_cond_signal_return_cb(struct task_struct * task,
                                          unsigned int         orig_inst,
                                          int                  orig_inst_size,
@@ -2427,6 +2438,7 @@ static int mq_timedsend_entry_cb(struct task_struct * task,
 	return 0;
 }
 
+
 static int mq_timedsend_return_cb(struct task_struct * task,
                                   unsigned int         orig_inst,
                                   int                  orig_inst_size,
@@ -2500,6 +2512,7 @@ static int sem_init_return_cb(struct task_struct * task,
 	{
 		write_sync_obj_create_info(task, address - size, exit_ts, obj_id, TP_SYNC_OBJ_TYPE_SEMAPHORE, 0, NULL, init_value, SEM_MAX_VALUE);
 	}
+
 
 	return 0;
 }
@@ -2864,6 +2877,7 @@ static int msgget_return_cb(struct task_struct * task,
 
 	return 0;
 }
+
 
 static int msgsnd_entry_cb(struct task_struct * task,
                             unsigned int         orig_inst,
@@ -3570,6 +3584,7 @@ static int waitpid_entry_cb(struct task_struct * task,
 	return 0;
 }
 
+
 static int waitpid_return_cb(struct task_struct * task,
                              unsigned int         orig_inst,
                              int                  orig_inst_size,
@@ -3610,6 +3625,7 @@ static int wait_entry_cb(struct task_struct * task,
 	return 0;
 }
 
+
 static int wait_return_cb(struct task_struct * task,
                           unsigned int         orig_inst,
                           int                  orig_inst_size,
@@ -3640,6 +3656,7 @@ static int wait_return_cb(struct task_struct * task,
 
 	return 0;
 }
+
 
 /* The following table must be static to make sure all variables are initialzed to zero */
 static struct f_hook fh_array[] =
@@ -3737,6 +3754,8 @@ static struct f_hook fh_array[] =
 
 	{NULL, NULL, NULL}
 };
+
+
 
 int start_functions_hooking(void)
 {

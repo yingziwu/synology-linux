@@ -517,6 +517,7 @@ static struct pdcspath_entry *pdcspath_entries[] = {
 	NULL,
 };
 
+
 /* For more insight of what's going on here, refer to PDC Procedures doc,
  * Section PDC_STABLE */
 
@@ -1096,6 +1097,7 @@ pdc_stable_exit(void)
 	kset_unregister(paths_kset);
 	kobject_put(stable_kobj);
 }
+
 
 module_init(pdc_stable_init);
 module_exit(pdc_stable_exit);

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuIfRegsh
 #define __INCmvCpuIfRegsh
 
@@ -172,6 +173,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CCR_CLUSTER_ID_OFFS			24
 #define CCR_CLUSTER_ID_MASK			(0xF << CCR_SRAM_LOW_LEAK_OFFS)
 
+
 /* ARM Control and Status register */
 /* CPU_CTRL_STAT_REG (CCSR) */
 
@@ -182,6 +184,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CCSR_ENDIAN_STATUS_MASK			(1 << CCSR_ENDIAN_STATUS_OFFS)
 #define CCSR_ENDIAN_STATUS_LITTLE		(0 << CCSR_ENDIAN_STATUS_OFFS)
 #define CCSR_ENDIAN_STATUS_BIG			(1 << CCSR_ENDIAN_STATUS_OFFS)
+
 
 /* RSTOUTn Mask Register */
 /* CPU_RSTOUTN_MASK_REG (CRMR) */
@@ -201,10 +204,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CRMR_PEX_TRST_OUT_ENABLE(bus)		(1 << CRMR_PEX_TRST_OUT_OFFS(bus))
 #define CRMR_PEX_TRST_OUT_DISABLE(bus)		(0 << CRMR_PEX_TRST_OUT_OFFS(bus))
 
+
 /* System Software Reset Register */
 /* CPU_SYS_SOFT_RST_REG (CSSRR) */
 
 #define CSSRR_SYSTEM_SOFT_RST			BIT0
+
 
 /* CPU_L2_CTRL_REG fields */
 
@@ -292,6 +297,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define LVDS_PADS_CONF_PD_MASK(idx)		(1 << (16 + idx))
 #define LVDS_PADS_CONF_PD_EN(idx, en)		((en ? 0 : 1) << LVDS_PADS_CONF_PD_OFFS(idx))
 
+
 /*******************************************/
 /* Main Interrupt Controller Registers Map */
 /*******************************************/
@@ -323,6 +329,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_IRQ_NR							116
 
+
 /*******************************************/
 /* ARM Doorbell Registers Map		   */
 /*******************************************/
@@ -350,4 +357,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CPU_CONFIG_DEFAULT_MASK         	(CCR_VEC_INIT_LOC_MASK)
 #define CPU_CONFIG_DEFAULT                      (CCR_VEC_INIT_LOC_FF00)
 
+
 #endif /* __INCmvCpuIfRegsh */
+

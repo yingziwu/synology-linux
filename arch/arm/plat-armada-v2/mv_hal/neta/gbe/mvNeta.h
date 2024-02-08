@@ -266,6 +266,7 @@ typedef enum {
 
 } MV_ETH_PORT_FC;
 
+
 typedef enum {
 	MV_ETH_PRIO_FIXED = 0,	/* Fixed priority mode */
 	MV_ETH_PRIO_WRR = 1	/* Weighted round robin priority mode */
@@ -677,6 +678,7 @@ static INLINE MV_ULONG netaDescVirtToPhys(MV_NETA_QUEUE_CTRL *pQueueCtrl, MV_U8 
 	return (pQueueCtrl->descBuf.bufPhysAddr + (pDesc - pQueueCtrl->descBuf.bufVirtPtr));
 }
 
+
 #ifdef CONFIG_MV_PON
 static INLINE void mvNetaPonTxqBytesAdd(int port, int txp, int txq, int bytes)
 {
@@ -725,9 +727,11 @@ MV_STATUS	mvNetaForceLinkModeSet(int portNo, MV_BOOL force_link_pass, MV_BOOL fo
 MV_STATUS	mvNetaSpeedDuplexSet(int portNo, MV_ETH_PORT_SPEED speed, MV_ETH_PORT_DUPLEX duplex);
 MV_STATUS 	mvNetaSpeedDuplexGet(int portNo, MV_ETH_PORT_SPEED *speed, MV_ETH_PORT_DUPLEX *duplex);
 
+
 void		mvNetaCpuDump(int port, int cpu, int RxTx);
 MV_STATUS	mvNetaTxqCpuMaskSet(int port, int txq_mask, int cpu);
 MV_STATUS	mvNetaRxqCpuMaskSet(int port, int rxq_mask, int cpu);
+
 
 void		mvNetaSetOtherMcastTable(int portNo, int queue);
 void		mvNetaSetUcastTable(int port, int queue);

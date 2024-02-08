@@ -30,14 +30,18 @@
 #ifndef LINUX_HW_MUTEX_H
 #define LINUX_HW_MUTEX_H
  
+
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <asm/atomic.h>
 
+
 /* 4 masters */
 #define MASTER_TOTAL 			(4) 
 
+
 #define HW_MUTEX_DEV_ID		0x0949
+
 
 /* HW MUTEX controller working mode */
 typedef enum {
@@ -64,6 +68,7 @@ typedef enum {
 	HW_MUTEX_GPIO = 4,
 	HW_MUTEX_RESV
 } hw_mutex_device_type;
+
 
 /* Each HW mutex is controlled by a software mutex */
 struct hw_mutex {
@@ -99,6 +104,7 @@ struct hw_mutex_operations {
 	uint8_t (*is_waiting)(struct hw_mutex* hmutex);	
 }__attribute__((aligned(4)));
 
+ 
 /*
   * hw_mutex_lock - acquire the mutex
   * @mutex: the mutex to be acquired
@@ -124,6 +130,7 @@ extern void hw_mutex_lock(uint8_t mutex);
 
 extern long __must_check hw_mutex_lock_interruptible(uint8_t mutex);
 
+
 /* hw_mutex_is_locked - check whether the current master owns the mutex or not
  * @mutex: the mutex number to be checked
  *
@@ -143,6 +150,7 @@ extern int __must_check hw_mutex_is_locked(uint8_t mutex);
  */
 extern void hw_mutex_unlock(uint8_t mutex);
 
+
 //#define HW_MUTEX_DEBUG 1
 #ifdef HW_MUTEX_DEBUG
 //#   define DEBUG_PRINT(fmt, args...) printk("%s: " fmt, __FUNCTION__ , ## args)
@@ -155,4 +163,7 @@ extern void hw_mutex_unlock(uint8_t mutex);
 
 #endif
 
+
+
 #endif
+

@@ -18,6 +18,7 @@
 
 #include "rtc-core.h"
 
+
 static int rtc_proc_show(struct seq_file *seq, void *offset)
 {
 	int err;

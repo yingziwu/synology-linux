@@ -258,17 +258,50 @@ config SYNO_DISK_MONITOR_TOOL
 	bool "Disk performance monitor tool"
 	default y
 
+config SYNO_SAMPLE_SEQ_IO
+	bool "Sample HDD seq IO"
+	depends on SYNO_DISK_MONITOR_TOOL
+	default y
+
 config SYNO_COMCERTO2K_RAID_XORNEON_MODULE
 	bool "To reduce comcerto2k kernel size, modulize raid and xor-neon"
 	depends on KERNEL_MODE_NEON
 	default n
 
+config SYNO_MICROP_POWEROFF
+	bool "Power off by microP"
+	default n
+
+config SYNO_MODULE_RELOAD_FIX
+	bool "Fix reload module bug"
+	default n
+
+config SYNO_BLOCK_MONITOR_TOOL
+	bool "Disk block layer performance monitor tool"
+	default y
+
+config SYNO_SERIAL_CONSOLE_FORBID
+	bool "Apply Syno Serial Console Forbid Mechanism"
+	default n
+
+config SYNO_USB_FORBID
+	bool "Apply Syno USB Forbid Mechanism"
+	default n
+
+config SYNO_DISK_TLER_RETRY
+	bool "Retry command if error is caused by TLER"
+	default y
+
 config SYNO_CUSTOM_SCMD_TIMEOUT
 	bool "Customize SCSI commands timeout value per disk"
 	default y
 
-config SYNO_ADD_ROUTE_CHECK
-    bool "check if interface is link up before adding route"
-	default n
+config SYNO_KERNEL_MODULE_REMOVAL_LOGGING
+	bool "add logging about kernel module removal"
+	default y
+
+config SYNO_SWAP_FLAG
+	bool "Avoid misuse Swapon / Swapoff"
+	default y
 
 endmenu

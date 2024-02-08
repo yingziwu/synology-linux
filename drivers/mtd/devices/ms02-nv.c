@@ -25,12 +25,14 @@
 
 #include "ms02-nv.h"
 
+
 static char version[] __initdata =
 	"ms02-nv.c: v.1.0.0  13 Aug 2001  Maciej W. Rozycki.\n";
 
 MODULE_AUTHOR("Maciej W. Rozycki <macro@linux-mips.org>");
 MODULE_DESCRIPTION("DEC MS02-NV NVRAM module driver");
 MODULE_LICENSE("GPL");
+
 
 /*
  * Addresses we probe for an MS02-NV at.  Modules may be located
@@ -50,6 +52,7 @@ static const char ms02nv_res_user_ram[] = "General-purpose RAM";
 static const char ms02nv_res_csr[] = "Control and status register";
 
 static struct mtd_info *root_ms02nv_mtd;
+
 
 static int ms02nv_read(struct mtd_info *mtd, loff_t from,
 			size_t len, size_t *retlen, u_char *buf)
@@ -78,6 +81,7 @@ static int ms02nv_write(struct mtd_info *mtd, loff_t to,
 
 	return 0;
 }
+
 
 static inline uint ms02nv_probe_one(ulong addr)
 {
@@ -230,6 +234,7 @@ static int __init ms02nv_init_one(ulong addr)
 
 	return 0;
 
+
 err_out_csr_res:
 	release_resource(csr_res);
 	kfree(csr_res);
@@ -271,6 +276,7 @@ static void __exit ms02nv_remove_one(void)
 	kfree(mtd);
 }
 
+
 static int __init ms02nv_init(void)
 {
 	volatile u32 *csr;
@@ -307,6 +313,7 @@ static void __exit ms02nv_cleanup(void)
 	while (root_ms02nv_mtd)
 		ms02nv_remove_one();
 }
+
 
 module_init(ms02nv_init);
 module_exit(ms02nv_cleanup);

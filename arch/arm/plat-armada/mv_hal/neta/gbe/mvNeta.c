@@ -247,6 +247,7 @@ void mvNetaPortDestroy(int portNo)
 	mvNetaPortCtrl[portNo] = NULL;
 }
 
+
 /*******************************************************************************
 * mvNetaAccMode - Get NETA Acceleration mode
 *
@@ -547,6 +548,7 @@ static void mvNetaPortSgmiiConfig(int port)
 	regVal |= (NETA_GMAC_PSC_ENABLE_MASK);
 	MV_REG_WRITE(NETA_GMAC_CTRL_2_REG(port), regVal);
 }
+
 
 void mvNetaPortPowerUp(int port, MV_BOOL isSgmii, MV_BOOL isRgmii)
 {
@@ -1015,6 +1017,7 @@ void mvNetaPortPowerUp(int port, MV_BOOL isSgmii, MV_BOOL isRgmii)
 
 	/* MAC Cause register should be cleared */
 	MV_REG_WRITE(ETH_UNIT_INTR_CAUSE_REG(port), 0);
+
 
 	if (isSgmii)
 		mvNetaPortSgmiiConfig(port);
@@ -2163,6 +2166,7 @@ static void mvNetaDescRingReset(MV_NETA_QUEUE_CTRL *pQueueCtrl)
 	pQueueCtrl->nextToProc = 0;
 }
 
+
 /* Reset all RXQs */
 void mvNetaRxReset(int port)
 {
@@ -2177,6 +2181,7 @@ void mvNetaRxReset(int port)
 	}
 	MV_REG_WRITE(NETA_PORT_RX_RESET_REG(port), 0);
 }
+
 
 /* Reset all TXQs */
 void mvNetaTxpReset(int port, int txp)
@@ -2253,6 +2258,7 @@ void mvNetaRxqAddrSet(int port, int queue, int descrNum)
 	MV_REG_WRITE(NETA_RXQ_SIZE_REG(pPortCtrl->portNo, queue), descrNum);
 }
 
+
 /*******************************************************************************
 * mvNetaTxqInit - Allocate required memory and initialize TXQ descriptor ring.
 *
@@ -2306,6 +2312,7 @@ MV_NETA_TXQ_CTRL *mvNetaTxqInit(int port, int txp, int queue, int descrNum)
 	return pTxqCtrl;
 }
 
+
 /* Set Rx descriptors queue starting address */
 void mvNetaTxqAddrSet(int port, int txp, int queue, int descrNum)
 {
@@ -2315,11 +2322,13 @@ void mvNetaTxqAddrSet(int port, int txp, int queue, int descrNum)
 	pTxqCtrl = mvNetaTxqHndlGet(port, txp, queue);
 	pQueueCtrl = &pTxqCtrl->queueCtrl;
 
+
 	/* Set Tx descriptors queue starting address */
 	MV_REG_WRITE(NETA_TXQ_BASE_ADDR_REG(port, txp, queue), netaDescVirtToPhys(pQueueCtrl, (MV_U8 *)pQueueCtrl->pFirst));
 
 	MV_REG_WRITE(NETA_TXQ_SIZE_REG(port, txp, queue), NETA_TXQ_DESC_NUM_MASK(descrNum));
 }
+
 
 /* Set maximum bandwidth for enabled TXQs */
 void mvNetaTxqBandwidthSet(int port, int txp,  int queue)
@@ -2332,6 +2341,7 @@ void mvNetaTxqBandwidthSet(int port, int txp,  int queue)
 	MV_REG_WRITE(ETH_TXQ_TOKEN_COUNT_REG(port, txp, queue), 0x3fffffff);
 #endif /* MV_ETH_WRR_NEW */
 }
+
 
 /*******************************************************************************
 * mvNetaRxqDelete - Delete RXQ and free memory allocated for descriptors ring.
@@ -2397,6 +2407,7 @@ void mvNetaTxqDelete(int port, int txp, int queue)
 	MV_REG_WRITE(NETA_TXQ_BASE_ADDR_REG(port, txp, queue), 0);
 	MV_REG_WRITE(NETA_TXQ_SIZE_REG(port, txp, queue), 0);
 }
+
 
 /*******************************************************************************
 * mvNetaDescrMemoryFree - Free memory allocated for RX and TX descriptors.
@@ -2497,6 +2508,7 @@ MV_STATUS mvNetaTxMhRegSet(int port, int txp, int reg, MV_U16 mh)
 	MV_REG_WRITE(NETA_TX_MH_REG(port, txp, reg), (MV_U32)mh);
 		return MV_OK;
 }
+
 
 MV_STATUS mvNetaRxqBufSizeSet(int port, int rxq, int bufSize)
 {
@@ -2740,6 +2752,7 @@ MV_STATUS mvNetaPortDown(int port)
 	return MV_OK;
 }
 
+
 MV_STATUS mvNetaRxqOffsetSet(int port, int rxq, int offset)
 {
 	MV_U32 regVal;
@@ -2900,6 +2913,8 @@ MV_STATUS mvNetaTxpEjpSet(int port, int txp, int enable)
 
 	return MV_OK;
 }
+
+
 
 /* Set TXQ to work in FIX priority mode */
 MV_STATUS mvNetaTxqFixPrioSet(int port, int txp, int txq)
@@ -3156,6 +3171,7 @@ MV_STATUS mvNetaTxpEjpSet(int port, int txp, int enable)
 	return MV_OK;
 }
 
+
 /* Set TXQ to work in FIX priority mode */
 MV_STATUS mvNetaTxqFixPrioSet(int port, int txp, int txq)
 {
@@ -3407,6 +3423,7 @@ MV_STATUS mvNetaBpduRxq(int port, int rxq)
 	return MV_OK;
 }
 #endif /* CONFIG_MV_ETH_LEGACY_PARSER */
+
 
 /******************************************************************************/
 /*                      MIB Counters functions                                */

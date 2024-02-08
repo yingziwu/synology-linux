@@ -10,6 +10,7 @@
 #include "ql4_dbg.h"
 #include "ql4_inline.h"
 
+
 /**
  * qla4xxx_mailbox_command - issues mailbox commands
  * @ha: Pointer to host adapter structure.

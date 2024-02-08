@@ -606,6 +606,8 @@ int gpmc_nand_write(int cs, int cmd, int wval)
 }
 EXPORT_SYMBOL(gpmc_nand_write);
 
+
+
 /**
  * gpmc_prefetch_enable - configures and starts prefetch transfer
  * @cs: cs (chip select) number

@@ -42,6 +42,7 @@
 #include <linux/hid.h>		/* For HID_REQ_SET_REPORT & HID_DT_REPORT */
 #include <linux/uaccess.h>	/* For copy_to_user/put_user/... */
 
+
 #ifdef CONFIG_USB_DEBUG
 	static int debug = 1;
 #else
@@ -180,6 +181,7 @@ static struct usb_driver usb_pcwd_driver = {
 	.disconnect =	usb_pcwd_disconnect,
 	.id_table =	usb_pcwd_table,
 };
+
 
 static void usb_pcwd_intr_done(struct urb *urb)
 {
@@ -639,6 +641,9 @@ static int usb_pcwd_probe(struct usb_interface *interface,
 		return -ENODEV;
 	}
 
+	if (iface_desc->desc.bNumEndpoints < 1)
+		return -ENODEV;
+
 	/* check out the endpoint: it has to be Interrupt & IN */
 	endpoint = &iface_desc->endpoint[0].desc;
 
@@ -780,6 +785,7 @@ error:
 	return retval;
 }
 
+
 /**
  *	usb_pcwd_disconnect
  *
@@ -824,6 +830,8 @@ static void usb_pcwd_disconnect(struct usb_interface *interface)
 	printk(KERN_INFO PFX "USB PC Watchdog disconnected\n");
 }
 
+
+
 /**
  *	usb_pcwd_init
  */
@@ -843,6 +851,7 @@ static int __init usb_pcwd_init(void)
 	return 0;
 }
 
+
 /**
  *	usb_pcwd_exit
  */
@@ -851,6 +860,7 @@ static void __exit usb_pcwd_exit(void)
 	/* deregister this driver with the USB subsystem */
 	usb_deregister(&usb_pcwd_driver);
 }
+
 
 module_init(usb_pcwd_init);
 module_exit(usb_pcwd_exit);

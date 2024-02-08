@@ -35,6 +35,8 @@
 #include <linux/wait.h>
 #include <linux/workqueue.h>
 
+
+
 extern volatile int pen_release;
 
 extern cpu1_hotplug;
@@ -60,6 +62,7 @@ void cpu1_full_power_down(void *info)
 
 	return;
 }
+
 
 int platform_cpu_kill(unsigned int cpu)
 {

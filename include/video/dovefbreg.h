@@ -640,6 +640,7 @@
  */
 #define PIXEL_CMD                  0x81
 
+
 /* KW / DSMP specific registers. */
 #define LCD_CLK_CFG0_REG		0xF0A0
 #define LCD_PLL_LPF_MASK		(0xF << 0)
@@ -654,6 +655,7 @@
 #define LCD_PLL_KDIV(x)			((x) << 26)
 #define LCD_PLL_PWR_DOWN_MASK		(1 << 31)
 #define LCD_PLL_PWR_DOWN(en)		((en) << 31)
+
 
 #define LCD_CLK_CFG1_REG		0xF0A4
 #ifdef CONFIG_ARCH_ARMADA_XP
@@ -689,5 +691,6 @@
 #define LCD_LVDS_CFG_PIN_CNT_MASK	(1 << 0)
 #define LCD_LVDS_CFG_PIN_CNT_18		(0 << 0)
 #define LCD_LVDS_CFG_PIN_CNT_24		(1 << 0)
+
 
 #endif

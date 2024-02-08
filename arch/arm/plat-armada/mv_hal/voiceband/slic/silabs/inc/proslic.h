@@ -37,6 +37,7 @@
 **********************************************************************
 */
 
+
 #define SI321X_TYPE 0
 #define SI324X_TYPE 1
 #define SI3220_TYPE 2
@@ -101,6 +102,7 @@ typedef enum {
 	DAA
 } channelTypeType;
 
+
 typedef SiVoiceControlInterfaceType controlInterfaceType;
 
 typedef SiVoiceDeviceType ProslicDeviceType;
@@ -121,6 +123,7 @@ typedef struct	{
 		int channelEnable;
 		bomOptionsType bomOption;
 } proslicChanType;
+
 
 /*
 ** This is the main ProSLIC channel object pointer
@@ -145,6 +148,7 @@ typedef struct {
 	uInt8 minOffHook;
 	uInt8 maxOffHook;
 } pulseDial_Cfg;
+
 
 /*
 ** Interrupt tags
@@ -199,6 +203,7 @@ typedef struct {
 	uInt8 number;
 } proslicIntType;
 
+
 /*
 ** Defines structure for configuring 1 oscillator
 */
@@ -211,6 +216,7 @@ typedef struct {
 	uInt8 tilo;
 	uInt8 tihi;
 } Oscillator_Cfg;
+
 
 /*
 ** Hook states
@@ -262,6 +268,7 @@ typedef struct {
 	ramData initValue;
 } ProslicRAMInit;
 
+
 /*
 ** Linefeed states
 */
@@ -275,6 +282,7 @@ LF_REV_ACTIVE,
 LF_REV_OHT,
 LF_RING_OPEN
 } ;
+
 
 /*
 ** Linefeed part number options
@@ -300,6 +308,7 @@ typedef struct {
     const ramData *psRamData; /* 128 max */
 } proslicPatch;
 
+
 /*
 ** Ringing type options
 */
@@ -322,6 +331,7 @@ typedef struct
       uInt8 amp;
       uInt8 offset;
 } ProSLIC_dbgRingCfg;
+
 
 /*
 ** Line Monitor
@@ -352,7 +362,10 @@ typedef struct
     BOOLEAN buffFull;
 } proslicPSTNCheckObjType;
 
+
 typedef proslicPSTNCheckObjType* proslicPSTNCheckObjType_ptr;
+
+
 
 /*
 ** proslic.c function declarations

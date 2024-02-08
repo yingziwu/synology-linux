@@ -3,6 +3,7 @@
 #ifndef	_SCC_H
 #define	_SCC_H
 
+
 /* selection of hardware types */
 
 #define PA0HZP		0x00	/* hardware type for PA0HZP SCC card and compatible */
@@ -157,6 +158,7 @@ struct scc_hw_config {
 
 /* (#) only one INTACK latch allowed. */
 
+
 struct scc_mem_config {
 	unsigned int dummy;
 	unsigned int bufsize;
@@ -205,6 +207,7 @@ struct scc_kiss {
 	unsigned char mode;		/* 'normal' or 'hwctrl' mode (unused) */
 	unsigned char softdcd;		/* Use DPLL instead of DCD pin for carrier detect */
 };
+
 
 /* SCC channel structure */
 

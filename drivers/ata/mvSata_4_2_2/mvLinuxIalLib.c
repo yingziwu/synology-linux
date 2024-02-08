@@ -1,7 +1,47 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+Copyright (C) Marvell International Ltd. and its affiliates
+
+This software file (the "File") is owned and distributed by Marvell 
+International Ltd. and/or its affiliates ("Marvell") under the following
+alternative licensing terms.  Once you have made an election to distribute the
+File under one of the following license alternatives, please (i) delete this
+introductory statement regarding license alternatives, (ii) delete the two
+license alternatives that you have not elected to use and (iii) preserve the
+Marvell copyright notice above.
+
+
+********************************************************************************
+Marvell GPL License Option
+
+If you received this File from Marvell, you may opt to use, redistribute and/or 
+modify this File in accordance with the terms and conditions of the General 
+Public License Version 2, June 1991 (the "GPL License"), a copy of which is 
+available along with the File in the license.txt file or by writing to the Free 
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 or 
+on the worldwide web at http://www.gnu.org/licenses/gpl.txt. 
+
+THE FILE IS DISTRIBUTED AS-IS, WITHOUT WARRANTY OF ANY KIND, AND THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY 
+DISCLAIMED.  The GPL License provides additional details about this warranty 
+disclaimer.
+*******************************************************************************/
+/*******************************************************************************
+* file_name - mvLinuxIalLib.c
+*
+* DESCRIPTION:
+*   implementation for linux IAL lib functions.
+*
+* DEPENDENCIES:
+*   mvLinuxIalLib.h
+*   mvLinuxIalHt.h
+*
+*
+*******************************************************************************/
+
+/* includes */
 #include <linux/version.h>
 #include <linux/kernel.h>
 #include <generated/autoconf.h>
@@ -17,12 +57,16 @@
 
 #ifdef MY_ABC_HERE
 extern void ResubmitMvCommand(unsigned long data);
-#endif  
+#endif /* MY_ABC_HERE */
 
 #ifndef scsi_to_pci_dma_dir
     #define scsi_to_pci_dma_dir(scsi_dir) ((int)(scsi_dir))
 #endif
 
+
+/* Connect / disconnect timers. */
+/* Note that the disconnect timer should be smaller than the SCSI */
+/* subsystem timer. */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 struct rescan_wrapper
 {
@@ -36,6 +80,7 @@ struct rescan_wrapper
 #endif
 };
 #endif
+
 
 static void *mv_ial_lib_prd_allocate(IAL_HOST_T *pHost);
 
@@ -57,11 +102,13 @@ dma_addr_t inline pci64_map_page(struct pci_dev *hwdev, void* address,
     return mm;
 }
 
+
 void inline pci64_unmap_page(struct pci_dev *hwdev, dma_addr_t address,
                              size_t size, int direction)
 {
     pci_unmap_page(hwdev, address, size, direction);
 }
+
 
 int mv_ial_lib_prd_init(IAL_HOST_T *pHost)
 {
@@ -73,7 +120,11 @@ int mv_ial_lib_prd_init(IAL_HOST_T *pHost)
     {
         boolSize = MV_SATA_GEN2E_SW_QUEUE_SIZE;
     }
-     
+    /*
+     * Allocate PRD Pool  -
+     * Since the driver supports 64 SG table, then each PRD table can go upto
+     * 1KByte (64 entries * 16byte)
+     */
     for (i = 0 ; i < boolSize; i++)
     {
         pHost->prdPool[i] = kmalloc ((MV_EDMA_PRD_ENTRY_SIZE * MV_PRD_TABLE_SIZE * 2)
@@ -110,6 +161,7 @@ int mv_ial_lib_prd_free(IAL_HOST_T *pHost, int size, dma_addr_t dmaPtr,
     return 0;
 }
 
+
 int mv_ial_lib_prd_destroy(IAL_HOST_T *pHost)
 {
     MV_U8 temp;
@@ -131,11 +183,22 @@ int mv_ial_lib_prd_destroy(IAL_HOST_T *pHost)
     return 0;
 }
 
+
+/*******************************************************************************
+ *  Name:   mv_ial_lib_add_done_queue
+ *
+ *  Description:    Add scsi_cmnd to done list. Caller must take care of
+ *                  adapter_lock locking.
+ *
+ *  Parameters:     pAdapter - Adapter data structure
+ *                  scsi_cmnd - SCSI command data sturcture
+ *
+ ******************************************************************************/
 void mv_ial_lib_add_done_queue (struct IALAdapter *pAdapter,
                                 MV_U8 channel,
                                 struct scsi_cmnd   *scsi_cmnd)
 {
-     
+    /* Put new command in the tail of the queue and make it point to NULL */
     ((struct mv_comp_info *)(&scsi_cmnd->SCp))->next_done = NULL;
 
     mvLogMsg(MV_IAL_LOG_ID, MV_DEBUG, "Adding command @ %p to done queue, "
@@ -147,20 +210,32 @@ void mv_ial_lib_add_done_queue (struct IALAdapter *pAdapter,
     }
     if (pAdapter->host[channel]->scsi_cmnd_done_head == NULL)
     {
-         
+        /* First command to the queue */
         pAdapter->host[channel]->scsi_cmnd_done_head = scsi_cmnd;
         pAdapter->host[channel]->scsi_cmnd_done_tail = scsi_cmnd;
     }
     else
     {
-         
+        /* We already have commands in the queue ; put this command in the tail */
         ((struct mv_comp_info *)(&pAdapter->host[channel]->scsi_cmnd_done_tail->SCp))->next_done = scsi_cmnd;
         pAdapter->host[channel]->scsi_cmnd_done_tail = scsi_cmnd;
     }
 }
 
 #ifdef MY_ABC_HERE
- 
+/**
+ * Just for scsi_eh use. 
+ * I don't why this driver do this originally. In order to make
+ * it consiste with original code. My EH must do the same thing. 
+ * 
+ * This would drop current command without notify scsi layer.
+ * 
+ * @param pAdapter [IN] Should not be NULL.
+ * @param channel  [IN] channle index.
+ * 
+ * @return NULL when no pending scsi command.
+ *         others is the complete command head.
+ */
 struct scsi_cmnd *
 syno_ial_lib_clear_cmnd(struct IALAdapter *pAdapter, MV_U8 channel)
 {
@@ -175,13 +250,24 @@ syno_ial_lib_clear_cmnd(struct IALAdapter *pAdapter, MV_U8 channel)
 }
 #endif
 
+/*******************************************************************************
+ *  Name:   mv_ial_lib_get_first_cmnd
+ *
+ *  Description:    Gets first scsi_cmnd from a chain of scsi commands to be
+ *                  completed, then sets NULL to head and tail.
+ *                  Caller must take care of adapter_lock locking.
+ *
+ *  Parameters:     pAdapter - Adapter data structure
+ *
+ *  Return Value:   Pointer to first scsi command in chain
+ ******************************************************************************/
 struct scsi_cmnd * mv_ial_lib_get_first_cmnd (struct IALAdapter *pAdapter, MV_U8 channel)
 {
     if (pAdapter->host[channel] != NULL)
     {
         struct scsi_cmnd *cmnd = pAdapter->host[channel]->scsi_cmnd_done_head;
 #ifdef MY_ABC_HERE
-         
+        /* Do not clear command list while EH_PROCESSING. Otherwise the scsi command will lose.*/
         if (!(pAdapter->mvSataAdapter.eh[channel].flags & EH_PROCESSING)) {
             pAdapter->host[channel]->scsi_cmnd_done_head = NULL;
             pAdapter->host[channel]->scsi_cmnd_done_tail = NULL;
@@ -196,7 +282,17 @@ struct scsi_cmnd * mv_ial_lib_get_first_cmnd (struct IALAdapter *pAdapter, MV_U8
 }
 
 #ifdef MY_ABC_HERE
- 
+/**
+ * Check whether we need block the softirq or not.
+ * 
+ * When EH is processing, we need to blokc softirq.
+ * Otherwiese the command would fail directly.
+ * 
+ * @param cmnd   [IN] scsi command
+ * 
+ * @return TRUE: we need to block softirq.
+ *         FALSE: we don't need to do this
+ */
 static MV_BOOLEAN
 blSynoEHBlockIRQ(struct scsi_cmnd *cmnd)
 {
@@ -223,7 +319,7 @@ blSynoEHBlockIRQ(struct scsi_cmnd *cmnd)
     }
     
     if (pAdapter->mvSataAdapter.eh[pHost->channelIndex].flags & EH_PROCESSING) {
-         
+        /* schedule do scsi_done when eh is done */
         pAdapter->mvSataAdapter.eh[pHost->channelIndex].flags |= EH_SCSI_DONE_NEEDED;
         ret = MV_TRUE;
     }
@@ -233,6 +329,16 @@ END:
 }
 #endif
 
+/*******************************************************************************
+ *  Name:   mv_ial_lib_do_done
+ *
+ *  Description:    Calls scsi_done of chain of scsi commands.
+ *                  Note that adapter_lock can be locked or unlocked, but
+ *                  caller must take care that io_request_lock is locked.
+ *
+ *  Parameters:     cmnd - First command in scsi commands chain
+ *
+ ******************************************************************************/
 void mv_ial_lib_do_done (struct scsi_cmnd *cmnd)
 {
 #ifdef MY_ABC_HERE
@@ -240,7 +346,7 @@ void mv_ial_lib_do_done (struct scsi_cmnd *cmnd)
         return;
     }
 #endif
-     
+    /* Call done function for all commands in queue */
     while (cmnd)
     {
         struct scsi_cmnd *temp;
@@ -257,6 +363,17 @@ void mv_ial_lib_do_done (struct scsi_cmnd *cmnd)
     }
 }
 
+
+/*******************************************************************************
+ *  Name:   mv_ial_lib_free_channel
+ *
+ *  Description:    free allocated queues for the given channel
+ *
+ *  Parameters:     pMvSataAdapter - pointer to the adapter controler this
+ *                  channel connected to.
+ *          channelNum - channel number.
+ *
+ ******************************************************************************/
 void mv_ial_lib_free_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
 {
     MV_SATA_CHANNEL *pMvSataChannel;
@@ -273,7 +390,17 @@ void mv_ial_lib_free_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
     pAdapter->mvSataAdapter.sataChannel[channelNum] = NULL;
     return;
 }
- 
+/****************************************************************
+ *  Name:   mv_ial_lib_init_channel
+ *
+ *  Description:    allocate request and response queues for the EDMA of the
+ *                  given channel and sets other fields.
+ *
+ *  Parameters:
+ *      pAdapter - pointer to the emulated adapter data structure
+ *      channelNum - channel number.
+ *  Return: 0 on success, otherwise on failure
+ ****************************************************************/
 int mv_ial_lib_init_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
 {
     MV_SATA_CHANNEL *pMvSataChannel;
@@ -304,6 +431,7 @@ int mv_ial_lib_init_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
     req_dma_addr = pAdapter->requestsArrayBaseDmaAlignedAddr +
                    (channelNum * pAdapter->requestQueueSize);
 
+/* check the 1K alignment of the request queue*/
     if (((u64)req_dma_addr) & 0x3ffULL)
     {
         mvLogMsg(MV_IAL_LOG_ID, MV_DEBUG_ERROR, "[%d]: request queue allocated isn't 1 K aligned,"
@@ -324,6 +452,7 @@ int mv_ial_lib_init_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
     rsp_dma_addr = pAdapter->responsesArrayBaseDmaAlignedAddr +
                    (channelNum * pAdapter->responseQueueSize);
 
+/* check the 256 alignment of the response queue*/
     if (((u64)rsp_dma_addr) & 0xff)
     {
         mvLogMsg(MV_IAL_LOG_ID, MV_DEBUG_ERROR, "[%d,%d]: response queue allocated isn't 256 byte "
@@ -341,7 +470,7 @@ int mv_ial_lib_init_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
 	setup_timer(&pMvSataChannel->rstimer, ResubmitMvCommand, (unsigned long)pMvSataChannel);
 	INIT_LIST_HEAD(&pMvSataChannel->pendinglh);
 	pMvSataChannel->chkpower_flags = 0;
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
     pMvSataChannel->PMSynoUnique = 0;
     pMvSataChannel->PMdeviceId = 0;
@@ -356,6 +485,19 @@ int mv_ial_lib_init_channel(IAL_ADAPTER_T *pAdapter, MV_U8 channelNum)
     return 0;
 }
 
+/****************************************************************
+ *  Name:   mv_ial_lib_int_handler
+ *
+ *  Description:    Interrupt handler.
+ *
+ *  Parameters:     irq - Hardware IRQ number.assume that different cards will have
+ *                  different IRQ's TBD
+ *                  dev_id  - points to the mvxxxxxxDeviceStruct that generated
+ *                    the interrupt
+ *                  regs    -
+ *
+ *
+ ****************************************************************/
 irqreturn_t mv_ial_lib_int_handler (int irq, void *dev_id )
 {
     IAL_ADAPTER_T       *pAdapter;
@@ -364,6 +506,10 @@ irqreturn_t mv_ial_lib_int_handler (int irq, void *dev_id )
     struct scsi_cmnd *cmnds_done_list = NULL;
     pAdapter = (IAL_ADAPTER_T *)dev_id;
 
+/*
+ * Acquire the adapter spinlock. Meantime all completed commands will be added
+ * to done queue.
+ */
     spin_lock_irqsave(&pAdapter->adapter_lock, flags);
 
     if (mvSataInterruptServiceRoutine(&pAdapter->mvSataAdapter) == MV_TRUE)
@@ -372,9 +518,9 @@ irqreturn_t mv_ial_lib_int_handler (int irq, void *dev_id )
         pAdapter->procNumOfInterrupts ++;
         mvSataScsiPostIntService(pAdapter->ataScsiAdapterExt);
     }
-     
+    /* Unlock adapter lock */
     spin_unlock_irqrestore(&pAdapter->adapter_lock, flags);
-     
+    /* Check if there are commands in the done queue to be completed */
     if (handled == 1)
     {
         MV_U8 i;
@@ -403,6 +549,22 @@ irqreturn_t mv_ial_lib_int_handler (int irq, void *dev_id )
     return IRQ_RETVAL(handled);
 }
 
+/****************************************************************
+ *  Name: mv_ial_lib_add_buffer_to_prd_table
+ *
+ *  Description:    insert one buffer into number of entries in the PRD table,
+ *                  keeping 64KB boundaries
+ *
+ *  Parameters:     pPRD_table: pointer to the PRD table.
+ *          table_size: number of entries in the PRD table.
+ *          count: index of the next entry to add, should be updated by this
+ *          function
+ *          buf_addr,buf_len: the dma address and the size of the buffer to add.
+ *          isEOT: 1 if this is the last entry
+ *  Returns:        0 on success, otherwise onfailure.
+ *
+ ****************************************************************/
+
 static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
                                               MV_SATA_EDMA_PRD_ENTRY *pPRD_table,
                                               int table_size, int *count,
@@ -416,6 +578,12 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
     mvLogMsg(MV_IAL_LOG_ID, MV_DEBUG,"insert to PRD table, count=%d, buf_addr=%x, buf_len=%x\n",
              *count,(unsigned int) buf_addr, buf_len);
 
+
+
+    /*
+    The buffer is splitted in case then either the buffer size exceeds 64 KB
+    or 2 high address bits of all data in the buffer are not identical
+    */
     while (buf_len)
     {
         if (entry >= table_size)
@@ -431,7 +599,7 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
         else
         {
             u64 bcount = buf_len;
-             
+            /*buffer size exceeds 64K*/
             if (bcount > 0x10000)
                 bcount = 0x10000;
             if (buf_addr & 0x1)
@@ -440,7 +608,8 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
                 return -1;
             }
 #if (BITS_PER_LONG > 32) || defined(CONFIG_HIGHMEM64G)
-             
+            /*Split the buffer if 2 high address bits of all
+            data in the buffer are not the same*/
             if ((buf_addr | 0xFFFFFFFF)  !=
                 ((buf_addr + bcount - 1) | 0xFFFFFFFF))
             {
@@ -453,7 +622,8 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
 		 bcount = MRVL_SATA_BUFF_BOUNDARY -
 		      (buf_addr & MRVL_SATA_BOUNDARY_MASK);
 	    }
-             
+            /*In case then buffer size is 64K
+            PRD entry byte count is set to zero*/
             xcount = bcount & 0xffff;
             pPRD_table[entry].lowBaseAddr =
             cpu_to_le32(pci64_dma_lo32(buf_addr));
@@ -461,8 +631,8 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
             cpu_to_le32(pci64_dma_hi32(buf_addr));
             pPRD_table[entry].byteCount = cpu_to_le16(xcount);
             pPRD_table[entry].reserved = 0;
-             
-            pPRD_table[entry].flags = 0; 
+            /* enable snoop on data buffers */
+            pPRD_table[entry].flags = 0;/*cpu_to_le16(MV_EDMA_PRD_NO_SNOOP_FLAG);*/
             if (xcount & 0x1)
             {
                 mvLogMsg(MV_IAL_LOG_ID, MV_DEBUG_ERROR," PRD entry byte count is not 1 bit aligned\n");
@@ -476,8 +646,9 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
 
     if (entry)
     {
-        if (isEOT) 
-            pPRD_table[entry-1].flags = cpu_to_le16(MV_EDMA_PRD_EOT_FLAG  );
+        if (isEOT)/* enable snoop on data buffers */
+            pPRD_table[entry-1].flags = cpu_to_le16(MV_EDMA_PRD_EOT_FLAG /*|
+                                                    MV_EDMA_PRD_NO_SNOOP_FLAG*/);
 
         *count = entry;
         return 0;
@@ -487,6 +658,7 @@ static int mv_ial_lib_add_buffer_to_prd_table(MV_SATA_ADAPTER   *pMvSataAdapter,
     return -1;
 }
 
+/* map to pci */
 int mv_ial_lib_generate_prd(MV_SATA_ADAPTER *pMvSataAdapter, struct scsi_cmnd *SCpnt,
                             struct mv_comp_info *completion_info)
 {
@@ -499,7 +671,7 @@ int mv_ial_lib_generate_prd(MV_SATA_ADAPTER *pMvSataAdapter, struct scsi_cmnd *S
     struct scatterlist *sg;
     unsigned int prd_count;
     MV_SATA_DEVICE_TYPE deviceType = pAdapter->ataScsiAdapterExt->ataDriveData[pHost->channelIndex][SCpnt->device->id].identifyInfo.deviceType;
-     
+    /*should be removed*/
 #ifndef   MV_SUPPORT_1MBYTE_IOS 
 #ifdef MY_ABC_HERE
     if (SCpnt->sdb.length > (SCpnt->device->host->max_sectors << 9))
@@ -694,6 +866,7 @@ int mv_ial_lib_generate_prd(MV_SATA_ADAPTER *pMvSataAdapter, struct scsi_cmnd *S
 #endif
                              scsi_to_pci_dma_dir(SCpnt->sc_data_direction));
 
+
             return -1;
         }
         PRD_dma_address = pci64_map_page(pAdapter->pcidev,
@@ -711,6 +884,20 @@ int mv_ial_lib_generate_prd(MV_SATA_ADAPTER *pMvSataAdapter, struct scsi_cmnd *S
     mvLogMsg(MV_IAL_LOG_ID,  MV_DEBUG, "PRD table allocated (dma) %x \n", PRD_dma_address);
     return 0;
 }
+
+
+/****************************************************************
+ *  Name: mv_ial_block_requests
+ *
+ *  Description:    Blocks request from SCSI mid layer while channel
+ *                  initialization is in progress
+ *
+ *  Parameters:     pAdapter, pointer to the IAL adapter data structure.
+ *                  channelIndex, channel number
+ *
+ *  Returns:        None.
+ *
+ ****************************************************************/
 
 void mv_ial_block_requests(struct IALAdapter *pAdapter, MV_U8 channelIndex)
 {
@@ -733,6 +920,18 @@ void mv_ial_block_requests(struct IALAdapter *pAdapter, MV_U8 channelIndex)
     }
 }
 
+/****************************************************************
+ *  Name: mv_ial_unblock_requests
+ *
+ *  Description:    Unblocks request from SCSI mid layer for non connected
+ *                  channels or channels whose initialization is finished
+ *
+ *  Parameters:     pAdapter -  pointer to the IAL adapter data structure.
+ *                  channelIndex -  channel number
+ *
+ *  Returns:        None.
+ *
+ ****************************************************************/
 static void mv_ial_unblock_requests(struct IALAdapter *pAdapter, MV_U8 channelIndex)
 {
     if ((CHANNEL_NOT_CONNECTED == pAdapter->ialCommonExt.channelState[channelIndex]) ||
@@ -744,6 +943,8 @@ static void mv_ial_unblock_requests(struct IALAdapter *pAdapter, MV_U8 channelIn
         scsi_unblock_requests(pAdapter->host[channelIndex]->scsihost);
     }
 }
+
+
 
 #ifdef MY_ABC_HERE
 static inline void
@@ -771,21 +972,21 @@ SynoEHConnectHandle(IAL_ADAPTER_T *pAdapter,
     }
 
     if (NULL != pMvSataAdapter->sataChannel[channel]) {
-         
+        /* Maybe we are in eh */
         if (pMvSataAdapter->eh[channel].flags & EH_PROCESSING) {
-             
+            /* Tell eh we need a sweet retry */
             syno_eh_printk(pMvSataAdapter, channel, 
                            "EH process and channel connect again");
             pMvSataAdapter->eh[channel].flags |= EH_CONNECT_AGAIN;
             blRestartImmediately = MV_TRUE;
         } else {
-             
+            /* Maybe the channel is just stop and start fastly */
             syno_eh_printk(pMvSataAdapter, channel, 
                            "Channel is here but no EH. Restart channel immediatly");
             SynoEHEventCommon(pAdapter, pMvSataAdapter, channel);
         }
     } else {
-         
+        /* A normal plugin*/
         blRestartImmediately = MV_TRUE;
         pMvSataAdapter->eh[channel].flags |= EH_CONNECT_TRIGGER;
     }
@@ -856,15 +1057,16 @@ SynoEHUnCommunicationErrorHandle(IAL_ADAPTER_T *pAdapter,
     }
 
     if (NULL != pMvSataAdapter->sataChannel[channel]) {
-         
+        /* reset channel let chip can know channel status exactly*/
         mvSataChannelHardReset(pMvSataAdapter, channel);
         if (MV_FALSE == mvSataIsStorageDeviceConnected(pMvSataAdapter, channel, NULL)) {
-             
+            /* Maybe disconnect */
             syno_eh_printk(pMvSataAdapter, channel, 
                            "Looks like an error IRQ from disconnect to communication error");
             return SynoEHDisConnectHandle(pAdapter, pMvSataAdapter, channel);
         } else {
-             
+            /* Usually a cables error or chip uncompatible */
+
             if (pMvSataAdapter->eh[channel].flags & EH_HW_COM_ERROR &&
                 MV_SATA_DEVICE_TYPE_PM != pMvSataAdapter->sataChannel[channel]->deviceType) {
                 syno_eh_printk(pMvSataAdapter, channel, 
@@ -884,11 +1086,12 @@ SynoEHUnCommunicationErrorHandle(IAL_ADAPTER_T *pAdapter,
             }            
         }
     } else {
-         
+        /* Perhaps a IRQ erro or cannot deactive EDMA ...*/
         syno_eh_printk(pMvSataAdapter, channel, "Restart immediately");
         blRestartImmediately = MV_TRUE;
     }
 
+    /* Clear EH_HW_COM_ERROR */
     pMvSataAdapter->eh[channel].flags &= ~(EH_HW_COM_ERROR);
     ret = MV_TRUE;
 END:
@@ -902,6 +1105,16 @@ END:
 }
 #endif
 
+/****************************************************************
+ *  Name: mv_ial_lib_event_notify
+ *
+ *  Description:    this function called by the low  level to notify a certain event
+ *
+ *  Parameters:     pMvSataAdapter, pointer to the Device data structure.
+ *
+ *  Returns:        MV_TRUE on success, MV_FALSE on failure.
+ *
+ ****************************************************************/
 MV_BOOLEAN mv_ial_lib_event_notify(MV_SATA_ADAPTER *pMvSataAdapter, MV_EVENT_TYPE eventType,
                                    MV_U32 param1, MV_U32 param2)
 {
@@ -912,6 +1125,7 @@ MV_BOOLEAN mv_ial_lib_event_notify(MV_SATA_ADAPTER *pMvSataAdapter, MV_EVENT_TYP
     {
     case MV_EVENT_TYPE_SATA_CABLE:
         {
+
 
             if (param1 == MV_SATA_CABLE_EVENT_CONNECT)
             {
@@ -946,7 +1160,7 @@ MV_BOOLEAN mv_ial_lib_event_notify(MV_SATA_ADAPTER *pMvSataAdapter, MV_EVENT_TYP
                         syno_eh_printk(pMvSataAdapter, channel, 
                                        "SynoEHDisConnectHandle Error");
                     }
-#else  
+#else /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
                     SynomvStopChannel(&pAdapter->ialCommonExt, channel,
                                       pAdapter->ataScsiAdapterExt);
@@ -954,7 +1168,7 @@ MV_BOOLEAN mv_ial_lib_event_notify(MV_SATA_ADAPTER *pMvSataAdapter, MV_EVENT_TYP
                     mvStopChannel(&pAdapter->ialCommonExt, channel,
                                   pAdapter->ataScsiAdapterExt);
 #endif
-#endif  
+#endif /* MY_ABC_HERE */
                 }
                 else
                 {
@@ -1029,7 +1243,7 @@ MV_BOOLEAN mv_ial_lib_event_notify(MV_SATA_ADAPTER *pMvSataAdapter, MV_EVENT_TYP
                  eventType - MV_EVENT_TYPE_ADAPTER_ERROR, param1, param2);
         return MV_FALSE;
 
-    } 
+    }/*switch*/
     return MV_TRUE;
 }
 
@@ -1073,6 +1287,7 @@ void IALChannelCommandsQueueFlushed(MV_SATA_ADAPTER *pSataAdapter, MV_U8 channel
 
 }
 
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 #ifdef MY_ABC_HERE
 static MV_BOOLEAN
@@ -1082,6 +1297,7 @@ SynoRescheduleChannelRescan(struct rescan_wrapper* rescan,
 {
     MV_BOOLEAN ret = MV_FALSE;
 
+    /* remove specify device in this time */
     rescan->targetsToRemove = 0;
     rescan->targetsToRemove |= (1 << target);
     rescan->targetsToAdd = newAdd;
@@ -1131,7 +1347,7 @@ static void channel_rescan(struct work_struct *work)
             sdev = scsi_device_lookup(host, 0, target, 0);
             if (sdev != NULL)
             {
-		     
+		    /*scsi_device_cancel(sdev, 0);*/
                 scsi_remove_device(sdev);
                 scsi_device_put(sdev);
             }
@@ -1164,7 +1380,7 @@ static void channel_rescan(struct work_struct *work)
 #ifdef MY_ABC_HERE
             if (!error) {
                 if (NULL == (sdev = scsi_device_lookup(host, 0, target, 0))) {
-                     
+                    /* Perhaps get wrong name */
                     syno_eh_printk((&(rescan->pAdapter->mvSataAdapter)),
                                    rescan->channelIndex,
                                    "Perhaps the device name was wrong, reschedule channel_rescan");
@@ -1177,7 +1393,7 @@ static void channel_rescan(struct work_struct *work)
                     newAdd &= ~(1 << target);
                 }
             }
-#endif  
+#endif /* MY_ABC_HERE */
 #ifdef MY_ABC_HERE
             if (!error) {
                 MV_SATA_CHANNEL *pSataChannel = rescan->pAdapter->mvSataAdapter.sataChannel[rescan->channelIndex];
@@ -1288,6 +1504,7 @@ MV_BOOLEAN IALBusChangeNotifyEx(MV_SATA_ADAPTER *pSataAdapter,
     return MV_TRUE;
 }
 
+
 void asyncStartTimerFunction(unsigned long data)
 {
     IAL_ADAPTER_T   *pAdapter = (IAL_ADAPTER_T *)data;
@@ -1318,7 +1535,7 @@ void asyncStartTimerFunction(unsigned long data)
                  pAdapter->mvSataAdapter.adapterId);
     }
     spin_unlock_irqrestore(&pAdapter->adapter_lock, flags);
-     
+    /* Check if there are commands in the done queue to be completed */
     for (i = 0; i < pAdapter->maxHosts; i++)
     {
         spin_lock_irqsave(&pAdapter->adapter_lock, flags);
@@ -1341,6 +1558,16 @@ void asyncStartTimerFunction(unsigned long data)
     }
 }
 
+/****************************************************************
+ *  Name: release_ata_mem
+ *
+ *  Description:   free memory allocated to the PRD table
+ *          unmap the data buffers of the scsi command
+ *          free completion_info data structure.
+ *  Parameters:     pInfo: pointer to the data structure returned by the
+ *          completion call back function to identify the origial command
+ *
+ ****************************************************************/
 void release_ata_mem(struct mv_comp_info * pInfo)
 {
     IAL_ADAPTER_T   *pAdapter = MV_IAL_ADAPTER(pInfo->SCpnt->device->host);
@@ -1467,7 +1694,7 @@ int mv_ial_lib_allocate_edma_queues(IAL_ADAPTER_T *pAdapter)
                             pAdapter->requestsArrayBaseDmaAddr);
         return -1;
     }
- 
+/* response queues */
     pAdapter->responsesArrayBaseAddr =
     pci_alloc_consistent(pAdapter->pcidev,
                          responses_array_size,
@@ -1490,6 +1717,7 @@ int mv_ial_lib_allocate_edma_queues(IAL_ADAPTER_T *pAdapter)
     pAdapter->responsesArrayBaseDmaAddr + pAdapter->responseQueueSize;
     pAdapter->responsesArrayBaseDmaAlignedAddr &=
     ~(pAdapter->responseQueueSize - 1);
+
 
     if ((pAdapter->responsesArrayBaseDmaAlignedAddr - pAdapter->responsesArrayBaseDmaAddr) !=
         (pAdapter->responsesArrayBaseAlignedAddr - pAdapter->responsesArrayBaseAddr))
@@ -1520,7 +1748,22 @@ void mv_ial_lib_free_edma_queues(IAL_ADAPTER_T *pAdapter)
 }
 
 #if defined(MY_ABC_HERE) || defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
- 
+/**
+ * We use this function 
+ * to tell scsi error handler that this 
+ * device is offline now.
+ * 
+ * Caller must in the irq call stack.
+ * Because after that softirq or other 
+ * kernel working thread would do the unplug
+ * task. We must set this before them.
+ * 
+ * This is the same as libata.
+ * 
+ * @param pSataAdapter
+ * @param drivesSnapshotSave
+ * @param channelIndex
+ */
 void SynoIALSCSINotify(struct mvSataAdapter *pSataAdapter, MV_U16 drivesSnapshotSave, MV_U8 channelIndex)
 {	
 	MV_U16 target;
@@ -1546,6 +1789,7 @@ MV_BOOLEAN IALCompletion(struct mvSataAdapter *pSataAdapter,
     struct scsi_cmnd   *SCpnt = (struct scsi_cmnd *)pCmdBlock->IALData;
     struct mv_comp_info *pInfo = ( struct mv_comp_info *) &(SCpnt->SCp);
     MV_U8       host_status;
+
 
      switch (pCmdBlock->ScsiCommandCompletion)
     {
@@ -1575,7 +1819,7 @@ MV_BOOLEAN IALCompletion(struct mvSataAdapter *pSataAdapter,
 
     case MV_SCSI_COMPLETION_QUEUE_FULL:
         mvLogMsg(MV_IAL_LOG_ID, MV_DEBUG, "Scsi command completed with QUEUE FULL\n");
-         
+        /* flushed from ial common*/
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0)
         if (pCmdBlock->ScsiStatus == MV_SCSI_STATUS_BUSY)
         {

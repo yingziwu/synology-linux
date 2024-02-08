@@ -324,3 +324,4 @@ static int __init securityfs_init(void)
 
 core_initcall(securityfs_init);
 MODULE_LICENSE("GPL");
+

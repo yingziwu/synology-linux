@@ -73,6 +73,7 @@
 #define VCP_OPTION_DEFAULT_PACKET_EVENT_MASK (0xffff)/* VCP does not understand */
 #endif /* VP_CC_VCP_SERIES */
 
+
 #ifdef VP_CC_VCP2_SERIES
 /* Default option settings for VCP2:  These are the default values applied at
  * VpInitDevice() and/or VpInitLine().  If your application uses more than one

@@ -235,6 +235,7 @@ MV_STATUS mvNetaHwfTxqInit(int tx_port, int txp, int txq)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
  * mvNetaHwfTxqEnable - Enable / Disable HWF from the rx_port to tx_port/txp/txq
  * DESCRIPTION:

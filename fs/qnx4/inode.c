@@ -255,6 +255,7 @@ static int qnx4_fill_super(struct super_block *s, void *data, int silent)
 	qnx4_sb(s)->sb_buf = bh;
 	qnx4_sb(s)->sb = (struct qnx4_super_block *) bh->b_data;
 
+
  	/* check before allocating dentries, inodes, .. */
 	errmsg = qnx4_checkroot(s);
 	if (errmsg != NULL) {
@@ -504,3 +505,4 @@ static void __exit exit_qnx4_fs(void)
 module_init(init_qnx4_fs)
 module_exit(exit_qnx4_fs)
 MODULE_LICENSE("GPL");
+

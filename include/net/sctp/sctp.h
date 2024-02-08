@@ -83,6 +83,7 @@
 #include <net/sctp/structs.h>
 #include <net/sctp/constants.h>
 
+
 /* Set SCTP_DEBUG flag via config if not already set. */
 #ifndef SCTP_DEBUG
 #ifdef CONFIG_SCTP_DBG_MSG
@@ -97,6 +98,7 @@
 #else /* static! */
 #define SCTP_PROTOSW_FLAG INET_PROTOSW_PERMANENT
 #endif
+
 
 /* Certain internal static functions need to be exported when
  * compiled into the test frame.
@@ -178,6 +180,7 @@ void sctp_assocs_proc_exit(void);
 int sctp_remaddr_proc_init(void);
 void sctp_remaddr_proc_exit(void);
 
+
 /*
  * Module global variables
  */
@@ -191,6 +194,7 @@ extern struct kmem_cache *sctp_bucket_cachep __read_mostly;
 /*
  *  Section:  Macros, externs, and inlines
  */
+
 
 #ifdef TEST_FRAME
 #include <test_frame.h>
@@ -268,6 +272,7 @@ struct sctp_mib {
         unsigned long   mibs[SCTP_MIB_MAX];
 };
 
+
 /* Print debugging messages.  */
 #if SCTP_DEBUG
 extern int sctp_debug_flag;
@@ -321,6 +326,7 @@ do {									\
 #define SCTP_ASSERT(expr, str, func)
 
 #endif /* SCTP_DEBUG */
+
 
 /*
  * Macros for keeping a global reference of object allocations.
@@ -397,6 +403,7 @@ static inline void sctp_v6_del_protocol(void) { return; }
 
 #endif /* #if defined(CONFIG_IPV6) */
 
+
 /* Map an association to an assoc_id. */
 static inline sctp_assoc_t sctp_assoc2id(const struct sctp_association *asoc)
 {
@@ -405,6 +412,7 @@ static inline sctp_assoc_t sctp_assoc2id(const struct sctp_association *asoc)
 
 /* Look up the association by its id.  */
 struct sctp_association *sctp_id2assoc(struct sock *sk, sctp_assoc_t id);
+
 
 /* A macro to walk a list of skbs.  */
 #define sctp_skb_for_each(pos, head, tmp) \
@@ -515,6 +523,11 @@ static inline void sctp_assoc_pending_pmtu(struct sctp_association *asoc)
 	asoc->pmtu_pending = 0;
 }
 
+static inline bool sctp_chunk_pending(const struct sctp_chunk *chunk)
+{
+	return !list_empty(&chunk->list);
+}
+
 /* Walk through a list of TLV parameters.  Don't trust the
  * individual parameter lengths and instead depend on
  * the chunk length to indicate when to stop.  Make sure
@@ -525,6 +538,8 @@ _sctp_walk_params((pos), (chunk), ntohs((chunk)->chunk_hdr.length), member)
 
 #define _sctp_walk_params(pos, chunk, end, member)\
 for (pos.v = chunk->member;\
+     (pos.v + offsetof(struct sctp_paramhdr, length) + sizeof(pos.p->length) <=\
+      (void *)chunk + end) &&\
      pos.v <= (void *)chunk + end - ntohs(pos.p->length) &&\
      ntohs(pos.p->length) >= sizeof(sctp_paramhdr_t);\
      pos.v += WORD_ROUND(ntohs(pos.p->length)))
@@ -535,6 +550,8 @@ _sctp_walk_errors((err), (chunk_hdr), ntohs((chunk_hdr)->length))
 #define _sctp_walk_errors(err, chunk_hdr, end)\
 for (err = (sctp_errhdr_t *)((void *)chunk_hdr + \
 	    sizeof(sctp_chunkhdr_t));\
+     ((void *)err + offsetof(sctp_errhdr_t, length) + sizeof(err->length) <=\
+      (void *)chunk_hdr + end) &&\
      (void *)err <= (void *)chunk_hdr + end - ntohs(err->length) &&\
      ntohs(err->length) >= sizeof(sctp_errhdr_t); \
      err = (sctp_errhdr_t *)((void *)err + WORD_ROUND(ntohs(err->length))))
@@ -688,6 +705,8 @@ static inline void sctp_v6_map_v4(union sctp_addr *addr)
 static inline void sctp_v4_map_v6(union sctp_addr *addr)
 {
 	addr->v6.sin6_family = AF_INET6;
+	addr->v6.sin6_flowinfo = 0;
+	addr->v6.sin6_scope_id = 0;
 	addr->v6.sin6_port = addr->v4.sin_port;
 	addr->v6.sin6_addr.s6_addr32[3] = addr->v4.sin_addr.s_addr;
 	addr->v6.sin6_addr.s6_addr32[0] = 0;

@@ -87,6 +87,8 @@ MV_U32 Core_Fill_InfoExcepCtrlModePage(MV_PU8 pBuf, PDomain_Device pDevice,PMV_R
 	return sizeof( info_except_ctrl_mode_page);	/* Total page length in byte */
 }
 
+
+
 MV_U32  Core_Fill_CtrlModePage(MV_PU8 pBuf, PDomain_Device pDevice)
 {
 	static const MV_U8 ctrl_mode_page[] = {
@@ -199,6 +201,7 @@ MV_U32 Core_Fill_SelfTestLogPage(MV_PU8 pBuf, MV_U8 pageNum)
         MV_CopyMemory(pBuf, start_stop_cycle_counter_log_page, sizeof(start_stop_cycle_counter_log_page));
         return sizeof(start_stop_cycle_counter_log_page);
 }
+
 
 void  mvScsiLogSenseTranslation(PCore_Driver_Extension pCore,  PMV_Request pReq)
 {

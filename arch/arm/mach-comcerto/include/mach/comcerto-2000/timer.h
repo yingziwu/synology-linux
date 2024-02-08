@@ -21,6 +21,7 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+
 /* Comcerto Timers  */
 #define COMCERTO_TIMER0_HIGH_BOUND          APB_VADDR(COMCERTO_APB_TIMER_BASE + 0x00)
 #define COMCERTO_TIMER0_CURRENT_COUNT       APB_VADDR(COMCERTO_APB_TIMER_BASE + 0x04)
@@ -63,6 +64,7 @@
  * TIMERS
  */
 
+
 /*Hardware Timer API*/
 #define COMCERTO_TIMER_RUN_ONCE		(1 << 0)
 #define __comcerto_timer_enable(t)	__raw_writel(__raw_readl(COMCERTO_TIMER_IRQ_MASK) | (1 << (t)), COMCERTO_TIMER_IRQ_MASK)
@@ -82,6 +84,7 @@
 						   } while (0)
 
 #define comcerto_timer2_get()		__raw_readl(COMCERTO_TIMER2_CURRENT_COUNT)
+
 
 #define comcerto_timer3_set(lbound, hbound, ctrl)  do {								\
 						      __raw_writel((ctrl) & 0x1, COMCERTO_TIMER3_CTRL);	\

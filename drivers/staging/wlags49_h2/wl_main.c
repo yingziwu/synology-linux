@@ -102,6 +102,7 @@
 #include <linux/vmalloc.h>
 #endif // BIN_DL
 
+
 #include <debug.h>
 
 #include <hcf.h>
@@ -230,6 +231,7 @@ static p_u8     PARM_WDS_ADDRESS4[ETH_ALEN]	= PARM_DEFAULT_NETWORK_ADDR;
 static p_u8     PARM_WDS_ADDRESS5[ETH_ALEN]	= PARM_DEFAULT_NETWORK_ADDR;
 static p_u8     PARM_WDS_ADDRESS6[ETH_ALEN]	= PARM_DEFAULT_NETWORK_ADDR;
 #endif // USE_WDS
+
 
 #if 0
 MODULE_PARM(PARM_DESIRED_SSID,          "s");
@@ -410,6 +412,7 @@ extern memimage ap;                 // AP firmware image to be downloaded
 //extern memimage station;            // STA firmware image to be downloaded
 extern memimage fw_image;            // firmware image to be downloaded
 #endif /* HCF_STA */
+
 
 int wl_insert( struct net_device *dev )
 {
@@ -744,7 +747,9 @@ int wl_insert( struct net_device *dev )
 	}
 #endif  /* USE_RTS */
 
+
 	/* END NEW PARAMETERS */
+
 
 	wl_lock( lp, &flags );
 
@@ -760,6 +765,7 @@ int wl_insert( struct net_device *dev )
 	lp->probe_results.scan_complete = FALSE;
 	lp->probe_num_aps = 0;
 
+
 	/* Initialize Tx queue stuff */
 	memset( lp->txList, 0, sizeof( lp->txList ));
 
@@ -768,9 +774,11 @@ int wl_insert( struct net_device *dev )
 	lp->txF.skb  = NULL;
 	lp->txF.port = 0;
 
+
 	for( i = 0; i < DEFAULT_NUM_TX_FRAMES; i++ ) {
 		list_add_tail( &( lp->txList[i].node ), &( lp->txFree ));
 	}
+
 
 	for( i = 0; i < WVLAN_MAX_TX_QUEUES; i++ ) {
 		INIT_LIST_HEAD( &( lp->txQ[i] ));
@@ -820,6 +828,7 @@ int wl_insert( struct net_device *dev )
 	lp->driverIdentity.variant          = DRV_VARIANT;
 	lp->driverIdentity.version_major    = DRV_MAJOR_VERSION;
 	lp->driverIdentity.version_minor    = DRV_MINOR_VERSION;
+
 
 	/* Start the card here - This needs to be done in order to get the
 	   MAC address for the network layer */
@@ -923,10 +932,12 @@ failed:
 
 	result = -EFAULT;
 
+
 	DBG_LEAVE( DbgInfo );
 	return result;
 } // wl_insert
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_reset()
@@ -1002,6 +1013,7 @@ out:
 	return hcf_status;
 } // wl_reset
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_go()
@@ -1187,6 +1199,7 @@ int 			rc;
 } // wl_go
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_set_wep_keys()
  *******************************************************************************
@@ -1253,6 +1266,7 @@ void wl_set_wep_keys( struct wl_private *lp )
 	DBG_LEAVE( DbgInfo );
 } // wl_set_wep_keys
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_apply()
@@ -1325,6 +1339,7 @@ int wl_apply(struct wl_private *lp)
 	return hcf_status;
 } // wl_apply
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_put_ltv_init()
@@ -1423,6 +1438,7 @@ int wl_put_ltv_init( struct wl_private *lp )
 	return hcf_status;
 } // wl_put_ltv_init
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_put_ltv()
@@ -1675,6 +1691,7 @@ int wl_put_ltv( struct wl_private *lp )
 		lp->ltvRecord.u.u16[0]  = CNV_INT_TO_LITTLE( lp->atimWindow );
 		hcf_status = hcf_put_info( &lp->hcfCtx, (LTVP)&( lp->ltvRecord ));
 
+
 		/* Holdover Duration */
 		lp->ltvRecord.len       = 2;
 		lp->ltvRecord.typ       = CFG_CNF_HOLDOVER_DURATION;
@@ -1698,6 +1715,8 @@ int wl_put_ltv( struct wl_private *lp )
 		lp->ltvRecord.typ       = CFG_CNF_CONNECTION_CNTL;
 		lp->ltvRecord.u.u16[0]  = CNV_INT_TO_LITTLE( lp->connectionControl );
 		hcf_status = hcf_put_info( &lp->hcfCtx, (LTVP)&( lp->ltvRecord ));
+
+
 
 		/* Probe data rate */
 		/*lp->ltvRecord.len       = 3;
@@ -1797,17 +1816,20 @@ int wl_put_ltv( struct wl_private *lp )
 		lp->ltvRecord.u.u16[0]  = CNV_INT_TO_LITTLE( lp->wds_port[1].rtsThreshold );
 		hcf_status = hcf_put_info( &lp->hcfCtx, (LTVP)&( lp->ltvRecord ));
 
+
 		/* RTS Threshold 3 */
 		lp->ltvRecord.len       = 2;
 		lp->ltvRecord.typ       = CFG_RTS_THRH3;
 		lp->ltvRecord.u.u16[0]  = CNV_INT_TO_LITTLE( lp->wds_port[2].rtsThreshold );
 		hcf_status = hcf_put_info( &lp->hcfCtx, (LTVP)&( lp->ltvRecord ));
 
+
 		/* RTS Threshold 4 */
 		lp->ltvRecord.len       = 2;
 		lp->ltvRecord.typ       = CFG_RTS_THRH4;
 		lp->ltvRecord.u.u16[0]  = CNV_INT_TO_LITTLE( lp->wds_port[3].rtsThreshold );
 		hcf_status = hcf_put_info( &lp->hcfCtx, (LTVP)&( lp->ltvRecord ));
+
 
 		/* RTS Threshold 5 */
 		lp->ltvRecord.len       = 2;
@@ -1984,6 +2006,7 @@ int wl_put_ltv( struct wl_private *lp )
 } // wl_put_ltv
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	init_module()
  *******************************************************************************
@@ -2037,6 +2060,7 @@ static int __init wl_module_init( void )
     	printk(KERN_INFO "*** Modified for kernel 2.6 by Henk de Groot <pe1dnn@amsat.org>\n");
         printk(KERN_INFO "*** Based on 7.18 version by Andrey Borzenkov <arvidjaar@mail.ru> $Revision: 39 $\n");
 
+
 // ;?#if (HCF_TYPE) & HCF_TYPE_AP
 // 	DBG_PRINT( "Access Point Mode (AP) Support: YES\n" );
 // #else
@@ -2048,6 +2072,7 @@ static int __init wl_module_init( void )
 	return result;
 } // init_module
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	cleanup_module()
@@ -2139,6 +2164,7 @@ irqreturn_t wl_isr( int irq, void *dev_id, struct pt_regs *regs )
 	return IRQ_RETVAL(events == HCF_INT_PENDING);
 } // wl_isr
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_isr_handler()
@@ -2261,6 +2287,7 @@ void wl_isr_handler( unsigned long p )
 } // wl_isr_handler
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_remove()
  *******************************************************************************
@@ -2333,6 +2360,7 @@ void wl_remove( struct net_device *dev )
 } // wl_remove
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_suspend()
  *******************************************************************************
@@ -2388,6 +2416,7 @@ void wl_suspend( struct net_device *dev )
 } // wl_suspend
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_resume()
  *******************************************************************************
@@ -2439,6 +2468,7 @@ void wl_resume(struct net_device *dev)
 } // wl_resume
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_release()
  *******************************************************************************
@@ -2481,6 +2511,7 @@ void wl_release( struct net_device *dev )
 } // wl_release
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_get_irq_mask()
  *******************************************************************************
@@ -2504,6 +2535,7 @@ p_u16 wl_get_irq_mask( void )
 } // wl_get_irq_mask
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_get_irq_list()
  *******************************************************************************
@@ -2526,6 +2558,8 @@ p_s8 * wl_get_irq_list( void )
 	return irq_list;
 } // wl_get_irq_list
 /*============================================================================*/
+
+
 
 /*******************************************************************************
  *	wl_enable()
@@ -2576,6 +2610,7 @@ int wl_enable( struct wl_private *lp )
 } // wl_enable
 /*============================================================================*/
 
+
 #ifdef USE_WDS
 /*******************************************************************************
  *	wl_enable_wds_ports()
@@ -2607,6 +2642,7 @@ void wl_enable_wds_ports( struct wl_private * lp )
 } // wl_enable_wds_ports
 #endif  /* USE_WDS */
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_connect()
@@ -2647,6 +2683,7 @@ int wl_connect( struct wl_private *lp )
 } // wl_connect
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_disconnect()
  *******************************************************************************
@@ -2685,6 +2722,7 @@ int wl_disconnect( struct wl_private *lp )
 	return hcf_status;
 } // wl_disconnect
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_disable()
@@ -2734,6 +2772,7 @@ int wl_disable( struct wl_private *lp )
 } // wl_disable
 /*============================================================================*/
 
+
 #ifdef USE_WDS
 /*******************************************************************************
  *	wl_disable_wds_ports()
@@ -2774,6 +2813,7 @@ void wl_disable_wds_ports( struct wl_private * lp )
 } // wl_disable_wds_ports
 #endif // USE_WDS
 /*============================================================================*/
+
 
 #ifndef USE_MBOX_SYNC
 /*******************************************************************************
@@ -2826,6 +2866,7 @@ int wl_mbx( struct wl_private *lp )
 	return hcf_status;
 } // wl_mbx
 /*============================================================================*/
+
 
 /*******************************************************************************
  *	wl_endian_translate_mailbox()
@@ -3446,6 +3487,7 @@ void wl_wds_netdev_register( struct wl_private *lp )
 } // wl_wds_netdev_register
 /*============================================================================*/
 
+
 /*******************************************************************************
  *	wl_wds_netdev_deregister()
  *******************************************************************************
@@ -3484,6 +3526,7 @@ void wl_wds_netdev_deregister( struct wl_private *lp )
 } // wl_wds_netdev_deregister
 /*============================================================================*/
 #endif  /* USE_WDS */
+
 
 #if 0 //SCULL_USE_PROC /* don't waste space if unused */
 /*

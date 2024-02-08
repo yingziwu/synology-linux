@@ -1,7 +1,15 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Normal mappings of chips in physical memory
+ *
+ * Copyright (C) 2003 MontaVista Software Inc.
+ * Author: Jun Sun, jsun@mvista.com or jsun@junsun.net
+ *
+ * 031022 - [jsun] add run-time configure and partition setup
+ */
+
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/kernel.h>
@@ -136,10 +144,10 @@ static int physmap_flash_probe(struct platform_device *dev)
 		simple_map_init(&info->map[i]);
 
 #if defined(CONFIG_SYNO_MPC85XX_COMMON) || defined(MY_ABC_HERE) || defined(MY_DEF_HERE)
-		 
+		/* To avoid mapping the whole flash in mtd0 */
 		iounmap(info->map[i].virt);
 		return 0;
-#endif  
+#endif /* defined(CONFIG_SYNO_MPC85XX_COMMON) || defined(MY_ABC_HERE) || defined(MY_DEF_HERE) */
 
 		probe_type = rom_probe_types;
 		if (physmap_data->probe_type == NULL) {
@@ -162,7 +170,9 @@ static int physmap_flash_probe(struct platform_device *dev)
 	if (devices_found == 1) {
 		info->cmtd = info->mtd[0];
 	} else if (devices_found > 1) {
-		 
+		/*
+		 * We detected multiple devices. Concatenate them together.
+		 */
 		info->cmtd = mtd_concat_create(info->mtd, devices_found, dev_name(&dev->dev));
 		if (info->cmtd == NULL)
 			err = -ENXIO;
@@ -203,6 +213,7 @@ static struct platform_driver physmap_flash_driver = {
 		.owner	= THIS_MODULE,
 	},
 };
+
 
 #ifdef CONFIG_MTD_PHYSMAP_COMPAT
 static struct physmap_flash_data physmap_flash_data = {
@@ -261,7 +272,8 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("David Woodhouse <dwmw2@infradead.org>");
 MODULE_DESCRIPTION("Generic configurable MTD map driver");
 
+/* legacy platform drivers can't hotplug or coldplg */
 #ifndef CONFIG_MTD_PHYSMAP_COMPAT
- 
+/* work with hotplug and coldplug */
 MODULE_ALIAS("platform:physmap-flash");
 #endif

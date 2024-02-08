@@ -647,6 +647,7 @@ acpi_status acpi_load_tables(void)
 
 ACPI_EXPORT_SYMBOL(acpi_load_tables)
 
+
 /*******************************************************************************
  *
  * FUNCTION:    acpi_install_table_handler
@@ -734,6 +735,7 @@ acpi_status acpi_remove_table_handler(acpi_tbl_handler handler)
 }
 
 ACPI_EXPORT_SYMBOL(acpi_remove_table_handler)
+
 
 static int __init acpi_no_auto_ssdt_setup(char *s) {
 

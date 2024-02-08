@@ -117,6 +117,7 @@ static void rfbi_enable_clocks(int enable)
 	}
 }
 
+
 #ifdef VERBOSE
 static void rfbi_print_timings(void)
 {
@@ -238,6 +239,7 @@ static int rfbi_get_max_tx_rate(void)
 	return rfbi.l4_khz * 1000;
 }
 #endif
+
 
 static int rfbi_convert_timings(struct extif_timings *t)
 {
@@ -593,3 +595,4 @@ const struct lcd_ctrl_extif omap2_ext_if = {
 
 	.max_transmit_size	= (u32) ~0,
 };
+

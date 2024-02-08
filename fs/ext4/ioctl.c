@@ -189,7 +189,11 @@ setversion_out:
 		if (err)
 			return err;
 
+#ifdef SYNO_RESIZE_INODE_SIZE_EXTEND
+		if (get_user(n_blocks_count, (__u64 __user *)arg)) {
+#else
 		if (get_user(n_blocks_count, (__u32 __user *)arg)) {
+#endif
 			err = -EFAULT;
 			goto group_extend_out;
 		}
@@ -293,6 +297,11 @@ mext_out:
 		if (err)
 			goto group_add_out;
 
+#ifdef SYNO_KEEP_NO_FLEX_BG_RESIZE
+		if (!EXT4_HAS_INCOMPAT_FEATURE(sb, EXT4_FEATURE_INCOMPAT_FLEX_BG))
+			err = ext4_group_add_no_flex(sb, &input);
+		else
+#endif
 		err = ext4_group_add(sb, &input);
 		if (EXT4_SB(sb)->s_journal) {
 			jbd2_journal_lock_updates(EXT4_SB(sb)->s_journal);
@@ -356,18 +365,21 @@ group_add_out:
 			return -EOPNOTSUPP;
 		}
 
+#ifndef SYNO_META_BG_PATCH
 		if (EXT4_HAS_INCOMPAT_FEATURE(sb,
 			       EXT4_FEATURE_INCOMPAT_META_BG)) {
 			ext4_msg(sb, KERN_ERR,
 				 "Online resizing not (yet) supported with meta_bg");
 			return -EOPNOTSUPP;
 		}
+#endif
 
 		if (copy_from_user(&n_blocks_count, (__u64 __user *)arg,
 				   sizeof(__u64))) {
 			return -EFAULT;
 		}
 
+#ifndef SYNO_META_BG_PATCH
 		if (n_blocks_count > MAX_32_NUM &&
 		    !EXT4_HAS_INCOMPAT_FEATURE(sb,
 					       EXT4_FEATURE_INCOMPAT_64BIT)) {
@@ -375,6 +387,7 @@ group_add_out:
 				 "File system only supports 32-bit block numbers");
 			return -EOPNOTSUPP;
 		}
+#endif
 
 		err = ext4_resize_begin(sb);
 		if (err)

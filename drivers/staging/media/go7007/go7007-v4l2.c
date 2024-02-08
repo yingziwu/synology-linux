@@ -864,6 +864,7 @@ unlock_and_return:
 	return retval;
 }
 
+
 static int vidioc_dqbuf(struct file *file, void *priv, struct v4l2_buffer *buf)
 {
 	struct go7007_file *gofh = priv;
@@ -1201,6 +1202,7 @@ static int vidioc_enum_input(struct file *file, void *priv,
 
 	return 0;
 }
+
 
 static int vidioc_g_input(struct file *file, void *priv, unsigned int *input)
 {

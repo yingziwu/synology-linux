@@ -9,6 +9,8 @@
  *
  */
 
+
+
 #include "ncp_fs.h"
 
 static inline void assert_server_locked(struct ncp_server *server)
@@ -164,6 +166,7 @@ ncp_negotiate_buffersize(struct ncp_server *server, int size, int *target)
 	ncp_unlock_server(server);
 	return 0;
 }
+
 
 /* options: 
  *	bit 0	ipx checksum
@@ -702,6 +705,7 @@ int ncp_modify_nfs_info(struct ncp_server *server, __u8 volnum, __le32 dirent,
 }
 #endif
 
+
 static int
 ncp_DeleteNSEntry(struct ncp_server *server,
 		  __u8 have_dir_base, __u8 volnum, __le32 dirent,
@@ -959,6 +963,7 @@ int ncp_ren_or_mov_file_or_subdir(struct ncp_server *server,
 	return result;
 }
 	
+
 /* We have to transfer to/from user space */
 int
 ncp_read_kernel(struct ncp_server *server, const char *file_id,

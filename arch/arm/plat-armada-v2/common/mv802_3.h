@@ -209,6 +209,7 @@ enum {
 #define MV_IP4_DF_FLAG_MASK     0x4000
 #define MV_IP4_MF_FLAG_MASK     0x2000
 
+
 typedef struct {
 	MV_U8 version;
 	MV_U8 tos;
@@ -254,6 +255,7 @@ typedef struct {
 	MV_U32 spi;
 	MV_U32 seqNum;
 } MV_AH_HEADER;
+
 
 typedef struct {
 	MV_U32 spi;

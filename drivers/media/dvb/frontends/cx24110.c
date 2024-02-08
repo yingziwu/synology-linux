@@ -30,6 +30,7 @@
 #include "dvb_frontend.h"
 #include "cx24110.h"
 
+
 struct cx24110_state {
 
 	struct i2c_adapter* i2c;
@@ -110,6 +111,7 @@ static struct {u8 reg; u8 data;} cx24110_regdata[]=
 	 {0x75,0x00}  /* @  " */
 		      /* the remaining registers are for SEC */
 	};
+
 
 static int cx24110_writereg (struct cx24110_state* state, int reg, int data)
 {
@@ -532,6 +534,7 @@ static int cx24110_read_ucblocks(struct dvb_frontend* fe, u32* ucblocks)
 static int cx24110_set_frontend(struct dvb_frontend* fe, struct dvb_frontend_parameters *p)
 {
 	struct cx24110_state *state = fe->demodulator_priv;
+
 
 	if (fe->ops.tuner_ops.set_params) {
 		fe->ops.tuner_ops.set_params(fe, p);

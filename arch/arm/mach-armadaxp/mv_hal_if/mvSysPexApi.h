@@ -65,6 +65,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __MV_SYS_PEX_API_H__
 #define __MV_SYS_PEX_API_H__
 
+
 MV_STATUS mvSysPexInit(MV_U32 pexIf, MV_PEX_TYPE pexType);
 
 #endif

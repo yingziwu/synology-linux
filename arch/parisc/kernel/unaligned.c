@@ -324,6 +324,7 @@ static int emulate_stw(struct pt_regs *regs, int frreg, int flop)
 	DPRINTF("store r%d (0x" RFMT ") to " RFMT ":" RFMT " for 4 bytes\n", frreg, 
 		val, regs->isr, regs->ior);
 
+
 	__asm__ __volatile__ (
 "	mtsp %3, %%sr1\n"
 "	zdep	%2, 28, 2, %%r19\n"
@@ -662,8 +663,9 @@ void handle_unaligned(struct pt_regs *regs)
 		break;
 	}
 
-	if (modify && R1(regs->iir))
+	if (ret == 0 && modify && R1(regs->iir))
 		regs->gr[R1(regs->iir)] = newbase;
+
 
 	if (ret == ERR_NOTHANDLED)
 		printk(KERN_CRIT "Not-handled unaligned insn 0x%08lx\n", regs->iir);
@@ -672,6 +674,14 @@ void handle_unaligned(struct pt_regs *regs)
 
 	if (ret)
 	{
+		/*
+		 * The unaligned handler failed.
+		 * If we were called by __get_user() or __put_user() jump
+		 * to it's exception fixup handler instead of crashing.
+		 */
+		if (!user_mode(regs) && fixup_exception(regs))
+			return;
+
 		printk(KERN_CRIT "Unaligned handler failed, ret = %d\n", ret);
 		die_if_kernel("Unaligned data reference", regs, 28);
 
@@ -749,3 +759,4 @@ check_unaligned(struct pt_regs *regs)
 
 	return (int)(regs->ior & align_mask);
 }
+

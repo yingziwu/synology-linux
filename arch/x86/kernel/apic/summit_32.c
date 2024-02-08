@@ -155,6 +155,7 @@ struct rio_detail {
 	                            /* first one assigned)                             */
 } __attribute__((packed));
 
+
 typedef enum {
 	CompatTwister = 0,  /* Compatibility Twister               */
 	AltTwister    = 1,  /* Alternate Twister of internal 8-way */

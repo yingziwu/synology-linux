@@ -80,6 +80,16 @@
 #define THIN_METADATA_CACHE_SIZE 64
 #define SECTOR_TO_BLOCK_SHIFT 3
 
+/*
+ * For btree insert:
+ *  3 for btree insert +
+ *  2 for btree lookup used within space map
+ * For btree remove:
+ *  2 for shadow spine +
+ *  4 for rebalance 3 child node
+ */
+#define THIN_MAX_CONCURRENT_LOCKS 6
+
 /* This should be plenty */
 #define SPACE_MAP_ROOT_SIZE 128
 
@@ -412,6 +422,7 @@ static int init_pmd(struct dm_pool_metadata *pmd,
 		}
 	}
 
+
 	r = dm_tm_unlock(tm, sblock);
 	if (r < 0) {
 		DMERR("couldn't unlock superblock");
@@ -668,13 +679,9 @@ struct dm_pool_metadata *dm_pool_metadata_open(struct block_device *bdev,
 		return ERR_PTR(-ENOMEM);
 	}
 
-	/*
-	 * Max hex locks:
-	 *  3 for btree insert +
-	 *  2 for btree lookup used within space map
-	 */
 	bm = dm_block_manager_create(bdev, THIN_METADATA_BLOCK_SIZE,
-				     THIN_METADATA_CACHE_SIZE, 5);
+				     THIN_METADATA_CACHE_SIZE,
+				     THIN_MAX_CONCURRENT_LOCKS);
 	if (!bm) {
 		DMERR("could not create block manager");
 		kfree(pmd);
@@ -687,6 +694,7 @@ struct dm_pool_metadata *dm_pool_metadata_open(struct block_device *bdev,
 		kfree(pmd);
 		return ERR_PTR(r);
 	}
+
 
 	r = init_pmd(pmd, bm, 0, create);
 	if (r) {

@@ -8,8 +8,10 @@
 
 /****************************************************************************/
 
+
 #ifndef mcfmbus_h
 #define mcfmbus_h
+
 
 #define MCFMBUS_BASE		0x280
 #define MCFMBUS_IRQ_VECTOR	0x19
@@ -17,6 +19,7 @@
 #define MCFMBUS_CLK		0x3f
 #define MCFMBUS_IRQ_LEVEL	0x07	/*IRQ Level 1*/
 #define MCFMBUS_ADDRESS		0x01
+
 
 /*
 *	Define the 5307 MBUS register set addresses
@@ -27,6 +30,7 @@
 #define MCFMBUS_MBCR	0x08
 #define MCFMBUS_MBSR	0x0C
 #define MCFMBUS_MBDR	0x10
+
 
 #define MCFMBUS_MADR_ADDR(a)	(((a)&0x7F)<<0x01) /*Slave Address*/
 

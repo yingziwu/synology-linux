@@ -22,3 +22,4 @@ unsigned int ext4_count_free(char *bitmap, unsigned int numchars)
 			nibblemap[(bitmap[i] >> 4) & 0xf];
 	return sum;
 }
+

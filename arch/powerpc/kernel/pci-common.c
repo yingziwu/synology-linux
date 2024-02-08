@@ -53,6 +53,7 @@ resource_size_t isa_mem_base;
 /* Default PCI flags is 0 on ppc32, modified at boot on ppc64 */
 unsigned int pci_flags = 0;
 
+
 static struct dma_map_ops *pci_dma_ops = &dma_direct_ops;
 
 void set_pci_dma_ops(struct dma_map_ops *dma_ops)
@@ -362,7 +363,6 @@ static pgprot_t __pci_mmap_set_pgprot(struct pci_dev *dev, struct resource *rp,
 				      enum pci_mmap_state mmap_state,
 				      int write_combine)
 {
-	unsigned long prot = pgprot_val(protection);
 
 	/* Write combine is always 0 on non-memory space mappings. On
 	 * memory space, if the user didn't pass 1, we check for a
@@ -379,9 +379,9 @@ static pgprot_t __pci_mmap_set_pgprot(struct pci_dev *dev, struct resource *rp,
 
 	/* XXX would be nice to have a way to ask for write-through */
 	if (write_combine)
-		return pgprot_noncached_wc(prot);
+		return pgprot_noncached_wc(protection);
 	else
-		return pgprot_noncached(prot);
+		return pgprot_noncached(protection);
 }
 
 /*
@@ -432,6 +432,7 @@ pgprot_t pci_phys_mem_access_prot(struct file *file,
 
 	return prot;
 }
+
 
 /*
  * Perform the actual remap of the pages for a PCI device mapping, as
@@ -901,6 +902,7 @@ static void __devinit fixup_resource(struct resource *res, struct pci_dev *dev)
 	res->end = (res->end + offset) & mask;
 }
 
+
 /* This header fixup will do the resource fixup for all devices as they are
  * probed, but not for bridge ranges
  */
@@ -1137,6 +1139,7 @@ void __devinit pci_fixup_cardbus(struct pci_bus *bus)
 	/* Now fixup devices on that bus */
 	pcibios_setup_bus_devices(bus);
 }
+
 
 static int skip_isa_ioresource_align(struct pci_dev *dev)
 {
@@ -1516,6 +1519,7 @@ void pcibios_claim_one_bus(struct pci_bus *bus)
 		pcibios_claim_one_bus(child_bus);
 }
 
+
 /* pcibios_finish_adding_to_bus
  *
  * This is to be called by the hotplug code after devices have been
@@ -1531,14 +1535,11 @@ void pcibios_finish_adding_to_bus(struct pci_bus *bus)
 	pcibios_allocate_bus_resources(bus);
 	pcibios_claim_one_bus(bus);
 
-	/* Fixup EEH */
-	eeh_add_device_tree_late(bus);
-
 	/* Add new devices to global lists.  Register in proc, sysfs. */
 	pci_bus_add_devices(bus);
 
-	/* sysfs files should only be added after devices are added */
-	eeh_add_sysfs_files(bus);
+	/* Fixup EEH */
+	eeh_add_device_tree_late(bus);
 }
 EXPORT_SYMBOL_GPL(pcibios_finish_adding_to_bus);
 

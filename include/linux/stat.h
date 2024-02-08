@@ -83,6 +83,12 @@ struct kstat {
 #ifdef MY_ABC_HERE
 	struct timespec syno_create_time;
 #endif
+#ifdef MY_ABC_HERE
+	unsigned long syno_compressed;
+#endif
+#ifdef MY_ABC_HERE
+	unsigned int syno_flags;
+#endif
 	unsigned long	blksize;
 	unsigned long long	blocks;
 };
@@ -92,48 +98,64 @@ struct kstat {
 #ifdef MY_ABC_HERE
 #ifdef __KERNEL__
 
+// Be careful!! If you want to change following structure, 
+// you should modify libsynocore/lib/file/file.h, too.
+
 struct SYNOSTAT_EXTRA {
-	struct timespec create_time;   
-	unsigned int archive_version;  		 
-	unsigned int archive_bit; 		 
+	struct timespec create_time;  //Create Time
+	unsigned int archive_version;  		//Backup Version
+	unsigned int archive_bit; 		//Archive Bit
+	unsigned int compressed;		//Compression Type
+	unsigned int flags;
+	unsigned int reserved[7];		//Reserved
 };
 struct SYNOSTAT {
 	struct stat st;
 	struct SYNOSTAT_EXTRA ext;
 };
 
-#define SYNOST_STAT			0x00000001	 	
-#define SYNOST_ARCHIVE_BIT		0x00000002	 
-#define SYNOST_ARCHIVE_VER		0x00000004	 
-#define SYNOST_CREATE_TIME		0x00000008	 
+/*
+ * flags: decide which information to get.
+ */
+#define SYNOST_STAT			0x00000001	/* stat */
+#define SYNOST_ARCHIVE_BIT		0x00000002	/* Archive Bit */
+#define SYNOST_ARCHIVE_VER		0x00000004	/* Backup Version */
+#define SYNOST_CREATE_TIME		0x00000008	/* Create Time */
+#define SYNOST_COMPRESSION		0x00000010	/* Compression Type */
+#define SYNOST_IS_INLINE		0x00000020	/* Is inline file ? */
+#define SYNOST_OFFLINE			0x00000040	/* currently, only c2fs support offline */
 
-#define SYNOST_ALL			SYNOST_STAT|SYNOST_ARCHIVE_BIT|SYNOST_ARCHIVE_VER|SYNOST_CREATE_TIME
-#define SYNOST_IS_CASELESS	0x10000000	 
+#define SYNOST_ALL			(SYNOST_STAT|SYNOST_ARCHIVE_BIT|SYNOST_ARCHIVE_VER|SYNOST_CREATE_TIME|SYNOST_COMPRESSION|SYNOST_OFFLINE)
+#define SYNOST_IS_CASELESS	0x10000000	/* Is Caseless */
 
-#endif  
-#endif  
+#define SYNOST_FLAG_OFFLINE	0x00000001
+
+#endif /* __KERNEL__ */
+#endif /* MY_ABC_HERE */
 
 #ifdef MY_ABC_HERE
-#define S2_IARCHIVE    (1<<0)	 
-#define S2_SMB_ARCHIVE (1<<1)	 
-#define S2_SMB_HIDDEN  (1<<2)	 
-#define S2_SMB_SYSTEM  (1<<3)	 
-#define S3_IARCHIVE    (1<<4)	 
+#define S2_IARCHIVE    (1<<0)	// synology backup archive bit
+#define S2_SMB_ARCHIVE (1<<1)	// samba backup archive bit (some other windows ap)
+#define S2_SMB_HIDDEN  (1<<2)	// hidden attribute in samba
+#define S2_SMB_SYSTEM  (1<<3)	// system attribute in samba
+#define S3_IARCHIVE    (1<<4)	// synology S3 backup archive bit (amazon ap)
 #if defined(MY_ABC_HERE) || defined(CONFIG_FS_SYNO_ACL)
-#define S2_SMB_READONLY    					(1<<5)	 
-#define S2_SYNO_ACL_INHERIT				    (1<<6)	 
-#define S2_SYNO_ACL_IS_OWNER_GROUP			(1<<7)	 
-#define S2_SYNO_ACL_EXIST					(1<<8)	 
-#define S2_SYNO_ACL_SUPPORT  				(1<<9)	 
+#define S2_SMB_READONLY    					(1<<5)	// Read-Only attribute of samba
+#define S2_SYNO_ACL_INHERIT				    (1<<6)	// inherited from parent
+#define S2_SYNO_ACL_IS_OWNER_GROUP			(1<<7)	// owner tag of SYNO ACL
+#define S2_SYNO_ACL_EXIST					(1<<8)	// is there SYNO ACL
+#define S2_SYNO_ACL_SUPPORT  				(1<<9)	// is support ACL
 #define ALL_SYNO_ACL_ARCHIVE	(S2_SMB_READONLY|S2_SYNO_ACL_INHERIT|S2_SYNO_ACL_IS_OWNER_GROUP|S2_SYNO_ACL_EXIST|S2_SYNO_ACL_SUPPORT)
 #endif
-#define S2_SMB_SPARSE						(1<<10)	 
-#define ALL_IARCHIVE (S2_IARCHIVE|S3_IARCHIVE)	 
-#define ALL_SYNO_ARCHIVE (S2_IARCHIVE|S2_SMB_ARCHIVE|S3_IARCHIVE)	 
+#define S2_SMB_SPARSE						(1<<10)	// sparse file support bit used by samba 4.4
+#define ALL_IARCHIVE (S2_IARCHIVE|S3_IARCHIVE)	// All synology archive bit.
+#define ALL_SYNO_ARCHIVE (S2_IARCHIVE|S2_SMB_ARCHIVE|S3_IARCHIVE)	// All backup archive bit, if there is new one, it should be added here.
 #if defined(MY_ABC_HERE) || defined(CONFIG_FS_SYNO_ACL)
 #define ALL_ARCHIVE_BIT (S2_IARCHIVE|S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S3_IARCHIVE|ALL_SYNO_ACL_ARCHIVE|S2_SMB_SPARSE)
+#define ALL_SMB (S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S2_SMB_READONLY|S2_SMB_SPARSE)
 #else
 #define ALL_ARCHIVE_BIT (S2_IARCHIVE|S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S3_IARCHIVE|S2_SMB_SPARSE)
+#define ALL_SMB (S2_SMB_ARCHIVE|S2_SMB_HIDDEN|S2_SMB_SYSTEM|S2_SMB_SPARSE)
 #endif
 #endif
 

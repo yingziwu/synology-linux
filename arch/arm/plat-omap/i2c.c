@@ -127,6 +127,7 @@ static inline int omap1_i2c_add_bus(int bus_id)
 	return platform_device_register(pdev);
 }
 
+
 #ifdef CONFIG_ARCH_OMAP2PLUS
 /*
  * XXX This function is a temporary compatibility wrapper - only

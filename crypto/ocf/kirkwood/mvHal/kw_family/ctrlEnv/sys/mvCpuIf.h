@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvCpuIfh
 #define __INCmvCpuIfh
 
@@ -86,6 +87,8 @@ typedef struct _mvCpuIfDecWin
 	MV_BOOL       enable;     /* Address decode window is enabled/disabled    */
 
 }MV_CPU_DEC_WIN;
+
+
 
 /* mvCpuIfLib.h API list */
 

@@ -91,6 +91,7 @@ static int tpi_csys_remove(struct platform_device *pdev)
 	return 0;
 }
 	
+
 /* Structure for Device Driver */
 static struct platform_driver tpi_csys_platform_driver = {
 	.probe = tpi_csys_probe,

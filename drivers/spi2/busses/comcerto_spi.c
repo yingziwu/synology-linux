@@ -176,6 +176,7 @@ static int do_write_read_transfer16(struct comcerto_spi *spi, u16 *wbuf, unsigne
 	return rc;
 }
 
+
 /**
  * do_write_only_transfer8 -
  *
@@ -256,6 +257,7 @@ static int do_write_only_transfer16(struct comcerto_spi *spi, u16 *buf, unsigned
 	return rc;
 }
 
+
 /**
  * do_read_only_transfer -
  *
@@ -327,6 +329,7 @@ static int do_read_only_transfer16(struct comcerto_spi *spi, u16 *buf, unsigned 
 
 	return rc;
 }
+
 
 /**
  * comcerto_spi_do_transfer -
@@ -556,6 +559,7 @@ static int __init comcerto_spi_probe(struct platform_device *pdev)
 			\npdev->name=%s\
 			\npdev->id=%d\n", __func__, (unsigned long) pdev, \
 			pdev->resource[0].start, pdev->resource[0].end, pdev->name, pdev->id);
+
 
 	spi = kmalloc(sizeof(struct comcerto_spi), GFP_KERNEL);
 	if (spi == NULL) {

@@ -23,6 +23,7 @@
 /* NAND driver version */
 #define GLOB_VERSION          "driver version 20100311"
 
+
 /***** Common Parameters *****/
 #define RETRY_TIMES                   3
 

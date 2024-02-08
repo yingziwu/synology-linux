@@ -285,6 +285,8 @@
 #define UART_ACR_ICRRD	0x40	/* ICR Read enable */
 #define UART_ACR_ASREN	0x80	/* Additional status enable */
 
+
+
 /*
  * These definitions are for the RSA-DV II/S card, from
  *
@@ -362,3 +364,4 @@
 #define UART_OMAP_MDR1_DISABLE		0x07	/* Disable (default state) */
 
 #endif /* _LINUX_SERIAL_REG_H */
+

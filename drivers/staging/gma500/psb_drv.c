@@ -49,6 +49,7 @@ MODULE_PARM_DESC(trap_pagefaults, "Error and reset on MMU pagefaults");
 module_param_named(no_fb, drm_psb_no_fb, int, 0600);
 module_param_named(trap_pagefaults, drm_psb_trap_pagefaults, int, 0600);
 
+
 static DEFINE_PCI_DEVICE_TABLE(pciidlist) = {
 	{ 0x8086, 0x8108, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (long) &psb_chip_ops },
 	{ 0x8086, 0x8109, PCI_ANY_ID, PCI_ANY_ID, 0, 0, (long) &psb_chip_ops },
@@ -200,6 +201,7 @@ static int psb_do_init(struct drm_device *dev)
 		goto out_err;
 	}
 
+
 	stolen_gtt = (pg->stolen_size >> PAGE_SHIFT) * 4;
 	stolen_gtt = (stolen_gtt + PAGE_SIZE - 1) >> PAGE_SHIFT;
 	stolen_gtt =
@@ -224,6 +226,7 @@ static int psb_do_init(struct drm_device *dev)
 		     (core_rev & _PSB_CC_REVISION_DESIGNER_MASK) >>
 		     _PSB_CC_REVISION_DESIGNER_SHIFT);
 	}
+
 
 	spin_lock_init(&dev_priv->irqmask_lock);
 	spin_lock_init(&dev_priv->lock_2d);
@@ -261,6 +264,7 @@ static int psb_driver_unload(struct drm_device *dev)
 		if (dev_priv->ops->chip_teardown)
 			dev_priv->ops->chip_teardown(dev);
 		psb_do_takedown(dev);
+
 
 		if (dev_priv->pf_pd) {
 			psb_mmu_free_pagedir(dev_priv->pf_pd);
@@ -304,6 +308,7 @@ static int psb_driver_unload(struct drm_device *dev)
 
 	return 0;
 }
+
 
 static int psb_driver_load(struct drm_device *dev, unsigned long chipset)
 {
@@ -372,6 +377,7 @@ static int psb_driver_load(struct drm_device *dev, unsigned long chipset)
 
 	tt_pages = (pg->gatt_pages < PSB_TT_PRIV0_PLIMIT) ?
 		(pg->gatt_pages) : PSB_TT_PRIV0_PLIMIT;
+
 
 	dev_priv->pf_pd = psb_mmu_alloc_pd(dev_priv->mmu, 1, 0);
 	if (!dev_priv->pf_pd)
@@ -457,6 +463,7 @@ int psb_driver_device_is_agp(struct drm_device *dev)
 	return 0;
 }
 
+
 static int psb_sizes_ioctl(struct drm_device *dev, void *data,
 			   struct drm_file *file_priv)
 {
@@ -476,6 +483,7 @@ static int psb_dc_state_ioctl(struct drm_device *dev, void *data,
 	struct drm_connector *connector;
 	struct drm_crtc *crtc;
 	struct drm_psb_dc_state_arg *arg = data;
+
 
 	/* Double check MRST case */
 	if (IS_MRST(dev) || IS_MFLD(dev))
@@ -1111,6 +1119,7 @@ static long psb_unlocked_ioctl(struct file *filp, unsigned int cmd,
 	/* FIXME: do we need to wrap the other side of this */
 }
 
+
 /* When a client dies:
  *    - Check for and clean up flipped page state
  */
@@ -1176,6 +1185,9 @@ static struct drm_driver driver = {
 		 .open = drm_open,
 		 .release = drm_release,
 		 .unlocked_ioctl = psb_unlocked_ioctl,
+#ifdef CONFIG_COMPAT
+		 .compat_ioctl = drm_compat_ioctl,
+#endif
 		 .mmap = drm_gem_mmap,
 		 .poll = drm_poll,
 		 .fasync = drm_fasync,

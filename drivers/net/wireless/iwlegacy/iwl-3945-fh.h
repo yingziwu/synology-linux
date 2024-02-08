@@ -115,6 +115,7 @@
 #define FH39_TSSR_MSG_CONFIG      (FH39_TSSR_TABLE + 0x008)
 #define FH39_TSSR_TX_STATUS       (FH39_TSSR_TABLE + 0x010)
 
+
 /* DBM */
 
 #define FH39_SRVC_CHNL                            (6)
@@ -181,5 +182,6 @@ struct iwl3945_tfd {
 	struct iwl3945_tfd_tb tbs[4];
 	u8 __pad[28];
 } __packed;
+
 
 #endif /* __iwl_3945_fh_h__ */

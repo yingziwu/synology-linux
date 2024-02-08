@@ -174,6 +174,7 @@ GT_U16 miiSmiIfInit
     return 0;
 }
 
+
 /*******************************************************************************
 * miiSmiManualIfInit
 *
@@ -206,6 +207,7 @@ GT_U16 miiSmiManualIfInit
 {
     GT_STATUS status;
     GT_U16 data;
+
 
     if((status = miiSmiIfReadRegister(dev,(GT_U8)(PORT_REGS_START_ADDR+baseAddr),QD_REG_SWITCH_ID,&data)) != GT_OK)
     {
@@ -320,6 +322,7 @@ GT_STATUS miiSmiIfReadRegister
     *data = (GT_U16)tmpData;
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * miiSmiIfWriteRegister
@@ -442,6 +445,7 @@ GT_STATUS qdAccessRegs
 
 }
 #endif
+
 
 /* Local sub-functions */
 
@@ -600,12 +604,14 @@ GT_BOOL qdMultiAddrWrite (GT_QD_DEV* dev, unsigned int phyAddr , unsigned int re
     return GT_TRUE;
 }
 
+
 static GT_BOOL fgtReadMii(GT_QD_DEV*dev, unsigned int phyAddr, unsigned int reg, unsigned int* value)
 {
   GT_BOOL retVal;
   retVal =  dev->fgtReadMii(dev, phyAddr, reg, value);
   return  retVal;
 }
+
 
 static GT_BOOL fgtWriteMii(GT_QD_DEV*dev, unsigned int phyAddr, unsigned int reg, unsigned int value)
 {

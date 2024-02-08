@@ -110,6 +110,7 @@ void mvCpuCntrsShow(MV_CPU_CNTRS_EVENT *pEvent)
 		if (mvCpuCntrsTbl[i].operation == MV_CPU_CNTRS_INVALID)
 			continue;
 
+
 		counters_avg = mvOsDivMod64(pEvent->counters_sum[i], pEvent->num_of_measurements, NULL);
 /*		counters_avg = pEvent->counters_sum[i] / pEvent->num_of_measurements;*/
 		if (counters_avg >= mvCpuCntrsTbl[i].overhead)
@@ -143,3 +144,4 @@ void mvCpuCntrsInitialize(void)
 	memset(mvCpuCntrsTbl, 0, sizeof(mvCpuCntrsTbl));
 	mvCpuCntrsInit();
 }
+

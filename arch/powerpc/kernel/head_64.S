@@ -301,6 +301,7 @@ _STATIC(__mmu_off)
 	b	.	/* prevent speculative execution */
 #endif
 
+
 /*
  * Here is our main kernel entry point. We support currently 2 kind of entries
  * depending on the value of r5.
@@ -501,6 +502,7 @@ _GLOBAL(copy_and_flush)
 	sync
 	addi	r5,r5,8
 	addi	r6,r6,8
+	isync
 	blr
 
 .align 8

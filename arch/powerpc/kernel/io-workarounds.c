@@ -90,6 +90,7 @@ struct iowa_bus *iowa_pio_find_bus(unsigned long port)
 	return iowa_pci_find(vaddr, 0);
 }
 
+
 #define DEF_PCI_AC_RET(name, ret, at, al, space, aa)		\
 static ret iowa_##name at					\
 {								\
@@ -185,3 +186,4 @@ void __devinit iowa_register_bus(struct pci_controller *phb,
 
 	pr_debug("IOWA:[%d]Add bus, %s.\n", iowa_bus_count-1, np->full_name);
 }
+

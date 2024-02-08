@@ -11,6 +11,7 @@
 #define NFDEBUG(format, args...)
 #endif
 
+
 /* core.c */
 extern unsigned int nf_iterate(struct list_head *head,
 				struct sk_buff *skb,

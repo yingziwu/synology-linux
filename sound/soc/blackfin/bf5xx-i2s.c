@@ -305,3 +305,4 @@ module_exit(bfin_i2s_exit);
 MODULE_AUTHOR("Cliff Cai");
 MODULE_DESCRIPTION("I2S driver for ADI Blackfin");
 MODULE_LICENSE("GPL");
+

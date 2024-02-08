@@ -56,6 +56,7 @@
 #include <asm/mach/time.h>
 #include <mach/gpio.h>
 
+
 extern void platform_reserve(void);
 extern void device_map_io (void);
 extern void device_irq_init(void);
@@ -685,6 +686,7 @@ static struct platform_device *comcerto_devices[] __initdata = {
 	&comcerto_elp_device,
 #endif
 };
+
 
 /************************************************************************
  *  Expansion bus

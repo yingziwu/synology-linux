@@ -184,6 +184,7 @@ static void gfar_gdrvinfo(struct net_device *dev, struct
 	drvinfo->eedump_len = 0;
 }
 
+
 static int gfar_ssettings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	struct gfar_private *priv = netdev_priv(dev);
@@ -194,6 +195,7 @@ static int gfar_ssettings(struct net_device *dev, struct ethtool_cmd *cmd)
 
 	return phy_ethtool_sset(phydev, cmd);
 }
+
 
 /* Return the current settings in the ethtool_cmd structure */
 static int gfar_gsettings(struct net_device *dev, struct ethtool_cmd *cmd)
@@ -477,6 +479,7 @@ static int gfar_sringparam(struct net_device *dev, struct ethtool_ringparam *rva
 		netdev_err(dev, "Ring sizes must be a power of 2\n");
 		return -EINVAL;
 	}
+
 
 	if (dev->flags & IFF_UP) {
 		unsigned long flags;

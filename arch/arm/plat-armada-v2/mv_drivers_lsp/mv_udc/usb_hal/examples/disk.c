@@ -39,10 +39,12 @@ Include the USB stack and local header files.
 #define ARC_DEBUG_FLAG_DISK_DATA    0x10000000
 #define ARC_DEBUG_FLAG_DISK_DUMP    0x20000000
 
+
 /**************************************************************************
 Include the OS and BSP dependent files that define IO functions and
 basic types. You may like to change these files for your board and RTOS
 **************************************************************************/
+
 
 /**************************************************************************
 Global variables and some defines for device.
@@ -487,11 +489,13 @@ static const uint_8 BOOT_SECTOR_AREA[512] =
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0xAA
 };
 
+
 static const uint_8 FAT16_SPECIAL_BYTES[3] =
 {
    /* FAT ID: Same as Media descriptor */
    0xF8, 0xFF, 0xFF
 };
+
 
 /*FUNCTION*----------------------------------------------------------------
 *
@@ -1941,6 +1945,7 @@ static void reset_ep0
                                 ARC_USB_RECV, ARC_USB_CONTROL_ENDPOINT, 0);
     _usb_device_init_endpoint(handle, 0, pDiskCtrl->DevDesc[DEV_DESC_MAX_PACKET_SIZE],
                                 ARC_USB_SEND, ARC_USB_CONTROL_ENDPOINT, 0);
+
 
     if (pDiskCtrl->TEST_ENABLED)
     {

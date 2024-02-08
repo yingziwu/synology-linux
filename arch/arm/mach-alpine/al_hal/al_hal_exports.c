@@ -40,3 +40,4 @@ EXPORT_SYMBOL(al_udma_m2s_max_descs_set);
 EXPORT_SYMBOL(al_serdes_tx_deemph_dec);
 EXPORT_SYMBOL(al_serdes_handle_init);
 EXPORT_SYMBOL(al_serdes_tx_deemph_preset);
+

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -60,6 +61,7 @@ disclaimer.
 #define QUEUE_PRINTF_LIST    command, port, q, value
 #define QUEUE_SCANF_LIST     &command, &port, &q, &value
 #define QUEUE_LIST_LEN       4
+
 
 #define ETH_CMD_STRING     "%2x %x"
 #define ETH_PRINTF_LIST    command, value

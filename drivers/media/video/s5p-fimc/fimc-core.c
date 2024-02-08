@@ -1440,6 +1440,7 @@ static unsigned int fimc_m2m_poll(struct file *file,
 	return v4l2_m2m_poll(file, ctx->m2m_ctx, wait);
 }
 
+
 static int fimc_m2m_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct fimc_ctx *ctx = fh_to_ctx(file->private_data);
@@ -1612,6 +1613,7 @@ static int fimc_probe(struct platform_device *pdev)
 	fimc->pdev = pdev;
 	pdata = pdev->dev.platform_data;
 	fimc->pdata = pdata;
+
 
 	init_waitqueue_head(&fimc->irq_queue);
 	spin_lock_init(&fimc->slock);

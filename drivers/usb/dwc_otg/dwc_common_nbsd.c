@@ -19,6 +19,7 @@
 
 /* This is the NetBSD 4.0.1 kernel implementation of the DWC platform library. */
 
+
 /* MISC */
 
 void *DWC_MEMSET(void *dest, uint8_t byte, uint32_t size)
@@ -102,6 +103,7 @@ int DWC_ATOUI(char *str, uint32_t *value)
 	return -1;
 }
 
+
 #ifdef DWC_UTFLIB
 /* From usbstring.c */
 
@@ -168,6 +170,7 @@ fail:
 }
 
 #endif	/* DWC_UTFLIB */
+
 
 /* dwc_debug.h */
 
@@ -262,6 +265,7 @@ void __DWC_DEBUG(char *format, ...)
 	va_end(args);
 }
 #endif
+
 
 /* dwc_mem.h */
 
@@ -385,6 +389,7 @@ void __DWC_FREE(void *mem_ctx, void *addr)
 	free(addr, M_DEVBUF);
 }
 
+
 #ifdef DWC_CRYPTOLIB
 /* dwc_crypto.h */
 
@@ -470,6 +475,7 @@ int DWC_HMAC_SHA256(uint8_t *message, uint32_t messagelen,
 }
 
 #endif	/* DWC_CRYPTOLIB */
+
 
 /* Byte Ordering Conversions */
 
@@ -557,6 +563,7 @@ uint16_t DWC_BE16_TO_CPU(uint16_t *p)
 #endif
 }
 
+
 /* Registers */
 
 uint32_t DWC_READ_REG32(void *io_ctx, uint32_t volatile *reg)
@@ -618,6 +625,7 @@ void DWC_MODIFY_REG64(void *io_ctx, uint64_t volatile *reg, uint64_t clear_mask,
 			   ~clear_mask) | set_mask);
 }
 #endif
+
 
 /* Locking */
 
@@ -702,6 +710,7 @@ void DWC_MUTEX_UNLOCK(dwc_mutex_t *mutex)
 	lockmgr((struct lock *)mutex, LK_RELEASE, NULL);
 }
 
+
 /* Timing */
 
 void DWC_UDELAY(uint32_t usecs)
@@ -732,6 +741,7 @@ uint32_t DWC_TIME(void)
 	microuptime(&tv);	// or getmicrouptime? (less precise, but faster)
 	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
+
 
 /* Timers */
 
@@ -800,6 +810,7 @@ void DWC_TIMER_CANCEL(dwc_timer_t *timer)
 {
 	callout_stop(&timer->t);
 }
+
 
 /* Wait Queues */
 
@@ -948,6 +959,7 @@ void DWC_WAITQ_ABORT(dwc_waitq_t *wq)
 	simple_unlock(&wq->lock);
 }
 
+
 /* Threading */
 
 struct dwc_thread {
@@ -1050,6 +1062,7 @@ void DWC_TASK_SCHEDULE(dwc_tasklet_t *task)
 {
 	tasklet_callback(task);
 }
+
 
 /* workqueues
  - Runs in process context (can sleep)

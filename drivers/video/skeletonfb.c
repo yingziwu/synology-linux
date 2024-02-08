@@ -528,6 +528,7 @@ void xxxfb_copyarea(struct fb_info *p, const struct fb_copyarea *area)
  */
 }
 
+
 /**
  *      xxxfb_imageblit - REQUIRED function. Can use generic routines if
  *                        non acclerated hardware and packed pixel based.
@@ -1028,6 +1029,7 @@ static void __exit xxxfb_exit(void)
 #endif /* CONFIG_PCI */
 
 /* ------------------------------------------------------------------------- */
+
 
     /*
      *  Modularization

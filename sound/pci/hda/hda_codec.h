@@ -884,6 +884,7 @@ enum {
 	HDA_INPUT, HDA_OUTPUT
 };
 
+
 /*
  * constructors
  */

@@ -354,6 +354,7 @@ out:
 	return NOTIFY_DONE;
 }
 
+
 static __exit void ipxitf_cleanup(void)
 {
 	struct ipx_interface *i, *tmp;
@@ -1046,6 +1047,7 @@ static int ipxitf_create(struct ipx_interface_definition *idef)
 		ipxitf_insert(intrfc);
 	}
 
+
 	/* If the network number is known, add a route */
 	rc = 0;
 	if (!intrfc->if_netnum)
@@ -1192,11 +1194,10 @@ static int ipxitf_ioctl(unsigned int cmd, void __user *arg)
 		sipx->sipx_network	= ipxif->if_netnum;
 		memcpy(sipx->sipx_node, ipxif->if_node,
 			sizeof(sipx->sipx_node));
-		rc = -EFAULT;
-		if (copy_to_user(arg, &ifr, sizeof(ifr)))
-			break;
-		ipxitf_put(ipxif);
 		rc = 0;
+		if (copy_to_user(arg, &ifr, sizeof(ifr)))
+			rc = -EFAULT;
+		ipxitf_put(ipxif);
 		break;
 	}
 	case SIOCAIPXITFCRT:
@@ -1600,6 +1601,7 @@ out:
 	return rc;
 }
 
+
 static int ipx_getname(struct socket *sock, struct sockaddr *uaddr,
 			int *uaddr_len, int peer)
 {
@@ -1777,6 +1779,7 @@ out:
 	return rc;
 }
 
+
 static int ipx_recvmsg(struct kiocb *iocb, struct socket *sock,
 		struct msghdr *msg, size_t size, int flags)
 {
@@ -1848,6 +1851,7 @@ out:
 	release_sock(sk);
 	return rc;
 }
+
 
 static int ipx_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 {
@@ -1924,6 +1928,7 @@ static int ipx_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 	return rc;
 }
 
+
 #ifdef CONFIG_COMPAT
 static int ipx_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long arg)
 {
@@ -1944,6 +1949,7 @@ static int ipx_compat_ioctl(struct socket *sock, unsigned int cmd, unsigned long
 	}
 }
 #endif
+
 
 /*
  * Socket family declarations

@@ -20,6 +20,7 @@
 #define VERIFY_READ     0
 #define VERIFY_WRITE    1
 
+
 /*
  * The fs value determines whether argument validity checking should be
  * performed or not.  If get_fs() == USER_DS, checking is performed, with
@@ -29,6 +30,7 @@
  */
 
 #define MAKE_MM_SEG(a)  ((mm_segment_t) { (a) })
+
 
 #define KERNEL_DS       MAKE_MM_SEG(0)
 #define USER_DS         MAKE_MM_SEG(1)
@@ -136,6 +138,7 @@ static inline int __get_user_fn(size_t size, const void __user *ptr, void *x)
 	__put_user(x, ptr);					\
 })
 
+
 extern int __put_user_bad(void) __attribute__((noreturn));
 
 #define __get_user(x, ptr)					\
@@ -144,28 +147,28 @@ extern int __put_user_bad(void) __attribute__((noreturn));
 	__chk_user_ptr(ptr);					\
 	switch (sizeof(*(ptr))) {				\
 	case 1: {						\
-		unsigned char __x;				\
+		unsigned char __x = 0;				\
 		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
 					 ptr, &__x);		\
 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
 		break;						\
 	};							\
 	case 2: {						\
-		unsigned short __x;				\
+		unsigned short __x = 0;				\
 		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
 					 ptr, &__x);		\
 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
 		break;						\
 	};							\
 	case 4: {						\
-		unsigned int __x;				\
+		unsigned int __x = 0;				\
 		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
 					 ptr, &__x);		\
 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\
 		break;						\
 	};							\
 	case 8: {						\
-		unsigned long long __x;				\
+		unsigned long long __x = 0;			\
 		__gu_err = __get_user_fn(sizeof (*(ptr)),	\
 					 ptr, &__x);		\
 		(x) = *(__force __typeof__(*(ptr)) *) &__x;	\

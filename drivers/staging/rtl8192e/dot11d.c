@@ -100,6 +100,7 @@ void Dot11d_Channelmap(u8 channel_plan, struct rtllib_device *ieee)
 	}
 }
 
+
 void Dot11d_Reset(struct rtllib_device *ieee)
 {
 	struct rt_dot11d_info *pDot11dInfo = GET_DOT11D_INFO(ieee);

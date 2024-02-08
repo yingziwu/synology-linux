@@ -65,6 +65,7 @@ struct msgtrace_hdr {
 				 because of trace overflow */
 } __packed;
 
+
 uint
 brcmf_c_mkiovar(char *name, char *data, uint datalen, char *buf, uint buflen)
 {

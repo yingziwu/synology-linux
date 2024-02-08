@@ -23,8 +23,10 @@
 
 #include "ssb_private.h"
 
+
 /* Define the following to 1 to enable a printk on each coreswitch. */
 #define SSB_VERBOSE_PCICORESWITCH_DEBUG		0
+
 
 /* Lowlevel coreswitching */
 int ssb_pci_switch_coreidx(struct ssb_bus *bus, u8 coreidx)
@@ -175,6 +177,7 @@ err_pci:
 			   in[SPOFF(_offset)]) & (_mask)) >> (_shift))
 #define SPEX(_outvar, _offset, _mask, _shift) \
 	SPEX16(_outvar, _offset, _mask, _shift)
+
 
 static inline u8 ssb_crc8(u8 crc, u8 data)
 {
@@ -710,6 +713,7 @@ static int ssb_pci_sprom_get(struct ssb_bus *bus,
 				ssb_printk(KERN_WARNING PFX "WARNING: Using"
 					   " fallback SPROM failed (err %d)\n",
 					   err);
+				goto out_free;
 			} else {
 				ssb_dprintk(KERN_DEBUG PFX "Using SPROM"
 					    " revision %d provided by"

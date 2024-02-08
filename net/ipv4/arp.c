@@ -218,6 +218,7 @@ int arp_mc_map(__be32 addr, u8 *haddr, struct net_device *dev, int dir)
 	return -EINVAL;
 }
 
+
 static u32 arp_hash(const void *pkey,
 		    const struct net_device *dev,
 		    __u32 hash_rnd)
@@ -471,6 +472,7 @@ static int arp_set_predefined(int addr_hint, unsigned char *haddr,
 	return 0;
 }
 
+
 int arp_find(unsigned char *haddr, struct sk_buff *skb)
 {
 	struct net_device *dev = skb->dev;
@@ -590,16 +592,18 @@ struct sk_buff *arp_create(int type, int ptype, __be32 dest_ip,
 	struct sk_buff *skb;
 	struct arphdr *arp;
 	unsigned char *arp_ptr;
+	int hlen = LL_RESERVED_SPACE(dev);
+	int tlen = dev->needed_tailroom;
 
 	/*
 	 *	Allocate a buffer
 	 */
 
-	skb = alloc_skb(arp_hdr_len(dev) + LL_ALLOCATED_SPACE(dev), GFP_ATOMIC);
+	skb = alloc_skb(arp_hdr_len(dev) + hlen + tlen, GFP_ATOMIC);
 	if (skb == NULL)
 		return NULL;
 
-	skb_reserve(skb, LL_RESERVED_SPACE(dev));
+	skb_reserve(skb, hlen);
 	skb_reset_network_header(skb);
 	arp = (struct arphdr *) skb_put(skb, arp_hdr_len(dev));
 	skb->dev = dev;
@@ -935,6 +939,7 @@ static void parp_redo(struct sk_buff *skb)
 	arp_process(skb);
 }
 
+
 /*
  *	Receive an arp request from the device layer.
  */
@@ -1259,6 +1264,7 @@ void arp_ifdown(struct net_device *dev)
 	neigh_ifdown(&arp_tbl, dev);
 }
 
+
 /*
  *	Called once on startup.
  */
@@ -1413,6 +1419,7 @@ static const struct file_operations arp_seq_fops = {
 	.llseek         = seq_lseek,
 	.release	= seq_release_net,
 };
+
 
 static int __net_init arp_net_init(struct net *net)
 {

@@ -171,6 +171,7 @@ struct slic_cmdqueue {
 #define SLIC_MAX_CARDS              32
 #define SLIC_MAX_PORTS              4        /* Max # of ports per card   */
 
+
 struct mcast_address {
 	unsigned char address[6];
 	struct mcast_address *next;
@@ -499,6 +500,7 @@ struct adapter {
     struct slic_stats        inicstats_prev;
     struct slicnet_stats     slic_stats;
 };
+
 
 #define UPDATE_STATS(largestat, newstat, oldstat)                        \
 {                                                                        \

@@ -354,6 +354,7 @@ typedef struct {
     void *pApplicationInfo;
 } VPTestResultLoopbackType;
 
+
 /* Definitions used for VP_TEST_LINE_IMPD */
 typedef struct {
     uint16 integrateTime;   /* Integration time in units of 125us */

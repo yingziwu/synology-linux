@@ -124,6 +124,7 @@ enum chips {
 #define	EMC6D102_REG_EXTEND_ADC3	0x87
 #define	EMC6D102_REG_EXTEND_ADC4	0x88
 
+
 /* Conversions. Rounding and limit checking is only done on the TO_REG
    variants. Note that you should be a bit careful with which arguments
    these macros are called: arguments may be evaluated more than once.
@@ -156,13 +157,14 @@ static inline u16 FAN_TO_REG(unsigned long val)
 
 /* Temperature is reported in .001 degC increments */
 #define TEMP_TO_REG(val)	\
-		SENSORS_LIMIT(SCALE(val, 1000, 1), -127, 127)
+		DIV_ROUND_CLOSEST(SENSORS_LIMIT((val), -127000, 127000), 1000)
 #define TEMPEXT_FROM_REG(val, ext)	\
 		SCALE(((val) << 4) + (ext), 16, 1000)
 #define TEMP_FROM_REG(val)	((val) * 1000)
 
 #define PWM_TO_REG(val)			SENSORS_LIMIT(val, 0, 255)
 #define PWM_FROM_REG(val)		(val)
+
 
 /* ZONEs have the following parameters:
  *    Limit (low) temp,           1. degC
@@ -188,7 +190,7 @@ static const int lm85_range_map[] = {
 	13300, 16000, 20000, 26600, 32000, 40000, 53300, 80000
 };
 
-static int RANGE_TO_REG(int range)
+static int RANGE_TO_REG(long range)
 {
 	int i;
 
@@ -210,7 +212,7 @@ static const int adm1027_freq_map[8] = { /* 1 Hz */
 	11, 15, 22, 29, 35, 44, 59, 88
 };
 
-static int FREQ_TO_REG(const int *map, int freq)
+static int FREQ_TO_REG(const int *map, unsigned long freq)
 {
 	int i;
 
@@ -336,6 +338,7 @@ static int lm85_read_value(struct i2c_client *client, u8 reg);
 static void lm85_write_value(struct i2c_client *client, u8 reg, int value);
 static struct lm85_data *lm85_update_device(struct device *dev);
 
+
 static const struct i2c_device_id lm85_id[] = {
 	{ "adm1027", adm1027 },
 	{ "adt7463", adt7463 },
@@ -363,6 +366,7 @@ static struct i2c_driver lm85_driver = {
 	.detect		= lm85_detect,
 	.address_list	= normal_i2c,
 };
+
 
 /* 4 Fans */
 static ssize_t show_fan(struct device *dev, struct device_attribute *attr,
@@ -439,7 +443,13 @@ static ssize_t store_vrm_reg(struct device *dev, struct device_attribute *attr,
 		const char *buf, size_t count)
 {
 	struct lm85_data *data = dev_get_drvdata(dev);
-	data->vrm = simple_strtoul(buf, NULL, 10);
+	unsigned long val;
+
+	val = simple_strtoul(buf, NULL, 10);
+	if (val > 255)
+		return -EINVAL;
+
+	data->vrm = val;
 	return count;
 }
 
@@ -767,6 +777,7 @@ static SENSOR_DEVICE_ATTR(temp##offset##_max, S_IRUGO | S_IWUSR,	\
 show_temp_reg(1);
 show_temp_reg(2);
 show_temp_reg(3);
+
 
 /* Automatic PWM control */
 
@@ -1377,6 +1388,7 @@ static int lm85_remove(struct i2c_client *client)
 	return 0;
 }
 
+
 static int lm85_read_value(struct i2c_client *client, u8 reg)
 {
 	int res;
@@ -1604,6 +1616,7 @@ static struct lm85_data *lm85_update_device(struct device *dev)
 
 	return data;
 }
+
 
 static int __init sm_lm85_init(void)
 {

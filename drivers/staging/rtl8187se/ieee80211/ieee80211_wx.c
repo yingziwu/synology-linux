@@ -309,6 +309,8 @@ int ieee80211_wx_set_encode(struct ieee80211_device *ieee,
 		goto done;
 	}
 
+
+
 	sec.enabled = 1;
 	sec.flags |= SEC_ENABLED;
 

@@ -458,6 +458,7 @@ static void esfq_destroy(struct Qdisc *sch)
 	esfq_q_destroy(q);
 }
 
+
 static void esfq_reset(struct Qdisc* sch)
 {
 	struct sk_buff *skb;

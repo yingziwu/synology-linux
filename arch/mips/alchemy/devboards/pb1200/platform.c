@@ -179,6 +179,7 @@ static struct platform_device pb1200_mmc1_dev = {
 	.resource	= au1200_mmc1_res,
 };
 
+
 static struct resource ide_resources[] = {
 	[0] = {
 		.start	= IDE_PHYS_ADDR,

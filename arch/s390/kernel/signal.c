@@ -34,6 +34,7 @@
 
 #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
 
+
 typedef struct 
 {
 	__u8 callee_used_stack[__SIGNAL_FRAMESIZE];
@@ -214,6 +215,7 @@ badframe:
 /*
  * Set up a signal frame.
  */
+
 
 /*
  * Determine which stack to use..

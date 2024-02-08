@@ -89,6 +89,7 @@ static void lx_dsp_reg_readbuf(struct lx6464es *chip, int port, u32 *data,
 		data[i] = ioread32(address + i);
 }
 
+
 void lx_dsp_reg_write(struct lx6464es *chip, int port, unsigned data)
 {
 	void __iomem *address = lx_dsp_register(chip, port);
@@ -105,6 +106,7 @@ static void lx_dsp_reg_writebuf(struct lx6464es *chip, int port,
 	for (i = 0; i != len; ++i)
 		iowrite32(data[i], address + i);
 }
+
 
 static const unsigned long plx_port_offsets[] = {
 	0x04,
@@ -194,6 +196,7 @@ int lx_plx_mbox_write(struct lx6464es *chip, int mbox_nr, u32 value)
 	lx_plx_reg_write(chip, index, value);
 	return 0;
 }
+
 
 /* rmh */
 
@@ -313,10 +316,13 @@ static inline void lx_message_dump(struct lx_rmh *rmh)
 {}
 #endif
 
+
+
 /* sleep 500 - 100 = 400 times 100us -> the timeout is >= 40 ms */
 #define XILINX_TIMEOUT_MS       40
 #define XILINX_POLL_NO_SLEEP    100
 #define XILINX_POLL_ITERATIONS  150
+
 
 static int lx_message_send_atomic(struct lx6464es *chip, struct lx_rmh *rmh)
 {
@@ -376,6 +382,7 @@ polling_successful:
 
 	return reg;
 }
+
 
 /* low-level dsp access */
 int __devinit lx_dsp_get_version(struct lx6464es *chip, u32 *rdsp_version)
@@ -444,6 +451,7 @@ int lx_dsp_get_mac(struct lx6464es *chip)
 	return 0;
 }
 
+
 int lx_dsp_set_granularity(struct lx6464es *chip, u32 gran)
 {
 	unsigned long flags;
@@ -509,8 +517,11 @@ int lx_dsp_es_check_pipeline(struct lx6464es *chip)
 	return -ETIMEDOUT;
 }
 
+
 #define PIPE_INFO_TO_CMD(capture, pipe)					\
 	((u32)((u32)(pipe) | ((capture) ? ID_IS_CAPTURE : 0L)) << ID_OFFSET)
+
+
 
 /* low-level pipe handling */
 int lx_pipe_allocate(struct lx6464es *chip, u32 pipe, int is_capture,
@@ -608,6 +619,7 @@ int lx_buffer_ask(struct lx6464es *chip, u32 pipe, int is_capture,
 	return err;
 }
 
+
 int lx_pipe_stop(struct lx6464es *chip, u32 pipe, int is_capture)
 {
 	int err;
@@ -644,6 +656,7 @@ static int lx_pipe_toggle_state(struct lx6464es *chip, u32 pipe, int is_capture)
 	return err;
 }
 
+
 int lx_pipe_start(struct lx6464es *chip, u32 pipe, int is_capture)
 {
 	int err;
@@ -669,6 +682,7 @@ int lx_pipe_pause(struct lx6464es *chip, u32 pipe, int is_capture)
 
 	return err;
 }
+
 
 int lx_pipe_sample_count(struct lx6464es *chip, u32 pipe, int is_capture,
 			 u64 *rsample_count)
@@ -947,6 +961,7 @@ int lx_buffer_cancel(struct lx6464es *chip, u32 pipe, int is_capture,
 	return err;
 }
 
+
 /* low-level gain/peak handling
  *
  * \todo: can we unmute capture/playback channels independently?
@@ -1216,6 +1231,8 @@ void lx_tasklet_capture(unsigned long data)
 	snd_pcm_period_elapsed(lx_stream->stream);
 }
 
+
+
 static int lx_interrupt_handle_audio_transfer(struct lx6464es *chip,
 					      u64 notified_in_pipe_mask,
 					      u64 notified_out_pipe_mask)
@@ -1234,6 +1251,7 @@ static int lx_interrupt_handle_audio_transfer(struct lx6464es *chip,
 
 	return err;
 }
+
 
 irqreturn_t lx_interrupt(int irq, void *dev_id)
 {
@@ -1308,6 +1326,7 @@ exit:
 	spin_unlock(&chip->lock);
 	return IRQ_HANDLED;	/* this device caused the interrupt */
 }
+
 
 static void lx_irq_set(struct lx6464es *chip, int enable)
 {

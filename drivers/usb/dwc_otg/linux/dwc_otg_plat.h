@@ -40,6 +40,7 @@
 #include <linux/delay.h>
 #include <asm/io.h>
 
+
 /**
  * @file
  *
@@ -98,6 +99,7 @@ static __inline__
 {
         writel( (readl(reg) & ~clear_mask) | set_mask, reg );
 };
+
 
 /**
  * Wrapper for the OS micro-second delay function.
@@ -162,6 +164,7 @@ static __inline__ void SPIN_UNLOCK( spinlock_t *lock )
 /*
  * Debugging support vanishes in non-debug builds.
  */
+
 
 /**
  * The Debug Level bit-mask variable.
@@ -262,3 +265,4 @@ static inline uint32_t SET_DEBUG_LEVEL( const uint32_t new )
 #define DWC_PRINT(x...) printk( KERN_INFO USB_DWC x )
 
 #endif
+

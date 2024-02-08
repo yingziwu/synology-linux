@@ -266,6 +266,7 @@ int s5p_mfc_init_hw(struct s5p_mfc_dev *dev)
 	return 0;
 }
 
+
 int s5p_mfc_sleep(struct s5p_mfc_dev *dev)
 {
 	int ret;
@@ -339,3 +340,4 @@ int s5p_mfc_wakeup(struct s5p_mfc_dev *dev)
 	mfc_debug_leave();
 	return 0;
 }
+

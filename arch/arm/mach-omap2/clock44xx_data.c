@@ -263,6 +263,7 @@ static struct dpll_data dpll_abe_dd = {
 	.min_divider	= 1,
 };
 
+
 static struct clk dpll_abe_ck = {
 	.name		= "dpll_abe_ck",
 	.parent		= &abe_dpll_refclk_mux_ck,
@@ -437,6 +438,7 @@ static struct dpll_data dpll_core_dd = {
 	.max_divider	= 128,
 	.min_divider	= 1,
 };
+
 
 static struct clk dpll_core_ck = {
 	.name		= "dpll_core_ck",
@@ -675,6 +677,7 @@ static struct dpll_data dpll_iva_dd = {
 	.min_divider	= 1,
 };
 
+
 static struct clk dpll_iva_ck = {
 	.name		= "dpll_iva_ck",
 	.parent		= &sys_clkin_ck,
@@ -741,6 +744,7 @@ static struct dpll_data dpll_mpu_dd = {
 	.max_divider	= 128,
 	.min_divider	= 1,
 };
+
 
 static struct clk dpll_mpu_ck = {
 	.name		= "dpll_mpu_ck",
@@ -813,6 +817,7 @@ static struct dpll_data dpll_per_dd = {
 	.max_divider	= 128,
 	.min_divider	= 1,
 };
+
 
 static struct clk dpll_per_ck = {
 	.name		= "dpll_per_ck",
@@ -958,6 +963,7 @@ static struct dpll_data dpll_usb_dd = {
 	.max_divider	= 256,
 	.min_divider	= 1,
 };
+
 
 static struct clk dpll_usb_ck = {
 	.name		= "dpll_usb_ck",

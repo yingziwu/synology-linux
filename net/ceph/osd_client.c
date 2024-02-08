@@ -385,6 +385,7 @@ void ceph_osdc_build_request(struct ceph_osd_request *req,
 		ceph_encode_timespec(&head->mtime, mtime);
 	head->num_ops = cpu_to_le16(num_op);
 
+
 	/* fill in oid */
 	head->object_len = cpu_to_le32(oid_len);
 	memcpy(p, oid, oid_len);
@@ -677,12 +678,22 @@ static void put_osd(struct ceph_osd *osd)
  */
 static void __remove_osd(struct ceph_osd_client *osdc, struct ceph_osd *osd)
 {
-	dout("__remove_osd %p\n", osd);
+	dout("%s %p osd%d\n", __func__, osd, osd->o_osd);
 	BUG_ON(!list_empty(&osd->o_requests));
-	rb_erase(&osd->o_node, &osdc->osds);
 	list_del_init(&osd->o_osd_lru);
-	ceph_con_close(&osd->o_con);
-	put_osd(osd);
+	rb_erase(&osd->o_node, &osdc->osds);
+	RB_CLEAR_NODE(&osd->o_node);
+}
+
+static void remove_osd(struct ceph_osd_client *osdc, struct ceph_osd *osd)
+{
+	dout("%s %p osd%d\n", __func__, osd, osd->o_osd);
+
+	if (!RB_EMPTY_NODE(&osd->o_node)) {
+		ceph_con_close(&osd->o_con);
+		__remove_osd(osdc, osd);
+		put_osd(osd);
+	}
 }
 
 static void remove_all_osds(struct ceph_osd_client *osdc)
@@ -692,7 +703,7 @@ static void remove_all_osds(struct ceph_osd_client *osdc)
 	while (!RB_EMPTY_ROOT(&osdc->osds)) {
 		struct ceph_osd *osd = rb_entry(rb_first(&osdc->osds),
 						struct ceph_osd, o_node);
-		__remove_osd(osdc, osd);
+		remove_osd(osdc, osd);
 	}
 	mutex_unlock(&osdc->request_mutex);
 }
@@ -722,7 +733,7 @@ static void remove_old_osds(struct ceph_osd_client *osdc)
 	list_for_each_entry_safe(osd, nosd, &osdc->osd_lru, o_osd_lru) {
 		if (time_before(jiffies, osd->lru_ttl))
 			break;
-		__remove_osd(osdc, osd);
+		remove_osd(osdc, osd);
 	}
 	mutex_unlock(&osdc->request_mutex);
 }
@@ -738,7 +749,7 @@ static int __reset_osd(struct ceph_osd_client *osdc, struct ceph_osd *osd)
 	dout("__reset_osd %p osd%d\n", osd, osd->o_osd);
 	if (list_empty(&osd->o_requests) &&
 	    list_empty(&osd->o_linger_requests)) {
-		__remove_osd(osdc, osd);
+		remove_osd(osdc, osd);
 	} else if (memcmp(&osdc->osdmap->osd_addr[osd->o_osd],
 			  &osd->o_con.peer_addr,
 			  sizeof(osd->o_con.peer_addr)) == 0 &&
@@ -1270,6 +1281,7 @@ static void reset_changed_osds(struct ceph_osd_client *osdc)
 {
 	struct rb_node *p, *n;
 
+	dout("%s %p\n", __func__, osdc);
 	for (p = rb_first(&osdc->osds); p; p = n) {
 		struct ceph_osd *osd = rb_entry(p, struct ceph_osd, o_node);
 
@@ -1341,6 +1353,7 @@ static void kick_requests(struct ceph_osd_client *osdc, int force_resend)
 		ceph_monc_request_next_osdmap(&osdc->client->monc);
 	}
 }
+
 
 /*
  * Process updated osd map.
@@ -1591,6 +1604,7 @@ void ceph_osdc_cancel_event(struct ceph_osd_event *event)
 }
 EXPORT_SYMBOL(ceph_osdc_cancel_event);
 
+
 static void do_event_work(struct work_struct *work)
 {
 	struct ceph_osd_event_work *event_work =
@@ -1607,6 +1621,7 @@ static void do_event_work(struct work_struct *work)
 	ceph_osdc_put_event(event);
 	kfree(event_work);
 }
+
 
 /*
  * Process osd watch notifications
@@ -1715,6 +1730,8 @@ int ceph_osdc_start_request(struct ceph_osd_client *osdc,
 				dout("osdc_start_request failed map, "
 				     " will retry %lld\n", req->r_tid);
 				rc = 0;
+			} else {
+				__unregister_request(osdc, req);
 			}
 			goto out_unlock;
 		}
@@ -2145,6 +2162,7 @@ static int get_authorizer(struct ceph_connection *con,
 	*reply_len = o->o_authorizer_reply_buf_len;
 	return 0;
 }
+
 
 static int verify_authorizer_reply(struct ceph_connection *con, int len)
 {

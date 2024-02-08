@@ -1723,6 +1723,7 @@ static int ub_bd_unlocked_open(struct block_device *bdev, fmode_t mode)
 	return ret;
 }
 
+
 /*
  */
 static int ub_bd_release(struct gendisk *disk, fmode_t mode)

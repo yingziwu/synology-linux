@@ -37,6 +37,7 @@
 extern int pmu_request_irq(int irq, irq_handler_t handler);
 extern void pmu_free_irq(int irq);
 
+
 //static struct platform_device * pmu_dev;
 
 extern struct CMCounterConfigs g_counter_config;
@@ -390,6 +391,7 @@ static int free_internal_data(void)
 		kfree(register_value);
 		register_value = NULL;
 	}
+
 
 	return 0;
 }

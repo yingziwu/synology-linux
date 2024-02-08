@@ -504,3 +504,4 @@ void onuGponOnuAlarmShow(void)
   mvPonPrint(PON_PRINT_INFO, PON_ALARM_MODULE, "Alarm RDI  - %s\n",      
           (l_onuGponCurrentAlarmState & ONU_GPON_ALARM_RDI_LOC)  ? ("On") : ("Off")); 
 }
+

@@ -60,6 +60,7 @@ void HBA_ModuleStarted(struct mv_mod_desc *mod_desc);
 	 scmd->cmnd[9] ==0xA1||scmd->cmnd[9] ==0x92|| \
 	 scmd->cmnd[9] ==0xB0))
 
+
 /*ATA Protocols*/
 enum _ATA_PROTOCOL {
 	HARD_RESET 	= 0x00,
@@ -110,6 +111,7 @@ struct gen_module_desc {
 		   *(_parent_ext_p) = __ext_to_gen(_ext)->desc->parent->extension;           \
 	   }
 
+
 #define hba_notify_upper_md(ext, eid, param)                 			 	\
    {                                                                     	\
 	__ext_to_gen(ext)->desc->parent->ops->module_notification(       		\
@@ -118,6 +120,8 @@ struct gen_module_desc {
 										param);					 	\
    }
 
+
+
 #define HBA_GetControllerInfor(_ext, _pinfo)                              \
            {    \
 		   (_pinfo)->Base_Address = __ext_to_gen(_ext)->desc->hba_desc->Base_Address; \
@@ -125,6 +129,7 @@ struct gen_module_desc {
 		   (_pinfo)->Device_Id    = __ext_to_gen(_ext)->desc->hba_desc->device;    \
 		   (_pinfo)->Revision_Id  = __ext_to_gen(_ext)->desc->hba_desc->Revision_Id;  \
 	   }
+
 
 void hba_swap_buf_le16(u16 *buf, unsigned int words);
 

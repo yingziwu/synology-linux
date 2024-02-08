@@ -17,6 +17,7 @@
 #include "edac_core.h"
 #include "edac_module.h"
 
+
 /* MC EDAC Controls, setable by module parameter, and sysfs */
 static int edac_mc_log_ue = 1;
 static int edac_mc_log_ce = 1;
@@ -607,6 +608,7 @@ static struct mcidev_sysfs_attribute *mci_attr[] = {
 	NULL
 };
 
+
 /*
  * Release of a MC controlling instance
  *
@@ -769,6 +771,7 @@ static struct kobj_type ktype_inst_grp = {
 	.sysfs_ops = &inst_grp_ops,
 };
 
+
 /*
  * edac_create_mci_instance_attributes
  *	create MC driver specific attributes bellow an specified kobj
@@ -886,6 +889,7 @@ static void edac_remove_mci_instance_attributes(struct mem_ctl_info *mci,
 	}
 }
 
+
 /*
  * Create a new Memory Controller kobject instance,
  *	mc<id> under the 'mc' directory
@@ -999,6 +1003,9 @@ void edac_remove_sysfs_mci_device(struct mem_ctl_info *mci)
 	kobject_put(&mci->edac_mci_kobj);
 }
 
+
+
+
 /*
  * edac_setup_sysfs_mc_kset(void)
  *
@@ -1054,3 +1061,4 @@ void edac_sysfs_teardown_mc_kset(void)
 	kset_unregister(mc_kset);
 	edac_put_sysfs_class();
 }
+

@@ -13,6 +13,7 @@ struct ssb_serial_port {
 	unsigned int reg_shift;
 };
 
+
 struct ssb_mipscore {
 	struct ssb_device *dev;
 
@@ -28,6 +29,7 @@ extern void ssb_mipscore_init(struct ssb_mipscore *mcore);
 extern u32 ssb_cpu_clock(struct ssb_mipscore *mcore);
 
 extern unsigned int ssb_mips_irq(struct ssb_device *dev);
+
 
 #else /* CONFIG_SSB_DRIVER_MIPS */
 

@@ -1,6 +1,9 @@
 #ifndef CNTRL_SIGNALING_INTERFACE_
 #define CNTRL_SIGNALING_INTERFACE_
 
+
+
+
 #define DSA_REQ 11
 #define DSA_RSP 12
 #define DSA_ACK 13
@@ -11,6 +14,7 @@
 #define DSD_RSP 18
 #define DSD_ACK 19
 #define MAX_CLASSIFIERS_IN_SF  4
+
 
 #define MAX_STRING_LEN 20
 #define MAX_PHS_LENGTHS 255
@@ -33,6 +37,7 @@
 #define ETHERNET_SRC_MAC_ADDR_LENGTH		12
 #define NUM_ETHERTYPE_BYTES  3
 #define NUM_IPV6_FLOWLABLE_BYTES 3
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////structure Definitions///////////////////////////////////
@@ -137,6 +142,7 @@ struct _stConvergenceSLTypes{
      struct _stPhsRuleSI		cPhsRule;
 };
 typedef struct _stConvergenceSLTypes stConvergenceSLTypes,CConvergenceSLTypes, *pstConvergenceSLTypes;
+
 
 /// \brief structure CServiceFlowParamSI
 typedef struct _stServiceFlowParamSI{
@@ -333,6 +339,7 @@ typedef struct _stLocalSFAddRequest{
 
 }stLocalSFAddRequest, *pstLocalSFAddRequest;
 
+
 /**
 structure stLocalSFAddIndication
 */
@@ -347,6 +354,7 @@ typedef struct _stLocalSFAddIndication{
     /// \brief 16bitVCID
     B_UINT16                        u16VCID;	 /**<  16bitVCID*/
 
+
     /// \brief structure AuthorizedSet
     /// \brief structure AuthorizedSet
     stServiceFlowParamSI              *psfAuthorizedSet;	/**<  AuthorizedSet of type stServiceFlowParamSI*/
@@ -360,6 +368,7 @@ typedef struct _stLocalSFAddIndication{
     B_UINT16               u16Padd;	/**< 16 bit Padding */
 
 }stLocalSFAddIndication;
+
 
 typedef struct _stLocalSFAddIndication *pstLocalSFAddIndication;
 /**

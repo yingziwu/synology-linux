@@ -15,6 +15,7 @@
 #ifndef __GADGET_CHIPS_H
 #define __GADGET_CHIPS_H
 
+
 #ifdef CONFIG_USB_GADGET_MRVL
 #define gadget_is_mrvl(g)    !strcmp("mv_udc", (g)->name)
 #else
@@ -131,6 +132,7 @@ static inline int usb_gadget_controller_number(struct usb_gadget *gadget)
 
 	return -ENOENT;
 }
+
 
 /**
  * gadget_supports_altsettings - return true if altsettings work

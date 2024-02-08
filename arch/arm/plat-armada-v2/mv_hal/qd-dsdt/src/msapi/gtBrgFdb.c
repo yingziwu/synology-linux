@@ -55,6 +55,7 @@ static GT_STATUS atuGetStats
     OUT GT_U32        *count
 );
 
+
 /*******************************************************************************
 * gfdbSetPortAtuLearnLimit
 *
@@ -142,6 +143,7 @@ GT_STATUS gfdbSetPortAtuLearnLimit
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gfdbGetPortAtuLearnLimit
 *
@@ -226,6 +228,8 @@ GT_STATUS gfdbGetPortAtuLearnLimit
     return GT_OK;
 }
 
+
+
 /*******************************************************************************
 * gfdbGetPortAtuLearnCnt
 *
@@ -305,6 +309,7 @@ GT_STATUS gfdbGetPortAtuLearnCnt
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbGetAtuAllCount
@@ -396,6 +401,7 @@ GT_STATUS gfdbGetAtuAllCount
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gfdbGetAtuAllCountInDBNum
 *
@@ -473,6 +479,7 @@ GT_STATUS gfdbGetAtuAllCountInDBNum
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbGetAtuDynamicCountInDBNum
@@ -555,6 +562,8 @@ GT_STATUS gfdbGetAtuDynamicCountInDBNum
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gfdbSetAtuSize
@@ -669,6 +678,7 @@ GT_STATUS gfdbSetAtuSize
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gfdbGetAgingTimeRange
 *
@@ -720,6 +730,7 @@ GT_STATUS gfdbGetAgingTimeRange
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbGetAgingTimeout
@@ -776,6 +787,7 @@ GT_STATUS gfdbGetAgingTimeout
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbSetAgingTimeout
@@ -847,6 +859,7 @@ GT_STATUS gfdbSetAgingTimeout
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbGetLearn2All
@@ -972,6 +985,7 @@ GT_STATUS gfdbSetLearn2All
     }
     return retVal;
 }
+
 
 /*******************************************************************************
 * gfdbGetMacAvb
@@ -1123,6 +1137,7 @@ GT_STATUS gfdbSetMacAvb
     return retVal;
 }
 
+
 /*******************************************************************************
 * gfdbGetAtuDynamicCount
 *
@@ -1220,6 +1235,7 @@ GT_STATUS gfdbGetAtuDynamicCount
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gfdbGetAtuEntryFirst
 *
@@ -1316,6 +1332,8 @@ GT_STATUS gfdbGetAtuEntryFirst
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gfdbGetAtuEntryNext
@@ -1415,6 +1433,8 @@ GT_STATUS gfdbGetAtuEntryNext
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gfdbFindAtuMacEntry
@@ -1548,6 +1568,8 @@ printk("@@@@@@@@@@@@@  error gfdbFindAtuMacEntry:check: %02x:%02x:%02x:%02x:%02x
     return GT_OK;
 }
 
+
+
 /*******************************************************************************
 * gfdbFlush
 *
@@ -1605,6 +1627,7 @@ GT_STATUS gfdbFlush
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbFlushInDB
@@ -1671,6 +1694,7 @@ GT_STATUS gfdbFlushInDB
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbMove
@@ -1742,6 +1766,7 @@ GT_STATUS gfdbMove
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbMoveInDB
@@ -1818,6 +1843,7 @@ GT_STATUS gfdbMoveInDB
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gfdbRemovePort
 *
@@ -1852,6 +1878,7 @@ GT_STATUS gfdbRemovePort
 
     return gfdbMove(dev,moveCmd,port,(GT_LPORT)0xF);
 }
+
 
 /*******************************************************************************
 * gfdbRemovePortInDB
@@ -1890,6 +1917,7 @@ GT_STATUS gfdbRemovePortInDB
 
     return gfdbMoveInDB(dev,moveCmd,DBNum,port,(GT_LPORT)0xF);
 }
+
 
 /*******************************************************************************
 * gfdbAddMacEntry
@@ -2063,6 +2091,7 @@ GT_STATUS gfdbDelMacEntry
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gfdbDelAtuEntry
 *
@@ -2191,6 +2220,7 @@ GT_STATUS gfdbLearnEnable
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gfdbGetLearnEnable
@@ -2346,6 +2376,7 @@ GT_STATUS gatuGetViolation
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * atuOperationPerform
@@ -2749,6 +2780,7 @@ static GT_STATUS atuOperationPerform
             entry->macAddr.arEther[1 + 2*i] = data & 0xFF;
         }
 #endif
+
 
     } /* end of service violations */
     /* If the operation is a gen next operation wait for the response   */
@@ -3179,6 +3211,7 @@ static GT_STATUS atuStateDevToApp
     *newOne = newState;
     return retVal;
 }
+
 
 static GT_STATUS atuGetStats
 (

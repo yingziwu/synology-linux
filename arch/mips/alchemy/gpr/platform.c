@@ -167,6 +167,8 @@ static struct i2c_board_info gpr_i2c_info[] __initdata = {
 	}
 };
 
+
+
 static struct resource alchemy_pci_host_res[] = {
 	[0] = {
 		.start	= AU1500_PCI_PHYS_ADDR,
@@ -217,6 +219,7 @@ static int __init gpr_pci_init(void)
 }
 /* must be arch_initcall; MIPS PCI scans busses in a subsys_initcall */
 arch_initcall(gpr_pci_init);
+
 
 static int __init gpr_dev_init(void)
 {

@@ -165,6 +165,7 @@ typedef union {
 #define PFM_VERSION_MAJOR(x)	 (((x)>>16) & 0xffff)
 #define PFM_VERSION_MINOR(x)	 ((x) & 0xffff)
 
+
 /*
  * miscellaneous architected definitions
  */
@@ -192,6 +193,8 @@ extern void pfm_init_percpu(void);
 extern void pfm_handle_work(void);
 extern int  pfm_install_alt_pmu_interrupt(pfm_intr_handler_desc_t *h);
 extern int  pfm_remove_alt_pmu_interrupt(pfm_intr_handler_desc_t *h);
+
+
 
 /*
  * Reset PMD register flags
@@ -222,6 +225,7 @@ typedef struct {
 	unsigned long   pmd_value;			/* current 64-bit value of the PMD */
 	unsigned long	pmd_eventid;			/* eventid associated with PMD */
 } pfm_ovfl_arg_t;
+
 
 typedef struct {
 	char		*fmt_name;
@@ -268,6 +272,7 @@ typedef struct {
 	int	expert_mode;	/* turn on/off value checking */
 } pfm_sysctl_t;
 extern pfm_sysctl_t pfm_sysctl;
+
 
 #endif /* __KERNEL__ */
 

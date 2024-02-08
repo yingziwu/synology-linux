@@ -233,6 +233,7 @@ MV_STATUS mvDmaTargetWinWrite(MV_U32 winNum, MV_UNIT_WIN_INFO *pAddrDecWin)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvDmaTargetWinEnable - Enable/disable a Idma address decode window
 *

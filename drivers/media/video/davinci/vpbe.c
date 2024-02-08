@@ -352,6 +352,7 @@ static int vpbe_s_dv_preset(struct vpbe_device *vpbe_dev,
 	int sd_index = vpbe_dev->current_sd_index;
 	int ret;
 
+
 	if (!(cfg->outputs[out_index].output.capabilities &
 	    V4L2_OUT_CAP_PRESETS))
 		return -EINVAL;
@@ -362,6 +363,7 @@ static int vpbe_s_dv_preset(struct vpbe_device *vpbe_dev,
 		return ret;
 
 	mutex_lock(&vpbe_dev->lock);
+
 
 	ret = v4l2_subdev_call(vpbe_dev->encoders[sd_index], video,
 					s_dv_preset, dv_preset);

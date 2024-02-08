@@ -25,3 +25,4 @@ int al_dma_sysfs_init(
 
 void al_dma_sysfs_terminate(
 	struct device *dev);
+

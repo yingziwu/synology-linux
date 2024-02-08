@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -62,6 +63,7 @@ static MV_U32 read_p15_c1 (void);
 
 #define ARM_FEATURE_THUMBEE_OFFS	12
 #define ARM_FEATURE_THUMBEE_MASK	(0xf << ARM_FEATURE_THUMBEE_OFFS)
+
 
 void* mvOsIoCachedMalloc( void* osHandle, MV_U32 size, MV_ULONG* pPhyAddr,
 			  MV_U32 *memHandle)

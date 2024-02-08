@@ -118,6 +118,7 @@ static struct xen_blkif *xen_blkif_alloc(domid_t domid)
 	atomic_set(&blkif->drain, 0);
 	blkif->st_print = jiffies;
 	init_waitqueue_head(&blkif->waiting_to_free);
+	init_waitqueue_head(&blkif->shutdown_wq);
 
 	return blkif;
 }
@@ -178,6 +179,7 @@ static void xen_blkif_disconnect(struct xen_blkif *blkif)
 {
 	if (blkif->xenblkd) {
 		kthread_stop(blkif->xenblkd);
+		wake_up(&blkif->shutdown_wq);
 		blkif->xenblkd = NULL;
 	}
 
@@ -287,6 +289,7 @@ void xenvbd_sysfs_delif(struct xenbus_device *dev)
 	device_remove_file(&dev->dev, &dev_attr_mode);
 	device_remove_file(&dev->dev, &dev_attr_physical_device);
 }
+
 
 static void xen_vbd_free(struct xen_vbd *vbd)
 {
@@ -497,6 +500,7 @@ fail:
 	return err;
 }
 
+
 /*
  * Callback received when the hotplug scripts have placed the physical-device
  * node.  Read it and the mode node, and create a vbd.  If the frontend is
@@ -585,6 +589,7 @@ static void backend_changed(struct xenbus_watch *watch,
 	}
 }
 
+
 /*
  * Callback received when the frontend's state changes.
  */
@@ -649,7 +654,9 @@ static void frontend_changed(struct xenbus_device *dev,
 	}
 }
 
+
 /* ** Connection ** */
+
 
 /*
  * Write the physical details regarding the block device to the store, and
@@ -722,6 +729,7 @@ again:
 	xenbus_transaction_end(xbt, 1);
 }
 
+
 static int connect_ring(struct backend_info *be)
 {
 	struct xenbus_device *dev = be->dev;
@@ -770,12 +778,15 @@ static int connect_ring(struct backend_info *be)
 	return 0;
 }
 
+
 /* ** Driver Registration ** */
+
 
 static const struct xenbus_device_id xen_blkbk_ids[] = {
 	{ "vbd" },
 	{ "" }
 };
+
 
 static struct xenbus_driver xen_blkbk = {
 	.name = "vbd",
@@ -785,6 +796,7 @@ static struct xenbus_driver xen_blkbk = {
 	.remove = xen_blkbk_remove,
 	.otherend_changed = frontend_changed
 };
+
 
 int xen_blkif_xenbus_init(void)
 {

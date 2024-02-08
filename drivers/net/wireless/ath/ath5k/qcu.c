@@ -24,6 +24,7 @@ Queue Control Unit, DFS Control Unit Functions
 #include "reg.h"
 #include "debug.h"
 
+
 /******************\
 * Helper functions *
 \******************/
@@ -166,13 +167,7 @@ int ath5k_hw_setup_tx_queue(struct ath5k_hw *ah, enum ath5k_tx_queue queue_type,
 	} else {
 		switch (queue_type) {
 		case AR5K_TX_QUEUE_DATA:
-			for (queue = AR5K_TX_QUEUE_ID_DATA_MIN;
-				ah->ah_txq[queue].tqi_type !=
-				AR5K_TX_QUEUE_INACTIVE; queue++) {
-
-				if (queue > AR5K_TX_QUEUE_ID_DATA_MAX)
-					return -EINVAL;
-			}
+			queue = queue_info->tqi_subtype;
 			break;
 		case AR5K_TX_QUEUE_UAPSD:
 			queue = AR5K_TX_QUEUE_ID_UAPSD;
@@ -210,6 +205,7 @@ int ath5k_hw_setup_tx_queue(struct ath5k_hw *ah, enum ath5k_tx_queue queue_type,
 
 	return queue;
 }
+
 
 /*******************************\
 * Single QCU/DCU initialization *
@@ -289,6 +285,7 @@ int ath5k_hw_reset_tx_queue(struct ath5k_hw *ah, unsigned int queue)
 	 * Set tx retry limits for this queue
 	 */
 	ath5k_hw_set_tx_retry_limits(ah, queue);
+
 
 	/*
 	 * Set misc registers
@@ -482,6 +479,7 @@ int ath5k_hw_reset_tx_queue(struct ath5k_hw *ah, unsigned int queue)
 	return 0;
 }
 
+
 /**************************\
 * Global QCU/DCU functions *
 \**************************/
@@ -591,6 +589,7 @@ int ath5k_hw_set_ifs_intervals(struct ath5k_hw *ah, unsigned int slot_time)
 
 	return 0;
 }
+
 
 int ath5k_hw_init_queues(struct ath5k_hw *ah)
 {

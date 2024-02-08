@@ -25,6 +25,7 @@
 
 #include <asm/regdef.h>
 
+
 /* Allow an exception for an insn; exit if we get one.  */
 #define EX(x,y...)			\
 	99: x,##y;			\
@@ -32,6 +33,7 @@
 	.long 99b - .;			\
 	lda v0, $exception-99b(zero);	\
 	.previous
+
 
 	.set noreorder
 	.set noat

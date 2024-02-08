@@ -269,6 +269,7 @@ exit:
 	return result;
 }
 
+
 static void visor_close(struct usb_serial_port *port)
 {
 	unsigned char *transfer_buffer;
@@ -469,6 +470,7 @@ static int palm_os_4_probe(struct usb_serial *serial,
 	return 0;
 }
 
+
 static int visor_probe(struct usb_serial *serial,
 					const struct usb_device_id *id)
 {
@@ -602,7 +604,9 @@ static int treo_attach(struct usb_serial *serial)
 		dest->read_urb = src->read_urb;				\
 		dest->bulk_in_endpointAddress = src->bulk_in_endpointAddress;\
 		dest->bulk_in_buffer = src->bulk_in_buffer;		\
+		dest->bulk_in_size = src->bulk_in_size;			\
 		dest->interrupt_in_urb = src->interrupt_in_urb;		\
+		dest->interrupt_in_urb->context = dest;			\
 		dest->interrupt_in_endpointAddress = \
 					src->interrupt_in_endpointAddress;\
 		dest->interrupt_in_buffer = src->interrupt_in_buffer;	\
@@ -715,6 +719,7 @@ failed_handspring_register:
 	return retval;
 }
 
+
 static void __exit visor_exit (void)
 {
 	usb_deregister(&visor_driver);
@@ -722,6 +727,7 @@ static void __exit visor_exit (void)
 	usb_serial_deregister(&clie_3_5_device);
 	usb_serial_deregister(&clie_5_device);
 }
+
 
 module_init(visor_init);
 module_exit(visor_exit);
@@ -737,3 +743,4 @@ module_param(vendor, ushort, 0);
 MODULE_PARM_DESC(vendor, "User specified vendor ID");
 module_param(product, ushort, 0);
 MODULE_PARM_DESC(product, "User specified product ID");
+

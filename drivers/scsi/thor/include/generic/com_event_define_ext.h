@@ -94,6 +94,7 @@
 #define	EVT_CODE_ENCL_TEMP_SENSOR_DIFF_DETECTED	34  // Enclosure %d Temperature sensor %d differential detected
 #define	EVT_CODE_ENCL_FAN_SPEED_CHANGED			35  // Enclosure %d fan %d speed changed
 
+
 //
 // Event code for EVT_CLASS_BAT
 //
@@ -124,6 +125,8 @@
 #define EVT_CODE_BAT_CAPACITY_BELOW_THRESHOLD	23  // Current capacity (%d) of the battery is below threshold (%d)
 #define EVT_CODE_BAT_CAPACITY_ABOVE_THRESHOLD	24  // Current capacity (%d) of the battery is above threshold (%d)
 
+
+
 //
 // Event code for EVT_CLASS_FLASH
 //
@@ -142,6 +145,7 @@
 #define EVT_CODE_NVRAM_CORRUPT					11	// NVRAM is corrupt; reinitializing
 #define EVT_CODE_NVRAM_MISMACTH_OCCURED			12  // NVRAM mismatch occured
 
+
 //
 // Event code for EVT_CLASS_CACHE(Cache)
 //
@@ -152,6 +156,7 @@
 #define EVT_CODE_CACHE_FAIL_RECV_DUETO_MISMATCH	3   // Unable to recover cache data due to configuration mismatch
 #define EVT_CODE_CACHE_DIRTY_DATA_DISCARDED		4	// Dirty cache data discarded by user
 #define EVT_CODE_CACHE_FLUSH_RATE_CHANGED		5   // Flush rate changed to %d seconds.
+
 
 //
 // Event code for EVT_CLASS_MISC
@@ -305,6 +310,7 @@
 #define EVT_ID_NVRAM_CORRUPT					_CLASS_FLASH(EVT_CODE_NVRAM_CORRUPT)
 #define EVT_ID_NVRAM_MISMACTH_OCCURED			_CLASS_FLASH(EVT_CODE_NVRAM_MISMACTH_OCCURED)
 
+
 // Event code for EVT_CLASS_CACHE(Cache)
 //
 
@@ -316,6 +322,7 @@
 #define EVT_ID_CACHE_FAIL_RECV_DUETO_MISMATCH	_CLASS_CACHE(EVT_CODE_CACHE_FAIL_RECV_DUETO_MISMATCH)
 #define EVT_ID_CACHE_DIRTY_DATA_DISCARDED		_CLASS_CACHE(EVT_CODE_CACHE_DIRTY_DATA_DISCARDED)
 #define EVT_ID_CACHE_FLUSH_RATE_CHANGED			_CLASS_CACHE(EVT_CODE_CACHE_FLUSH_RATE_CHANGED)
+
 
 //
 // Event code for EVT_CLASS_MISC

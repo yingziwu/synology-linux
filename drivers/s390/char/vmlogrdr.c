@@ -39,6 +39,7 @@ MODULE_DESCRIPTION ("Character device driver for reading z/VM "
 		    "system service records.");
 MODULE_LICENSE("GPL");
 
+
 /*
  * The size of the buffer for iucv data transfer is one page,
  * but in addition to the data we read from iucv we also
@@ -81,6 +82,7 @@ struct vmlogrdr_priv_t {
 	int autopurge;
 };
 
+
 /*
  * File operation structure for vmlogrdr devices
  */
@@ -97,16 +99,19 @@ static const struct file_operations vmlogrdr_fops = {
 	.llseek  = no_llseek,
 };
 
+
 static void vmlogrdr_iucv_path_complete(struct iucv_path *, u8 ipuser[16]);
 static void vmlogrdr_iucv_path_severed(struct iucv_path *, u8 ipuser[16]);
 static void vmlogrdr_iucv_message_pending(struct iucv_path *,
 					  struct iucv_message *);
+
 
 static struct iucv_handler vmlogrdr_iucv_handler = {
 	.path_complete	 = vmlogrdr_iucv_path_complete,
 	.path_severed	 = vmlogrdr_iucv_path_severed,
 	.message_pending = vmlogrdr_iucv_message_pending,
 };
+
 
 static DECLARE_WAIT_QUEUE_HEAD(conn_wait_queue);
 static DECLARE_WAIT_QUEUE_HEAD(read_wait_queue);
@@ -155,6 +160,7 @@ static int vmlogrdr_major = 0;
 static struct cdev  *vmlogrdr_cdev = NULL;
 static int recording_class_AB;
 
+
 static void vmlogrdr_iucv_path_complete(struct iucv_path *path, u8 ipuser[16])
 {
 	struct vmlogrdr_priv_t * logptr = path->private;
@@ -164,6 +170,7 @@ static void vmlogrdr_iucv_path_complete(struct iucv_path *path, u8 ipuser[16])
 	spin_unlock(&logptr->priv_lock);
 	wake_up(&conn_wait_queue);
 }
+
 
 static void vmlogrdr_iucv_path_severed(struct iucv_path *path, u8 ipuser[16])
 {
@@ -186,6 +193,7 @@ static void vmlogrdr_iucv_path_severed(struct iucv_path *path, u8 ipuser[16])
 	wake_up_interruptible(&read_wait_queue);
 }
 
+
 static void vmlogrdr_iucv_message_pending(struct iucv_path *path,
 					  struct iucv_message *msg)
 {
@@ -202,6 +210,7 @@ static void vmlogrdr_iucv_message_pending(struct iucv_path *path,
 	spin_unlock(&logptr->priv_lock);
 	wake_up_interruptible(&read_wait_queue);
 }
+
 
 static int vmlogrdr_get_recording_class_AB(void)
 {
@@ -230,6 +239,7 @@ static int vmlogrdr_get_recording_class_AB(void)
 			return 1;
 	return 0;
 }
+
 
 static int vmlogrdr_recording(struct vmlogrdr_priv_t * logptr,
 			      int action, int purge)
@@ -294,6 +304,7 @@ static int vmlogrdr_recording(struct vmlogrdr_priv_t * logptr,
 
 	return rc;
 }
+
 
 static int vmlogrdr_open (struct inode *inode, struct file *filp)
 {
@@ -374,6 +385,7 @@ out_dev:
 	return -EIO;
 }
 
+
 static int vmlogrdr_release (struct inode *inode, struct file *filp)
 {
 	int ret;
@@ -393,6 +405,7 @@ static int vmlogrdr_release (struct inode *inode, struct file *filp)
 
 	return 0;
 }
+
 
 static int vmlogrdr_receive_data(struct vmlogrdr_priv_t *priv)
 {
@@ -462,6 +475,7 @@ static int vmlogrdr_receive_data(struct vmlogrdr_priv_t *priv)
 	return rc;
 }
 
+
 static ssize_t vmlogrdr_read(struct file *filp, char __user *data,
 			     size_t count, loff_t * ppos)
 {
@@ -515,6 +529,7 @@ static ssize_t vmlogrdr_autopurge_store(struct device * dev,
 	return ret;
 }
 
+
 static ssize_t vmlogrdr_autopurge_show(struct device *dev,
 				       struct device_attribute *attr,
 				       char *buf)
@@ -523,8 +538,10 @@ static ssize_t vmlogrdr_autopurge_show(struct device *dev,
 	return sprintf(buf, "%u\n", priv->autopurge);
 }
 
+
 static DEVICE_ATTR(autopurge, 0644, vmlogrdr_autopurge_show,
 		   vmlogrdr_autopurge_store);
+
 
 static ssize_t vmlogrdr_purge_store(struct device * dev,
 				    struct device_attribute *attr,
@@ -562,7 +579,9 @@ static ssize_t vmlogrdr_purge_store(struct device * dev,
 	return count;
 }
 
+
 static DEVICE_ATTR(purge, 0200, NULL, vmlogrdr_purge_store);
+
 
 static ssize_t vmlogrdr_autorecording_store(struct device *dev,
 					    struct device_attribute *attr,
@@ -584,6 +603,7 @@ static ssize_t vmlogrdr_autorecording_store(struct device *dev,
 	return ret;
 }
 
+
 static ssize_t vmlogrdr_autorecording_show(struct device *dev,
 					   struct device_attribute *attr,
 					   char *buf)
@@ -592,8 +612,10 @@ static ssize_t vmlogrdr_autorecording_show(struct device *dev,
 	return sprintf(buf, "%u\n", priv->autorecording);
 }
 
+
 static DEVICE_ATTR(autorecording, 0644, vmlogrdr_autorecording_show,
 		   vmlogrdr_autorecording_store);
+
 
 static ssize_t vmlogrdr_recording_store(struct device * dev,
 					struct device_attribute *attr,
@@ -619,7 +641,9 @@ static ssize_t vmlogrdr_recording_store(struct device * dev,
 
 }
 
+
 static DEVICE_ATTR(recording, 0200, NULL, vmlogrdr_recording_store);
+
 
 static ssize_t vmlogrdr_recording_status_show(struct device_driver *driver,
 					      char *buf)
@@ -632,6 +656,7 @@ static ssize_t vmlogrdr_recording_status_show(struct device_driver *driver,
 	len = strlen(buf);
 	return len;
 }
+
 
 static DRIVER_ATTR(recording_status, 0444, vmlogrdr_recording_status_show,
 		   NULL);
@@ -662,6 +687,7 @@ static int vmlogrdr_pm_prepare(struct device *dev)
 	return rc;
 }
 
+
 static const struct dev_pm_ops vmlogrdr_pm_ops = {
 	.prepare = vmlogrdr_pm_prepare,
 };
@@ -676,6 +702,7 @@ static struct device_driver vmlogrdr_driver = {
 	.bus  = &iucv_bus,
 	.pm = &vmlogrdr_pm_ops,
 };
+
 
 static int vmlogrdr_register_driver(void)
 {
@@ -713,6 +740,7 @@ out:
 	return ret;
 }
 
+
 static void vmlogrdr_unregister_driver(void)
 {
 	class_destroy(vmlogrdr_class);
@@ -721,6 +749,7 @@ static void vmlogrdr_unregister_driver(void)
 	driver_unregister(&vmlogrdr_driver);
 	iucv_unregister(&vmlogrdr_iucv_handler, 1);
 }
+
 
 static int vmlogrdr_register_device(struct vmlogrdr_priv_t *priv)
 {
@@ -770,6 +799,7 @@ static int vmlogrdr_register_device(struct vmlogrdr_priv_t *priv)
 	return 0;
 }
 
+
 static int vmlogrdr_unregister_device(struct vmlogrdr_priv_t *priv)
 {
 	device_destroy(vmlogrdr_class, MKDEV(vmlogrdr_major, priv->minor_num));
@@ -780,6 +810,7 @@ static int vmlogrdr_unregister_device(struct vmlogrdr_priv_t *priv)
 	}
 	return 0;
 }
+
 
 static int vmlogrdr_register_cdev(dev_t dev)
 {
@@ -801,6 +832,7 @@ static int vmlogrdr_register_cdev(dev_t dev)
 	return rc;
 }
 
+
 static void vmlogrdr_cleanup(void)
 {
         int i;
@@ -819,6 +851,7 @@ static void vmlogrdr_cleanup(void)
 		vmlogrdr_major=0;
 	}
 }
+
 
 static int __init vmlogrdr_init(void)
 {
@@ -843,7 +876,7 @@ static int __init vmlogrdr_init(void)
 		goto cleanup;
 
 	for (i=0; i < MAXMINOR; ++i ) {
-		sys_ser[i].buffer = (char *) get_zeroed_page(GFP_KERNEL);
+		sys_ser[i].buffer = (char *) get_zeroed_page(GFP_KERNEL | GFP_DMA);
 		if (!sys_ser[i].buffer) {
 			rc = -ENOMEM;
 			break;
@@ -866,11 +899,13 @@ cleanup:
 	return rc;
 }
 
+
 static void __exit vmlogrdr_exit(void)
 {
 	vmlogrdr_cleanup();
 	return;
 }
+
 
 module_init(vmlogrdr_init);
 module_exit(vmlogrdr_exit);

@@ -31,6 +31,7 @@
 #define CE5300_SPI_FLASH_REVISION_ID			0x00
 #define CE2600_SPI_FLASH_REVISION_ID			0x02
 
+
 /* Controller Register Set */
 #define MODE_CONTL_REG       					0
 
@@ -53,6 +54,7 @@
 #define MODE_CONTL_N_ADDR_4_BYTES				(4<<12)
 #define MODE_CONTL_N_ADDR_BYTES_MASK			(~(0xf<<12))
 
+
 #define MODE_CONTL_CS0_MODE_ENABLE				(1<<16)
 #define MODE_CONTL_CS0_WP						(1<<18)	
 #define MODE_CONTL_CS0_MODE_DISABLE_MASK		(~(3<<16))
@@ -62,6 +64,7 @@
 #define MODE_CONTL_CS1_MODE_DISABLE_MASK		(~(3<<20))
 
 #define MODE_CONTL_CS_TAR_SHIFT					24
+
 
 #define ADDR_SPLIT_REG                  		0x04
 #define CS0_CMP                                 0
@@ -85,6 +88,7 @@
 #define HECDR_SECOND_BYTE                       16
 #define HECDR_THIRD_BYTE                        8
 #define HECDR_FORTH_BYTE                        0
+
 
 #define HIGH_EFFICY_TRS_PAR_REG         		0x24
 #define HETPR_DUMMY_CYCLE               		28
@@ -145,5 +149,6 @@ struct ce5xx_address_split {
 	uint16_t	cs1_cmp:4;
 	uint16_t	cs1_mask:4;
 }__attribute__((aligned(4)));
+
 
 #endif

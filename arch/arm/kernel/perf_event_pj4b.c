@@ -11,6 +11,9 @@
 #define	MRVL_PJ4B_PMU_RESET	(MRVL_PJ4B_CCNT_RESET | MRVL_PJ4B_PMN_RESET)
 #define MRVL_PJ4B_PMU_CNT64	0x008	/* Make CCNT count every 64th cycle */
 
+
+
+
 #define PJ4BV7_PMNC_P		(1 << 1) /* Reset all counters */
 #define PJ4BV7_PMNC_C		(1 << 2) /* Cycle counter reset */
 
@@ -253,6 +256,7 @@ static int mrvl_pj4b_map_event(struct perf_event *event)
 				&mrvl_pj4b_perf_cache_map, 0xFF);
 }
 
+
 /*Helper functions*/
 static inline void mrvl_pj4b_pmu_cntr_disable(u32 val)
 {
@@ -288,6 +292,7 @@ static inline u32 mrvl_pj4b_pmu_read_events(void)
 	asm volatile("mcr p15, 0, %0, c9, c12, 1": "=r"(val));
 	return val;
 }
+
 
 static inline void mrvl_pj4b_write_pmnc(u32 val)
 {
@@ -333,6 +338,7 @@ static inline u32 mrvl_pj4b_pmu_read_overflow(void)
 	return val;
 }
 
+
 /*API functions*/
 static u32 mrvl_pj4b_pmu_read_counter(int counter)
 {
@@ -372,6 +378,7 @@ static void mrvl_pj4b_pmu_write_counter(int counter, u32 val)
 		break;
 	}
 }
+
 
 static inline int mrvl_pj4b_pmu_event_map(int config)
 {
@@ -433,6 +440,7 @@ void mrvl_pj4b_pmu_enable_event(struct hw_perf_event *hwc, int idx)
 	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
 }
 
+
 void mrvl_pj4b_pmu_disable_event(struct hw_perf_event *hwc, int idx)
 {
 	u32 enable;
@@ -452,6 +460,7 @@ void mrvl_pj4b_pmu_disable_event(struct hw_perf_event *hwc, int idx)
 	mrvl_pj4b_pmu_cntr_disable(enable);
 	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
 }
+
 
 static irqreturn_t mrvl_pj4b_pmu_handle_irq(int irq, void *arg)
 {
@@ -553,6 +562,7 @@ static void mrvl_pj4b_pmu_stop(void)
 	raw_spin_unlock_irqrestore(&events->pmu_lock, flags);
 } 
 
+
 static void mrvl_pj4b_pmu_start(void)
 {
 	u32 pmnc;
@@ -589,6 +599,7 @@ static void mrvl_pj4b_pmu_reset(void *info)
 	mrvl_pj4b_write_pmnc(PJ4BV7_PMNC_P | PJ4BV7_PMNC_C);
 	
 }
+
 
 static struct arm_pmu mrvl_pj4b_pmu = {
 	

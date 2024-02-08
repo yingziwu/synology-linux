@@ -36,6 +36,7 @@ extern struct task_struct *__switch_to(struct task_struct *,
 	r = __switch_to((p), (n), (r));\
 } while (0)
 
+
 #define rmb()				barrier()
 #define read_barrier_depends()		barrier()
 #define wmb()				barrier()

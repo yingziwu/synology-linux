@@ -200,6 +200,7 @@ static inline unsigned make_dsisr(unsigned instr)
 {
 	unsigned dsisr;
 
+
 	/* bits  6:15 --> 22:31 */
 	dsisr = (instr & 0x03ff0000) >> 16;
 
@@ -762,6 +763,27 @@ int fix_alignment(struct pt_regs *regs)
 	/* Lookup the operation in our table */
 	nb = aligninfo[instr].len;
 	flags = aligninfo[instr].flags;
+
+	/*
+	 * Handle some cases which give overlaps in the DSISR values.
+	 */
+	if (IS_XFORM(instruction)) {
+		switch ((instruction >> 1) & 0x3ff) {
+		case 532:	/* ldbrx */
+			nb = 8;
+			flags = LD+SW;
+			break;
+		case 660:	/* stdbrx */
+			nb = 8;
+			flags = ST+SW;
+			break;
+		case 20:	/* lwarx */
+		case 84:	/* ldarx */
+		case 116:	/* lharx */
+		case 276:	/* lqarx */
+			return 0;	/* not emulated ever */
+		}
+	}
 
 	/* Byteswap little endian loads and stores */
 	swiz = 0;

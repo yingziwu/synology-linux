@@ -25,3 +25,4 @@ struct mod_arch_specific
 #define MODULE_ARCH_VERMAGIC __stringify(PROCESSOR_MODEL_NAME) " "
 
 #endif /* _ASM_MODULE_H */
+

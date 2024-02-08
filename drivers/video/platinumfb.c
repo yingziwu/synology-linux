@@ -261,6 +261,7 @@ static void set_platinum_clock(struct fb_info_platinum *pinfo)
 	STORE_D2(9, 0xa6);
 }
 
+
 /* Now how about actually saying, Make it so! */
 /* Some things in here probably don't need to be done each time. */
 static void platinum_set_hardware(struct fb_info_platinum *pinfo)
@@ -335,6 +336,7 @@ static void __devinit platinum_init_info(struct fb_info *info, struct fb_info_pl
         info->fix.type_aux = 0;
         info->fix.accel = FB_ACCEL_NONE;
 }
+
 
 static int __devinit platinum_init_fb(struct fb_info *info)
 {
@@ -485,6 +487,7 @@ static int platinum_var_to_par(struct fb_var_screeninfo *var,
 	
 	return 0;
 }
+
 
 /* 
  * Parse user specified options (`video=platinumfb:')

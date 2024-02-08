@@ -106,6 +106,8 @@ static void tt_write_vol(struct terratec *tt, int volume)
 	mutex_unlock(&tt->lock);
 }
 
+
+
 static void tt_mute(struct terratec *tt)
 {
 	tt->muted = 1;
@@ -133,6 +135,7 @@ static int tt_setvol(struct terratec *tt, int vol)
 	tt->curvol = vol;
 	return 0;
 }
+
 
 /* this is the worst part in this driver */
 /* many more or less strange things are going on here, but hey, it works :) */
@@ -409,3 +412,4 @@ static void __exit terratec_exit(void)
 
 module_init(terratec_init);
 module_exit(terratec_exit);
+

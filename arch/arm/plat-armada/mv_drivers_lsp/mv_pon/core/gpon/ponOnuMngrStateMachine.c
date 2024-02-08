@@ -1030,6 +1030,7 @@ void onuGponPonMngRangeTimeMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
   finalDelay        = M_ONU_GPON_RANG_MSG_FINAL_DELAY(msgDelay);
   equalizationDelay = M_ONU_GPON_RANG_MSG_EQUAL_DELAY(msgDelay);
 
+
   /* sync state */
   /* ========== */
   if (onuState != ONU_GPON_05_OPERATION)
@@ -1075,6 +1076,7 @@ void onuGponPonMngRangeTimeMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
                  "ERROR: (%s:%d) onuGponPonMngrUpdateState(5)\n", __FILE_DESC__, __LINE__);
       return;
     }
+
 
     onuGponLedHandler(ONU_GPON_SYNC_LED, ACTIVE_LED_ON);
 
@@ -1175,6 +1177,7 @@ void onuGponPonMngRangeTimeMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
       onuGponDbEqualizationDelaySet(msgDelay);
     }
   }
+
 
 #ifdef MV_GPON_PERFORMANCE_CHECK
   asicOntGlbRegReadNoCheck(mvAsicReg_GPON_GEN_MICRO_SEC_CNT, 
@@ -1617,6 +1620,7 @@ void onuGponPonMngAssignAllocIdMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
              msgData[5], msgData[6], msgData[7], msgData[8], msgData[9]);
 #endif /* MV_GPON_DEBUG_PRINT */
 
+
   allocId = (((MV_U32)(msgData[0])) << 4) + (((MV_U32)(msgData[1])) >> 4);
   assignType = msgData[2]; 
 
@@ -1968,6 +1972,7 @@ void onuGponPonMngCfgPortIdMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
              msgData[5], msgData[6], msgData[7], msgData[8], msgData[9]);
 #endif /* MV_GPON_DEBUG_PRINT */
 
+
   /* Update Tx Descriptor */
   /* ==================== */
 
@@ -1980,6 +1985,7 @@ void onuGponPonMngCfgPortIdMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
   /*     0        0     Port ID     0        1         0        0        0     */
   omciTxCmd = ((portId << 8) | 0x0010);
   mv_pon_ctrl_omci_tx_cmd(omciTxCmd);
+
 
   /* Get OMCC State */
   omccValid = onuGponDbOmccValidGet();
@@ -2182,6 +2188,7 @@ void onuGponPonMngBerIntervalMsg(MV_U8 onuId, MV_U8 msgId, MV_U8 *msgData)
              msgData[0], msgData[1], msgData[2], msgData[3], msgData[4], 
              msgData[5], msgData[6], msgData[7], msgData[8], msgData[9]);
 #endif /* MV_GPON_DEBUG_PRINT */
+
 
   currentBerInterval = onuGponDbBerIntervalGet();
   if (currentBerInterval == berInterval)
@@ -2934,3 +2941,6 @@ MV_STATUS onuGponPonMngDisableSetRegister(DISABLESTATSETFUNC disableFunc)
 
   return(MV_OK);
 }
+
+
+

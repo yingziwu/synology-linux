@@ -185,6 +185,7 @@ ssize_t lis3l02dq_read_accel_from_buffer(struct iio_buffer *buffer,
 				       int index,
 				       int *val);
 
+
 int lis3l02dq_configure_buffer(struct iio_dev *indio_dev);
 void lis3l02dq_unconfigure_buffer(struct iio_dev *indio_dev);
 

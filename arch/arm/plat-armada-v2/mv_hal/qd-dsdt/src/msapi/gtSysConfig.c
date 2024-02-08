@@ -96,11 +96,13 @@ static char * madGetDeviceName ( MAD_DEVICE_ID deviceId)
     }
 } ;
 
+
 static MAD_STATUS madStart(GT_QD_DEV* qd_dev,  int smiPair)
 {
     MAD_STATUS status = MAD_FAIL;
     MAD_DEV* dev = (MAD_DEV*)&(qd_dev->mad_dev);
     MAD_SYS_CONFIG   cfg;
+
 
     cfg.BSPFunctions.readMii   = (FMAD_READ_MII )madSMIRead;
     cfg.BSPFunctions.writeMii  = (FMAD_WRITE_MII )madSMIWrite;
@@ -260,6 +262,7 @@ GT_STATUS qdLoadDriver
         dev->baseRegAddr = (GT_U8)cfg->mode.baseAddr;
         dev->phyAddr = 0;
     }
+
 
     /* Initialize the driver    */
     retVal = driverConfig(dev);
@@ -782,6 +785,7 @@ GT_STATUS qdLoadDriver
                 dev->devName = DEV_88E6352;
                 break;
 
+
         default:
                 DBG_INFO(("Unknown Device. Initialization failed\n"));
                 return GT_FAIL;
@@ -1029,6 +1033,7 @@ GT_STATUS sysEnable( GT_QD_DEV *dev)
     return driverEnable(dev);
 }
 
+
 /*******************************************************************************
 * qdUnloadDriver
 *
@@ -1130,6 +1135,7 @@ GT_STATUS qdUnloadDriver
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gtRegister
 *
@@ -1206,6 +1212,8 @@ static GT_U8 qd32_2_8[256] = {
 230,231,232,233,234,235,236,237,238,239,
 240,241,242,243,244,245,246,247,248,249,
 250,251,252,253,254,255};
+
+
 
 GT_U8 qdLong2Char(GT_U32 data)
 {

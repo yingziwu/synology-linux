@@ -240,6 +240,7 @@ static int set_video_mode_Nala(struct pwc_device *pdev, int size, int frames)
 	return 0;
 }
 
+
 static int set_video_mode_Timon(struct pwc_device *pdev, int size, int frames, int compression, int snapshot)
 {
 	unsigned char buf[13];
@@ -294,6 +295,7 @@ static int set_video_mode_Timon(struct pwc_device *pdev, int size, int frames, i
 		pdev->frame_size = (pdev->image.x * pdev->image.y * 12) / 8;
 	return 0;
 }
+
 
 static int set_video_mode_Kiara(struct pwc_device *pdev, int size, int frames, int compression, int snapshot)
 {
@@ -370,6 +372,8 @@ static int set_video_mode_Kiara(struct pwc_device *pdev, int size, int frames, i
 	    pdev->frame_size,pdev->vframes,pdev->vsize,pdev->vsnapshot,pdev->vbandlength);
 	return 0;
 }
+
+
 
 /**
    @pdev: device structure
@@ -617,6 +621,7 @@ static int pwc_get_wb_speed(struct pwc_device *pdev, int *value)
 	return 0;
 }
 
+
 static int pwc_set_wb_delay(struct pwc_device *pdev, int delay)
 {
 	unsigned char buf;
@@ -639,6 +644,7 @@ static int pwc_get_wb_delay(struct pwc_device *pdev, int *value)
 	*value = buf << 10;
 	return 0;
 }
+
 
 int pwc_set_leds(struct pwc_device *pdev, int on_value, int off_value)
 {
@@ -989,6 +995,7 @@ long pwc_ioctl(struct pwc_device *pdev, unsigned int cmd, void *arg)
 		break;
 	}
 
+
 	case VIDIOCPWCGLED:
 	{
 		ARG_DEF(struct pwc_leds, leds)
@@ -1208,5 +1215,6 @@ long pwc_ioctl(struct pwc_device *pdev, unsigned int cmd, void *arg)
 		return 0;
 	return ret;
 }
+
 
 /* vim: set cinoptions= formatoptions=croql cindent shiftwidth=8 tabstop=8: */

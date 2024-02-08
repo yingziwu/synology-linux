@@ -14,6 +14,7 @@
  * or implied.
  */
 
+
 #ifndef __ASM_ARCH_PLATFORM_H__
 #define __ASM_ARCH_PLATFORM_H__
 

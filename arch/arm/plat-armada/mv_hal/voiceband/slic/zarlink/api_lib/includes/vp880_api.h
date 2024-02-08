@@ -145,6 +145,7 @@
 #define VP880_AC_RLOOP_MAX_BAT_LVL              75000L /* mV */
 #define VP880_AC_RLOOP_MAX_TEST_LVL         ((VP880_AC_RLOOP_MAX_BAT_LVL - 5000) / 2)
 
+
 #endif /*VP880_INCLUDE_TESTLINE_CODE*/
 
 /**< Required Vp880 Device and Line Objects for user instantiation if a Vp880

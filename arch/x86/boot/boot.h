@@ -16,7 +16,7 @@
 #ifndef BOOT_BOOT_H
 #define BOOT_BOOT_H
 
-#define STACK_SIZE	512	/* Minimum number of bytes for stack */
+#define STACK_SIZE	1024	/* Minimum number of bytes for stack */
 
 #ifndef __ASSEMBLY__
 
@@ -296,6 +296,7 @@ static inline int cmdline_find_option_bool(const char *option)
 {
 	return __cmdline_find_option_bool(boot_params.hdr.cmd_line_ptr, option);
 }
+
 
 /* cpu.c, cpucheck.c */
 struct cpu_features {

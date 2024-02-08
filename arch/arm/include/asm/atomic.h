@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  arch/arm/include/asm/atomic.h
+ *
+ *  Copyright (C) 1996 Russell King.
+ *  Copyright (C) 2002 Deep Blue Solutions Ltd.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
 #ifndef __ASM_ARM_ATOMIC_H
 #define __ASM_ARM_ATOMIC_H
 
@@ -13,6 +22,11 @@
 
 #ifdef __KERNEL__
 
+/*
+ * On ARM, ordinary assignment (str instruction) doesn't clear the local
+ * strex/ldrex monitor on some implementations. The reason we can use it for
+ * atomic_set() is the clrex or dummy strex done on every exception return.
+ */
 #define atomic_read(v)	(*(volatile int *)&(v)->counter)
 #define atomic_set(v,i)	(((v)->counter) = (i))
 
@@ -23,6 +37,7 @@
 int comcerto_atomic_add(int i, atomic_t *v);
 int comcerto_atomic_cmpxchg(atomic_t *v, int old, int new);
 void comcerto_atomic_clear_mask(unsigned long mask, unsigned long *addr);
+
 
 struct virtual_zone {
 	void *start;
@@ -38,6 +53,11 @@ static inline bool is_dma_zone_virtual_address(void *addr)
 
 #endif
 
+/*
+ * ARMv6 UP and SMP safe atomic ops.  We use load exclusive and
+ * store exclusive to ensure that these are atomic.  We may loop
+ * to ensure that the update happens.
+ */
 static inline void atomic_add(int i, atomic_t *v)
 {
 	unsigned long tmp;
@@ -187,7 +207,7 @@ static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
 	: "cc");
 }
 
-#else  
+#else /* ARM_ARCH_6 */
 
 #ifdef CONFIG_SMP
 #error SMP not supported on pre-ARMv6 CPUs
@@ -244,7 +264,7 @@ static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
 	raw_local_irq_restore(flags);
 }
 
-#endif  
+#endif /* __LINUX_ARM_ARCH__ */
 
 #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
 
@@ -527,6 +547,6 @@ static inline int atomic64_add_unless(atomic64_t *v, u64 a, u64 u)
 #define atomic64_dec_and_test(v)	(atomic64_dec_return((v)) == 0)
 #define atomic64_inc_not_zero(v)	atomic64_add_unless((v), 1LL, 0LL)
 
-#endif  
+#endif /* !CONFIG_GENERIC_ATOMIC64 */
 #endif
 #endif

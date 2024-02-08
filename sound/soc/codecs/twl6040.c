@@ -544,6 +544,7 @@ static void twl6040_pga_hf_work(struct work_struct *work)
 				msecs_to_jiffies(handsfree->step_delay));
 	}
 
+
 	if (handsfree->ramp == TWL6040_RAMP_DOWN) {
 		handsfree->active = 0;
 		complete(&handsfree->ramp_done);

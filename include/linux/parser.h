@@ -7,6 +7,7 @@
  * parsing is required.
  */
 
+
 /* associates an integer enumerator with a pattern string. */
 struct match_token {
 	int token;

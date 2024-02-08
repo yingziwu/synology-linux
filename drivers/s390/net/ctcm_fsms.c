@@ -1841,6 +1841,7 @@ done:
 	return;
 }
 
+
 /*
  * The ctcmpc statemachine for a channel.
  */
@@ -2291,3 +2292,4 @@ const fsm_node dev_fsm[] = {
 int dev_fsm_len = ARRAY_SIZE(dev_fsm);
 
 /* --- This is the END my friend --- */
+

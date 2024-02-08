@@ -98,6 +98,7 @@ static int rxq_ip4_tcp = CONFIG_MV_ETH_RXQ_DEF;
 static int rxq_ip4_udp = CONFIG_MV_ETH_RXQ_DEF;
 static int rxq_arp 		= CONFIG_MV_ETH_RXQ_DEF;
 
+
 #ifdef CONFIG_ARCH_FEROCEON_KW2
 int pnc_port_map(int pnc_port)
 {
@@ -899,6 +900,7 @@ int pnc_ip4_dscp(int port, unsigned char dscp, unsigned char mask, int rxq)
 #endif /* (CONFIG_MV_ETH_PNC_DSCP_PRIO > 0) */
 }
 
+
 /* IPv4/TCP header parsing for fragmentation and L4 offset.  */
 void pnc_ip4_tcp(int rxq)
 {
@@ -1468,3 +1470,4 @@ void pnc_mac_show(void)
 		}
 	}
 }
+

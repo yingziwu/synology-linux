@@ -113,6 +113,9 @@ static const unsigned long s_adwCrc32Table[256] = {
 
 /*---------------------  Export Variables  --------------------------*/
 
+
+
+
 /*+
  *
  * Description:
@@ -142,6 +145,7 @@ unsigned long CRCdwCrc32 (unsigned char *pbyData, unsigned int cbByte, unsigned 
     return dwCrc;
 }
 
+
 /*+
  *
  * Description:
@@ -164,6 +168,7 @@ unsigned long CRCdwGetCrc32 (unsigned char *pbyData, unsigned int cbByte)
 {
     return ~CRCdwCrc32(pbyData, cbByte, 0xFFFFFFFFL);
 }
+
 
 /*+
  *
@@ -189,3 +194,5 @@ unsigned long CRCdwGetCrc32Ex(unsigned char *pbyData, unsigned int cbByte, unsig
 {
     return CRCdwCrc32(pbyData, cbByte, dwPreCRC);
 }
+
+

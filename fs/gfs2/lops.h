@@ -110,3 +110,4 @@ static inline void lops_after_scan(struct gfs2_jdesc *jd, int error,
 }
 
 #endif /* __LOPS_DOT_H__ */
+

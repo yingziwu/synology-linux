@@ -190,6 +190,7 @@
 #define CLK_PLL_SRC_SHIFT		1
 #define CLK_A9DP_PERI_DIV_BYPASS	(1 << 3)
 
+
 /* TDMNTG */
 #define TDMNTG_ADDR_SPACE_BASEADDR 		APB_VADDR(COMCERTO_APB_CLK_BASE + 0x280)
 
@@ -202,6 +203,7 @@
 #define FSYNC_FALL_EDGE		(1 << 1)
 #define	NTG_DIV_RST_N		(1 << 5)
 #define NTG_EN			(1 << 0)
+
 
 /* TSUNTG */
 #define TSUNTG_ADDR_SPACE_BASEADDR 		APB_VADDR(COMCERTO_APB_CLK_BASE + 0x2C0)
@@ -245,5 +247,6 @@
 extern void HAL_clk_div_backup_relocate_table (void);
 extern unsigned long HAL_get_ref_clk (void);
 #endif
+
 
 #endif

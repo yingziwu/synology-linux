@@ -74,6 +74,7 @@ static struct drm_driver driver = {
 		.llseek = noop_llseek,
 	},
 
+
 	.name = DRIVER_NAME,
 	.desc = DRIVER_DESC,
 	.date = DRIVER_DATE,

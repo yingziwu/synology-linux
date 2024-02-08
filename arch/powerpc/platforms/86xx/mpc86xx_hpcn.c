@@ -66,6 +66,7 @@ static int mpc86xx_exclude_device(struct pci_controller *hose,
 }
 #endif /* CONFIG_PCI */
 
+
 static void __init
 mpc86xx_hpcn_setup_arch(void)
 {
@@ -110,6 +111,7 @@ mpc86xx_hpcn_setup_arch(void)
 #endif
 }
 
+
 static void
 mpc86xx_hpcn_show_cpuinfo(struct seq_file *m)
 {
@@ -119,6 +121,7 @@ mpc86xx_hpcn_show_cpuinfo(struct seq_file *m)
 
 	seq_printf(m, "SVR\t\t: 0x%x\n", svid);
 }
+
 
 /*
  * Called very early, device-tree isn't unflattened

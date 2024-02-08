@@ -29,6 +29,7 @@
 #ifndef __POWER_H__
 #define __POWER_H__
 
+
 /*---------------------  Export Definitions -------------------------*/
 #define     C_PWBT                   1000      // micro sec. power up before TBTT
 #define     PS_FAST_INTERVAL         1         // Fast power saving listen interval
@@ -38,7 +39,9 @@
 
 /*---------------------  Export Variables  --------------------------*/
 
+
 /*---------------------  Export Types  ------------------------------*/
+
 
 /*---------------------  Export Functions  --------------------------*/
 

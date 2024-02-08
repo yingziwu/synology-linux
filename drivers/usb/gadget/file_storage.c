@@ -35,6 +35,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+
 /*
  * The File-backed Storage Gadget acts as a USB Mass Storage device,
  * appearing to the host as a disk drive or as a CD-ROM drive.  In addition
@@ -134,6 +135,7 @@
  * <http://www.usb.org/developers/devclass_docs/usbmass-ufi10.pdf>.
  */
 
+
 /*
  *				Driver Design
  *
@@ -225,8 +227,10 @@
  * of the Gadget, USB Mass Storage, and SCSI protocols.
  */
 
+
 /* #define VERBOSE_DEBUG */
 /* #define DUMP_MSGS */
+
 
 #include <linux/blkdev.h>
 #include <linux/completion.h>
@@ -255,6 +259,8 @@
 
 #include "gadget_chips.h"
 
+
+
 /*
  * Kbuild is not very cooperative with respect to linking separately
  * compiled library objects into one module.  So for now we won't use
@@ -277,7 +283,9 @@ static const char fsg_string_product[] = DRIVER_DESC;
 static const char fsg_string_config[] = "Self-powered";
 static const char fsg_string_interface[] = "Mass Storage";
 
+
 #include "storage_common.c"
+
 
 MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_AUTHOR("Alan Stern");
@@ -292,7 +300,9 @@ MODULE_LICENSE("Dual BSD/GPL");
  * and endpoint addresses.
  */
 
+
 /*-------------------------------------------------------------------------*/
+
 
 /* Encapsulate the module parameter settings */
 
@@ -349,6 +359,7 @@ static struct {
 	.buflen			= 16384,
 #endif
 	};
+
 
 module_param_array_named(file, mod_data.file, charp, &mod_data.num_filenames,
 		S_IRUGO);
@@ -420,6 +431,7 @@ MODULE_PARM_DESC(stall, "false to prevent bulk stalls");
 
 #endif /* CONFIG_USB_FILE_STORAGE_TEST */
 
+
 /*
  * These definitions will permit the compiler to avoid generating code for
  * parts of the driver that aren't used in the non-TEST version.  Even gcc
@@ -441,7 +453,9 @@ MODULE_PARM_DESC(stall, "false to prevent bulk stalls");
 
 #endif /* CONFIG_USB_FILE_STORAGE_TEST */
 
+
 /*-------------------------------------------------------------------------*/
+
 
 struct fsg_dev {
 	/* lock protects: state, all the req_busy's, and cbbuf_cmnd */
@@ -578,6 +592,7 @@ static void set_bulk_out_req_length(struct fsg_dev *fsg,
 static struct fsg_dev			*the_fsg;
 static struct usb_gadget_driver		fsg_driver;
 
+
 /*-------------------------------------------------------------------------*/
 
 static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
@@ -593,6 +608,7 @@ static int fsg_set_halt(struct fsg_dev *fsg, struct usb_ep *ep)
 	DBG(fsg, "%s set halt\n", name);
 	return usb_ep_set_halt(ep);
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -636,6 +652,7 @@ config_desc = {
 	.bmAttributes =		USB_CONFIG_ATT_ONE | USB_CONFIG_ATT_SELFPOWER,
 	.bMaxPower =		CONFIG_USB_GADGET_VBUS_DRAW / 2,
 };
+
 
 static struct usb_qualifier_descriptor
 dev_qualifier = {
@@ -692,6 +709,7 @@ static int populate_config_buf(struct usb_gadget *gadget,
 	return len;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* These routines may be called in process context or in_irq */
@@ -704,6 +722,7 @@ static void wakeup_thread(struct fsg_dev *fsg)
 	if (fsg->thread_task)
 		wake_up_process(fsg->thread_task);
 }
+
 
 static void raise_exception(struct fsg_dev *fsg, enum fsg_state new_state)
 {
@@ -723,6 +742,7 @@ static void raise_exception(struct fsg_dev *fsg, enum fsg_state new_state)
 	spin_unlock_irqrestore(&fsg->lock, flags);
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* The disconnect callback and ep0 routines.  These always run in_irq,
@@ -737,6 +757,7 @@ static void fsg_disconnect(struct usb_gadget *gadget)
 	DBG(fsg, "disconnect or port reset\n");
 	raise_exception(fsg, FSG_STATE_DISCONNECT);
 }
+
 
 static int ep0_queue(struct fsg_dev *fsg)
 {
@@ -767,6 +788,7 @@ static void ep0_complete(struct usb_ep *ep, struct usb_request *req)
 	if (req->status == 0 && req->context)
 		((fsg_routine_t) (req->context))(fsg);
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -815,6 +837,7 @@ static void bulk_out_complete(struct usb_ep *ep, struct usb_request *req)
 	spin_unlock(&fsg->lock);
 }
 
+
 #ifdef CONFIG_USB_FILE_STORAGE_TEST
 static void intr_in_complete(struct usb_ep *ep, struct usb_request *req)
 {
@@ -840,6 +863,7 @@ static void intr_in_complete(struct usb_ep *ep, struct usb_request *req)
 static void intr_in_complete(struct usb_ep *ep, struct usb_request *req)
 {}
 #endif /* CONFIG_USB_FILE_STORAGE_TEST */
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -891,6 +915,7 @@ static void received_cbi_adsc(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 static void received_cbi_adsc(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {}
 #endif /* CONFIG_USB_FILE_STORAGE_TEST */
+
 
 static int class_setup_req(struct fsg_dev *fsg,
 		const struct usb_ctrlrequest *ctrl)
@@ -969,6 +994,7 @@ static int class_setup_req(struct fsg_dev *fsg,
 			le16_to_cpu(ctrl->wValue), w_index, w_length);
 	return value;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1107,6 +1133,7 @@ get_config:
 	return value;
 }
 
+
 static int fsg_setup(struct usb_gadget *gadget,
 		const struct usb_ctrlrequest *ctrl)
 {
@@ -1138,9 +1165,11 @@ static int fsg_setup(struct usb_gadget *gadget,
 	return rc;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 /* All the following routines run in process context */
+
 
 /* Use this for bulk or interrupt transfers, not ep0 */
 static void start_transfer(struct fsg_dev *fsg, struct usb_ep *ep,
@@ -1174,6 +1203,7 @@ static void start_transfer(struct fsg_dev *fsg, struct usb_ep *ep,
 	}
 }
 
+
 static int sleep_thread(struct fsg_dev *fsg)
 {
 	int	rc = 0;
@@ -1194,6 +1224,7 @@ static int sleep_thread(struct fsg_dev *fsg)
 	fsg->thread_wakeup_needed = 0;
 	return rc;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1370,6 +1401,7 @@ static int do_read(struct fsg_dev *fsg)
 		    //spin_unlock_irqrestore(fsg->lock,flags);
 		}
 
+
 		/* if there was no hit in the rda the read now. */
 		if(!hit_rda_dio)
 #endif
@@ -1430,6 +1462,7 @@ static int do_read(struct fsg_dev *fsg)
 
 	return -EIO;		// No default reply
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1599,6 +1632,7 @@ static int do_write(struct fsg_dev *fsg)
 			file_offset_tmp = file_offset;
 #ifdef CONFIG_USB_GADGET_MRVL
 
+
 			/* if using seperate write thread */
 			if(mod_data.use_wr_thread)
 			{
@@ -1705,6 +1739,7 @@ static int do_write(struct fsg_dev *fsg)
 	return -EIO;		// No default reply
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int do_synchronize_cache(struct fsg_dev *fsg)
@@ -1719,6 +1754,7 @@ static int do_synchronize_cache(struct fsg_dev *fsg)
 		curlun->sense_data = SS_WRITE_ERROR;
 	return 0;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1826,6 +1862,7 @@ static int do_verify(struct fsg_dev *fsg)
 	return 0;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int do_inquiry(struct fsg_dev *fsg, struct fsg_buffhd *bh)
@@ -1858,6 +1895,7 @@ static int do_inquiry(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 			mod_data.release);
 	return 36;
 }
+
 
 static int do_request_sense(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {
@@ -1912,6 +1950,7 @@ static int do_request_sense(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	return 18;
 }
 
+
 static int do_read_capacity(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {
 	struct fsg_lun	*curlun = fsg->curlun;
@@ -1930,6 +1969,7 @@ static int do_read_capacity(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	put_unaligned_be32(curlun->blksize, &buf[4]);	/* Block length */
 	return 8;
 }
+
 
 static int do_read_header(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {
@@ -1952,6 +1992,7 @@ static int do_read_header(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	store_cdrom_address(&buf[4], msf, lba);
 	return 8;
 }
+
 
 static int do_read_toc(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {
@@ -1979,6 +2020,7 @@ static int do_read_toc(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	store_cdrom_address(&buf[16], msf, curlun->num_sectors);
 	return 20;
 }
+
 
 static int do_mode_sense(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {
@@ -2060,6 +2102,7 @@ static int do_mode_sense(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	return len;
 }
 
+
 static int do_start_stop(struct fsg_dev *fsg)
 {
 	struct fsg_lun	*curlun = fsg->curlun;
@@ -2109,6 +2152,7 @@ static int do_start_stop(struct fsg_dev *fsg)
 	return 0;
 }
 
+
 static int do_prevent_allow(struct fsg_dev *fsg)
 {
 	struct fsg_lun	*curlun = fsg->curlun;
@@ -2131,6 +2175,7 @@ static int do_prevent_allow(struct fsg_dev *fsg)
 	return 0;
 }
 
+
 static int do_read_format_capacities(struct fsg_dev *fsg,
 			struct fsg_buffhd *bh)
 {
@@ -2148,6 +2193,7 @@ static int do_read_format_capacities(struct fsg_dev *fsg,
 	return 12;
 }
 
+
 static int do_mode_select(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 {
 	struct fsg_lun	*curlun = fsg->curlun;
@@ -2156,6 +2202,7 @@ static int do_mode_select(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	curlun->sense_data = SS_INVALID_COMMAND;
 	return -EINVAL;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -2253,6 +2300,7 @@ static int throw_away_data(struct fsg_dev *fsg)
 	}
 	return 0;
 }
+
 
 static int finish_reply(struct fsg_dev *fsg)
 {
@@ -2359,6 +2407,7 @@ static int finish_reply(struct fsg_dev *fsg)
 	return rc;
 }
 
+
 static int send_status(struct fsg_dev *fsg)
 {
 	struct fsg_lun		*curlun = fsg->curlun;
@@ -2439,6 +2488,7 @@ static int send_status(struct fsg_dev *fsg)
 	fsg->next_buffhd_to_fill = bh->next;
 	return 0;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -2588,6 +2638,7 @@ static int check_command(struct fsg_dev *fsg, int cmnd_size,
 
 	return 0;
 }
+
 
 static int do_scsi_command(struct fsg_dev *fsg)
 {
@@ -2830,6 +2881,7 @@ static int do_scsi_command(struct fsg_dev *fsg)
 	return 0;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int received_cbw(struct fsg_dev *fsg, struct fsg_buffhd *bh)
@@ -2894,6 +2946,7 @@ static int received_cbw(struct fsg_dev *fsg, struct fsg_buffhd *bh)
 	return 0;
 }
 
+
 static int get_next_command(struct fsg_dev *fsg)
 {
 	struct fsg_buffhd	*bh;
@@ -2953,6 +3006,7 @@ static int get_next_command(struct fsg_dev *fsg)
 	}
 	return rc;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -3087,6 +3141,7 @@ reset:
 	return rc;
 }
 
+
 /*
  * Change our operational configuration.  This code must agree with the code
  * that returns config descriptors, and with interface altsetting code.
@@ -3118,6 +3173,7 @@ static int do_set_config(struct fsg_dev *fsg, u8 new_config)
 	}
 	return rc;
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -3279,6 +3335,7 @@ static void handle_exception(struct fsg_dev *fsg)
 	}
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int fsg_main_thread(void *fsg_)
@@ -3372,6 +3429,7 @@ static int fsg_write_thread(void *fsg_)
      * that expects a __user pointer and it will work okay. */
     set_fs(get_ds());
 
+
     while(fsg->state != FSG_STATE_TERMINATED) {
 
 	bh = fsg->next_buffhd_to_wr;
@@ -3411,6 +3469,7 @@ static int fsg_write_thread(void *fsg_)
 
     complete_and_exit(&fsg->thread_notifier, 0);
 }
+
 
 /* read ahead for direct IO only */
 
@@ -3553,6 +3612,7 @@ static DEVICE_ATTR(ro, 0444, fsg_show_ro, NULL);
 static DEVICE_ATTR(nofua, 0644, fsg_show_nofua, NULL);
 static DEVICE_ATTR(file, 0444, fsg_show_file, NULL);
 
+
 /*-------------------------------------------------------------------------*/
 
 static void fsg_release(struct kref *ref)
@@ -3630,6 +3690,7 @@ static void /* __init_or_exit */ fsg_unbind(struct usb_gadget *gadget)
 
 	set_gadget_data(gadget, NULL);
 }
+
 
 static int __init check_parameters(struct fsg_dev *fsg)
 {
@@ -3750,6 +3811,7 @@ static int __init check_parameters(struct fsg_dev *fsg)
 
 	return 0;
 }
+
 
 static int __init fsg_bind(struct usb_gadget *gadget)
 {
@@ -3992,6 +4054,7 @@ static int __init fsg_bind(struct usb_gadget *gadget)
 	    }
 	}
 
+
 	fsg->rda_dio_ready = 0;
 
 	fsg->num_wr_buf = 0;
@@ -4107,6 +4170,7 @@ out:
 	return rc;
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static void fsg_suspend(struct usb_gadget *gadget)
@@ -4124,6 +4188,7 @@ static void fsg_resume(struct usb_gadget *gadget)
 	DBG(fsg, "resume\n");
 	clear_bit(SUSPENDED, &fsg->atomic_bitflags);
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -4144,6 +4209,7 @@ static struct usb_gadget_driver		fsg_driver = {
 		// .resume = ...
 	},
 };
+
 
 static int __init fsg_alloc(void)
 {
@@ -4168,6 +4234,7 @@ static int __init fsg_alloc(void)
 	return 0;
 }
 
+
 static int __init fsg_init(void)
 {
 	int		rc;
@@ -4185,6 +4252,7 @@ static int __init fsg_init(void)
 	return rc;
 }
 module_init(fsg_init);
+
 
 static void __exit fsg_cleanup(void)
 {
