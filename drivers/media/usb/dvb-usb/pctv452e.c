@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * PCTV 452e DVB driver
  *
@@ -53,12 +56,10 @@ DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 #define I2C_ADDR_24C16   (0xa0 >> 1)
 #define I2C_ADDR_24C64   (0xa2 >> 1)
 
-
 /* pctv452e sends us this amount of data for each issued usb-command */
 #define PCTV_ANSWER_LEN 64
 /* Wait up to 1000ms for device  */
 #define PCTV_TIMEOUT 1000
-
 
 #define PCTV_LED_GPIO   STB0899_GPIO01
 #define PCTV_LED_GREEN  0x82
@@ -80,7 +81,6 @@ enum {
 	TT3650_CMD_CI_RESET,
 	TT3650_CMD_CI_SET_VIDEO_PORT
 };
-
 
 static struct stb0899_postproc pctv45e_postproc[] = {
 	{ PCTV_LED_GPIO, STB0899_GPIOPULLUP },
@@ -438,8 +438,11 @@ static int pctv452e_i2c_msg(struct dvb_usb_device *d, u8 addr,
 
 	/* I2C device didn't respond as expected. */
 	ret = -EREMOTEIO;
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 	if (buf[5] < snd_len || buf[6] < rcv_len)
 		goto failed;
+#endif /* MY_ABC_HERE */
 
 	memcpy(rcv_buf, buf + 7, rcv_len);
 
@@ -508,14 +511,26 @@ static int pctv452e_power_ctrl(struct dvb_usb_device *d, int i)
 	if (!i)
 		return 0;
 
+#ifdef MY_ABC_HERE
+	pr_info("%s: step 1\n", __func__);
+#endif /* MY_ABC_HERE */
+
 	if (state->initialized)
 		return 0;
+
+#ifdef MY_ABC_HERE
+	pr_info("%s: step 2\n", __func__);
+#endif /* MY_ABC_HERE */
 
 	/* hmm where shoud this should go? */
 	ret = usb_set_interface(d->udev, 0, ISOC_INTERFACE_ALTERNATIVE);
 	if (ret != 0)
 		info("%s: Warning set interface returned: %d\n",
 			__func__, ret);
+
+#ifdef MY_ABC_HERE
+	pr_info("%s: step 3\n", __func__);
+#endif /* MY_ABC_HERE */
 
 	/* this is a one-time initialization, dont know where to put */
 	b0[1] = state->c++;
@@ -524,12 +539,20 @@ static int pctv452e_power_ctrl(struct dvb_usb_device *d, int i)
 	if (ret)
 		return ret;
 
+#ifdef MY_ABC_HERE
+	pr_info("%s: step 4\n", __func__);
+#endif /* MY_ABC_HERE */
+
 	b0[1] = state->c++;
 	b0[4] = 1;
 	/* reset board (again?) */
 	ret = dvb_usb_generic_rw(d, b0, sizeof(b0), rx, PCTV_ANSWER_LEN, 0);
 	if (ret)
 		return ret;
+
+#ifdef MY_ABC_HERE
+	pr_info("%s: step 5\n", __func__);
+#endif /* MY_ABC_HERE */
 
 	state->initialized = 1;
 
@@ -867,7 +890,6 @@ static struct stb6100_config stb6100_config = {
 	.tuner_address = I2C_ADDR_STB6100,
 	.refclock      = 27000000
 };
-
 
 static struct i2c_algorithm pctv452e_i2c_algo = {
 	.master_xfer   = pctv452e_i2c_xfer,

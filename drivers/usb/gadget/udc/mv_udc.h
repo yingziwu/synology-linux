@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2011 Marvell International Ltd. All rights reserved.
  *
@@ -115,7 +118,6 @@
 #define USBSTS_PERIODIC_SCHEDULE	0x00004000
 #define USBSTS_ASYNC_SCHEDULE		0x00008000
 
-
 /* Interrupt Enable Register Bit Masks */
 #define USBINTR_INT_EN                          (0x00000001)
 #define USBINTR_ERR_INT_EN                      (0x00000002)
@@ -196,6 +198,10 @@ struct mv_udc {
 	struct mv_req			*status_req;
 	struct usb_ctrlrequest		local_setup_buff;
 
+#if defined(MY_DEF_HERE)
+	struct phy			*utmi_phy;
+
+#endif /* MY_DEF_HERE */
 	unsigned int		resume_state;	/* USB state to resume */
 	unsigned int		usb_state;	/* USB current state */
 	unsigned int		ep0_state;	/* Endpoint zero state */
@@ -214,6 +220,9 @@ struct mv_udc {
 				active:1,
 				stopped:1;      /* stop bit is setted */
 
+#if defined(MY_DEF_HERE)
+	int vbus_pin;
+#endif /* MY_DEF_HERE */
 	struct work_struct	vbus_work;
 	struct workqueue_struct *qwork;
 
@@ -282,7 +291,6 @@ struct mv_dqh {
 	u8	setup_buffer[8];
 	u32	reserved2[4];
 };
-
 
 #define DTD_NEXT_TERMINATE		(0x00000001)
 #define DTD_IOC				(0x00008000)

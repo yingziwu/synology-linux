@@ -124,7 +124,6 @@ DEFINE_SPINLOCK(unix_table_lock);
 EXPORT_SYMBOL_GPL(unix_table_lock);
 static atomic_long_t unix_nr_socks;
 
-
 static struct hlist_head *unix_sockets_unbound(void *addr)
 {
 	unsigned long hash = (unsigned long)addr;
@@ -429,7 +428,12 @@ static int unix_dgram_peer_wake_me(struct sock *sk, struct sock *other)
 
 	connected = unix_dgram_peer_wake_connect(sk, other);
 
-	if (unix_recvq_full(other))
+	/* If other is SOCK_DEAD, we want to make sure we signal
+	 * POLLOUT, such that a subsequent write() can get a
+	 * -ECONNREFUSED. Otherwise, if we haven't queued any skbs
+	 * to other and its full, we will hang waiting for POLLOUT.
+	 */
+	if (unix_recvq_full(other) && !sock_flag(other, SOCK_DEAD))
 		return 1;
 
 	if (connected)
@@ -669,7 +673,6 @@ static int unix_set_peek_off(struct sock *sk, int val)
 
 	return 0;
 }
-
 
 static const struct proto_ops unix_stream_ops = {
 	.family =	PF_UNIX,
@@ -1442,7 +1445,6 @@ static int unix_accept(struct socket *sock, struct socket *newsock, int flags)
 out:
 	return err;
 }
-
 
 static int unix_getname(struct socket *sock, struct sockaddr *uaddr, int *uaddr_len, int peer)
 {
@@ -2868,7 +2870,6 @@ static const struct net_proto_family unix_family_ops = {
 	.create = unix_create,
 	.owner	= THIS_MODULE,
 };
-
 
 static int __net_init unix_net_init(struct net *net)
 {

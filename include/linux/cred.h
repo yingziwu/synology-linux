@@ -383,7 +383,6 @@ static inline struct user_namespace *current_user_ns(void)
 }
 #endif
 
-
 #define current_uid_gid(_uid, _gid)		\
 do {						\
 	const struct cred *__cred;		\

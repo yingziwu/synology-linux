@@ -26,6 +26,13 @@
 #define IOAT_PCI_CHANERR_INT_OFFSET		0x180
 #define IOAT_PCI_CHANERRMASK_INT_OFFSET		0x184
 
+/* PCIe config registers */
+
+/* EXPCAPID + N */
+#define IOAT_DEVCTRL_OFFSET			0x8
+/* relaxed ordering enable */
+#define IOAT_DEVCTRL_ROE			0x10
+
 /* MMIO Device Registers */
 #define IOAT_CHANCNT_OFFSET			0x00	/*  8-bit */
 
@@ -99,7 +106,6 @@
 #define IOAT_DMA_COMP_V1			0x0001	/* Compatibility with DMA version 1 */
 #define IOAT_DMA_COMP_V2			0x0002	/* Compatibility with DMA version 2 */
 
-
 #define IOAT1_CHANSTS_OFFSET		0x04	/* 64-bit Channel Status Register */
 #define IOAT2_CHANSTS_OFFSET		0x08	/* 64-bit Channel Status Register */
 #define IOAT_CHANSTS_OFFSET(ver)		((ver) < IOAT_VER_2_0 \
@@ -120,8 +126,6 @@
 #define IOAT_CHANSTS_DONE	0x1
 #define IOAT_CHANSTS_SUSPENDED	0x2
 #define IOAT_CHANSTS_HALTED	0x3
-
-
 
 #define IOAT_CHAN_DMACOUNT_OFFSET	0x06    /* 16-bit DMA Count register */
 
@@ -243,6 +247,8 @@
 #define IOAT_CHANERR_DESCRIPTOR_COUNT_ERR	0x40000
 
 #define IOAT_CHANERR_HANDLE_MASK (IOAT_CHANERR_XOR_P_OR_CRC_ERR | IOAT_CHANERR_XOR_Q_ERR)
+#define IOAT_CHANERR_RECOVER_MASK (IOAT_CHANERR_READ_DATA_ERR | \
+				   IOAT_CHANERR_WRITE_DATA_ERR)
 
 #define IOAT_CHANERR_MASK_OFFSET		0x2C	/* 32-bit Channel Error Register */
 

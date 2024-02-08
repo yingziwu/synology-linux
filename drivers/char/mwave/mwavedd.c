@@ -59,6 +59,7 @@
 #include <linux/mutex.h>
 #include <linux/delay.h>
 #include <linux/serial_8250.h>
+#include <linux/nospec.h>
 #include "smapi.h"
 #include "mwavedd.h"
 #include "3780i.h"
@@ -289,6 +290,8 @@ static long mwave_ioctl(struct file *file, unsigned int iocmd,
 						ipcnum);
 				return -EINVAL;
 			}
+			ipcnum = array_index_nospec(ipcnum,
+						    ARRAY_SIZE(pDrvData->IPCs));
 			PRINTK_3(TRACE_MWAVE,
 				"mwavedd::mwave_ioctl IOCTL_MW_REGISTER_IPC"
 				" ipcnum %x entry usIntCount %x\n",
@@ -317,6 +320,8 @@ static long mwave_ioctl(struct file *file, unsigned int iocmd,
 						" Invalid ipcnum %x\n", ipcnum);
 				return -EINVAL;
 			}
+			ipcnum = array_index_nospec(ipcnum,
+						    ARRAY_SIZE(pDrvData->IPCs));
 			PRINTK_3(TRACE_MWAVE,
 				"mwavedd::mwave_ioctl IOCTL_MW_GET_IPC"
 				" ipcnum %x, usIntCount %x\n",
@@ -383,6 +388,8 @@ static long mwave_ioctl(struct file *file, unsigned int iocmd,
 						ipcnum);
 				return -EINVAL;
 			}
+			ipcnum = array_index_nospec(ipcnum,
+						    ARRAY_SIZE(pDrvData->IPCs));
 			mutex_lock(&mwave_mutex);
 			if (pDrvData->IPCs[ipcnum].bIsEnabled == TRUE) {
 				pDrvData->IPCs[ipcnum].bIsEnabled = FALSE;
@@ -404,7 +411,6 @@ static long mwave_ioctl(struct file *file, unsigned int iocmd,
 	return retval;
 }
 
-
 static ssize_t mwave_read(struct file *file, char __user *buf, size_t count,
                           loff_t * ppos)
 {
@@ -414,7 +420,6 @@ static ssize_t mwave_read(struct file *file, char __user *buf, size_t count,
 
 	return -EINVAL;
 }
-
 
 static ssize_t mwave_write(struct file *file, const char __user *buf,
                            size_t count, loff_t * ppos)
@@ -426,7 +431,6 @@ static ssize_t mwave_write(struct file *file, const char __user *buf,
 
 	return -EINVAL;
 }
-
 
 static int register_serial_portandirq(unsigned int port, int irq)
 {
@@ -472,7 +476,6 @@ static int register_serial_portandirq(unsigned int port, int irq)
 	return serial8250_register_8250_port(&uart);
 }
 
-
 static const struct file_operations mwave_fops = {
 	.owner		= THIS_MODULE,
 	.read		= mwave_read,
@@ -482,7 +485,6 @@ static const struct file_operations mwave_fops = {
 	.release	= mwave_close,
 	.llseek		= default_llseek,
 };
-
 
 static struct miscdevice mwave_misc_dev = { MWAVE_MINOR, "mwave", &mwave_fops };
 
@@ -694,4 +696,3 @@ cleanup_error:
 }
 
 module_init(mwave_init);
-

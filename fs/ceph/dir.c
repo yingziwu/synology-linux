@@ -84,7 +84,6 @@ struct inode *ceph_get_dentry_parent_inode(struct dentry *dentry)
 	return inode;
 }
 
-
 /*
  * for readdir, we encode the directory frag and offset within that
  * frag into f_pos.
@@ -361,7 +360,6 @@ more:
 		     (int)req->r_reply_info.dir_end,
 		     (int)req->r_reply_info.dir_complete);
 
-
 		/* note next offset and last dentry name */
 		rinfo = &req->r_reply_info;
 		if (le32_to_cpu(rinfo->dir_dir->frag) != frag) {
@@ -507,7 +505,7 @@ static loff_t ceph_dir_llseek(struct file *file, loff_t offset, int whence)
 	loff_t old_offset = ceph_make_fpos(fi->frag, fi->next_offset);
 	loff_t retval;
 
-	mutex_lock(&inode->i_mutex);
+	inode_lock(inode);
 	retval = -EINVAL;
 	switch (whence) {
 	case SEEK_CUR:
@@ -542,7 +540,7 @@ static loff_t ceph_dir_llseek(struct file *file, loff_t offset, int whence)
 		}
 	}
 out:
-	mutex_unlock(&inode->i_mutex);
+	inode_unlock(inode);
 	return retval;
 }
 

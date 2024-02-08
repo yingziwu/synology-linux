@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * kernel userspace event delivery
  *
@@ -26,7 +29,6 @@
 #include <net/sock.h>
 #include <net/net_namespace.h>
 
-
 u64 uevent_seqnum;
 #ifdef CONFIG_UEVENT_HELPER
 char uevent_helper[UEVENT_HELPER_PATH_LEN] = CONFIG_UEVENT_HELPER_PATH;
@@ -50,6 +52,12 @@ static const char *kobject_actions[] = {
 	[KOBJ_MOVE] =		"move",
 	[KOBJ_ONLINE] =		"online",
 	[KOBJ_OFFLINE] =	"offline",
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_LSP_RTD1619)
+#if defined(CONFIG_R8168) || defined(CONFIG_R8169SOC)
+	[KOBJ_LINKUP] =		"linkup",
+	[KOBJ_LINKDOWN] =	"linkdown",
+#endif /* CONFIG_R8168 || CONFIG_R8169SOC */
+#endif /* MY_ABC_HERE || CONFIG_SYNO_LSP_RTD1619 */
 };
 
 /**
@@ -465,7 +473,6 @@ static int __init kobject_uevent_init(void)
 {
 	return register_pernet_subsys(&uevent_net_ops);
 }
-
 
 postcore_initcall(kobject_uevent_init);
 #endif

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * drivers/base/power/main.c - Where the driver meets power management.
  *
@@ -980,7 +983,6 @@ void dpm_resume_end(pm_message_t state)
 }
 EXPORT_SYMBOL_GPL(dpm_resume_end);
 
-
 /*------------------------- Suspend routines -------------------------*/
 
 /**
@@ -1514,6 +1516,10 @@ int dpm_suspend(pm_message_t state)
 		mutex_unlock(&dpm_list_mtx);
 
 		error = device_suspend(dev);
+#ifdef MY_ABC_HERE
+		error = 0;
+		async_error = 0;
+#endif /* MY_ABC_HERE */
 
 		mutex_lock(&dpm_list_mtx);
 		if (error) {

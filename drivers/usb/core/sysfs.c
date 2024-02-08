@@ -1,22 +1,13 @@
-/*
- * drivers/usb/core/sysfs.c
- *
- * (C) Copyright 2002 David Brownell
- * (C) Copyright 2002,2004 Greg Kroah-Hartman
- * (C) Copyright 2002,2004 IBM Corp.
- *
- * All of the sysfs file attributes for usb devices and interfaces.
- *
- */
-
-
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
+ 
 #include <linux/kernel.h>
 #include <linux/string.h>
 #include <linux/usb.h>
 #include <linux/usb/quirks.h>
 #include "usb.h"
 
-/* Active configuration fields */
 #define usb_actconfig_show(field, format_string)			\
 static ssize_t field##_show(struct device *dev,				\
 			    struct device_attribute *attr, char *buf)	\
@@ -41,6 +32,11 @@ static ssize_t field##_show(struct device *dev,				\
 
 usb_actconfig_attr(bNumInterfaces, "%2d\n");
 usb_actconfig_attr(bmAttributes, "%2x\n");
+
+#if defined (MY_ABC_HERE)
+extern struct usb_hub *usb_hub_to_struct_hub(struct usb_device *hdev);
+extern int syno_usb_power_cycle(struct usb_hub *hub, int port, int status);
+#endif  
 
 static ssize_t bMaxPower_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
@@ -76,7 +72,6 @@ static ssize_t configuration_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(configuration);
 
-/* configuration value is always present, and r/w */
 usb_actconfig_show(bConfigurationValue, "%u\n");
 
 static ssize_t bConfigurationValue_store(struct device *dev,
@@ -96,7 +91,6 @@ static ssize_t bConfigurationValue_store(struct device *dev,
 static DEVICE_ATTR_IGNORE_LOCKDEP(bConfigurationValue, S_IRUGO | S_IWUSR,
 		bConfigurationValue_show, bConfigurationValue_store);
 
-/* String fields */
 #define usb_string_attr(name)						\
 static ssize_t  name##_show(struct device *dev,				\
 		struct device_attribute *attr, char *buf)		\
@@ -210,6 +204,34 @@ static ssize_t quirks_show(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_RO(quirks);
 
+#ifdef MY_ABC_HERE
+static ssize_t
+syno_quirks_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct usb_device *udev;
+
+	udev = to_usb_device(dev);
+	return sprintf(buf, "0x%x\n", udev->syno_quirks);
+}
+
+static ssize_t
+syno_quirks_store(struct device *dev, struct device_attribute *attr,
+		const char * buf, size_t count)
+{
+	struct usb_device *udev;
+	unsigned int val;
+
+	if (0 > kstrtouint(buf, 16, &val))
+		return -EINVAL;
+
+	udev = to_usb_device(dev);
+	udev->syno_quirks = val;
+
+	return count;
+}
+static DEVICE_ATTR_RW(syno_quirks);
+#endif  
+
 static ssize_t avoid_reset_quirk_show(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
@@ -280,6 +302,34 @@ static ssize_t ltm_capable_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(ltm_capable);
 
+#if defined (MY_ABC_HERE)
+static ssize_t
+syno_vbus_reset_show(struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct usb_device *udev = to_usb_device(dev);
+	return sprintf(buf, "%d\n", udev->maxchild);
+}
+static ssize_t
+syno_vbus_reset_store(struct device *dev, struct device_attribute *attr,
+		const char * buf, size_t count)
+{
+	struct usb_device *udev = to_usb_device(dev);
+	struct usb_hub *hub = usb_hub_to_struct_hub(udev);
+	unsigned int port1;
+
+	if (0 > kstrtouint(buf, 10, &port1))
+		return -EINVAL;
+
+	if (port1 > udev->maxchild || 0 >= port1)
+		return -EINVAL;
+
+	syno_usb_power_cycle(hub, port1, 0);
+
+	return count;
+}
+static DEVICE_ATTR_RW(syno_vbus_reset);
+#endif  
+
 #ifdef	CONFIG_PM
 
 static ssize_t persist_show(struct device *dev, struct device_attribute *attr,
@@ -296,7 +346,6 @@ static ssize_t persist_store(struct device *dev, struct device_attribute *attr,
 	struct usb_device *udev = to_usb_device(dev);
 	int value;
 
-	/* Hubs are always enabled for USB_PERSIST */
 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB)
 		return -EPERM;
 
@@ -317,9 +366,6 @@ static int add_persist_attributes(struct device *dev)
 	if (is_usb_device(dev)) {
 		struct usb_device *udev = to_usb_device(dev);
 
-		/* Hubs are automatically enabled for USB_PERSIST,
-		 * no point in creating the attribute file.
-		 */
 		if (udev->descriptor.bDeviceClass != USB_CLASS_HUB)
 			rc = sysfs_add_file_to_group(&dev->kobj,
 					&dev_attr_persist.attr,
@@ -345,13 +391,6 @@ static ssize_t connected_duration_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(connected_duration);
 
-/*
- * If the device is resumed, the last time the device was suspended has
- * been pre-subtracted from active_duration.  We add the current time to
- * get the duration that the device was actually active.
- *
- * If the device is suspended, the active_duration is up-to-date.
- */
 static ssize_t active_duration_show(struct device *dev,
 				    struct device_attribute *attr, char *buf)
 {
@@ -635,10 +674,8 @@ static void remove_power_attributes(struct device *dev)
 #define add_power_attributes(dev)	0
 #define remove_power_attributes(dev)	do {} while (0)
 
-#endif	/* CONFIG_PM */
+#endif	 
 
-
-/* Descriptor fields */
 #define usb_descriptor_attr_le16(field, format_string)			\
 static ssize_t								\
 field##_show(struct device *dev, struct device_attribute *attr,	\
@@ -674,8 +711,6 @@ usb_descriptor_attr(bDeviceProtocol, "%02x\n");
 usb_descriptor_attr(bNumConfigurations, "%d\n");
 usb_descriptor_attr(bMaxPacketSize0, "%d\n");
 
-
-/* show if the device is authorized (1) or not (0) */
 static ssize_t authorized_show(struct device *dev,
 			       struct device_attribute *attr, char *buf)
 {
@@ -683,11 +718,6 @@ static ssize_t authorized_show(struct device *dev,
 	return snprintf(buf, PAGE_SIZE, "%u\n", usb_dev->authorized);
 }
 
-/*
- * Authorize a device to be used in the system
- *
- * Writing a 0 deauthorizes the device, writing a 1 authorizes it.
- */
 static ssize_t authorized_store(struct device *dev,
 				struct device_attribute *attr, const char *buf,
 				size_t size)
@@ -707,7 +737,6 @@ static ssize_t authorized_store(struct device *dev,
 static DEVICE_ATTR_IGNORE_LOCKDEP(authorized, S_IRUGO | S_IWUSR,
 				  authorized_show, authorized_store);
 
-/* "Safely remove a device" */
 static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
 			    const char *buf, size_t count)
 {
@@ -717,7 +746,6 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
 	usb_lock_device(udev);
 	if (udev->state != USB_STATE_NOTATTACHED) {
 
-		/* To avoid races, first unconfigure and then remove */
 		usb_set_configuration(udev, -1);
 		rc = usb_remove_device(udev);
 	}
@@ -728,15 +756,194 @@ static ssize_t remove_store(struct device *dev, struct device_attribute *attr,
 }
 static DEVICE_ATTR_IGNORE_LOCKDEP(remove, S_IWUSR, NULL, remove_store);
 
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_RTK_HCD_TEST_MODE
+#include <linux/slab.h>
+#include <linux/usb/ch11.h>
+#include <linux/usb/hcd.h>
+
+extern int get_hub_descriptor_port(struct usb_device *hdev, void *data, int size, int port1);
+
+static int hub_clear_port_feature(struct usb_device *hdev, int port1, int feature)
+{
+	return usb_control_msg(hdev, usb_sndctrlpipe(hdev, 0),
+			(__u8)ClearPortFeature, USB_RT_PORT, feature, port1,
+			NULL, 0, 1000);
+}
+
+static int hub_set_port_feature(struct usb_device *hdev, int port1, int feature)
+{
+	return usb_control_msg(hdev, usb_sndctrlpipe(hdev, 0),
+			(__u8)SetPortFeature, USB_RT_PORT, feature, port1,
+			NULL, 0, 1000);
+}
+
+#define	USB_STS_TIMEOUT		1000
+#define	USB_STS_RETRIES		5
+
+static int get_port_status(struct usb_device *hdev, int port1,
+		struct usb_port_status *data)
+{
+	int i, status = -ETIMEDOUT;
+
+	for (i = 0; i < USB_STS_RETRIES &&
+			(status == -ETIMEDOUT || status == -EPIPE); i++) {
+		printk("get_port_status at port %d ...\n", port1);
+		status = usb_control_msg(hdev, usb_rcvctrlpipe(hdev, 0),
+			USB_REQ_GET_STATUS, USB_DIR_IN | USB_RT_PORT, 0, port1,
+			data, sizeof(*data), USB_STS_TIMEOUT);
+	}
+	return status;
+}
+
+enum {
+	TEST_RESET = 0,
+	TEST_TEST_J,
+	TEST_TEST_K,
+	TEST_TEST_SE0_NAK,
+	TEST_TEST_PACKET,
+	TEST_TEST_FORCE_ENABLE,
+	TEST_SUSPEND_RESUME,
+	TEST_SINGLE_STEP_GET_DEVICE_DESCRIPTOR,
+	TEST_PORT_RESET,
+	MAX_CTS_TEST_CASE,
+};
+
+static ssize_t  show_runTestMode (struct device *dev, struct device_attribute *attr, char *buf)
+{
+	struct usb_device *udev = udev = to_usb_device (dev);
+
+	if(udev->descriptor.bDeviceClass != USB_CLASS_HUB)
+		return sprintf (buf, "This node is not a HUB\n");
+
+	return sprintf (buf, "%s to runTestMode\n"
+		    "echo \"1 %d\" to run port1 HC_RESET command\n"
+		    "echo \"1 %d\" to run port1 TEST_J command\n"
+		    "echo \"1 %d\" ro run port1 TEST_K command\n"
+		    "echo \"1 %d\" to run port1 TEST_SE0_NAK command\n"
+		    "echo \"1 %d\" to run port1 TEST_PACKET command\n"
+		    "echo \"1 %d\" to run port1 TEST_FORCE_ENABLE command\n"
+		    "echo \"1 %d\" to run port1 SUSPEND/RESUME command\n"
+		    "echo \"1 %d\" to run port1 "
+		    "SINGLE_STEP_GET_DEVICE_DESCRIPTOR command\n"
+		    "echo \"1 %d\" to run port1 PORT_RESET command\n",
+		    dev_name(dev),
+		    TEST_RESET, TEST_TEST_J, TEST_TEST_K, TEST_TEST_SE0_NAK,
+		    TEST_TEST_PACKET,
+		    TEST_TEST_FORCE_ENABLE, TEST_SUSPEND_RESUME,
+		    TEST_SINGLE_STEP_GET_DEVICE_DESCRIPTOR,
+		    TEST_PORT_RESET);
+
+	return 0;
+}
+
+static ssize_t
+set_runTestMode (struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+{
+	struct usb_device	*udev = udev = to_usb_device (dev);
+	int value, test_case;
+	unsigned int		port1 = 1;
+	struct usb_port_status usb_port_status_data;
+	int i, size = 0x12;
+	unsigned char		*data;
+
+	if ((value = sscanf (buf, "%u", &port1)) != 1)
+		return -EINVAL;
+
+	buf += 2;
+
+	if ((value = sscanf (buf, "%u", &test_case)) != 1)
+		return -EINVAL;
+
+	if(udev->descriptor.bDeviceClass != USB_CLASS_HUB)
+		return value;
+
+	switch (test_case) {
+	case TEST_RESET:
+		printk("run HC_RESET (%d) to port %d ...\n", test_case, port1);
+		if (udev->bus != NULL) {
+			struct usb_hcd *hcd = bus_to_hcd(udev->bus);
+			int ret;
+			if (hcd != NULL && hcd->driver != NULL && hcd->driver->reset)
+				ret = hcd->driver->reset(hcd);
+			if (ret)
+				printk("run HC_RESET fail ...\n");
+		}
+
+	break;
+	case TEST_TEST_J:
+	case TEST_TEST_K:
+	case TEST_TEST_SE0_NAK:
+	case TEST_TEST_PACKET:
+	case TEST_TEST_FORCE_ENABLE:
+		usb_autoresume_device(udev);
+		printk("run USB_PORT_FEAT_TEST mode %d to port %d ...\n", test_case, port1);
+		hub_set_port_feature(udev,(test_case << 8) | port1, USB_PORT_FEAT_TEST);
+
+	break;
+	case TEST_SUSPEND_RESUME:
+		printk("run TEST_SUSPEND_RESUME to the port %d of the hub ...\n", port1);
+		msleep(15000);
+		printk("set USB_PORT_FEAT_SUSPEND to the port %d of the hub ...\n", port1);
+		hub_set_port_feature(udev, port1, USB_PORT_FEAT_SUSPEND);
+		printk("set OK !!!\n");
+		msleep(15000);
+		printk("clear USB_PORT_FEAT_SUSPEND to the port %d of the hub ...\n", port1);
+		hub_clear_port_feature(udev, port1, USB_PORT_FEAT_SUSPEND);
+		printk("clear OK !!!\n");
+		{
+			printk("get_port_status port %d of the hub ...\n", port1);
+			msleep(USB_RESUME_TIMEOUT);
+			get_port_status(udev, port1, &usb_port_status_data);
+		}
+	break;
+	case TEST_SINGLE_STEP_GET_DEVICE_DESCRIPTOR:
+		printk("run SINGLE_STEP_GET_DEVICE_DESCRIPTOR to the port %d of the hub ...\n", port1);
+		data = (unsigned char*)kmalloc(size, GFP_KERNEL);
+		if (!data)
+			return -ENOMEM;
+		memset (data, 0, size);
+		get_hub_descriptor_port(udev, data, size, port1);
+
+		printk(" get device descriptor\n");
+		for( i = 0; i < size; i++)
+		{
+			printk(" %.2x", data[i]);
+			if((i % 15) == 0 && (i != 0))
+				printk("\n<1>");
+		}
+		printk("\n");
+
+		kfree(data);
+
+	break;
+	case TEST_PORT_RESET:
+		printk("run PORT_RESET (%d) to port %d ...\n", test_case, port1);
+		hub_clear_port_feature(udev, port1, USB_PORT_FEAT_POWER);
+		msleep(1000);
+		hub_set_port_feature(udev, port1, USB_PORT_FEAT_POWER);
+
+	break;
+	default:
+		printk("error test_case %d !!!\n", test_case);
+	break;
+	}
+
+	return (value < 0) ? value : count;
+}
+static DEVICE_ATTR(runTestMode, S_IRUGO | S_IWUSR,
+		show_runTestMode, set_runTestMode);
+#endif  
+#endif  
 
 static struct attribute *dev_attrs[] = {
-	/* current configuration's attributes */
+	 
 	&dev_attr_configuration.attr,
 	&dev_attr_bNumInterfaces.attr,
 	&dev_attr_bConfigurationValue.attr,
 	&dev_attr_bmAttributes.attr,
 	&dev_attr_bMaxPower.attr,
-	/* device attributes */
+	 
 	&dev_attr_urbnum.attr,
 	&dev_attr_idVendor.attr,
 	&dev_attr_idProduct.attr,
@@ -753,20 +960,28 @@ static struct attribute *dev_attrs[] = {
 	&dev_attr_version.attr,
 	&dev_attr_maxchild.attr,
 	&dev_attr_quirks.attr,
+#ifdef MY_ABC_HERE
+	&dev_attr_syno_quirks.attr,
+#endif  
 	&dev_attr_avoid_reset_quirk.attr,
 	&dev_attr_authorized.attr,
 	&dev_attr_remove.attr,
 	&dev_attr_removable.attr,
 	&dev_attr_ltm_capable.attr,
+#if defined (MY_ABC_HERE)
+	&dev_attr_syno_vbus_reset.attr,
+#endif  
+#if defined(CONFIG_SYNO_LSP_RTD1619)
+#ifdef CONFIG_USB_RTK_HCD_TEST_MODE
+	&dev_attr_runTestMode.attr,
+#endif  
+#endif  
 	NULL,
 };
 static struct attribute_group dev_attr_grp = {
 	.attrs = dev_attrs,
 };
 
-/* When modifying this list, be sure to modify dev_string_attrs_are_visible()
- * accordingly.
- */
 static struct attribute *dev_string_attrs[] = {
 	&dev_attr_manufacturer.attr,
 	&dev_attr_product.attr,
@@ -804,8 +1019,6 @@ const struct attribute_group *usb_device_groups[] = {
 	NULL
 };
 
-/* Binary descriptors */
-
 static ssize_t
 read_descriptors(struct file *filp, struct kobject *kobj,
 		struct bin_attribute *attr,
@@ -818,10 +1031,6 @@ read_descriptors(struct file *filp, struct kobject *kobj,
 	int cfgno;
 	void *src;
 
-	/* The binary attribute begins with the device descriptor.
-	 * Following that are the raw descriptor entries for all the
-	 * configurations (config plus subsidiary descriptors).
-	 */
 	usb_lock_device(udev);
 	for (cfgno = -1; cfgno < udev->descriptor.bNumConfigurations &&
 			nleft > 0; ++cfgno) {
@@ -850,7 +1059,7 @@ read_descriptors(struct file *filp, struct kobject *kobj,
 static struct bin_attribute dev_bin_attr_descriptors = {
 	.attr = {.name = "descriptors", .mode = 0444},
 	.read = read_descriptors,
-	.size = 18 + 65535,	/* dev descr + max-size raw descriptor */
+	.size = 18 + 65535,	 
 };
 
 int usb_create_sysfs_dev_files(struct usb_device *udev)
@@ -884,7 +1093,6 @@ void usb_remove_sysfs_dev_files(struct usb_device *udev)
 	device_remove_bin_file(dev, &dev_bin_attr_descriptors);
 }
 
-/* Interface Association Descriptor fields */
 #define usb_intf_assoc_attr(field, format_string)			\
 static ssize_t								\
 iad_##field##_show(struct device *dev, struct device_attribute *attr,	\
@@ -903,7 +1111,6 @@ usb_intf_assoc_attr(bFunctionClass, "%02x\n");
 usb_intf_assoc_attr(bFunctionSubClass, "%02x\n");
 usb_intf_assoc_attr(bFunctionProtocol, "%02x\n");
 
-/* Interface fields */
 #define usb_intf_attr(field, format_string)				\
 static ssize_t								\
 field##_show(struct device *dev, struct device_attribute *attr,		\
@@ -970,7 +1177,7 @@ static ssize_t supports_autosuspend_show(struct device *dev,
 	int s;
 
 	device_lock(dev);
-	/* Devices will be autosuspended even when an interface isn't claimed */
+	 
 	s = (!dev->driver || to_usb_driver(dev->driver)->supports_autosuspend);
 	device_unlock(dev);
 
@@ -978,10 +1185,6 @@ static ssize_t supports_autosuspend_show(struct device *dev,
 }
 static DEVICE_ATTR_RO(supports_autosuspend);
 
-/*
- * interface_authorized_show - show authorization status of an USB interface
- * 1 is authorized, 0 is deauthorized
- */
 static ssize_t interface_authorized_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -990,9 +1193,6 @@ static ssize_t interface_authorized_show(struct device *dev,
 	return sprintf(buf, "%u\n", intf->authorized);
 }
 
-/*
- * interface_authorized_store - authorize or deauthorize an USB interface
- */
 static ssize_t interface_authorized_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count)
 {
@@ -1071,7 +1271,7 @@ void usb_create_sysfs_intf_files(struct usb_interface *intf)
 	if (!alt->string && !(udev->quirks & USB_QUIRK_CONFIG_INTF_STRINGS))
 		alt->string = usb_cache_string(udev, alt->desc.iInterface);
 	if (alt->string && device_create_file(&intf->dev, &dev_attr_interface))
-		;	/* We don't actually care if the function fails. */
+		;	 
 	intf->sysfs_files_created = 1;
 }
 

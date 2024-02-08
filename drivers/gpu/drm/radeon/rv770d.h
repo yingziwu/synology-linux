@@ -387,6 +387,7 @@
 #define UVD_UDEC_TILING_CONFIG                          0xef40
 #define UVD_UDEC_DB_TILING_CONFIG                       0xef44
 #define UVD_UDEC_DBW_TILING_CONFIG                      0xef48
+#define UVD_NO_OP					0xeffc
 
 #define	GC_USER_SHADER_PIPE_CONFIG			0x8954
 #define		INACTIVE_QD_PIPES(x)				((x) << 8)
@@ -673,7 +674,6 @@
 #define	DMA_PACKET_CONSTANT_FILL			  0xd
 #define	DMA_PACKET_NOP					  0xf
 
-
 #define	SRBM_STATUS				        0x0E50
 
 /* DCE 3.2 HDMI */
@@ -913,7 +913,6 @@
 #       define PIN2_AUDIO_ENABLED                         (1 << 26)
 #       define PIN3_AUDIO_ENABLED                         (1 << 27)
 #       define AUDIO_ENABLED                              (1 << 31)
-
 
 #define D1GRPH_PRIMARY_SURFACE_ADDRESS                    0x6110
 #define D1GRPH_PRIMARY_SURFACE_ADDRESS_HIGH               0x6914

@@ -385,7 +385,6 @@ static int mdfld_restore_display_registers(struct drm_device *dev, int pipenum)
 	REG_WRITE(mipi_reg, temp);
 	mdelay(1);
 
-
 	/* Set DSI host to exit from Utra Low Power State */
 	temp = REG_READ(device_ready_reg);
 	temp &= ~ULPS_MASK;
@@ -546,6 +545,8 @@ const struct psb_ops mdfld_chip_ops = {
 
 	.save_regs = mdfld_save_registers,
 	.restore_regs = mdfld_restore_registers,
+	.save_crtc = gma_crtc_save,
+	.restore_crtc = gma_crtc_restore,
 	.power_down = mdfld_power_down,
 	.power_up = mdfld_power_up,
 };

@@ -1776,7 +1776,6 @@ out:
 	h->resv_huge_pages -= unused_resv_pages;
 }
 
-
 /*
  * vma_needs_reservation, vma_commit_reservation and vma_end_reservation
  * are used by the huge page allocation routines to manage reservations.
@@ -2373,7 +2372,6 @@ static ssize_t nr_hugepages_mempolicy_store(struct kobject *kobj,
 }
 HSTATE_ATTR(nr_hugepages_mempolicy);
 #endif
-
 
 static ssize_t nr_overcommit_hugepages_show(struct kobject *kobj,
 					struct kobj_attribute *attr, char *buf)
@@ -3330,7 +3328,7 @@ static void unmap_ref_private(struct mm_struct *mm, struct vm_area_struct *vma,
 	address = address & huge_page_mask(h);
 	pgoff = ((address - vma->vm_start) >> PAGE_SHIFT) +
 			vma->vm_pgoff;
-	mapping = file_inode(vma->vm_file)->i_mapping;
+	mapping = vma->vm_file->f_mapping;
 
 	/*
 	 * Take the mapping lock for the duration of the table walk. As

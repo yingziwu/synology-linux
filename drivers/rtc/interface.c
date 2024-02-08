@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * RTC subsystem, interface functions
  *
@@ -55,7 +58,11 @@ int rtc_read_time(struct rtc_device *rtc, struct rtc_time *tm)
 	mutex_unlock(&rtc->ops_lock);
 	return err;
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_read_time);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_read_time);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
 {
@@ -89,7 +96,11 @@ int rtc_set_time(struct rtc_device *rtc, struct rtc_time *tm)
 	schedule_work(&rtc->irqwork);
 	return err;
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_set_time);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_set_time);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 static int rtc_read_alarm_internal(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
 {
@@ -301,7 +312,11 @@ int rtc_read_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
 
 	return err;
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_read_alarm);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_read_alarm);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 static int __rtc_set_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
 {
@@ -360,7 +375,11 @@ int rtc_set_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
 	mutex_unlock(&rtc->ops_lock);
 	return err;
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_set_alarm);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_set_alarm);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 /* Called once per device from rtc_device_register */
 int rtc_initialize_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
@@ -395,8 +414,6 @@ int rtc_initialize_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
 }
 EXPORT_SYMBOL_GPL(rtc_initialize_alarm);
 
-
-
 int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled)
 {
 	int err = mutex_lock_interruptible(&rtc->ops_lock);
@@ -422,7 +439,11 @@ int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled)
 	mutex_unlock(&rtc->ops_lock);
 	return err;
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_alarm_irq_enable);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_alarm_irq_enable);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 int rtc_update_irq_enable(struct rtc_device *rtc, unsigned int enabled)
 {
@@ -475,7 +496,6 @@ out:
 }
 EXPORT_SYMBOL_GPL(rtc_update_irq_enable);
 
-
 /**
  * rtc_handle_legacy_irq - AIE, UIE and PIE event hook
  * @rtc: pointer to the rtc device
@@ -504,7 +524,6 @@ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode)
 	kill_fasync(&rtc->async_queue, SIGIO, POLL_IN);
 }
 
-
 /**
  * rtc_aie_update_irq - AIE mode rtctimer hook
  * @private: pointer to the rtc_device
@@ -517,7 +536,6 @@ void rtc_aie_update_irq(void *private)
 	rtc_handle_legacy_irq(rtc, 1, RTC_AF);
 }
 
-
 /**
  * rtc_uie_update_irq - UIE mode rtctimer hook
  * @private: pointer to the rtc_device
@@ -529,7 +547,6 @@ void rtc_uie_update_irq(void *private)
 	struct rtc_device *rtc = (struct rtc_device *)private;
 	rtc_handle_legacy_irq(rtc, 1,  RTC_UF);
 }
-
 
 /**
  * rtc_pie_update_irq - PIE mode hrtimer hook
@@ -599,14 +616,22 @@ struct rtc_device *rtc_class_open(const char *name)
 
 	return rtc;
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_class_open);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_class_open);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 void rtc_class_close(struct rtc_device *rtc)
 {
 	module_put(rtc->owner);
 	put_device(&rtc->dev);
 }
+#if defined(MY_ABC_HERE) || defined(CONFIG_SYNO_RTD1619)
+EXPORT_SYMBOL(rtc_class_close);
+#else /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 EXPORT_SYMBOL_GPL(rtc_class_close);
+#endif /* MY_ABC_HERE || CONFIG_SYNO_RTD1619 */
 
 int rtc_irq_register(struct rtc_device *rtc, struct rtc_task *task)
 {
@@ -898,7 +923,6 @@ reprogram:
 	mutex_unlock(&rtc->ops_lock);
 }
 
-
 /* rtc_timer_init - Initializes an rtc_timer
  * @timer: timer to be intiialized
  * @f: function pointer to be called when timer fires
@@ -952,5 +976,3 @@ void rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer *timer)
 		rtc_timer_remove(rtc, timer);
 	mutex_unlock(&rtc->ops_lock);
 }
-
-

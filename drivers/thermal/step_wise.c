@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  step_wise.c - A step-by-step Thermal throttling governor
  *
@@ -126,6 +129,9 @@ static void update_passive_instance(struct thermal_zone_device *tz,
 
 static void thermal_zone_trip_update(struct thermal_zone_device *tz, int trip)
 {
+#if defined(CONFIG_RTK_THERMAL) && defined(MY_ABC_HERE)
+	int trip_hyst;
+#endif
 	int trip_temp;
 	enum thermal_trip_type trip_type;
 	enum thermal_trend trend;
@@ -136,9 +142,15 @@ static void thermal_zone_trip_update(struct thermal_zone_device *tz, int trip)
 	if (trip == THERMAL_TRIPS_NONE) {
 		trip_temp = tz->forced_passive;
 		trip_type = THERMAL_TRIPS_NONE;
+#if defined(CONFIG_RTK_THERMAL) && defined(MY_ABC_HERE)
+		trip_hyst = 0;
+#endif
 	} else {
 		tz->ops->get_trip_temp(tz, trip, &trip_temp);
 		tz->ops->get_trip_type(tz, trip, &trip_type);
+#if defined(CONFIG_RTK_THERMAL) && defined(MY_ABC_HERE)
+		tz->ops->get_trip_hyst(tz, trip, &trip_hyst);
+#endif
 	}
 
 	trend = get_tz_trend(tz, trip);
@@ -159,6 +171,15 @@ static void thermal_zone_trip_update(struct thermal_zone_device *tz, int trip)
 
 		old_target = instance->target;
 		instance->target = get_target_state(instance, trend, throttle);
+
+#if defined(CONFIG_RTK_THERMAL) && defined(MY_ABC_HERE)
+		/* for hysteresis */
+		if ((int)instance->target < old_target &&
+			tz->temperature >= (trip_temp - trip_hyst)) {
+			instance->target = old_target;
+		}
+#endif
+
 		dev_dbg(&instance->cdev->device, "old_target=%d, target=%d\n",
 					old_target, (int)instance->target);
 

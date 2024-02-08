@@ -16,7 +16,6 @@
  * this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include "msm_drv.h"
 #include "mdp_kms.h"
 
@@ -104,6 +103,12 @@ static const struct mdp_format formats[] = {
 	FMT(BGRA8888, 8, 8, 8, 8,  3, 2, 0, 1,  true,   true,  4,  4,
 			MDP_PLANE_INTERLEAVED, CHROMA_FULL, false),
 	FMT(XRGB8888, 8, 8, 8, 8,  1, 0, 2, 3,  false,  true,  4,  4,
+			MDP_PLANE_INTERLEAVED, CHROMA_FULL, false),
+	FMT(XBGR8888, 8, 8, 8, 8,  2, 0, 1, 3,  false,   true,  4,  4,
+			MDP_PLANE_INTERLEAVED, CHROMA_FULL, false),
+	FMT(RGBX8888, 8, 8, 8, 8,  3, 1, 0, 2,  false,   true,  4,  4,
+			MDP_PLANE_INTERLEAVED, CHROMA_FULL, false),
+	FMT(BGRX8888, 8, 8, 8, 8,  3, 2, 0, 1,  false,   true,  4,  4,
 			MDP_PLANE_INTERLEAVED, CHROMA_FULL, false),
 	FMT(RGB888,   0, 8, 8, 8,  1, 0, 2, 0,  false,  true,  3,  3,
 			MDP_PLANE_INTERLEAVED, CHROMA_FULL, false),
