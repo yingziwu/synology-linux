@@ -44,7 +44,6 @@
 
 #define MEI_RD_MSG_BUF_SIZE           (128 * sizeof(u32))
 
-
 /*
  * AMTHI Client UUID
  */
@@ -81,7 +80,6 @@ extern const u8 mei_wd_state_independence_msg[3][4];
 #define MEI_HBM_HOST_CLIENT_ID         0 /* not used, just for documentation */
 #define MEI_WD_HOST_CLIENT_ID          1
 #define MEI_IAMTHIF_HOST_CLIENT_ID     2
-
 
 /* File state */
 enum file_state {
@@ -164,7 +162,6 @@ struct mei_me_client {
 	u8 client_id;
 	u8 mei_flow_ctrl_creds;
 };
-
 
 struct mei_cl;
 
@@ -297,7 +294,6 @@ void mei_cl_bus_rx_event(struct mei_cl *cl);
 int mei_cl_bus_init(void);
 void mei_cl_bus_exit(void);
 
-
 /**
  * struct mei_cl_device - MEI device handle
  * An mei_cl_device pointer is returned from mei_add_device()
@@ -412,7 +408,6 @@ struct mei_device {
 	u16 wd_timeout;
 	unsigned char wd_data[MEI_WD_START_MSG_SIZE];
 
-
 	/* amthif list for cmd waiting */
 	struct mei_cl_cb amthif_cmd_list;
 	/* driver managed amthif list for reading completed amthif cmd data */
@@ -439,7 +434,6 @@ struct mei_device {
 #if IS_ENABLED(CONFIG_DEBUG_FS)
 	struct dentry *dbgfs_dir;
 #endif /* CONFIG_DEBUG_FS */
-
 
 	const struct mei_hw_ops *ops;
 	char hw[0] __aligned(sizeof(void *));
@@ -529,7 +523,6 @@ void mei_amthif_complete(struct mei_device *dev, struct mei_cl_cb *cb);
 int mei_amthif_irq_read_message(struct mei_cl_cb *complete_list,
 		struct mei_device *dev, struct mei_msg_hdr *mei_hdr);
 int mei_amthif_irq_read(struct mei_device *dev, s32 *slots);
-
 
 int mei_wd_send(struct mei_device *dev);
 int mei_wd_stop(struct mei_device *dev);

@@ -188,7 +188,6 @@ static int vt8500_dclk_set_rate(struct clk_hw *hw, unsigned long rate,
 	return 0;
 }
 
-
 static const struct clk_ops vt8500_gated_clk_ops = {
 	.enable = vt8500_dclk_enable,
 	.disable = vt8500_dclk_disable,
@@ -326,7 +325,6 @@ CLK_OF_DECLARE(vt8500_device, "via,vt8500-device-clock", vtwm_device_clk_init);
 
 #define WM8750_BITS_TO_VAL(f, m, d1, d2)				\
 		((f << 24) | ((m - 1) << 16) | ((d1 - 1) << 8) | d2)
-
 
 static void vt8500_find_pll_bits(unsigned long rate, unsigned long parent_rate,
 				u32 *multiplier, u32 *prediv)
@@ -606,7 +604,6 @@ static __init void vtwm_pll_clk_init(struct device_node *node, int pll_type)
 	rc = of_clk_add_provider(node, of_clk_src_simple_get, clk);
 	clk_register_clkdev(clk, clk_name, NULL);
 }
-
 
 /* Wrappers for initialization functions */
 

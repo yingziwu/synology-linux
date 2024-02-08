@@ -28,9 +28,7 @@
 #include "tracepoint.h"
 #include "fwil.h"
 
-
 #define MAX_HEX_DUMP_LEN	64
-
 
 static s32
 brcmf_fil_cmd_data(struct brcmf_if *ifp, u32 cmd, void *data, u32 len, bool set)
@@ -94,7 +92,6 @@ brcmf_fil_cmd_data_get(struct brcmf_if *ifp, u32 cmd, void *data, u32 len)
 	return err;
 }
 
-
 s32
 brcmf_fil_cmd_int_set(struct brcmf_if *ifp, u32 cmd, u32 data)
 {
@@ -142,7 +139,6 @@ brcmf_create_iovar(char *name, char *data, u32 datalen, char *buf, u32 buflen)
 
 	return len + datalen;
 }
-
 
 s32
 brcmf_fil_iovar_data_set(struct brcmf_if *ifp, char *name, void *data,

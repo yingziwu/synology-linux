@@ -72,6 +72,7 @@ static unsigned event_delays_ns[] = {
 	1 * NSEC_PER_MSEC,	/* EHCI_HRTIMER_POLL_DEAD */
 	1125 * NSEC_PER_USEC,	/* EHCI_HRTIMER_UNLINK_INTR */
 	2 * NSEC_PER_MSEC,	/* EHCI_HRTIMER_FREE_ITDS */
+	5 * NSEC_PER_MSEC,	/* EHCI_HRTIMER_START_UNLINK_INTR */
 	6 * NSEC_PER_MSEC,	/* EHCI_HRTIMER_ASYNC_UNLINKS */
 	10 * NSEC_PER_MSEC,	/* EHCI_HRTIMER_IAA_WATCHDOG */
 	10 * NSEC_PER_MSEC,	/* EHCI_HRTIMER_DISABLE_PERIODIC */
@@ -97,7 +98,6 @@ static void ehci_enable_event(struct ehci_hcd *ehci, unsigned event,
 				NSEC_PER_MSEC, HRTIMER_MODE_ABS);
 	}
 }
-
 
 /* Poll the STS_ASS status bit; see when it agrees with CMD_ASE */
 static void ehci_poll_ASS(struct ehci_hcd *ehci)
@@ -144,7 +144,6 @@ static void ehci_disable_ASE(struct ehci_hcd *ehci)
 	ehci_clear_command_bit(ehci, CMD_ASE);
 }
 
-
 /* Poll the STS_PSS status bit; see when it agrees with CMD_PSE */
 static void ehci_poll_PSS(struct ehci_hcd *ehci)
 {
@@ -190,7 +189,6 @@ static void ehci_disable_PSE(struct ehci_hcd *ehci)
 	ehci_clear_command_bit(ehci, CMD_PSE);
 }
 
-
 /* Poll the STS_HALT status bit; see when a dead controller stops */
 static void ehci_handle_controller_death(struct ehci_hcd *ehci)
 {
@@ -215,6 +213,36 @@ static void ehci_handle_controller_death(struct ehci_hcd *ehci)
 	/* Not in process context, so don't try to reset the controller */
 }
 
+/* start to unlink interrupt QHs  */
+static void ehci_handle_start_intr_unlinks(struct ehci_hcd *ehci)
+{
+	bool		stopped = (ehci->rh_state < EHCI_RH_RUNNING);
+
+	/*
+	 * Process all the QHs on the intr_unlink list that were added
+	 * before the current unlink cycle began.  The list is in
+	 * temporal order, so stop when we reach the first entry in the
+	 * current cycle.  But if the root hub isn't running then
+	 * process all the QHs on the list.
+	 */
+	while (!list_empty(&ehci->intr_unlink_wait)) {
+		struct ehci_qh	*qh;
+
+		qh = list_first_entry(&ehci->intr_unlink_wait,
+				struct ehci_qh, unlink_node);
+		if (!stopped && (qh->unlink_cycle ==
+				ehci->intr_unlink_wait_cycle))
+			break;
+		list_del_init(&qh->unlink_node);
+		start_unlink_intr(ehci, qh);
+	}
+
+	/* Handle remaining entries later */
+	if (!list_empty(&ehci->intr_unlink_wait)) {
+		ehci_enable_event(ehci, EHCI_HRTIMER_START_UNLINK_INTR, true);
+		++ehci->intr_unlink_wait_cycle;
+	}
+}
 
 /* Handle unlinked interrupt QHs once they are gone from the hardware */
 static void ehci_handle_intr_unlinks(struct ehci_hcd *ehci)
@@ -236,7 +264,7 @@ static void ehci_handle_intr_unlinks(struct ehci_hcd *ehci)
 				unlink_node);
 		if (!stopped && qh->unlink_cycle == ehci->intr_unlink_cycle)
 			break;
-		list_del(&qh->unlink_node);
+		list_del_init(&qh->unlink_node);
 		end_unlink_intr(ehci, qh);
 	}
 
@@ -247,7 +275,6 @@ static void ehci_handle_intr_unlinks(struct ehci_hcd *ehci)
 	}
 	ehci->intr_unlinking = false;
 }
-
 
 /* Start another free-iTDs/siTDs cycle */
 static void start_free_itds(struct ehci_hcd *ehci)
@@ -292,7 +319,6 @@ static void end_free_itds(struct ehci_hcd *ehci)
 		start_free_itds(ehci);
 }
 
-
 /* Handle lost (or very late) IAA interrupts */
 static void ehci_iaa_watchdog(struct ehci_hcd *ehci)
 {
@@ -332,7 +358,6 @@ static void ehci_iaa_watchdog(struct ehci_hcd *ehci)
 	end_unlink_async(ehci);
 }
 
-
 /* Enable the I/O watchdog, if appropriate */
 static void turn_on_io_watchdog(struct ehci_hcd *ehci)
 {
@@ -351,7 +376,6 @@ static void turn_on_io_watchdog(struct ehci_hcd *ehci)
 		ehci_enable_event(ehci, EHCI_HRTIMER_IO_WATCHDOG, true);
 }
 
-
 /*
  * Handler functions for the hrtimer event types.
  * Keep this array in the same order as the event types indexed by
@@ -363,6 +387,7 @@ static void (*event_handlers[])(struct ehci_hcd *) = {
 	ehci_handle_controller_death,	/* EHCI_HRTIMER_POLL_DEAD */
 	ehci_handle_intr_unlinks,	/* EHCI_HRTIMER_UNLINK_INTR */
 	end_free_itds,			/* EHCI_HRTIMER_FREE_ITDS */
+	ehci_handle_start_intr_unlinks,	/* EHCI_HRTIMER_START_UNLINK_INTR */
 	unlink_empty_async,		/* EHCI_HRTIMER_ASYNC_UNLINKS */
 	ehci_iaa_watchdog,		/* EHCI_HRTIMER_IAA_WATCHDOG */
 	ehci_disable_PSE,		/* EHCI_HRTIMER_DISABLE_PERIODIC */

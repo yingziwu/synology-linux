@@ -1503,7 +1503,6 @@ int __pm_genpd_of_add_device(struct device_node *genpd_node, struct device *dev,
 	return __pm_genpd_add_device(genpd, dev, td);
 }
 
-
 /**
  * __pm_genpd_name_add_device - Find I/O PM domain and add a device to it.
  * @domain_name: Name of the PM domain to add the device to.

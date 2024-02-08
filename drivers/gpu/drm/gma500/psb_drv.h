@@ -201,7 +201,6 @@ enum {
 
 #define PSB_NUM_VBLANKS 2
 
-
 #define PSB_2D_SIZE (256*1024*1024)
 #define PSB_MAX_RELOC_PAGES 1024
 
@@ -657,7 +656,6 @@ struct drm_psb_private {
 	uint8_t panel_type;
 };
 
-
 /*
  *	Operations for each board type
  */
@@ -701,8 +699,6 @@ struct psb_ops {
 	int i2c_bus;		/* I2C bus identifier for Moorestown */
 };
 
-
-
 struct psb_mmu_driver;
 
 extern int drm_crtc_probe_output_modes(struct drm_device *dev, int, int);
@@ -744,7 +740,6 @@ extern int psb_mmu_virtual_to_pfn(struct psb_mmu_pd *pd, uint32_t virtual,
 /*
  * Enable / disable MMU for different requestors.
  */
-
 
 extern void psb_mmu_set_pd_context(struct psb_mmu_pd *pd, int hw_context);
 extern int psb_mmu_insert_pages(struct psb_mmu_pd *pd, struct page **pages,

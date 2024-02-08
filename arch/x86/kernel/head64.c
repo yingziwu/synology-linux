@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  prepare to run common code
  *
@@ -46,7 +49,11 @@ static void __init reset_early_page_tables(void)
 
 	next_early_pgt = 0;
 
+#ifdef MY_DEF_HERE
 	write_cr3(__pa(early_level4_pgt));
+#else
+	__load_cr3(__pa(early_level4_pgt));
+#endif	/* MY_DEF_HERE */
 }
 
 /* Create a new PMD entry */

@@ -500,7 +500,6 @@ static struct regulator_consumer_supply buck2_consumer =
 static struct regulator_consumer_supply buck3_consumer =
 	REGULATOR_SUPPLY("vdet", "s5p-sdo");
 
-
 static struct regulator_init_data goni_buck1_data = {
 	.constraints	= {
 		.name		= "VARM_1.2V",

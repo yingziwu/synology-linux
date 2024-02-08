@@ -14,7 +14,6 @@
 
 #include <uapi/asm/unistd.h>
 
-
 #ifndef __ASSEMBLY__
 
 #define __ARCH_OMIT_COMPAT_SYS_GETDENTS64

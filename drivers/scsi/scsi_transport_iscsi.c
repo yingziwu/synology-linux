@@ -281,7 +281,6 @@ static void iscsi_iface_release(struct device *dev)
 	put_device(parent);
 }
 
-
 static struct class iscsi_iface_class = {
 	.name = "iscsi_iface",
 	.dev_release = iscsi_iface_release,
@@ -479,7 +478,6 @@ show_##type##_##name(struct device *dev, struct device_attribute *attr,	\
 	struct iscsi_transport *t = fnode_sess->transport;		\
 	return t->get_flashnode_param(fnode_sess, param, buf);		\
 }									\
-
 
 #define iscsi_flashnode_sess_attr(type, name, param)			\
 	iscsi_flashnode_sess_attr_show(type, name, param)		\
@@ -692,7 +690,6 @@ show_##type##_##name(struct device *dev, struct device_attribute *attr,	\
 	struct iscsi_transport *t = fnode_conn->transport;		\
 	return t->get_flashnode_param(fnode_sess, param, buf);		\
 }									\
-
 
 #define iscsi_flashnode_conn_attr(type, name, param)			\
 	iscsi_flashnode_conn_attr_show(type, name, param)		\
@@ -2569,7 +2566,6 @@ iscsi_tgt_dscvr(struct iscsi_transport *transport,
 		       ev->u.tgt_dscvr.host_no);
 		return -ENODEV;
 	}
-
 
 	dst_addr = (struct sockaddr *)((char*)ev + sizeof(*ev));
 	err = transport->tgt_dscvr(shost, ev->u.tgt_dscvr.type,

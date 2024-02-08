@@ -215,7 +215,6 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
 {
 	int ret = 0;
 
-
 	dev_info(&dev->dev, "Freescale Integrated Flash Controller\n");
 
 	fsl_ifc_ctrl_dev = kzalloc(sizeof(*fsl_ifc_ctrl_dev), GFP_KERNEL);

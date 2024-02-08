@@ -800,4 +800,3 @@ void tegra_ehci_phy_restore_end(struct usb_phy *x)
 		utmi_phy_restore_end(phy);
 }
 EXPORT_SYMBOL_GPL(tegra_ehci_phy_restore_end);
-

@@ -600,7 +600,6 @@ void efx_remove_tx_queue(struct efx_tx_queue *tx_queue)
 	tx_queue->buffer = NULL;
 }
 
-
 /* Efx TCP segmentation acceleration.
  *
  * Why?  Because by doing it here in the driver we can go significantly
@@ -660,7 +659,6 @@ struct tso_state {
 	unsigned header_len;
 	unsigned int ip_base_len;
 };
-
 
 /*
  * Verify that our various assumptions about sk_buffs and the conditions
@@ -780,7 +778,6 @@ static void efx_tx_queue_insert(struct efx_tx_queue *tx_queue,
 	*final_buffer = buffer;
 }
 
-
 /*
  * Put a TSO header into the TX queue.
  *
@@ -810,7 +807,6 @@ static int efx_tso_put_header(struct efx_tx_queue *tx_queue,
 	return 0;
 }
 
-
 /* Remove buffers put into a tx_queue.  None of the buffers must have
  * an skb attached.
  */
@@ -826,7 +822,6 @@ static void efx_enqueue_unwind(struct efx_tx_queue *tx_queue)
 		efx_dequeue_buffer(tx_queue, buffer, NULL, NULL);
 	}
 }
-
 
 /* Parse the SKB header and initialise state. */
 static void tso_start(struct tso_state *st, const struct sk_buff *skb)
@@ -885,7 +880,6 @@ static int tso_get_head_fragment(struct tso_state *st, struct efx_nic *efx,
 	return -ENOMEM;
 }
 
-
 /**
  * tso_fill_packet_with_fragment - form descriptors for the current fragment
  * @tx_queue:		Efx TX queue
@@ -935,7 +929,6 @@ static void tso_fill_packet_with_fragment(struct efx_tx_queue *tx_queue,
 
 	st->dma_addr += n;
 }
-
 
 /**
  * tso_start_new_packet - generate a new header and prepare for the new packet
@@ -1005,7 +998,6 @@ static int tso_start_new_packet(struct efx_tx_queue *tx_queue,
 
 	return 0;
 }
-
 
 /**
  * efx_enqueue_skb_tso - segment and transmit a TSO socket buffer

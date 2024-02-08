@@ -38,4 +38,3 @@
 #define MAX_PHYSMEM_BITS	32
 
 #endif
-

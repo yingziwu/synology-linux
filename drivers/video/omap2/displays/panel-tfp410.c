@@ -223,7 +223,6 @@ static int tfp410_check_timings(struct omap_dss_device *dssdev,
 	return r;
 }
 
-
 static int tfp410_ddc_read(struct i2c_adapter *adapter,
 		unsigned char *buf, u16 count, u8 offset)
 {

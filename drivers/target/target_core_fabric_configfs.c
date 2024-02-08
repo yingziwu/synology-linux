@@ -731,7 +731,6 @@ static ssize_t target_fabric_port_store_attr_alua_tg_pt_write_md(
 
 TCM_PORT_ATTR(alua_tg_pt_write_md, S_IRUGO | S_IWUSR);
 
-
 static struct configfs_attribute *target_fabric_port_attrs[] = {
 	&target_fabric_port_alua_tg_pt_gp.attr,
 	&target_fabric_port_alua_tg_pt_offline.attr,

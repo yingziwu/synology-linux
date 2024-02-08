@@ -161,7 +161,6 @@ static const struct watchdog_info ident = {
 	.identity = "SBC7240",
 };
 
-
 static long fop_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
 	switch (cmd) {
@@ -310,4 +309,3 @@ MODULE_DESCRIPTION("Watchdog device driver for single board"
 		   " computers EPIC Nano 7240 from iEi");
 MODULE_LICENSE("GPL");
 MODULE_ALIAS_MISCDEV(WATCHDOG_MINOR);
-

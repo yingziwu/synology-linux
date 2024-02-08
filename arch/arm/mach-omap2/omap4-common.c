@@ -355,4 +355,3 @@ void omap44xx_restart(char mode, const char *cmd)
 	omap4_prminst_global_warm_sw_reset(); /* never returns */
 	while (1);
 }
-

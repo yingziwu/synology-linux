@@ -1625,7 +1625,6 @@ static int rivafb_cursor(struct fb_info *info, struct fb_cursor *cursor)
 		NV_WR32(par->riva.PRAMDAC, 0x0000300, temp);
 	}
 
-
 	if (set & (FB_CUR_SETSHAPE | FB_CUR_SETCMAP | FB_CUR_SETIMAGE)) {
 		u32 bg_idx = cursor->image.bg_color;
 		u32 fg_idx = cursor->image.fg_color;
@@ -1835,7 +1834,6 @@ static void riva_update_default_var(struct fb_var_screeninfo *var,
 	NVTRACE_LEAVE();
 }
 
-
 static void riva_get_EDID(struct fb_info *info, struct pci_dev *pdev)
 {
 	NVTRACE_ENTER();
@@ -1848,7 +1846,6 @@ static void riva_get_EDID(struct fb_info *info, struct pci_dev *pdev)
 #endif
 	NVTRACE_LEAVE();
 }
-
 
 static void riva_get_edidinfo(struct fb_info *info)
 {
@@ -2188,8 +2185,6 @@ static struct pci_driver rivafb_driver = {
 	.remove		= rivafb_remove,
 };
 
-
-
 /* ------------------------------------------------------------------------- *
  *
  * modularization
@@ -2207,7 +2202,6 @@ static int rivafb_init(void)
 #endif
 	return pci_register_driver(&rivafb_driver);
 }
-
 
 module_init(rivafb_init);
 

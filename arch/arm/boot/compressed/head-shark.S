@@ -99,7 +99,6 @@ __mmu_off:
 
 		mov	r4, #3				@ How many megabytes to copy
 
-
 __MoveCode:	sub	r4, r4, #1
 	
 __Copy:		ldr	r2, [r0], #-4
@@ -116,7 +115,6 @@ __Copy:		ldr	r2, [r0], #-4
 
 		teq	r4, #0
 		bne	__MoveCode
-
 
 		/* and jump to it */
 		adr	r2, __go_on			@ where we want to jump

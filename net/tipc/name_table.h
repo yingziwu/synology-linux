@@ -81,7 +81,6 @@ struct publication {
 	struct list_head zone_list;
 };
 
-
 extern rwlock_t tipc_nametbl_lock;
 
 struct sk_buff *tipc_nametbl_get(const void *req_tlv_area, int req_tlv_space);

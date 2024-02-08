@@ -88,7 +88,6 @@ void smp_vm_unmask_irq(void *info)
 	__vmintop_locen((long) info);
 }
 
-
 /*
  * This is based on Alpha's IPI stuff.
  * Supposed to take (int, void*) as args now.
@@ -186,7 +185,6 @@ void __cpuinit start_secondary(void)
 
 	cpu_startup_entry(CPUHP_ONLINE);
 }
-
 
 /*
  * called once for each present cpu

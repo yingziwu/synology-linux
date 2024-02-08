@@ -458,7 +458,6 @@ static const struct snd_kcontrol_new cs42l73_snd_controls[] = {
 	SOC_SINGLE("HL Limiter Release Rate", CS42L73_LIMRRATEHL, 0,
 			0x3F, 0),
 
-
 	SOC_SINGLE("HL Limiter Switch", CS42L73_LIMRRATEHL, 7, 1, 0),
 	SOC_SINGLE("HL Limiter All Channels Switch", CS42L73_LIMRRATEHL, 6, 1,
 			0),
@@ -621,7 +620,6 @@ static int cs42l73_ear_amp_event(struct snd_soc_dapm_widget *w,
 	}
 	return 0;
 }
-
 
 static int cs42l73_hp_amp_event(struct snd_soc_dapm_widget *w,
 	struct snd_kcontrol *kcontrol, int event)
@@ -1266,7 +1264,6 @@ static int cs42l73_pcm_startup(struct snd_pcm_substream *substream,
 /* SNDRV_PCM_RATE_KNOT -> 12000, 24000 Hz, limit with constraint list */
 #define CS42L73_RATES (SNDRV_PCM_RATE_8000_48000 | SNDRV_PCM_RATE_KNOT)
 
-
 #define CS42L73_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S20_3LE |\
 	SNDRV_PCM_FMTBIT_S24_LE)
 
@@ -1443,7 +1440,6 @@ static int cs42l73_i2c_probe(struct i2c_client *i2c_client,
 
 	ret = regmap_read(cs42l73->regmap, CS42L73_DEVID_E, &reg);
 	devid |= (reg & 0xF0) >> 4;
-
 
 	if (devid != CS42L73_DEVID) {
 		ret = -ENODEV;

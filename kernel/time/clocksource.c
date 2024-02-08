@@ -724,7 +724,6 @@ int __clocksource_register_scale(struct clocksource *cs, u32 scale, u32 freq)
 }
 EXPORT_SYMBOL_GPL(__clocksource_register_scale);
 
-
 /**
  * clocksource_register - Used to install new clocksources
  * @cs:		clocksource to be registered

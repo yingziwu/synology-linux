@@ -22,4 +22,3 @@ void CsrWifiSmeDeinit(void **gash);
 void CsrWifiSmeHandler(void **gash);
 
 #endif /* CSR_WIFI_SME_TASK_H__ */
-

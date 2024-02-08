@@ -1342,7 +1342,6 @@ static int test_pcomp(struct crypto_pcomp *tfm,
 	return 0;
 }
 
-
 static int test_cprng(struct crypto_rng *tfm, struct cprng_testvec *template,
 		      unsigned int tcount)
 {
@@ -1971,6 +1970,16 @@ static const struct alg_test_desc alg_test_descs[] = {
 			.hash = {
 				.vecs = crc32c_tv_template,
 				.count = CRC32C_TEST_VECTORS
+			}
+		}
+	}, {
+		.alg = "crct10dif",
+		.test = alg_test_hash,
+		.fips_allowed = 1,
+		.suite = {
+			.hash = {
+				.vecs = crct10dif_tv_template,
+				.count = CRCT10DIF_TEST_VECTORS
 			}
 		}
 	}, {

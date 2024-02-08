@@ -499,7 +499,6 @@ int mwifiex_send_cmd_sync(struct mwifiex_private *priv, uint16_t cmd_no,
 	return ret;
 }
 
-
 /*
  * This function prepares a command and asynchronously send it to the firmware.
  *

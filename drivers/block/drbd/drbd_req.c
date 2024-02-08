@@ -30,7 +30,6 @@
 #include "drbd_int.h"
 #include "drbd_req.h"
 
-
 static bool drbd_may_do_local_read(struct drbd_conf *mdev, sector_t sector, int size);
 
 /* Update disk stats at start of I/O request */
@@ -185,7 +184,6 @@ void complete_master_bio(struct drbd_conf *mdev,
 	bio_endio(m->bio, m->error);
 	dec_ap_bio(mdev);
 }
-
 
 static void drbd_remove_request_interval(struct rb_root *root,
 					 struct drbd_request *req)
@@ -407,7 +405,7 @@ static void mod_rq_state(struct drbd_request *req, struct bio_and_error *m,
 		/* Completion does it's own kref_put.  If we are going to
 		 * kref_sub below, we need req to be still around then. */
 		int at_least = k_put + !!c_put;
-		int refcount = atomic_read(&req->kref.refcount);
+		int refcount = kref_read(&req->kref);
 		if (refcount < at_least)
 			dev_err(DEV,
 				"mod_rq_state: Logic BUG: %x -> %x: refcount = %d, should be >= %d\n",
@@ -1089,7 +1087,6 @@ static void drbd_send_and_submit(struct drbd_conf *mdev, struct drbd_request *re
 		 * full data updates, but start sending "dirty bits" only. */
 		maybe_pull_ahead(mdev);
 	}
-
 
 	if (drbd_suspended(mdev)) {
 		/* push back and retry: */

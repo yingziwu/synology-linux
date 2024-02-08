@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /* Postprocess module symbol versions
  *
  * Copyright 2003       Kai Germaschewski
@@ -237,7 +240,6 @@ static struct {
 	{ .str = "EXPORT_SYMBOL_GPL_FUTURE", .export = export_gpl_future },
 	{ .str = "(unknown)",                .export = export_unknown },
 };
-
 
 static const char *export_str(enum export ex)
 {
@@ -862,8 +864,6 @@ static void check_section(const char *modname, struct elf_info *elf,
 	}
 }
 
-
-
 #define ALL_INIT_DATA_SECTIONS \
 	".init.setup$", ".init.rodata$", \
 	".cpuinit.rodata$", ".meminit.rodata$", \
@@ -910,7 +910,6 @@ static const char *init_exit_sections[] =
 
 /* data section */
 static const char *data_sections[] = { DATA_SECTIONS, NULL };
-
 
 /* symbols in .data that may refer to init/exit sections */
 #define DEFAULT_SYMBOL_WHITE_LIST					\
@@ -2014,6 +2013,16 @@ static void add_srcversion(struct buffer *b, struct module *mod)
 	}
 }
 
+#ifdef MY_DEF_HERE
+#else
+static void add_retpoline(struct buffer *b, struct module *mod)
+{
+	buf_printf(b, "#ifdef RETPOLINE\n"
+		      "\tMODULE_INFO(retpoline, \"Y\");\n"
+		      "#endif\n");
+}
+#endif	/* MY_DEF_HERE */
+
 static void write_if_changed(struct buffer *b, const char *fname)
 {
 	char *tmp;
@@ -2239,6 +2248,10 @@ int main(int argc, char **argv)
 		add_depends(&buf, mod, modules);
 		add_moddevtable(&buf, mod);
 		add_srcversion(&buf, mod);
+#ifdef MY_DEF_HERE
+#else
+		add_retpoline(&buf, mod);
+#endif	/* MY_DEF_HERE */
 
 		sprintf(fname, "%s.mod.c", mod->name);
 		write_if_changed(&buf, fname);

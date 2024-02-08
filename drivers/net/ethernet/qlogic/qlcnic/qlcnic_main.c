@@ -111,7 +111,6 @@ static DEFINE_PCI_DEVICE_TABLE(qlcnic_pci_tbl) = {
 
 MODULE_DEVICE_TABLE(pci, qlcnic_pci_tbl);
 
-
 inline void qlcnic_update_cmd_producer(struct qlcnic_host_tx_ring *tx_ring)
 {
 	writel(tx_ring->producer, tx_ring->crb_cmd_producer);
@@ -1179,7 +1178,6 @@ int qlcnic_set_default_offload_settings(struct qlcnic_adapter *adapter)
 
 	return 0;
 }
-
 
 static int
 qlcnic_reset_eswitch_config(struct qlcnic_adapter *adapter,
@@ -3174,7 +3172,6 @@ qlcnic_fw_poll_work(struct work_struct *work)
 
 	if (test_bit(__QLCNIC_RESETTING, &adapter->state))
 		goto reschedule;
-
 
 	if (qlcnic_check_health(adapter))
 		return;

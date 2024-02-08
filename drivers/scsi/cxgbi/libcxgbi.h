@@ -358,7 +358,7 @@ static inline void __cxgbi_sock_put(const char *fn, struct cxgbi_sock *csk)
 {
 	log_debug(1 << CXGBI_DBG_SOCK,
 		"%s, put csk 0x%p, ref %u-1.\n",
-		fn, csk, atomic_read(&csk->refcnt.refcount));
+		fn, csk, kref_read(&csk->refcnt));
 	kref_put(&csk->refcnt, cxgbi_sock_free);
 }
 #define cxgbi_sock_put(csk)	__cxgbi_sock_put(__func__, csk)
@@ -367,7 +367,7 @@ static inline void __cxgbi_sock_get(const char *fn, struct cxgbi_sock *csk)
 {
 	log_debug(1 << CXGBI_DBG_SOCK,
 		"%s, get csk 0x%p, ref %u+1.\n",
-		fn, csk, atomic_read(&csk->refcnt.refcount));
+		fn, csk, kref_read(&csk->refcnt));
 	kref_get(&csk->refcnt);
 }
 #define cxgbi_sock_get(csk)	__cxgbi_sock_get(__func__, csk)
@@ -410,7 +410,6 @@ static inline struct sk_buff *alloc_wr(int wrlen, int dlen, gfp_t gfp)
 		pr_info("alloc cpl wr skb %u+%u, OOM.\n", wrlen, dlen);
 	return skb;
 }
-
 
 /*
  * The number of WRs needed for an skb depends on the number of fragments

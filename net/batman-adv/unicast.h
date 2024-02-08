@@ -40,7 +40,6 @@ int batadv_unicast_generic_send_skb(struct batadv_priv *bat_priv,
 				    struct sk_buff *skb, int packet_type,
 				    int packet_subtype);
 
-
 /**
  * batadv_unicast_send_skb - send the skb encapsulated in a unicast packet
  * @bat_priv: the bat priv with all the soft interface information

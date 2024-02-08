@@ -131,7 +131,6 @@ __acquires(&sdp->sd_ail_lock)
 	return 0;
 }
 
-
 /**
  * gfs2_ail1_flush - start writeback of some ail1 entries 
  * @sdp: The super block
@@ -467,7 +466,6 @@ static void log_pull_tail(struct gfs2_sbd *sdp, unsigned int new_tail)
 	sdp->sd_log_tail = new_tail;
 }
 
-
 static void log_flush_wait(struct gfs2_sbd *sdp)
 {
 	DEFINE_WAIT(wait);
@@ -758,7 +756,6 @@ void gfs2_log_shutdown(struct gfs2_sbd *sdp)
 	up_write(&sdp->sd_log_flush_lock);
 }
 
-
 /**
  * gfs2_meta_syncfs - sync all the buffers in a filesystem
  * @sdp: the filesystem
@@ -838,4 +835,3 @@ int gfs2_logd(void *data)
 
 	return 0;
 }
-

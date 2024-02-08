@@ -245,4 +245,3 @@ int wpa_set_keys(struct vnt_private *pDevice, void *ctx)
 
 	return ret;
 }
-

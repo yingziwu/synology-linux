@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *	Intel CPU Microcode Update Driver for Linux
  *
@@ -88,6 +91,10 @@
 #include <asm/processor.h>
 #include <asm/cpu_device_id.h>
 #include <asm/perf_event.h>
+#ifdef MY_DEF_HERE
+#else
+#include <asm/spec_ctrl.h>
+#endif	/* MY_DEF_HERE */
 
 MODULE_DESCRIPTION("Microcode Update Driver");
 MODULE_AUTHOR("Tigran Aivazian <tigran@aivazian.fsnet.co.uk>");
@@ -225,8 +232,13 @@ static ssize_t microcode_write(struct file *file, const char __user *buf,
 	if (do_microcode_update(buf, len) == 0)
 		ret = (ssize_t)len;
 
-	if (ret > 0)
+	if (ret > 0) {
 		perf_check_microcode();
+#ifdef MY_DEF_HERE
+#else
+		spec_ctrl_rescan_cpuid();
+#endif	/* MY_DEF_HERE */
+	}
 
 	mutex_unlock(&microcode_mutex);
 	put_online_cpus();
@@ -320,8 +332,13 @@ static ssize_t reload_store(struct device *dev,
 		if (!ret)
 			ret = tmp_ret;
 	}
-	if (!ret)
+	if (!ret) {
 		perf_check_microcode();
+#ifdef MY_DEF_HERE
+#else
+		spec_ctrl_rescan_cpuid();
+#endif	/* MY_DEF_HERE */
+	}
 	mutex_unlock(&microcode_mutex);
 	put_online_cpus();
 
@@ -628,8 +645,15 @@ static void __exit microcode_exit(void)
 	get_online_cpus();
 	mutex_lock(&microcode_mutex);
 
+#ifdef MY_DEF_HERE
 	subsys_interface_unregister(&mc_cpu_interface);
-
+#else
+	error = subsys_interface_register(&mc_cpu_interface);
+	if (!error) {
+		perf_check_microcode();
+		spec_ctrl_rescan_cpuid();
+	}
+#endif	/* MY_DEF_HERE */
 	mutex_unlock(&microcode_mutex);
 	put_online_cpus();
 

@@ -363,7 +363,6 @@ static int i_APCI1710_InsnConfigInitSSI(struct comedi_device *dev,
 +----------------------------------------------------------------------------+
 | Task              :
 
-
 						Read the selected SSI counter (b_SelectedSSI) from     |
 |                     selected module (b_ModulNbr).
 						or Read all SSI counter (b_SelectedSSI) from              |

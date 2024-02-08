@@ -450,6 +450,39 @@ static struct hash_testvec rmd320_tv_template[] = {
 	}
 };
 
+#define CRCT10DIF_TEST_VECTORS	3
+static struct hash_testvec crct10dif_tv_template[] = {
+	{
+		.plaintext = "abc",
+		.psize  = 3,
+#ifdef __LITTLE_ENDIAN
+		.digest = "\x3b\x44",
+#else
+		.digest = "\x44\x3b",
+#endif
+	}, {
+		.plaintext = "1234567890123456789012345678901234567890"
+			     "123456789012345678901234567890123456789",
+		.psize	= 79,
+#ifdef __LITTLE_ENDIAN
+		.digest	= "\x70\x4b",
+#else
+		.digest	= "\x4b\x70",
+#endif
+	}, {
+		.plaintext =
+		"abcddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+		.psize  = 56,
+#ifdef __LITTLE_ENDIAN
+		.digest = "\xe3\x9c",
+#else
+		.digest = "\x9c\xe3",
+#endif
+		.np     = 2,
+		.tap    = { 28, 28 }
+	}
+};
+
 /*
  * SHA1 test vectors  from from FIPS PUB 180-1
  * Long vector from CAVS 5.0
@@ -498,7 +531,6 @@ static struct hash_testvec sha1_tv_template[] = {
 		.tap	= { 63, 64, 31, 5 }
 	}
 };
-
 
 /*
  * SHA224 test vectors from from FIPS PUB 180-2
@@ -657,7 +689,6 @@ static struct hash_testvec sha512_tv_template[] = {
 	},
 };
 
-
 /*
  * WHIRLPOOL test vectors from Whirlpool package
  * by Vincent Rijmen and Paulo S. L. M. Barreto as part of the NESSIE
@@ -677,7 +708,6 @@ static struct hash_testvec wp512_tv_template[] = {
 			  "\xCF\x88\xE3\xE0\x3C\x4F\x07\x57"
 			  "\xEA\x89\x64\xE5\x9B\x63\xD9\x37"
 			  "\x08\xB1\x38\xCC\x42\xA6\x6E\xB3",
-
 
 	}, {
 		.plaintext = "a",
@@ -774,7 +804,6 @@ static struct hash_testvec wp384_tv_template[] = {
 			  "\x3E\x83\xBE\x69\x8B\x28\x8F\xEB"
 			  "\xCF\x88\xE3\xE0\x3C\x4F\x07\x57",
 
-
 	}, {
 		.plaintext = "a",
 		.psize	= 1,
@@ -853,7 +882,6 @@ static struct hash_testvec wp256_tv_template[] = {
 			  "\x9B\x44\xE3\x9C\x1D\x2E\x17\x26"
 			  "\xC5\x30\x23\x21\x30\xD4\x07\xF8"
 			  "\x9A\xFE\xE0\x96\x49\x97\xF7\xA7",
-
 
 	}, {
 		.plaintext = "a",
@@ -1382,7 +1410,6 @@ static struct hash_testvec hmac_sha1_tv_template[] = {
 			  "\xba\xa7\x96\x5c\x78\x08\xbb\xff\x1a\x91",
 	},
 };
-
 
 /*
  * SHA224 HMAC test vectors from RFC4231
@@ -8726,7 +8753,6 @@ static struct cipher_testvec tnepres_enc_tv_template[] = {
 	},
 };
 
-
 static struct cipher_testvec serpent_dec_tv_template[] = {
 	{
 		.input	= "\x12\x07\xfc\xce\x9b\xd0\xd6\x47"
@@ -12780,7 +12806,6 @@ static struct cipher_testvec cast6_xts_dec_tv_template[] = {
 	},
 };
 
-
 /*
  * AES test vectors.
  */
@@ -15615,7 +15640,6 @@ static struct cipher_testvec aes_xts_dec_tv_template[] = {
 		.tap	= { 512 - 16, 16 },
 	}
 };
-
 
 static struct cipher_testvec aes_ctr_enc_tv_template[] = {
 	{ /* From NIST Special Publication 800-38A, Appendix F.5 */

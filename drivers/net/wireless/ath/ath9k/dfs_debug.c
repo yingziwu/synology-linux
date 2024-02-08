@@ -21,7 +21,6 @@
 #include "ath9k.h"
 #include "dfs_debug.h"
 
-
 struct ath_dfs_pool_stats global_dfs_pool_stats = { 0 };
 
 #define ATH9K_DFS_STAT(s, p) \

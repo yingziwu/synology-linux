@@ -49,7 +49,6 @@
 	pr_debug(DRV_PFX "(%s:%d) " fmt ".\n",		\
 		 __func__, __LINE__, ##args)
 
-
 /* Not a real protocol.  Used to generate ring structs which contain
  * the elements common to all protocols only.  This way we get a
  * compiler-checkable way to use common struct elements, so we can
@@ -182,7 +181,6 @@ struct xen_vbd {
 
 struct backend_info;
 
-
 struct persistent_gnt {
 	struct page *page;
 	grant_ref_t gnt;
@@ -232,7 +230,6 @@ struct xen_blkif {
 
 	wait_queue_head_t	waiting_to_free;
 };
-
 
 #define vbd_sz(_v)	((_v)->bdev->bd_part ? \
 			 (_v)->bdev->bd_part->nr_sects : \

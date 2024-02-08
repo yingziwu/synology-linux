@@ -283,7 +283,6 @@ static int poll_status(struct docg4_priv *doc)
 		flash_status = readb(docptr + DOC_FLASHCONTROL);
 	} while (!(flash_status & DOC_CTRL_FLASHREADY) && --timeo);
 
-
 	if (!timeo) {
 		dev_err(doc->dev, "%s: timed out!\n", __func__);
 		return NAND_STATUS_FAIL;
@@ -295,7 +294,6 @@ static int poll_status(struct docg4_priv *doc)
 
 	return 0;
 }
-
 
 static int docg4_wait(struct mtd_info *mtd, struct nand_chip *nand)
 {
@@ -822,7 +820,6 @@ static int read_page(struct mtd_info *mtd, struct nand_chip *nand,
 		return 0;
 	return bits_corrected;
 }
-
 
 static int docg4_read_page_raw(struct mtd_info *mtd, struct nand_chip *nand,
 			       uint8_t *buf, int oob_required, int page)

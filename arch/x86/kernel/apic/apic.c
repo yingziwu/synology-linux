@@ -529,7 +529,6 @@ static void lapic_timer_broadcast(const struct cpumask *mask)
 #endif
 }
 
-
 /*
  * The local apic timer can be used for any function which is CPU local.
  */
@@ -1082,7 +1081,6 @@ void lapic_shutdown(void)
 	else
 #endif
 		disable_local_APIC();
-
 
 	local_irq_restore(flags);
 }

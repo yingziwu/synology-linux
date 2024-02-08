@@ -764,7 +764,6 @@ free_list:
 	return PyErr_NoMemory();
 }
 
-
 static PyObject *pyrf_evlist__add(struct pyrf_evlist *pevlist,
 				  PyObject *args,
 				  PyObject *kwargs __maybe_unused)

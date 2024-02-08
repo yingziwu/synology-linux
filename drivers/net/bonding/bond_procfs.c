@@ -1,9 +1,11 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/proc_fs.h>
 #include <linux/export.h>
 #include <net/net_namespace.h>
 #include <net/netns/generic.h>
 #include "bonding.h"
-
 
 static void *bond_info_seq_start(struct seq_file *seq, loff_t *pos)
 	__acquires(RCU)
@@ -14,7 +16,6 @@ static void *bond_info_seq_start(struct seq_file *seq, loff_t *pos)
 	struct slave *slave;
 	int i;
 
-	/* make sure the bond won't be taken away */
 	rcu_read_lock();
 	read_lock(&bond->lock);
 
@@ -100,8 +101,6 @@ static void bond_info_show_master(struct seq_file *seq)
 	seq_printf(seq, "Down Delay (ms): %d\n",
 		   bond->params.downdelay * bond->params.miimon);
 
-
-	/* ARP information */
 	if (bond->params.arp_interval > 0) {
 		int printed = 0;
 		seq_printf(seq, "ARP Polling Interval (ms): %d\n",
@@ -147,6 +146,10 @@ static void bond_info_show_master(struct seq_file *seq)
 			seq_printf(seq, "\tPartner Mac Address: %pM\n",
 				   ad_info.partner_system);
 		}
+#ifdef MY_ABC_HERE
+	} else if (bond->params.mode == BOND_MODE_ALB) {
+		bond_alb_info_show(seq);
+#endif  
 	}
 }
 
@@ -222,7 +225,7 @@ static int bond_info_open(struct inode *inode, struct file *file)
 
 	res = seq_open(file, &bond_info_seq_ops);
 	if (!res) {
-		/* recover the pointer buried in proc_dir_entry data */
+		 
 		seq = file->private_data;
 		seq->private = PDE_DATA(inode);
 	}
@@ -267,9 +270,6 @@ void bond_remove_proc_entry(struct bonding *bond)
 	}
 }
 
-/* Create the bonding directory under /proc/net, if doesn't exist yet.
- * Caller must hold rtnl_lock.
- */
 void __net_init bond_create_proc_dir(struct bond_net *bn)
 {
 	if (!bn->proc_dir) {
@@ -280,9 +280,6 @@ void __net_init bond_create_proc_dir(struct bond_net *bn)
 	}
 }
 
-/* Destroy the bonding directory under /proc/net, if empty.
- * Caller must hold rtnl_lock.
- */
 void __net_exit bond_destroy_proc_dir(struct bond_net *bn)
 {
 	if (bn->proc_dir) {

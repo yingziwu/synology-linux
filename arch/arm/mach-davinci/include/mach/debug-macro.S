@@ -62,4 +62,3 @@
 		beq	1001b
 #endif
 		.endm
-

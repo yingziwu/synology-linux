@@ -69,7 +69,6 @@ ath5k_tx(struct ieee80211_hw *hw, struct ieee80211_tx_control *control,
 	ath5k_tx_queue(hw, skb, &ah->txqs[qnum]);
 }
 
-
 static int
 ath5k_add_interface(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
@@ -153,7 +152,6 @@ end:
 	return ret;
 }
 
-
 static void
 ath5k_remove_interface(struct ieee80211_hw *hw,
 		       struct ieee80211_vif *vif)
@@ -186,7 +184,6 @@ ath5k_remove_interface(struct ieee80211_hw *hw,
 	ath5k_update_bssid_mask_and_opmode(ah, NULL);
 	mutex_unlock(&ah->lock);
 }
-
 
 /*
  * TODO: Phy disable/diversity etc
@@ -246,7 +243,6 @@ unlock:
 	mutex_unlock(&ah->lock);
 	return ret;
 }
-
 
 static void
 ath5k_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
@@ -315,7 +311,6 @@ ath5k_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	mutex_unlock(&ah->lock);
 }
 
-
 static u64
 ath5k_prepare_multicast(struct ieee80211_hw *hw,
 			struct netdev_hw_addr_list *mc_list)
@@ -344,7 +339,6 @@ ath5k_prepare_multicast(struct ieee80211_hw *hw,
 
 	return ((u64)(mfilt[1]) << 32) | mfilt[0];
 }
-
 
 /*
  * o always accept unicast, broadcast, and multicast traffic
@@ -477,7 +471,6 @@ ath5k_configure_filter(struct ieee80211_hw *hw, unsigned int changed_flags,
 	mutex_unlock(&ah->lock);
 }
 
-
 static int
 ath5k_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	      struct ieee80211_vif *vif, struct ieee80211_sta *sta,
@@ -543,7 +536,6 @@ ath5k_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
 	return ret;
 }
 
-
 static void
 ath5k_sw_scan_start(struct ieee80211_hw *hw)
 {
@@ -552,7 +544,6 @@ ath5k_sw_scan_start(struct ieee80211_hw *hw)
 		ath5k_hw_set_ledstate(ah, AR5K_LED_SCAN);
 }
 
-
 static void
 ath5k_sw_scan_complete(struct ieee80211_hw *hw)
 {
@@ -560,7 +551,6 @@ ath5k_sw_scan_complete(struct ieee80211_hw *hw)
 	ath5k_hw_set_ledstate(ah, ah->assoc ?
 		AR5K_LED_ASSOC : AR5K_LED_INIT);
 }
-
 
 static int
 ath5k_get_stats(struct ieee80211_hw *hw,
@@ -578,7 +568,6 @@ ath5k_get_stats(struct ieee80211_hw *hw,
 
 	return 0;
 }
-
 
 static int
 ath5k_conf_tx(struct ieee80211_hw *hw, struct ieee80211_vif *vif, u16 queue,
@@ -618,7 +607,6 @@ ath5k_conf_tx(struct ieee80211_hw *hw, struct ieee80211_vif *vif, u16 queue,
 	return ret;
 }
 
-
 static u64
 ath5k_get_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 {
@@ -627,7 +615,6 @@ ath5k_get_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	return ath5k_hw_get_tsf64(ah);
 }
 
-
 static void
 ath5k_set_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif, u64 tsf)
 {
@@ -635,7 +622,6 @@ ath5k_set_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif, u64 tsf)
 
 	ath5k_hw_set_tsf64(ah, tsf);
 }
-
 
 static void
 ath5k_reset_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
@@ -651,7 +637,6 @@ ath5k_reset_tsf(struct ieee80211_hw *hw, struct ieee80211_vif *vif)
 	else
 		ath5k_hw_reset_tsf(ah);
 }
-
 
 static int
 ath5k_get_survey(struct ieee80211_hw *hw, int idx, struct survey_info *survey)
@@ -689,7 +674,6 @@ ath5k_get_survey(struct ieee80211_hw *hw, int idx, struct survey_info *survey)
 	return 0;
 }
 
-
 /**
  * ath5k_set_coverage_class - Set IEEE 802.11 coverage class
  *
@@ -710,7 +694,6 @@ ath5k_set_coverage_class(struct ieee80211_hw *hw, u8 coverage_class)
 	mutex_unlock(&ah->lock);
 }
 
-
 static int
 ath5k_set_antenna(struct ieee80211_hw *hw, u32 tx_ant, u32 rx_ant)
 {
@@ -726,7 +709,6 @@ ath5k_set_antenna(struct ieee80211_hw *hw, u32 tx_ant, u32 rx_ant)
 		return -EINVAL;
 	return 0;
 }
-
 
 static int
 ath5k_get_antenna(struct ieee80211_hw *hw, u32 *tx_ant, u32 *rx_ant)
@@ -744,7 +726,6 @@ ath5k_get_antenna(struct ieee80211_hw *hw, u32 *tx_ant, u32 *rx_ant)
 	return 0;
 }
 
-
 static void ath5k_get_ringparam(struct ieee80211_hw *hw,
 				u32 *tx, u32 *tx_max, u32 *rx, u32 *rx_max)
 {
@@ -755,7 +736,6 @@ static void ath5k_get_ringparam(struct ieee80211_hw *hw,
 	*tx_max = ATH5K_TXQ_LEN_MAX;
 	*rx = *rx_max = ATH_RXBUF;
 }
-
 
 static int ath5k_set_ringparam(struct ieee80211_hw *hw, u32 tx, u32 rx)
 {
@@ -784,7 +764,6 @@ static int ath5k_set_ringparam(struct ieee80211_hw *hw, u32 tx, u32 rx)
 
 	return 0;
 }
-
 
 const struct ieee80211_ops ath5k_hw_ops = {
 	.tx			= ath5k_tx,

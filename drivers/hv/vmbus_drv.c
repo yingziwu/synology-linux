@@ -40,7 +40,6 @@
 #include <asm/mshyperv.h>
 #include "hyperv_vmbus.h"
 
-
 static struct acpi_device  *hv_acpi_dev;
 
 static struct tasklet_struct msg_dpc;
@@ -72,7 +71,6 @@ static int vmbus_exists(void)
 
 	return 0;
 }
-
 
 static void get_channel_info(struct hv_device *device,
 			     struct hv_device_info *info)
@@ -236,7 +234,6 @@ static struct device_attribute vmbus_device_attrs[] = {
 	__ATTR_NULL
 };
 
-
 /*
  * vmbus_uevent - add uevent for our device
  *
@@ -282,8 +279,6 @@ static const struct hv_vmbus_device_id *hv_vmbus_get_id(
 
 	return NULL;
 }
-
-
 
 /*
  * vmbus_match - Attempt to match the specified device to the specified driver
@@ -342,7 +337,6 @@ static int vmbus_remove(struct device *child_device)
 	return 0;
 }
 
-
 /*
  * vmbus_shutdown - Shutdown a vmbus device
  */
@@ -350,7 +344,6 @@ static void vmbus_shutdown(struct device *child_device)
 {
 	struct hv_driver *drv;
 	struct hv_device *dev = device_to_hv_device(child_device);
-
 
 	/* The device may not be attached yet */
 	if (!child_device->driver)
@@ -363,7 +356,6 @@ static void vmbus_shutdown(struct device *child_device)
 
 	return;
 }
-
 
 /*
  * vmbus_device_release - Final callback release of the vmbus child device
@@ -388,7 +380,6 @@ static struct bus_type  hv_bus = {
 };
 
 static const char *driver_name = "hyperv";
-
 
 struct onmessage_work_context {
 	struct work_struct work;
@@ -488,7 +479,6 @@ static irqreturn_t vmbus_isr(int irq, void *dev_id)
 
 	if (handled)
 		tasklet_schedule(hv_context.event_dpc[cpu]);
-
 
 	page_addr = hv_context.synic_message_page[cpu];
 	msg = (struct hv_message *)page_addr + VMBUS_MESSAGE_SINT;
@@ -692,7 +682,6 @@ struct hv_device *vmbus_device_create(uuid_le *type,
 	memcpy(&child_device_obj->dev_instance, instance,
 	       sizeof(uuid_le));
 
-
 	return child_device_obj;
 }
 
@@ -742,7 +731,6 @@ void vmbus_device_unregister(struct hv_device *device_obj)
 	 */
 	device_unregister(&device_obj->device);
 }
-
 
 /*
  * VMBUS is an acpi enumerated device. Get the the IRQ information
@@ -845,7 +833,6 @@ static void __exit vmbus_exit(void)
 	acpi_bus_unregister_driver(&vmbus_acpi_driver);
 	hv_cpu_hotplug_quirk(false);
 }
-
 
 MODULE_LICENSE("GPL");
 MODULE_VERSION(HV_DRV_VERSION);

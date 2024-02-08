@@ -46,7 +46,6 @@
 #include "musb_core.h"
 #include "musb_host.h"
 
-
 /* MUSB HOST status 22-mar-2006
  *
  * - There's still lots of partial code duplication for fault paths, so
@@ -81,7 +80,6 @@
  *   although ARP RX wins.  (That test was done with a full speed link.)
  */
 
-
 /*
  * NOTE on endpoint usage:
  *
@@ -95,7 +93,6 @@
  * "claimed" until its software queue is no longer refilled.  No multiplexing
  * of transfers between endpoints, or anything clever.
  */
-
 
 static void musb_ep_program(struct musb *musb, u8 epnum,
 			struct urb *urb, int is_out,
@@ -1204,7 +1201,6 @@ done:
 	return retval;
 }
 
-
 #ifdef CONFIG_USB_INVENTRA_DMA
 
 /* Host side TX (OUT) using Mentor DMA works as follows:
@@ -1497,7 +1493,6 @@ done:
 	musb_writew(epio, MUSB_TXCSR,
 			MUSB_TXCSR_H_WZC_BITS | MUSB_TXCSR_TXPKTRDY);
 }
-
 
 #ifdef CONFIG_USB_INVENTRA_DMA
 
@@ -2229,7 +2224,6 @@ done:
 	return ret;
 }
 
-
 /*
  * abort a transfer that's at the head of a hardware queue.
  * called with controller locked, irqs blocked
@@ -2468,7 +2462,6 @@ static int musb_bus_resume(struct usb_hcd *hcd)
 	return 0;
 }
 
-
 #ifndef CONFIG_MUSB_PIO_ONLY
 
 #define MUSB_USB_DMA_ALIGN 4
@@ -2526,7 +2519,6 @@ static int musb_alloc_temp_buffer(struct urb *urb, gfp_t mem_flags)
 
 	/* Position our struct temp_buffer such that data is aligned */
 	temp = PTR_ALIGN(kmalloc_ptr, MUSB_USB_DMA_ALIGN);
-
 
 	temp->kmalloc_ptr = kmalloc_ptr;
 	temp->old_xfer_buffer = urb->transfer_buffer;

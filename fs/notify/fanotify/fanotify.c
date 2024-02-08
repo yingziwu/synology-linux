@@ -47,7 +47,6 @@ static struct fsnotify_event *fanotify_merge(struct list_head *list,
 
 	pr_debug("%s: list=%p event=%p\n", __func__, list, event);
 
-
 	list_for_each_entry_reverse(test_holder, list, event_list) {
 		if (should_merge(test_holder->event, event)) {
 			test_event = test_holder->event;

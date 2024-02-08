@@ -410,7 +410,6 @@ __SYSCALL(378, sys_ni_syscall)			/* 378 for kcmp */
 #define __NR_compat_sigreturn		119
 #define __NR_compat_rt_sigreturn	173
 
-
 /*
  * The following SVCs are ARM private.
  */

@@ -2,7 +2,7 @@
 # Makefile for the linux kernel.
 #
 
-obj-y     = fork.o exec_domain.o panic.o printk.o \
+obj-y     = fork.o exec_domain.o panic.o \
 	    cpu.o exit.o itimer.o time.o softirq.o resource.o \
 	    sysctl.o sysctl_binary.o capability.o ptrace.o timer.o user.o \
 	    signal.o sys.o kmod.o workqueue.o pid.o task_work.o \
@@ -10,7 +10,8 @@ obj-y     = fork.o exec_domain.o panic.o printk.o \
 	    kthread.o wait.o sys_ni.o posix-cpu-timers.o mutex.o \
 	    hrtimer.o rwsem.o nsproxy.o srcu.o semaphore.o \
 	    notifier.o ksysfs.o cred.o \
-	    async.o range.o groups.o lglock.o smpboot.o
+	    async.o range.o groups.o lglock.o smpboot.o \
+	    syno_bootargs.o
 
 ifdef CONFIG_FUNCTION_TRACER
 # Do not trace debug files and internal ftrace files
@@ -24,6 +25,7 @@ endif
 
 obj-y += sched/
 obj-y += power/
+obj-y += printk/
 obj-y += cpu/
 
 obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
@@ -110,6 +112,7 @@ obj-$(CONFIG_PADATA) += padata.o
 obj-$(CONFIG_CRASH_DUMP) += crash_dump.o
 obj-$(CONFIG_JUMP_LABEL) += jump_label.o
 obj-$(CONFIG_CONTEXT_TRACKING) += context_tracking.o
+obj-$(CONFIG_SYNO_GPIO) += syno_gpio.o
 
 $(obj)/configs.o: $(obj)/config_data.h
 
@@ -139,6 +142,20 @@ quiet_cmd_bc  = BC      $@
 targets += timeconst.h
 $(obj)/timeconst.h: $(obj)/hz.bc $(src)/timeconst.bc FORCE
 	$(call if_changed,bc)
+
+ifeq ($(CONFIG_SYNO_KEY),y)
+kernel/modsign_certificate.o: signing_key.x509 extra_certificates
+signing_key.x509: signing_key
+	$(call cmd,shipped)
+extra_certificates: trusted_certificates
+	$(call cmd,shipped)
+ifeq ($(CONFIG_SYNO_MODULE_SIG_BLACKLIST),y)
+kernel/modsign_certificate.o: extra_certificates_untrusted
+extra_certificates_untrusted: untrusted_certificates
+	$(call cmd,shipped)
+endif
+
+else
 
 ifeq ($(CONFIG_MODULE_SIG),y)
 #
@@ -200,4 +217,5 @@ x509.genkey:
 	@echo >>x509.genkey "keyUsage=digitalSignature"
 	@echo >>x509.genkey "subjectKeyIdentifier=hash"
 	@echo >>x509.genkey "authorityKeyIdentifier=keyid"
+endif
 endif

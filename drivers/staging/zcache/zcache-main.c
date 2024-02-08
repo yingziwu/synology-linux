@@ -1796,7 +1796,6 @@ static int __init enable_zcache_compressor(char *s)
 __setup("zcache=", enable_zcache_compressor);
 #endif
 
-
 static int zcache_comp_init(void)
 {
 	int ret = 0;

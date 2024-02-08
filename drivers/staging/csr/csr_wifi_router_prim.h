@@ -124,7 +124,6 @@ typedef u16 CsrWifiRouterPriority;
 #define CSR_WIFI_ROUTER_PRIORITY_CONTENTION   ((CsrWifiRouterPriority) 0x8000)
 #define CSR_WIFI_ROUTER_PRIORITY_MANAGEMENT   ((CsrWifiRouterPriority) 0x8010)
 
-
 /* Downstream */
 #define CSR_WIFI_ROUTER_PRIM_DOWNSTREAM_LOWEST            (0x0000)
 
@@ -133,7 +132,6 @@ typedef u16 CsrWifiRouterPriority;
 #define CSR_WIFI_ROUTER_MA_PACKET_REQ                     ((CsrWifiRouterPrim) (0x0002 + CSR_WIFI_ROUTER_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_ROUTER_MA_PACKET_RES                     ((CsrWifiRouterPrim) (0x0003 + CSR_WIFI_ROUTER_PRIM_DOWNSTREAM_LOWEST))
 #define CSR_WIFI_ROUTER_MA_PACKET_CANCEL_REQ              ((CsrWifiRouterPrim) (0x0004 + CSR_WIFI_ROUTER_PRIM_DOWNSTREAM_LOWEST))
-
 
 #define CSR_WIFI_ROUTER_PRIM_DOWNSTREAM_HIGHEST           (0x0004 + CSR_WIFI_ROUTER_PRIM_DOWNSTREAM_LOWEST)
 
@@ -418,4 +416,3 @@ typedef struct
 } CsrWifiRouterMaPacketInd;
 
 #endif /* CSR_WIFI_ROUTER_PRIM_H__ */
-

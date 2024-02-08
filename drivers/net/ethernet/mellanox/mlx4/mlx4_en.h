@@ -65,7 +65,6 @@
  * Device constants
  */
 
-
 #define MLX4_EN_PAGE_SHIFT	12
 #define MLX4_EN_PAGE_SIZE	(1 << MLX4_EN_PAGE_SHIFT)
 #define DEF_RX_RINGS		16
@@ -194,13 +193,11 @@ enum cq_type {
 	TX = 1,
 };
 
-
 /*
  * Useful macros
  */
 #define ROUNDUP_LOG2(x)		ilog2(roundup_pow_of_two(x))
 #define XNOR(x, y)		(!(x) == !(y))
-
 
 struct mlx4_en_tx_info {
 	struct sk_buff *skb;
@@ -212,12 +209,10 @@ struct mlx4_en_tx_info {
 	u8 ts_requested;
 };
 
-
 #define MLX4_EN_BIT_DESC_OWN	0x80000000
 #define CTRL_SIZE	sizeof(struct mlx4_wqe_ctrl_seg)
 #define MLX4_EN_MEMTYPE_PAD	0x100
 #define DS_SIZE		sizeof(struct mlx4_wqe_data_seg)
-
 
 struct mlx4_en_tx_desc {
 	struct mlx4_wqe_ctrl_seg ctrl;
@@ -357,7 +352,6 @@ struct mlx4_en_dev {
 	unsigned long		last_overflow_check;
 	unsigned long		overflow_period;
 };
-
 
 struct mlx4_en_rss_map {
 	int base_qpn;
@@ -664,8 +658,6 @@ int mlx4_en_timestamp_config(struct net_device *dev,
 /* Globals
  */
 extern const struct ethtool_ops mlx4_en_ethtool_ops;
-
-
 
 /*
  * printk / logging functions

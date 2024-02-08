@@ -1070,7 +1070,6 @@ void __init exynos4_clk_init(struct device_node *np, enum exynos4_soc exynos4_so
 		_get_rate("arm_clk"));
 }
 
-
 static void __init exynos4210_clk_init(struct device_node *np)
 {
 	exynos4_clk_init(np, EXYNOS4210, NULL, exynos4_get_xom());

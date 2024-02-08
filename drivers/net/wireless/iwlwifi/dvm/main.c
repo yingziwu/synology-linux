@@ -57,7 +57,6 @@
 #include "calib.h"
 #include "agn.h"
 
-
 /******************************************************************************
  *
  * module boiler plate
@@ -76,7 +75,6 @@
 #endif
 
 #define DRV_VERSION     IWLWIFI_VERSION VD
-
 
 MODULE_DESCRIPTION(DRV_DESCRIPTION);
 MODULE_VERSION(DRV_VERSION);
@@ -340,7 +338,6 @@ static void iwl_bg_statistics_periodic(unsigned long data)
 
 	iwl_send_statistics_request(priv, CMD_ASYNC, false);
 }
-
 
 static void iwl_print_cont_event_trace(struct iwl_priv *priv, u32 base,
 					u32 start_idx, u32 num_events,
@@ -668,7 +665,6 @@ static int iwlagn_send_calib_cfg_rt(struct iwl_priv *priv, u32 cfg)
 
 	return iwl_dvm_send_cmd(priv, &cmd);
 }
-
 
 static int iwlagn_send_tx_ant_config(struct iwl_priv *priv, u8 valid_tx_ant)
 {
@@ -1006,9 +1002,6 @@ static void iwl_bg_restart(struct work_struct *data)
 	}
 }
 
-
-
-
 void iwlagn_disable_roc(struct iwl_priv *priv)
 {
 	struct iwl_rxon_context *ctx = &priv->contexts[IWL_RXON_CTX_PAN];
@@ -1153,8 +1146,6 @@ static void iwl_set_hw_params(struct iwl_priv *priv)
 	/* Device-specific setup */
 	priv->lib->set_hw_params(priv);
 }
-
-
 
 /* show what optional capabilities we have */
 static void iwl_option_config(struct iwl_priv *priv)

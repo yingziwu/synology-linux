@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 #include <linux/export.h>
 #include <linux/init.h>
 #include <linux/bitops.h>
@@ -85,7 +88,6 @@ static void __cpuinit init_amd_k5(struct cpuinfo_x86 *c)
 			outl(0 | CBAR_KEY, CBAR);
 	}
 }
-
 
 static void __cpuinit init_amd_k6(struct cpuinfo_x86 *c)
 {
@@ -667,8 +669,22 @@ static void __cpuinit init_amd(struct cpuinfo_x86 *c)
 		set_cpu_cap(c, X86_FEATURE_K8);
 
 	if (cpu_has_xmm2) {
+#ifdef MY_DEF_HERE
 		/* MFENCE stops RDTSC speculation */
 		set_cpu_cap(c, X86_FEATURE_MFENCE_RDTSC);
+#else
+		/*
+		 * Use LFENCE for execution serialization. On some families
+		 * LFENCE is already serialized and the MSR is not available,
+		 * but msr_set_bit() uses rdmsrl_safe() and wrmsrl_safe().
+		 */
+		if (c->x86 > 0xf)
+			msr_set_bit(MSR_F10H_DECFG,
+				    MSR_F10H_DECFG_LFENCE_SERIALIZE_BIT);
+
+		/* LFENCE with MSR_F10H_DECFG[1]=1 stops RDTSC speculation */
+		set_cpu_cap(c, X86_FEATURE_LFENCE_RDTSC);
+#endif	/* MY_DEF_HERE */
 	}
 
 #ifdef CONFIG_X86_64
@@ -747,6 +763,14 @@ static void __cpuinit init_amd(struct cpuinfo_x86 *c)
 		set_cpu_bug(c, X86_BUG_AMD_APIC_C1E);
 
 	rdmsr_safe(MSR_AMD64_PATCH_LEVEL, &c->microcode, &dummy);
+
+#ifdef MY_DEF_HERE
+#else
+	if (c->x86 == 0x10 || c->x86 == 0x12)
+		set_cpu_cap(c, X86_FEATURE_IBP_DISABLE);
+
+	set_cpu_cap(c, X86_FEATURE_RETPOLINE_AMD);
+#endif	/* MY_DEF_HERE */
 }
 
 #ifdef CONFIG_X86_32

@@ -656,7 +656,6 @@ xfs_qm_dqtobp(
 	return (0);
 }
 
-
 /*
  * Read in the ondisk dquot using dqtobp() then copy it to an incore version,
  * and release the buffer immediately.
@@ -677,7 +676,6 @@ xfs_qm_dqread(
 	struct xfs_trans	*tp = NULL;
 	int			error;
 	int			cancelflags = 0;
-
 
 	dqp = kmem_zone_zalloc(xfs_qm_dqzone, KM_SLEEP);
 
@@ -927,7 +925,6 @@ restart:
 	*O_dqpp = dqp;
 	return (0);
 }
-
 
 STATIC void
 xfs_qm_dqput_final(

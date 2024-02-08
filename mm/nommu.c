@@ -650,7 +650,11 @@ static void __put_nommu_region(struct vm_region *region)
 		up_write(&nommu_region_sem);
 
 		if (region->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+			vmr_fput(region);
+#else
 			fput(region->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 
 		/* IO memory and memory shared directly out of the pagecache
 		 * from ramfs/tmpfs mustn't be released here */
@@ -808,7 +812,11 @@ static void delete_vma(struct mm_struct *mm, struct vm_area_struct *vma)
 	if (vma->vm_ops && vma->vm_ops->close)
 		vma->vm_ops->close(vma);
 	if (vma->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_fput(vma);
+#else
 		fput(vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	put_nommu_region(vma->vm_region);
 	kmem_cache_free(vm_area_cachep, vma);
 }
@@ -1163,7 +1171,6 @@ static int do_mmap_private(struct vm_area_struct *vma,
 		 * make a private copy of the data and map that instead */
 	}
 
-
 	/* allocate some memory to hold the mapping
 	 * - note that this may not return a page-aligned address if the object
 	 *   we're allocating is smaller than a page
@@ -1374,7 +1381,11 @@ unsigned long do_mmap_pgoff(struct file *file,
 					goto error_just_free;
 				}
 			}
+#ifdef CONFIG_AUFS_FHSM
+			vmr_fput(region);
+#else
 			fput(region->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 			kmem_cache_free(vm_region_jar, region);
 			region = pregion;
 			result = start;
@@ -1450,10 +1461,18 @@ error_just_free:
 	up_write(&nommu_region_sem);
 error:
 	if (region->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vmr_fput(region);
+#else
 		fput(region->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	kmem_cache_free(vm_region_jar, region);
 	if (vma->vm_file)
+#ifdef CONFIG_AUFS_FHSM
+		vma_fput(vma);
+#else
 		fput(vma->vm_file);
+#endif /* CONFIG_AUFS_FHSM */
 	kmem_cache_free(vm_area_cachep, vma);
 	kleave(" = %d", ret);
 	return ret;
@@ -1950,13 +1969,12 @@ int __vm_enough_memory(struct mm_struct *mm, long pages, int cap_sys_admin)
 		goto error;
 	}
 
-	allowed = totalram_pages * sysctl_overcommit_ratio / 100;
+	allowed = vm_commit_limit();
 	/*
 	 * Reserve some 3% for root
 	 */
 	if (!cap_sys_admin)
 		allowed -= sysctl_admin_reserve_kbytes >> (PAGE_SHIFT - 10);
-	allowed += total_swap_pages;
 
 	/*
 	 * Don't let a single process grow so big a user can't recover

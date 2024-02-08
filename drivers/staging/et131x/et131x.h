@@ -187,7 +187,6 @@ struct global_regs {				/* Location: */
 	u32 watchdog_timer;			/*  0x0038 */
 };
 
-
 /* START OF TXDMA REGISTER ADDRESS MAP */
 
 /*
@@ -293,7 +292,6 @@ struct txdma_regs {			/* Location: */
 };
 
 /* END OF TXDMA REGISTER ADDRESS MAP */
-
 
 /* START OF RXDMA REGISTER ADDRESS MAP */
 
@@ -551,7 +549,6 @@ struct rxdma_regs {					/* Location: */
 };
 
 /* END OF RXDMA REGISTER ADDRESS MAP */
-
 
 /* START OF TXMAC REGISTER ADDRESS MAP */
 
@@ -1450,7 +1447,6 @@ struct mmc_regs {		/* Location: */
 
 /* END OF MMC REGISTER ADDRESS MAP */
 
-
 /*
  * JAGCore Address Mapping
  */
@@ -1707,4 +1703,3 @@ struct address_map {
 #define TRUEPHY_ADV_DUPLEX_HALF         0x02
 #define TRUEPHY_ADV_DUPLEX_BOTH     \
 	(TRUEPHY_ADV_DUPLEX_FULL | TRUEPHY_ADV_DUPLEX_HALF)
-

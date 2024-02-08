@@ -149,12 +149,10 @@ int init_module(void)
 	return 0;
 }
 
-
 void cleanup_module(void)
 {
 	lirc_unregister_driver(atir_minor);
 }
-
 
 static int atir_init_start(void)
 {
@@ -170,7 +168,6 @@ static void cycle_delay(int cycle)
 {
 	udelay(WAIT_CYCLE*cycle);
 }
-
 
 static int poll_main(void)
 {

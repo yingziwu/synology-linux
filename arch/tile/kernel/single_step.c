@@ -704,7 +704,6 @@ void single_step_once(struct pt_regs *regs)
 
 static DEFINE_PER_CPU(unsigned long, ss_saved_pc);
 
-
 /*
  * Called directly on the occasion of an interrupt.
  *
@@ -749,7 +748,6 @@ void gx_singlestep_handle(struct pt_regs *regs, int fault_num)
 		__insn_mtspr(SPR_SINGLE_STEP_CONTROL_K, control);
 	}
 }
-
 
 /*
  * Called from need_singlestep.  Set up the control registers and the enable

@@ -66,7 +66,6 @@
 		WREG8(MGAREG_CRTC_DATA, v);			\
 	} while (0)						\
 
-
 #define WREG_ECRT(reg, v)					\
 	do {							\
 		WREG8(MGAREG_CRTCEXT_INDEX, reg);				\
@@ -136,7 +135,6 @@ struct mga_encoder {
 	int last_dpms;
 };
 
-
 struct mga_i2c_chan {
 	struct i2c_adapter adapter;
 	struct drm_device *dev;
@@ -148,7 +146,6 @@ struct mga_connector {
 	struct drm_connector base;
 	struct mga_i2c_chan *i2c;
 };
-
 
 struct mga_mc {
 	resource_size_t			vram_size;
@@ -202,7 +199,6 @@ struct mga_device {
 	u32 unique_rev_id;
 };
 
-
 struct mgag200_bo {
 	struct ttm_buffer_object bo;
 	struct ttm_placement placement;
@@ -237,7 +233,6 @@ int mgag200_framebuffer_init(struct drm_device *dev,
 			     struct mga_framebuffer *mfb,
 			     struct drm_mode_fb_cmd2 *mode_cmd,
 			     struct drm_gem_object *obj);
-
 
 int mgag200_driver_load(struct drm_device *dev, unsigned long flags);
 int mgag200_driver_unload(struct drm_device *dev);

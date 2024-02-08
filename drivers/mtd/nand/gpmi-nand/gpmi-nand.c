@@ -736,7 +736,6 @@ static int gpmi_alloc_dma_buffer(struct gpmi_nand_data *this)
 	if (!this->page_buffer_virt)
 		goto error_alloc;
 
-
 	/* Slice up the page buffer. */
 	this->payload_virt = this->page_buffer_virt;
 	this->payload_phys = this->page_buffer_phys;
