@@ -142,6 +142,7 @@ void set_colors()
 	}
 }
 
+
 /* this changes the windows attributes !!! */
 void print_in_middle(WINDOW *win,
 		int starty,
@@ -151,6 +152,7 @@ void print_in_middle(WINDOW *win,
 		chtype color)
 {      int length, x, y;
 	float temp;
+
 
 	if (win == NULL)
 		win = stdscr;
@@ -253,6 +255,7 @@ int btn_dialog(WINDOW *main_window, const char *msg, int btn_num, ...)
 	int i, x, y;
 	int res = -1;
 
+
 	va_start(ap, btn_num);
 	for (i = 0; i < btn_num; i++) {
 		btn = va_arg(ap, char *);
@@ -275,6 +278,7 @@ int btn_dialog(WINDOW *main_window, const char *msg, int btn_num, ...)
 	/* place dialog in middle of screen */
 	y = (LINES-(msg_lines+4))/2;
 	x = (COLS-(total_width+4))/2;
+
 
 	/* create the windows */
 	if (btn_num > 0)
@@ -309,6 +313,7 @@ int btn_dialog(WINDOW *main_window, const char *msg, int btn_num, ...)
 	menu_opts_on(menu, O_NONCYCLIC);
 	set_menu_mark(menu, "");
 	post_menu(menu);
+
 
 	touchwin(win);
 	refresh_all_windows(main_window);
@@ -359,11 +364,13 @@ int dialog_inputbox(WINDOW *main_window,
 	WINDOW *prompt_win;
 	WINDOW *form_win;
 	PANEL *panel;
-	int i, x, y;
+	int i, x, y, lines, columns, win_lines, win_cols;
 	int res = -1;
 	int cursor_position = strlen(init);
 	int cursor_form_win;
 	char *result = *resultp;
+
+	getmaxyx(stdscr, lines, columns);
 
 	if (strlen(init)+1 > *result_len) {
 		*result_len = strlen(init)+1;
@@ -381,14 +388,19 @@ int dialog_inputbox(WINDOW *main_window,
 	if (title)
 		prompt_width = max(prompt_width, strlen(title));
 
+	win_lines = min(prompt_lines+6, lines-2);
+	win_cols = min(prompt_width+7, columns-2);
+	prompt_lines = max(win_lines-6, 0);
+	prompt_width = max(win_cols-7, 0);
+
 	/* place dialog in middle of screen */
-	y = (LINES-(prompt_lines+4))/2;
-	x = (COLS-(prompt_width+4))/2;
+	y = (lines-win_lines)/2;
+	x = (columns-win_cols)/2;
 
 	strncpy(result, init, *result_len);
 
 	/* create the windows */
-	win = newwin(prompt_lines+6, prompt_width+7, y, x);
+	win = newwin(win_lines, win_cols, y, x);
 	prompt_win = derwin(win, prompt_lines+1, prompt_width, 2, 2);
 	form_win = derwin(win, 1, prompt_width, prompt_lines+3, 2);
 	keypad(form_win, TRUE);

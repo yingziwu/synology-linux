@@ -477,6 +477,7 @@ int omap_st_is_enabled(unsigned int id)
 	if (!st_data)
 		return -ENODEV;
 
+
 	return st_data->enabled;
 }
 EXPORT_SYMBOL(omap_st_is_enabled);

@@ -283,6 +283,7 @@ MV_U32 mvCpuIfPrintSystemConfig(MV_8 *buffer, MV_U32 index)
 	return count;
 }
 
+
 /*******************************************************************************
 * whoAmI - Get the CPU ID
 *

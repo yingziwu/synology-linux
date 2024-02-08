@@ -63,6 +63,7 @@ static int snd_trident_free(struct snd_trident *trident);
  *  common I/O routines
  */
 
+
 #if 0
 static void snd_trident_print_voice_regs(struct snd_trident *trident, int voice)
 {
@@ -1932,6 +1933,7 @@ static int snd_trident_spdif_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+
 /*---------------------------------------------------------------------------
    snd_trident_spdif_close
   
@@ -2315,6 +2317,7 @@ int __devinit snd_trident_spdif_pcm(struct snd_trident * trident,
 /*
  *  Mixer part
  */
+
 
 /*---------------------------------------------------------------------------
     snd_trident_spdif_control

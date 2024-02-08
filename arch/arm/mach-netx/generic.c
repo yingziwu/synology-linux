@@ -186,3 +186,4 @@ static int __init netx_init(void)
 }
 
 subsys_initcall(netx_init);
+

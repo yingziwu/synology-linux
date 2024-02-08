@@ -28,6 +28,7 @@ disclaimer.
 static volatile boolean  ENTER_TEST_MODE = FALSE; 
 static volatile uint_16  test_mode_index = 0;
 
+
 void    mvUsbCh9GetStatus(_usb_device_handle handle, boolean setup, 
                          SETUP_STRUCT* ctrl_req)
 { /* Body */

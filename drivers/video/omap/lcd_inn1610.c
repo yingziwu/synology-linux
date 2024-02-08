@@ -145,3 +145,4 @@ static void __exit innovator1610_panel_drv_cleanup(void)
 
 module_init(innovator1610_panel_drv_init);
 module_exit(innovator1610_panel_drv_cleanup);
+

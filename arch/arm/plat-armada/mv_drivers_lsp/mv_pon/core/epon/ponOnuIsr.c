@@ -299,3 +299,4 @@ void onuGponIsrTimerMpcpHndl(unsigned long data)
 
   onuPonIrqUnlock(onuPonResourceTbl_s.onuPonIrqId); /* unlock GPON interrupt */
 }
+

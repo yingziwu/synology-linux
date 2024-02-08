@@ -19,6 +19,7 @@
 #ifndef __gtMiiSmiIfh
 #define __gtMiiSmiIfh
 
+
 #include <msApi.h>
 
 #ifdef __cplusplus
@@ -115,6 +116,7 @@ GT_STATUS miiSmiIfReadRegister
     IN  GT_U8     regAddr,
     OUT GT_U16    *data
 );
+
 
 /*******************************************************************************
 * miiSmiIfWriteRegister

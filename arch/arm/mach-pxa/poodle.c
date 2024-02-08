@@ -25,6 +25,7 @@
 #include <linux/gpio.h>
 #include <linux/i2c.h>
 #include <linux/i2c/pxa-i2c.h>
+#include <linux/regulator/machine.h>
 #include <linux/spi/spi.h>
 #include <linux/spi/ads7846.h>
 #include <linux/spi/pxa2xx_spi.h>
@@ -157,6 +158,7 @@ static struct scoop_pcmcia_config poodle_pcmcia_config = {
 
 EXPORT_SYMBOL(poodle_scoop_device);
 
+
 /* LoCoMo device */
 static struct resource locomo_resources[] = {
 	[0] = {
@@ -284,6 +286,7 @@ static struct pxamci_platform_data poodle_mci_platform_data = {
 	.gpio_power		= -1,
 };
 
+
 /*
  * Irda
  */
@@ -292,6 +295,7 @@ static struct pxaficp_platform_data poodle_ficp_platform_data = {
 	.transceiver_cap	= IR_SIRMODE | IR_OFF,
 };
 
+
 /*
  * USB Device Controller
  */
@@ -299,6 +303,7 @@ static struct pxa2xx_udc_mach_info udc_info __initdata = {
 	/* no connect GPIO; poodle can't tell connection status */
 	.gpio_pullup	= POODLE_GPIO_USB_PULLUP,
 };
+
 
 /* PXAFB device */
 static struct pxafb_mode_info poodle_fb_mode = {
@@ -449,6 +454,7 @@ static void __init poodle_init(void)
 	pxa_set_i2c_info(NULL);
 	i2c_register_board_info(0, ARRAY_AND_SIZE(poodle_i2c_devices));
 	poodle_init_spi();
+	regulator_has_full_constraints();
 }
 
 static void __init fixup_poodle(struct tag *tags, char **cmdline,

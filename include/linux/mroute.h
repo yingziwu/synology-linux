@@ -230,6 +230,7 @@ struct mfc_cache {
 
 #endif
 
+
 #define MFC_ASSERT_THRESH (3*HZ)		/* Maximal freq. of asserts */
 
 /*
@@ -244,7 +245,7 @@ struct mfc_cache {
 struct rtmsg;
 extern int ipmr_get_route(struct net *net, struct sk_buff *skb,
 			  __be32 saddr, __be32 daddr,
-			  struct rtmsg *rtm, int nowait);
+			  struct rtmsg *rtm, int nowait, u32 portid);
 #endif
 
 #endif

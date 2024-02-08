@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -79,6 +80,7 @@ extern int cesaReqResources;
 #define CESA_OCF_MAX_SES 128
 #define CESA_Q_SIZE	 64
 
+
 /* data structures */
 struct cesa_ocf_data {
         int                                      cipher_alg;
@@ -142,6 +144,8 @@ static device_method_t mv_cesa_methods = {
 	DEVMETHOD(cryptodev_process,	cesa_ocf_process),
 	DEVMETHOD(cryptodev_kprocess,	NULL),
 };
+
+
 
 /* Add debug Trace */
 #undef CESA_OCF_TRACE_DEBUG
@@ -470,6 +474,7 @@ cesa_ocf_process(device_t dev, struct cryptop *crp, int hint)
 	p_buf_info = cesa_ocf_cmd->cesa_bufs;
 	p_buf_info += 1;
 
+
         /* Go through crypto descriptors, processing as we go */
         for (crd = crp->crp_desc; crd; crd = crd->crd_next) {
 
@@ -602,6 +607,7 @@ cesa_ocf_process(device_t dev, struct cryptop *crp, int hint)
 		mvCesaDebugMbuf("SRC BUFFER", cesa_cmd->pSrc, 0, cesa_cmd->pSrc->mbufSize);
 	}
 
+
 	/* send action to HAL */
 	spin_lock_irqsave(&cesa_lock, flags);
 	status = mvCesaAction(cesa_cmd);
@@ -683,6 +689,7 @@ cesa_ocf_process(device_t dev, struct cryptop *crp, int hint)
                 printk("%s,%d: cesa action failed, status = 0x%x\n", __FILE__, __LINE__, status);
 		goto p_error;
         }
+
 
 	cesaTestTraceAdd(5);
 
@@ -801,6 +808,7 @@ cesa_ocf_newsession(device_t dev, u_int32_t *sid, struct cryptoini *cri)
 	struct cesa_ocf_data *cesa_ocf_cur_ses;
 	MV_CESA_OPEN_SESSION cesa_session;
 	MV_CESA_OPEN_SESSION *cesa_ses = &cesa_session;
+
 
         dprintk("%s()\n", __FUNCTION__);
         if (sid == NULL || cri == NULL) {
@@ -1054,6 +1062,7 @@ error:
 
 }
 
+
 /*
  * Free a session.
  */
@@ -1167,6 +1176,7 @@ cesa_ocf_init(void)
 		return EINVAL;
         }
 
+
 #define	REGISTER(alg) \
 	crypto_register(cesa_ocf_id, alg, 0,0)
 	REGISTER(CRYPTO_AES_CBC);
@@ -1195,11 +1205,13 @@ cesa_ocf_exit(void)
 	MV_REG_WRITE( MV_CESA_ISR_MASK_REG, 0);
 	MV_REG_WRITE( MV_CESA_ISR_CAUSE_REG, 0);
 
+
 	if( MV_OK != mvCesaFinish() ) {
 		printk("%s,%d: mvCesaFinish Failed. \n", __FILE__, __LINE__);
 		return;
 	}
 }
+
 
 void cesa_ocf_debug(void)
 {

@@ -59,6 +59,7 @@ static struct snd_soc_ops a370_client_ops = {
 	.hw_params = a370_client_hw_params,
 };
 
+
 static struct snd_soc_dai_link a370_client_dai[] = {
 {
 	.name = "CS42L51",
@@ -70,6 +71,7 @@ static struct snd_soc_dai_link a370_client_dai[] = {
 	.ops = &a370_client_ops,
 },
 };
+
 
 static struct snd_soc_card a370_client = {
 	.name = "Armada-370",

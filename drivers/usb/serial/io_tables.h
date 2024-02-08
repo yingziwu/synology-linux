@@ -224,3 +224,4 @@ static struct usb_serial_driver epic_device = {
 };
 
 #endif
+

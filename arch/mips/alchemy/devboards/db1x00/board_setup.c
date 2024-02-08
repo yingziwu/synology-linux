@@ -71,6 +71,7 @@ const char *get_system_type(void)
 }
 #endif
 
+
 #ifdef CONFIG_MIPS_MIRAGE
 static void mirage_power_off(void)
 {
@@ -82,6 +83,7 @@ const char *get_system_type(void)
 	return "Alchemy Mirage";
 }
 #endif
+
 
 #if defined(CONFIG_MIPS_BOSPORUS) || defined(CONFIG_MIPS_MIRAGE)
 static void mips_softreset(void)
@@ -96,6 +98,7 @@ const char *get_system_type(void)
 	return "Alchemy Db1x00";
 }
 #endif
+
 
 void __init board_setup(void)
 {

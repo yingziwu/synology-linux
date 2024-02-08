@@ -14,4 +14,5 @@ struct armada_wdt_platform_data {
 	u32	mbus_regs;
 };
 
+
 #endif

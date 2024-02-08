@@ -62,3 +62,4 @@ enum hrtimer_restart kvm_timer_fn(struct hrtimer *data)
 	else
 		return HRTIMER_NORESTART;
 }
+

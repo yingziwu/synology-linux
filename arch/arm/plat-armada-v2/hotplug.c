@@ -117,3 +117,4 @@ int platform_cpu_disable(unsigned int cpu)
 
 	return cpu == 0 ? -EPERM : 0;
 }
+

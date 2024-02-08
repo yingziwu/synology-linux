@@ -41,6 +41,7 @@
 
 #include "migrate.h"
 
+
 #if CHIP_HAS_COHERENT_LOCAL_CACHE()
 
 /*
@@ -65,6 +66,7 @@ early_param("noallocl2", set_noallocl2);
 /* Provide no-op versions of these routines to keep flush_remote() cleaner. */
 #define mark_caches_evicted_start() 0
 #define mark_caches_evicted_finish(mask, timestamp) do {} while (0)
+
 
 /*
  * Update the irq_stat for cpus that we are going to interrupt
@@ -256,6 +258,7 @@ void homecache_flush_cache(struct page *page, int order)
 	sim_validate_lines_evicted(PFN_PHYS(pfn), pages * PAGE_SIZE);
 }
 
+
 /* Report the home corresponding to a given PTE. */
 static int pte_to_home(pte_t pte)
 {
@@ -288,6 +291,7 @@ pte_t pte_set_home(pte_t pte, int home)
 	if (hv_pte_get_mode(pte) == HV_PTE_MODE_MMIO)
 		return pte;
 #endif
+
 
 	/*
 	 * Only immutable pages get NC mappings.  If we have a

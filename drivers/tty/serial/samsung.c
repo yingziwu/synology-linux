@@ -207,6 +207,7 @@ static int s3c24xx_serial_rx_fifocnt(struct s3c24xx_uart_port *ourport,
 	return (ufstat & info->rx_fifomask) >> info->rx_fifoshift;
 }
 
+
 /* ? - where has parity gone?? */
 #define S3C2410_UERSTAT_PARITY (0x1000)
 
@@ -518,11 +519,15 @@ static void s3c24xx_serial_pm(struct uart_port *port, unsigned int level,
 			      unsigned int old)
 {
 	struct s3c24xx_uart_port *ourport = to_ourport(port);
+	int timeout = 10000;
 
 	ourport->pm_level = level;
 
 	switch (level) {
 	case 3:
+		while (--timeout && !s3c24xx_serial_txempty_nofifo(port))
+			udelay(100);
+
 		if (!IS_ERR(ourport->baudclk) && ourport->baudclk != NULL)
 			clk_disable(ourport->baudclk);
 
@@ -553,6 +558,7 @@ static void s3c24xx_serial_pm(struct uart_port *port, unsigned int level,
  * pick the closest one and select that.
  *
 */
+
 
 #define MAX_CLKS (8)
 
@@ -924,6 +930,7 @@ s3c24xx_serial_verify_port(struct uart_port *port, struct serial_struct *ser)
 	return 0;
 }
 
+
 #ifdef CONFIG_SERIAL_SAMSUNG_CONSOLE
 
 static struct console s3c24xx_serial_console;
@@ -1028,6 +1035,7 @@ static inline int s3c24xx_serial_resetport(struct uart_port *port,
 
 	return (info->reset_port)(port, cfg);
 }
+
 
 #ifdef CONFIG_CPU_FREQ
 
@@ -1229,8 +1237,6 @@ int s3c24xx_serial_probe(struct platform_device *dev,
 	dbg("s3c24xx_serial_probe(%p, %p) %d\n", dev, info, probe_index);
 
 	ourport = &s3c24xx_serial_ports[probe_index];
-	probe_index++;
-
 	dbg("%s: initialising port %p...\n", __func__, ourport);
 
 	ret = s3c24xx_serial_init_port(ourport, info, dev);
@@ -1266,6 +1272,8 @@ int __devexit s3c24xx_serial_remove(struct platform_device *dev)
 		device_remove_file(&dev->dev, &dev_attr_clock_source);
 		uart_remove_one_port(&s3c24xx_uart_drv, port);
 	}
+
+	probe_index++;
 
 	return 0;
 }
@@ -1448,6 +1456,7 @@ s3c24xx_serial_get_options(struct uart_port *port, int *baud,
 			rate = clk_get_rate(clk) / clksrc.divisor;
 		else
 			rate = 1;
+
 
 		*baud = rate / (16 * (ubrdiv + 1));
 		dbg("calculated baud %d\n", *baud);

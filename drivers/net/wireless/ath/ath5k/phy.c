@@ -30,6 +30,7 @@
 #include "rfgain.h"
 #include "../regd.h"
 
+
 /******************\
 * Helper functions *
 \******************/
@@ -258,6 +259,7 @@ static inline int ath5k_hw_write_ofdm_timings(struct ath5k_hw *ah,
 	/* Note: we've shifted coef_scaled by 24 */
 	coef_exp = 14 - (coef_exp - 24);
 
+
 	/* Get mantissa (significant digits)
 	 * ALGO: coef_mant = floor(coef_scaled* 2^coef_exp+0.5) */
 	coef_man = coef_scaled +
@@ -311,6 +313,7 @@ static void ath5k_hw_wait_for_synth(struct ath5k_hw *ah,
 		mdelay(1);
 	}
 }
+
 
 /**********************\
 * RF Gain optimization *
@@ -684,6 +687,8 @@ static int ath5k_hw_rfgain_init(struct ath5k_hw *ah, enum ieee80211_band band)
 	return 0;
 }
 
+
+
 /********************\
 * RF Registers setup *
 \********************/
@@ -1044,6 +1049,7 @@ static int ath5k_hw_rfregs_init(struct ath5k_hw *ah,
 
 	return 0;
 }
+
 
 /**************************\
   PHY/RF channel functions
@@ -1615,6 +1621,7 @@ int ath5k_hw_phy_calibrate(struct ath5k_hw *ah,
 	return ret;
 }
 
+
 /***************************\
 * Spur mitigation functions *
 \***************************/
@@ -1853,6 +1860,7 @@ ath5k_hw_set_spur_mitigation_filter(struct ath5k_hw *ah,
 	}
 }
 
+
 /*****************\
 * Antenna control *
 \*****************/
@@ -2050,6 +2058,7 @@ ath5k_hw_set_antenna_mode(struct ath5k_hw *ah, u8 ant_mode)
 	ath5k_hw_set_fast_div(ah, ee_mode, fast_div);
 	ath5k_hw_set_def_antenna(ah, def_ant);
 }
+
 
 /****************\
 * TX power setup *
@@ -2447,6 +2456,7 @@ ath5k_get_max_ctl_power(struct ath5k_hw *ah,
 		ah->ah_txpower.txp_max_pwr = 4 * min(edge_pwr, max_chan_pwr);
 }
 
+
 /*
  * Power to PCDAC table functions
  */
@@ -2615,6 +2625,7 @@ ath5k_write_pcdac_table(struct ath5k_hw *ah)
 			AR5K_PHY_PCDAC_TXPOWER(i));
 	}
 }
+
 
 /*
  * Power to PDADC table functions
@@ -2797,6 +2808,7 @@ ath5k_write_pwr_to_pdadc_table(struct ath5k_hw *ah, u8 ee_mode)
 		ath5k_hw_reg_write(ah, val, AR5K_PHY_PDADC_TXPOWER(i));
 	}
 }
+
 
 /*
  * Common code for PCDAC/PDADC tables
@@ -3100,6 +3112,7 @@ ath5k_setup_rate_powertable(struct ath5k_hw *ah, u16 max_pwr,
 	ah->ah_txpower.txp_cur_pwr = 2 * rates[0];
 	ah->ah_txpower.txp_ofdm = rates[7];
 }
+
 
 /*
  * Set transmission power

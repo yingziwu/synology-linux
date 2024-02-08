@@ -158,6 +158,8 @@ __crypto_run_std(struct csession *ses_ptr, struct crypt_op *cop)
 	return ret;
 }
 
+
+
 /* This is the main crypto function - zero-copy edition */
 static int
 __crypto_run_zc(struct csession *ses_ptr, struct kernel_crypt_op *kcop)

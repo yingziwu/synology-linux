@@ -926,6 +926,7 @@ SK_U32	PortNumber)	/* Port Number */
 
 }	/* SkAddrMcUpdate */
 
+
 #ifdef GENESIS
 
 /******************************************************************************
@@ -1804,3 +1805,4 @@ SK_U32	ToPortNumber)		/* Port2 Index */
 #ifdef __cplusplus
 }
 #endif	/* __cplusplus */
+

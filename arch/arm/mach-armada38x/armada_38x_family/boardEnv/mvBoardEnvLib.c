@@ -103,6 +103,8 @@ static MV_DEV_CS_INFO *boardGetDevEntry(MV_32 devNum, MV_BOARD_DEV_CLASS devClas
 static MV_BOARD_INFO *board = (MV_BOARD_INFO *)-1;
 static MV_VOID mvBoardModuleAutoDetect(MV_VOID);
 
+
+
 /*******************************************************************************
 * mvBoardIdIndexGet
 *
@@ -422,6 +424,8 @@ MV_VOID mvBoardModuleConfigSet(MV_U32 newCfg)
 	}
 	board->boardOptionsConfig |= newCfg;
 }
+
+
 
 /*******************************************************************************
 * mvBoardPhyAddrGet - Get the phy address
@@ -2433,6 +2437,7 @@ MV_STATUS mvBoardTwsiSatRGet(MV_U8 devNum, MV_U8 regNum, MV_U8 *pData)
 	slave.type = ADDR7_BIT;
 	slave.address = 0;
 	mvTwsiInit(0, TWSI_SPEED, mvBoardTclkGet(), &slave, 0);
+
 
 	if (MV_OK != mvTwsiRead(0, &twsiSlave, pData, 1)) {
 		DB(mvOsPrintf("Board: Read S@R fail\n"));

@@ -9,6 +9,7 @@
  * 2 of the License, or (at your option) any later version.
  */
 
+
 #include <linux/module.h>
 #include <linux/init.h>
 #include <linux/sched.h>
@@ -110,6 +111,7 @@ struct rpc_program nfs_program = {
 struct rpc_stat nfs_rpcstat = {
 	.program		= &nfs_program
 };
+
 
 #ifdef CONFIG_NFS_V3_ACL
 static struct rpc_stat		nfsacl_rpcstat = { &nfsacl_program };
@@ -1016,6 +1018,7 @@ static void nfs_server_copy_userdata(struct nfs_server *target, struct nfs_serve
 	target->acdirmax = source->acdirmax;
 	target->caps = source->caps;
 	target->options = source->options;
+	target->port = source->port;
 }
 
 static void nfs_server_insert_lists(struct nfs_server *server)

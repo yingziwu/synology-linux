@@ -82,6 +82,7 @@ extern "C" {
 /* Controler environment registers offsets */
 #define MV_TDM_IRQ_NUM				56
 
+
 /* Coherent Fabric Control and Status */
 #define MV_COHERENCY_FABRIC_CTRL_REG		(MV_COHERENCY_FABRIC_OFFSET + 0x0)
 #define MV_COHERENCY_FABRIC_CFG_REG		(MV_COHERENCY_FABRIC_OFFSET + 0x4)
@@ -130,6 +131,7 @@ extern "C" {
 #define PMC_MCR_NUM_GE				5
 #define PMC_MCR_NUM_COMM			6
 #define PMC_MCR_NUM_PMU				6
+
 
 /* #2 */
 #define PMC_PEXSTOPMEM_OFFS(port)		(((port) == 0) ? 0 : 12)
@@ -221,6 +223,7 @@ extern "C" {
 #define PMC_PMUSTOPMEM_EN			(0 << PMC_PMUSTOPMEM_OFFS)
 #define PMC_PMUSTOPMEM_STOP			(1 << PMC_PMUSTOPMEM_OFFS)
 
+
 /*  Power Management Clock Gating Control Register	*/
 #define POWER_MNG_CTRL_REG			0x18220
 
@@ -279,6 +282,7 @@ extern "C" {
 #define PMC_AUSTOPCLOCK_EN				(1 << PMC_AUSTOPCLOCK_OFFS)
 #define PMC_AUSTOPCLOCK_STOP			(0 << PMC_AUSTOPCLOCK_OFFS)
 
+
 #define SATA_IMP_TX_SSC_CTRL_REG(port)		(MV_SATA_REGS_BASE + 0x2810 + (port)*0x2000)
 #define SATA_GEN_1_SET_0_REG(port)		(MV_SATA_REGS_BASE + 0x2834 + (port)*0x2000)
 #define SATA_GEN_1_SET_1_REG(port)		(MV_SATA_REGS_BASE + 0x2838 + (port)*0x2000)
@@ -324,6 +328,7 @@ extern "C" {
 #define	TSEN_CONF_SOFT_RESET_MASK		(0x1 << 1)
 #define	TSEN_CONF_START_CALIB_MASK		(0x1 << 25)
 
+
 /* Controler environment registers offsets */
 #define GEN_PURP_RES_1_REG				0x182F4
 #define GEN_PURP_RES_2_REG				0x182F8
@@ -361,6 +366,7 @@ extern "C" {
 #define MSAR_BOOT_NAND_LIST			{0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x1A, 0x1B, 0x1C,	\
 						 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26,	\
 						 0x27, 0x29, 0x2A, 0x2B, 0x2D, 0x2E, 0x2F, 0xFFFFFFFF}
+
 
 #define MSAR_TCLK_OFFS				20
 #define MSAR_TCLK_MASK				(0x1 << MSAR_TCLK_OFFS)
@@ -434,6 +440,7 @@ extern "C" {
 
 #define TCLK_TO_COUNTER_RATIO   1   /* counters running in Tclk */
 
+
 #define BOOT_TARGETS_NAME_ARRAY {	\
 	BOOT_ROM_CS,			\
 	BOOT_ROM_CS,			\
@@ -486,6 +493,7 @@ typedef enum _mvTargetId {
 	{0, -1,  1,  2}, /* Lane 2 */	\
 	{0, -1,  1,  2}  /* Lane 3 */	\
 }
+
 
 #endif /* MV_ASMLANGUAGE */
 

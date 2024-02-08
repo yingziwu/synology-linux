@@ -131,6 +131,7 @@ static void (*handlers[_NSIG])(int sig, mcontext_t *mc) = {
 	[SIGVTALRM] = alarm_handler
 };
 
+
 static void hard_handler(int sig, siginfo_t *info, void *p)
 {
 	struct ucontext *uc = p;

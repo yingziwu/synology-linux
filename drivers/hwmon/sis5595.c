@@ -67,6 +67,7 @@
 #include <linux/acpi.h>
 #include <linux/io.h>
 
+
 /* If force_addr is set to anything different from 0, we forcibly enable
    the device at the given address. */
 static u16 force_addr;
@@ -132,6 +133,8 @@ static inline u8 FAN_TO_REG(long rpm, int div)
 {
 	if (rpm <= 0)
 		return 255;
+	if (rpm > 1350000)
+		return 1;
 	return SENSORS_LIMIT((1350000 + rpm * div / 2) / (rpm * div), 1, 254);
 }
 
@@ -146,7 +149,7 @@ static inline int TEMP_FROM_REG(s8 val)
 {
 	return val * 830 + 52120;
 }
-static inline s8 TEMP_TO_REG(int val)
+static inline s8 TEMP_TO_REG(long val)
 {
 	int nval = SENSORS_LIMIT(val, -54120, 157530) ;
 	return nval<0 ? (nval-5212-415)/830 : (nval-5212+415)/830;
@@ -617,6 +620,7 @@ static int __devexit sis5595_remove(struct platform_device *pdev)
 
 	return 0;
 }
+
 
 /* ISA access must be locked explicitly. */
 static int sis5595_read_value(struct sis5595_data *data, u8 reg)

@@ -178,6 +178,7 @@ struct mv_usb_dev {
 	MV_U8 vbus_gpp_no;
 };
 
+
 static void *mvUsbMalloc(unsigned int size)
 {
 	return kmalloc(size, GFP_ATOMIC);

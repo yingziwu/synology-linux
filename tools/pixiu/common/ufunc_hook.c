@@ -129,6 +129,7 @@ static unsigned int find_rdebug(struct task_struct *task, unsigned int address)
 	int i;
 	unsigned int offset;
 
+
 	if (read_proc_vm(task, address, &elf_hdr, sizeof(Elf32_Ehdr)) != sizeof(Elf32_Ehdr))
 		return INVALID_ADDRESS;
 
@@ -307,6 +308,7 @@ static struct module_info * find_module_from_addr(struct task_struct * task, uns
 	return NULL;
 }
 
+
 static struct module_info * find_elf_module(struct elf_module *module)
 {
 	if ((module == NULL) || (module->task == NULL))
@@ -418,6 +420,7 @@ static unsigned int get_bp_inst(enum FUNC_CODE func_code, unsigned int address)
 	else
 		return get_thumb_bp_inst(func_code);
 }
+
 
 static bool is_arm_bp_inst(unsigned int inst)
 {
@@ -573,6 +576,7 @@ static int restore_inst_at(struct task_struct *task, unsigned int address, unsig
 	return 0;
 }
 
+
 static int remove_uhook_breakpoint(struct uhook_process * proc, unsigned int address, bool restore_inst)
 {
 	struct uhook_breakpoint * bkpt;
@@ -690,6 +694,7 @@ static int add_uhook_breakpoint(struct uhook_process      * proc,
 		return -ENOMEM;
 	}
 
+
 	if (is_thumb_address(address))
 	{
 		if (write_proc_vm(proc->task, address & ~0x1, &bkpt_inst, THUMB16_INST_SIZE) != THUMB16_INST_SIZE)
@@ -771,6 +776,7 @@ static unsigned int hook_func_in_uhook_process(struct uhook_process * proc, stru
 	}
 
 }
+
 
 #if 0
 unsigned int elf_hash(const unsigned char *name)
@@ -1104,6 +1110,7 @@ static bool fill_elf_module(struct task_struct * task,
 	{
 		return false;
 	}
+
 
 	read_proc_vm(task, dyn_addr, &dyn_section, sizeof(Elf32_Phdr));
 
@@ -1972,6 +1979,7 @@ static int add_all_modules_in_task(struct task_struct * task)
 	return 0;
 }
 
+
 static int dlopen_entry_cb(struct task_struct * task,
                            unsigned int         orig_inst,
                            int                  orig_inst_size,
@@ -2075,6 +2083,7 @@ static int exe_entry_cb(struct task_struct *task, struct pt_regs *regs, unsigned
 end:
 	return ret;
 }
+
 
 static unsigned int find_free_dia_slot_address(struct uhook_process * proc)
 {
@@ -2445,6 +2454,8 @@ static int tp_trap_handler(struct pt_regs *regs, unsigned int inst)
 	return ret;
 }
 
+
+
 static struct undef_hook arm_func_entry_hook = {
 	.instr_mask     = 0xffff0000,
 	.instr_val      = TP_BP_ARM_MASK,
@@ -2655,6 +2666,8 @@ int unregister_user_func_hook(struct ufunc_hook *hook)
 
 	return ret;
 }
+
+
 
 int uhook_notify_fork(struct task_struct * task, struct task_struct * parent, unsigned long long ts)
 {

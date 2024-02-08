@@ -1,6 +1,3 @@
-#ifndef MY_ABC_HERE
-#define MY_ABC_HERE
-#endif
 /*
  * linux/fs/jbd2/commit.c
  *
@@ -102,10 +99,8 @@ static void jbd2_commit_block_csum_set(journal_t *j,
 	h->h_chksum_type = 0;
 	h->h_chksum_size = 0;
 	h->h_chksum[0] = 0;
-#if !defined(MY_DEF_HERE)
 	csum = jbd2_chksum(j, j->j_csum_seed, jh2bh(descriptor)->b_data,
 			   j->j_blocksize);
-#endif /* MY_DEF_HERE */
 	h->h_chksum[0] = cpu_to_be32(csum);
 }
 
@@ -339,10 +334,8 @@ static void jbd2_descr_block_csum_set(journal_t *j,
 			(jh2bh(descriptor)->b_data + j->j_blocksize -
 			sizeof(struct jbd2_journal_block_tail));
 	tail->t_checksum = 0;
-#if !defined(MY_DEF_HERE)
 	csum = jbd2_chksum(j, j->j_csum_seed, jh2bh(descriptor)->b_data,
 			   j->j_blocksize);
-#endif /* MY_DEF_HERE */
 	tail->t_checksum = cpu_to_be32(csum);
 }
 
@@ -359,12 +352,10 @@ static void jbd2_block_tag_csum_set(journal_t *j, journal_block_tag_t *tag,
 
 	sequence = cpu_to_be32(sequence);
 	addr = kmap_atomic(page);
-#if !defined(MY_DEF_HERE)
 	csum32 = jbd2_chksum(j, j->j_csum_seed, (__u8 *)&sequence,
 			     sizeof(sequence));
 	csum32 = jbd2_chksum(j, csum32, addr + offset_in_page(bh->b_data),
 			     bh->b_size);
-#endif /* MY_DEF_HERE */
 	kunmap_atomic(addr);
 
 	if (JBD2_HAS_INCOMPAT_FEATURE(j, JBD2_FEATURE_INCOMPAT_CSUM_V3))

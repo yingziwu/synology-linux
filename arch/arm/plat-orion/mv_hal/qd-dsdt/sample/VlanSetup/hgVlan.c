@@ -31,6 +31,7 @@ GT_STATUS sampleVlanSetup(GT_QD_DEV *dev)
 	return GT_OK;
 }
 
+
 /*
  *	WAN Port (Port 0) and CPU Port (Port 5) are in VLAN 1 and
  *	all ports (including CPU Port) except WAN Port are in VLAN 2.

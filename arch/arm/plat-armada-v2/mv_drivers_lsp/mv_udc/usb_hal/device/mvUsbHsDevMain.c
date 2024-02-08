@@ -24,6 +24,7 @@ disclaimer.
 #include "api/mvUsbDevApi.h"
 #include "device/mvUsbDevPrv.h"
 
+
 /*FUNCTION*-------------------------------------------------------------
 *
 *  Function Name  : _usb_dci_vusb20_init
@@ -314,6 +315,7 @@ void _usb_dci_vusb20_free_dTD
 
    ARC_DEBUG_CODE(ARC_DEBUG_FLAG_STATS, (usb_dev_ptr->STATS.free_dTD_count++));
 
+
    /*
    ** This function can be called from any context, and it needs mutual
    ** exclusion with itself.
@@ -330,6 +332,7 @@ void _usb_dci_vusb20_free_dTD
    USB_unlock(lockKey);
 
 } /* Endbody */
+
 
 /*FUNCTION*-------------------------------------------------------------
 *
@@ -502,6 +505,7 @@ uint_8 _usb_dci_vusb20_add_dTD
       } /* Endif */
    } while (remaining_len); /* EndWhile */
 
+
    /**************************************************************
    In the loop above DTD has already been added to the list
    However endpoint has not been primed yet. If list is not empty
@@ -651,9 +655,11 @@ done:
                xd_ptr, (unsigned)first_dTD_ptr,
                usb_dev_ptr->EP_DTD_HEADS[temp], list_empty);
 
+
    return USB_OK;
    /* End CR 1015 */
 } /* EndBody */
+
 
 /*FUNCTION*-------------------------------------------------------------
 *
@@ -1097,6 +1103,7 @@ void _usb_dci_vusb20_process_SOF
 
 } /* EndBody */
 
+
 /*FUNCTION*-------------------------------------------------------------
 *
 *  Function Name  : _usb_dci_vusb20_process_port_change
@@ -1270,6 +1277,7 @@ void _usb_dci_vusb20_suspend_phy
 
 } /* EndBody */
 
+
 /*FUNCTION*-------------------------------------------------------------
 *
 *  Function Name  : _usb_dci_vusb20_set_address
@@ -1355,6 +1363,7 @@ void _usb_dci_vusb20_get_setup_data
     volatile boolean                            read_safe = FALSE;
     volatile unsigned long                      timeout;
 
+
    usb_dev_ptr = (USB_DEV_STATE_STRUCT_PTR)handle;
    dev_ptr = (VUSB20_REG_STRUCT_PTR)usb_dev_ptr->DEV_PTR;
 
@@ -1377,6 +1386,7 @@ void _usb_dci_vusb20_get_setup_data
    4. Write '0' to clear Setup Tripwire in register.
    5. Process setup packet using local software byte array copy and
       execute status/handshake phases.
+
 
    ********************************************************************/
     timeout = 0x100000;
@@ -1607,6 +1617,7 @@ XD_STRUCT_PTR  _usb_dci_vusb20_get_transfer_details
    uint_32                                      temp, remaining_bytes;
    VUSB20_EP_QUEUE_HEAD_STRUCT_PTR              ep_queue_head_ptr;
 
+
    usb_dev_ptr = (USB_DEV_STATE_STRUCT_PTR)handle;
    dev_ptr = (VUSB20_REG_STRUCT_PTR)usb_dev_ptr->DEV_PTR;
    temp = (2*ep_num + direction);
@@ -1751,6 +1762,7 @@ uint_8 _usb_dci_vusb20_deinit_endpoint
    return status;
 }
 
+
 /*FUNCTION*-------------------------------------------------------------
 *
 *  Function Name  : _usb_dci_vusb20_shutdown
@@ -1819,6 +1831,7 @@ void _usb_dci_vusb20_stop(_usb_device_handle handle)
    /* Reset the Run the bit in the command register to stop VUSB */
    dev_ptr->REGISTERS.OPERATIONAL_DEVICE_REGISTERS.USB_CMD &= ~USB_32BIT_LE(EHCI_CMD_RUN_STOP);
 }
+
 
 /*FUNCTION*-------------------------------------------------------------
 *

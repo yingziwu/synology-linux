@@ -19,6 +19,7 @@
 extern "C" {
 #endif
 
+
 /* gtBrgFdb.c */
 
 /*******************************************************************************
@@ -48,6 +49,7 @@ GT_STATUS gfdbSetAtuSize
     IN GT_QD_DEV *dev,
     IN ATU_SIZE size
 );
+
 
 /*******************************************************************************
 * gfdbGetAgingTimeRange
@@ -148,6 +150,8 @@ GT_STATUS gfdbSetAgingTimeout
     IN GT_U32 timeout
 );
 
+
+
 /*******************************************************************************
 * gfdbGetAtuDynamicCount
 *
@@ -177,6 +181,8 @@ GT_STATUS gfdbGetAtuDynamicCount
     IN GT_QD_DEV *dev,
     OUT GT_U32 *numDynEntries
 );
+
+
 
 /*******************************************************************************
 * gfdbGetAtuEntryFirst
@@ -210,6 +216,8 @@ GT_STATUS gfdbGetAtuEntryFirst
     IN GT_QD_DEV *dev,
     OUT GT_ATU_ENTRY    *atuEntry
 );
+
+
 
 /*******************************************************************************
 * gfdbGetAtuEntryNext
@@ -245,6 +253,8 @@ GT_STATUS gfdbGetAtuEntryNext
     INOUT GT_ATU_ENTRY  *atuEntry
 );
 
+
+
 /*******************************************************************************
 * gfdbFindAtuMacEntry
 *
@@ -277,6 +287,8 @@ GT_STATUS gfdbFindAtuMacEntry
     INOUT GT_ATU_ENTRY  *atuEntry,
     OUT GT_BOOL         *found
 );
+
+
 
 /*******************************************************************************
 * gfdbFlush
@@ -373,6 +385,8 @@ GT_STATUS gfdbAddMacEntry
     IN GT_ATU_ENTRY *macEntry
 );
 
+
+
 /*******************************************************************************
 * gfdbDelMacEntry
 *
@@ -463,6 +477,7 @@ GT_STATUS gfdbLearnEnable
     IN GT_BOOL  en
 );
 
+
 /*******************************************************************************
 * gfdbGetLearnEnable
 *
@@ -521,6 +536,8 @@ GT_STATUS gstpSetMode
     IN GT_BOOL  en
 );
 
+
+
 /*******************************************************************************
 * gstpSetPortState
 *
@@ -550,6 +567,8 @@ GT_STATUS gstpSetPortState
     IN GT_LPORT           port,
     IN GT_PORT_STP_STATE  state
 );
+
+
 
 /*******************************************************************************
 * gstpGetPortState
@@ -610,6 +629,8 @@ GT_STATUS gprtSetEgressMode
     IN GT_EGRESS_MODE  mode
 );
 
+
+
 /*******************************************************************************
 * gprtGetEgressMode
 *
@@ -638,6 +659,8 @@ GT_STATUS gprtGetEgressMode
     IN  GT_LPORT        port,
     OUT GT_EGRESS_MODE  *mode
 );
+
+
 
 /*******************************************************************************
 * gprtSetVlanTunnel
@@ -669,6 +692,8 @@ GT_STATUS gprtSetVlanTunnel
     IN GT_BOOL  mode
 );
 
+
+
 /*******************************************************************************
 * gprtGetVlanTunnel
 *
@@ -698,6 +723,7 @@ GT_STATUS gprtGetVlanTunnel
     IN  GT_LPORT port,
     OUT GT_BOOL  *mode
 );
+
 
 /*******************************************************************************
 * gprtSetIGMPSnoop
@@ -821,6 +847,7 @@ GT_STATUS gprtGetHeaderMode
     IN  GT_LPORT port,
     OUT GT_BOOL  *mode
 );
+
 
 /*******************************************************************************
 * gprtSetProtectedMode
@@ -1014,6 +1041,7 @@ GT_STATUS gprtSetSwitchReg
     IN  GT_U16         data
 );
 
+
 /*******************************************************************************
 * gprtGetGlobalReg
 *
@@ -1072,6 +1100,8 @@ GT_STATUS gprtSetGlobalReg
     IN  GT_U16         data
 );
 
+
+
 /*******************************************************************************
 * gvlnSetPortVlanPorts
 *
@@ -1104,6 +1134,8 @@ GT_STATUS gvlnSetPortVlanPorts
     IN GT_U8    memPortsLen
 );
 
+
+
 /*******************************************************************************
 * gvlnGetPortVlanPorts
 *
@@ -1134,6 +1166,9 @@ GT_STATUS gvlnGetPortVlanPorts
     OUT GT_LPORT memPorts[],
     OUT GT_U8    *memPortsLen
 );
+
+
+
 
 /*******************************************************************************
 * gvlnSetPortUserPriLsb
@@ -1166,6 +1201,8 @@ GT_STATUS gvlnSetPortUserPriLsb
     IN GT_BOOL  userPriLsb
 );
 
+
+
 /*******************************************************************************
 * gvlnGetPortUserPriLsb
 *
@@ -1194,6 +1231,7 @@ GT_STATUS gvlnGetPortUserPriLsb
     IN  GT_LPORT    port,
     OUT GT_BOOL     *userPriLsb
 );
+
 
 /*******************************************************************************
 * gvlnSetPortVid
@@ -1224,6 +1262,7 @@ GT_STATUS gvlnSetPortVid
     IN GT_LPORT port,
     IN GT_U16   vid
 );
+
 
 /*******************************************************************************
 * gvlnGetPortVid
@@ -1283,6 +1322,7 @@ GT_STATUS gvlnSetPortVlanDBNum
     IN GT_LPORT port,
     IN GT_U32   DBNum
 );
+
 
 /*******************************************************************************
 * gvlnGetPortVlanDBNum
@@ -1368,6 +1408,7 @@ GT_STATUS gvlnGetPortVlanDot1qMode
     IN  GT_LPORT port,
     OUT GT_DOT1Q_MODE    *mode
 );
+
 
 /********************************************************************
 * gvlnSetPortVlanForceDefaultVID
@@ -1754,6 +1795,7 @@ GT_STATUS gprtPhyReset
     IN GT_LPORT     port
 );
 
+
 /*******************************************************************************
 * gprtSetPortLoopback
 *
@@ -1796,6 +1838,7 @@ GT_STATUS gprtSetPortLoopback
     IN GT_BOOL         enable
 );
 
+
 /*******************************************************************************
 * gprtSetPortSpeed
 *
@@ -1830,6 +1873,7 @@ GT_STATUS gprtSetPortSpeed
     IN GT_LPORT     port,
     IN GT_PHY_SPEED    speed
 );
+
 
 /*******************************************************************************
 * gprtPortAutoNegEnable
@@ -1866,6 +1910,7 @@ GT_STATUS gprtPortAutoNegEnable
     IN GT_BOOL         state
 );
 
+
 /*******************************************************************************
 * gprtPortPowerDown
 *
@@ -1898,6 +1943,7 @@ GT_STATUS gprtPortPowerDown
     IN GT_BOOL        state
 );
 
+
 /*******************************************************************************
 * gprtPortRestartAutoNeg
 *
@@ -1925,6 +1971,7 @@ GT_STATUS gprtPortRestartAutoNeg
     IN GT_QD_DEV    *dev,
     IN GT_LPORT        port
 );
+
 
 /*******************************************************************************
 * gprtSetPortDuplexMode
@@ -1956,6 +2003,7 @@ GT_STATUS gprtSetPortDuplexMode
     IN GT_LPORT        port,
     IN GT_BOOL        dMode
 );
+
 
 /*******************************************************************************
 * gprtSetPortAutoMode
@@ -2094,6 +2142,7 @@ GT_STATUS gprtSetPhyReg
     IN  GT_U16         data
 );
 
+
 /*******************************************************************************
 * gprtPhyIntEnable
 *
@@ -2139,6 +2188,7 @@ IN GT_QD_DEV *dev,
 IN GT_LPORT   port,
 IN GT_U16    intType
 );
+
 
 /*******************************************************************************
 * gprtGetPhyIntStatus
@@ -2213,6 +2263,8 @@ IN GT_QD_DEV *dev,
 OUT GT_U16 *intPortMask
 );
 
+
+
 /*******************************************************************************
 * gprtSetForceFc
 *
@@ -2243,6 +2295,8 @@ GT_STATUS gprtSetForceFc
     IN GT_BOOL  force
 );
 
+
+
 /*******************************************************************************
 * gprtGetForceFc
 *
@@ -2271,6 +2325,8 @@ GT_STATUS gprtGetForceFc
     IN  GT_LPORT port,
     OUT GT_BOOL  *force
 );
+
+
 
 /*******************************************************************************
 * gprtSetTrailerMode
@@ -2302,6 +2358,8 @@ GT_STATUS gprtSetTrailerMode
     IN GT_BOOL  mode
 );
 
+
+
 /*******************************************************************************
 * gprtGetTrailerMode
 *
@@ -2330,6 +2388,8 @@ GT_STATUS gprtGetTrailerMode
     IN  GT_LPORT port,
     OUT GT_BOOL  *mode
 );
+
+
 
 /*******************************************************************************
 * gprtSetIngressMode
@@ -2362,6 +2422,8 @@ GT_STATUS gprtSetIngressMode
     IN GT_INGRESS_MODE mode
 );
 
+
+
 /*******************************************************************************
 * gprtGetIngressMode
 *
@@ -2391,6 +2453,8 @@ GT_STATUS gprtGetIngressMode
     IN  GT_LPORT        port,
     OUT GT_INGRESS_MODE *mode
 );
+
+
 
 /*******************************************************************************
 * gprtSetMcRateLimit
@@ -2422,6 +2486,8 @@ GT_STATUS gprtSetMcRateLimit
     IN GT_MC_RATE   rate
 );
 
+
+
 /*******************************************************************************
 * gprtGetMcRateLimit
 *
@@ -2451,6 +2517,8 @@ GT_STATUS gprtGetMcRateLimit
     OUT GT_MC_RATE  *rate
 );
 
+
+
 /*******************************************************************************
 * gprtSetCtrMode
 *
@@ -2479,6 +2547,8 @@ GT_STATUS gprtSetCtrMode
     IN GT_CTR_MODE  mode
 );
 
+
+
 /*******************************************************************************
 * gprtClearAllCtr
 *
@@ -2505,6 +2575,7 @@ GT_STATUS gprtClearAllCtr
 (
     IN GT_QD_DEV *dev
 );
+
 
 /*******************************************************************************
 * gprtGetPortCtr
@@ -2535,6 +2606,9 @@ GT_STATUS gprtGetPortCtr
     OUT GT_PORT_STAT    *ctr
 );
 
+
+
+
 /*******************************************************************************
 * gprtGetPartnerLinkPause
 *
@@ -2563,6 +2637,8 @@ GT_STATUS gprtGetPartnerLinkPause
     IN  GT_LPORT port,
     OUT GT_BOOL  *state
 );
+
+
 
 /*******************************************************************************
 * gprtGetSelfLinkPause
@@ -2593,6 +2669,8 @@ GT_STATUS gprtGetSelfLinkPause
     OUT GT_BOOL  *state
 );
 
+
+
 /*******************************************************************************
 * gprtGetResolve
 *
@@ -2621,6 +2699,8 @@ GT_STATUS gprtGetResolve
     IN  GT_LPORT port,
     OUT GT_BOOL  *state
 );
+
+
 
 /*******************************************************************************
 * gprtGetLinkState
@@ -2651,6 +2731,8 @@ GT_STATUS gprtGetLinkState
     OUT GT_BOOL  *state
 );
 
+
+
 /*******************************************************************************
 * gprtGetPortMode
 *
@@ -2679,6 +2761,8 @@ GT_STATUS gprtGetPortMode
     IN  GT_LPORT port,
     OUT GT_BOOL  *mode
 );
+
+
 
 /*******************************************************************************
 * gprtGetPhyMode
@@ -2709,6 +2793,8 @@ GT_STATUS gprtGetPhyMode
     OUT GT_BOOL  *mode
 );
 
+
+
 /*******************************************************************************
 * gprtGetDuplex
 *
@@ -2737,6 +2823,8 @@ GT_STATUS gprtGetDuplex
     IN  GT_LPORT port,
     OUT GT_BOOL  *mode
 );
+
+
 
 /*******************************************************************************
 * gprtGetSpeed
@@ -2799,6 +2887,7 @@ GT_STATUS gprtSetDuplex
     IN  GT_BOOL  mode
 );
 
+
 /*******************************************************************************
 * gqosSetPortDefaultTc
 *
@@ -2829,6 +2918,7 @@ GT_STATUS gcosSetPortDefaultTc
     IN GT_U8    trafClass
 );
 
+
 /*******************************************************************************
 * gcosGetPortDefaultTc
 *
@@ -2857,6 +2947,7 @@ GT_STATUS gcosGetPortDefaultTc
     IN GT_LPORT   port,
     OUT GT_U8     *trafClass
 );
+
 
 /*******************************************************************************
 * gqosSetPrioMapRule
@@ -2888,6 +2979,8 @@ GT_STATUS gqosSetPrioMapRule
     IN GT_BOOL  mode
 );
 
+
+
 /*******************************************************************************
 * gqosGetPrioMapRule
 *
@@ -2916,6 +3009,8 @@ GT_STATUS gqosGetPrioMapRule
     IN  GT_LPORT port,
     OUT GT_BOOL  *mode
 );
+
+
 
 /*******************************************************************************
 * gqosIpPrioMapEn
@@ -2947,6 +3042,8 @@ GT_STATUS gqosIpPrioMapEn
     IN GT_BOOL  en
 );
 
+
+
 /*******************************************************************************
 * gqosGetIpPrioMapEn
 *
@@ -2975,6 +3072,8 @@ GT_STATUS gqosGetIpPrioMapEn
     IN  GT_LPORT port,
     OUT GT_BOOL  *en
 );
+
+
 
 /*******************************************************************************
 * gqosUserPrioMapEn
@@ -3006,6 +3105,8 @@ GT_STATUS gqosUserPrioMapEn
     IN GT_BOOL  en
 );
 
+
+
 /*******************************************************************************
 * gqosGetUserPrioMapEn
 *
@@ -3034,6 +3135,8 @@ GT_STATUS gqosGetUserPrioMapEn
     IN  GT_LPORT port,
     OUT GT_BOOL  *en
 );
+
+
 
 /*******************************************************************************
 * gcosGetUserPrio2Tc
@@ -3064,6 +3167,7 @@ GT_STATUS gcosGetUserPrio2Tc
     IN  GT_U8    userPrior,
     OUT GT_U8   *trClass
 );
+
 
 /*******************************************************************************
 * gcosSetUserPrio2Tc
@@ -3096,6 +3200,7 @@ GT_STATUS gcosSetUserPrio2Tc
     IN GT_U8    trClass
 );
 
+
 /*******************************************************************************
 * gcosGetDscp2Tc
 *
@@ -3126,6 +3231,7 @@ GT_STATUS gcosGetDscp2Tc
     IN  GT_U8   dscp,
     OUT GT_U8   *trClass
 );
+
 
 /*******************************************************************************
 * gcosSetDscp2Tc
@@ -3159,6 +3265,7 @@ GT_STATUS gcosSetDscp2Tc
     IN GT_U8    trClass
 );
 
+
 /*******************************************************************************
 * qdLoadDriver
 *
@@ -3191,6 +3298,7 @@ GT_STATUS qdLoadDriver
     OUT GT_QD_DEV    *dev
 );
 
+
 /*******************************************************************************
 * qdUnloadDriver
 *
@@ -3217,6 +3325,7 @@ GT_STATUS qdUnloadDriver
     IN GT_QD_DEV* dev
 );
 
+
 /*******************************************************************************
 * sysEnable
 *
@@ -3240,6 +3349,7 @@ GT_STATUS sysEnable
 (
     IN GT_QD_DEV* dev
 );
+
 
 /*******************************************************************************
 * gsysSwReset
@@ -3268,6 +3378,7 @@ GT_STATUS gsysSwReset
     IN GT_QD_DEV* dev
 );
 
+
 /*******************************************************************************
 * gsysSetDiscardExcessive
 *
@@ -3295,6 +3406,8 @@ GT_STATUS gsysSetDiscardExcessive
     IN GT_QD_DEV* dev,
     IN GT_BOOL en
 );
+
+
 
 /*******************************************************************************
 * gsysGetDiscardExcessive
@@ -3325,6 +3438,8 @@ GT_STATUS gsysGetDiscardExcessive
     IN GT_BOOL *en
 );
 
+
+
 /*******************************************************************************
 * gsysSetSchedulingMode
 *
@@ -3352,6 +3467,8 @@ GT_STATUS gsysSetSchedulingMode
     IN GT_QD_DEV* dev,
     IN GT_BOOL mode
 );
+
+
 
 /*******************************************************************************
 * gsysGetSchedulingMode
@@ -3382,6 +3499,8 @@ GT_STATUS gsysGetSchedulingMode
     OUT GT_BOOL *mode
 );
 
+
+
 /*******************************************************************************
 * gsysSetMaxFrameSize
 *
@@ -3409,6 +3528,8 @@ GT_STATUS gsysSetMaxFrameSize
     IN GT_QD_DEV* dev,
     IN GT_BOOL mode
 );
+
+
 
 /*******************************************************************************
 * gsysGetMaxFrameSize
@@ -3439,6 +3560,8 @@ GT_STATUS gsysGetMaxFrameSize
     OUT GT_BOOL *mode
 );
 
+
+
 /*******************************************************************************
 * gsysReLoad
 *
@@ -3465,6 +3588,7 @@ GT_STATUS gsysReLoad
 (
     IN GT_QD_DEV* dev
 );
+
 
 /*******************************************************************************
 * gsysSetWatchDog
@@ -3493,6 +3617,8 @@ GT_STATUS gsysSetWatchDog
     IN GT_QD_DEV* dev,
     IN GT_BOOL en
 );
+
+
 
 /*******************************************************************************
 * gsysGetWatchDog
@@ -3523,6 +3649,7 @@ GT_STATUS gsysGetWatchDog
     OUT GT_BOOL *en
 );
 
+
 /*******************************************************************************
 * gsysSetDuplexPauseMac
 *
@@ -3551,6 +3678,7 @@ GT_STATUS gsysSetDuplexPauseMac
     IN GT_QD_DEV* dev,
     IN GT_ETHERADDR *mac
 );
+
 
 /*******************************************************************************
 * gsysGetDuplexPauseMac
@@ -3581,6 +3709,8 @@ GT_STATUS gsysGetDuplexPauseMac
     OUT GT_ETHERADDR *mac
 );
 
+
+
 /*******************************************************************************
 * gsysSetPerPortDuplexPauseMac
 *
@@ -3609,6 +3739,8 @@ GT_STATUS gsysSetPerPortDuplexPauseMac
     IN GT_QD_DEV* dev,
     IN GT_BOOL en
 );
+
+
 
 /*******************************************************************************
 * gsysGetPerPortDuplexPauseMac
@@ -4062,6 +4194,7 @@ GT_STATUS gsysGetInitReady
     IN GT_BOOL *mode
 );
 
+
 /*******************************************************************************
 * gstatsFlushAll
 *
@@ -4177,6 +4310,7 @@ GT_STATUS gstatsGetPortAllCounters
     IN  GT_LPORT        port,
     OUT GT_STATS_COUNTER_SET    *statsCounterSet
 );
+
 
 /*******************************************************************************
 * grcSetLimitMode
@@ -4634,6 +4768,7 @@ GT_STATUS grcGetEgressRate
     OUT GT_ERATE_TYPE  *rateType
 );
 
+
 /*******************************************************************************
 * gpavSetPAV
 *
@@ -4770,6 +4905,7 @@ GT_STATUS gvctGetCableDiag
     OUT GT_CABLE_STATUS *cableStatus
 );
 
+
 /*******************************************************************************
 * gvctGet1000BTExtendedStatus
 *
@@ -4801,6 +4937,7 @@ GT_STATUS gvctGet1000BTExtendedStatus
     IN  GT_LPORT        port,
     OUT GT_1000BT_EXTENDED_STATUS *extendedStatus
 );
+
 
 /*******************************************************************************
 * gtMemSet
@@ -4859,6 +4996,7 @@ void * gtMemCpy
     IN const void * source,
     IN GT_U32       size
 );
+
 
 /*******************************************************************************
 * gtMemCmp
@@ -4941,6 +5079,7 @@ void gtDelay
     IN const unsigned int delayTime
 );
 
+
 /*******************************************************************************
 * gtVersion
 *
@@ -4966,7 +5105,9 @@ GT_STATUS gtVersion
     OUT GT_VERSION   *version
 );
 
+
 /* Prototypes added for Gigabit Ethernet Switch Support */
+
 
 /* gtBrgFdb.c */
 
@@ -5070,6 +5211,7 @@ GT_STATUS gatuGetIntStatus
     IN  GT_QD_DEV                *dev,
     OUT GT_ATU_INT_STATUS    *atuIntStatus
 );
+
 
 /* gtPhyCtrl.c */
 
@@ -5195,6 +5337,7 @@ GT_STATUS gprtSetPhyReg
     IN  GT_U32         regAddr,
     IN  GT_U16         data
 );
+
 
 /* gtPortCtrl.c */
 
@@ -5416,6 +5559,7 @@ GT_STATUS gprtSetLearnDisable
     IN GT_LPORT        port,
     IN GT_BOOL        mode
 );
+
 
 /*******************************************************************************
 * gprtGetLearnDisable
@@ -5934,6 +6078,7 @@ GT_STATUS gprtSetIgnoreWrongData
     IN GT_BOOL        mode
 );
 
+
 /*******************************************************************************
 * gprtGetIgnoreWrongData
 *
@@ -5962,6 +6107,7 @@ GT_STATUS gprtGetIgnoreWrongData
     IN  GT_LPORT    port,
     OUT GT_BOOL     *mode
 );
+
 
 /* gtPortRateCtrl.c */
 
@@ -5997,6 +6143,7 @@ GT_STATUS gstatsGetPortCounter2
     IN  GT_STATS_COUNTERS2    counter,
     OUT GT_U32            *statsData
 );
+
 
 /*******************************************************************************
 * gstatsGetPortAllCounters2
@@ -6088,6 +6235,7 @@ GT_STATUS gstatsSetHistogramMode
     IN GT_QD_DEV                 *dev,
     IN GT_HISTOGRAM_MODE        mode
 );
+
 
 /* gtPortStatus.c */
 
@@ -6308,6 +6456,7 @@ GT_STATUS gprtGetTxPaused
     OUT GT_BOOL      *state
 );
 
+
 /*******************************************************************************
 * gprtGetFlowCtrl
 *
@@ -6401,6 +6550,7 @@ GT_STATUS gprtGetC_Mode
     IN  GT_LPORT     port,
     OUT GT_PORT_CONFIG_MODE   *state
 );
+
 
 /* gtSysCtrl.c */
 
@@ -6588,7 +6738,9 @@ GT_STATUS gsysGetDeviceNumber
     OUT GT_U32      *devNum
 );
 
+
 /* gtPCSCtrl.c */
+
 
 /*******************************************************************************
 * gpcsGetCommaDet
@@ -7187,6 +7339,8 @@ GT_STATUS gpcsGetForceSpeed
     OUT GT_PORT_FORCED_SPEED_MODE   *mode
 );
 
+
+
 /* gtQosMap.c */
 
 /*******************************************************************************
@@ -7254,6 +7408,7 @@ GT_STATUS gqosSetTagRemap
     IN GT_U8        remappedPri
 );
 
+
 /* gtSysConfig.c */
 
 /* gtSysStatus.c */
@@ -7289,7 +7444,9 @@ GT_STATUS gsysGetPPUState
     OUT GT_PPU_STATE    *mode
 );
 
+
 /* Prototypes added for 88E6093 */
+
 
 /* gtBrgFdb.c */
 
@@ -7419,6 +7576,8 @@ GT_STATUS gfdbRemovePortInDB
     IN GT_LPORT        port,
     IN GT_U32         DBNum
 );
+
+
 
 /* gtBrgStp.c */
 
@@ -7581,6 +7740,8 @@ GT_STATUS gpcsGetForcedFC
     OUT GT_BOOL      *state
 );
 
+
+
 /* gtPhyCtrl.c */
 
 /*******************************************************************************
@@ -7645,6 +7806,7 @@ GT_STATUS gprtSetPagedPhyReg
     IN    GT_U32 page,
     IN  GT_U16 data
 );
+
 
 /* gtPortCtrl.c */
 
@@ -8082,6 +8244,7 @@ GT_STATUS gprtGetIngressMonitorSource
     OUT GT_BOOL     *mode
 );
 
+
 /* gtPortPAV.c */
 
 /* gtPortRateCtrl.c */
@@ -8147,6 +8310,7 @@ GT_STATUS gstatsGetPortAllCounters3
     IN  GT_LPORT        port,
     OUT GT_STATS_COUNTER_SET3    *statsCounterSet
 );
+
 
 /* gtPortStat.c */
 
@@ -8249,6 +8413,7 @@ GT_STATUS gprtSetMGMII
     IN  GT_LPORT     port,
     IN  GT_BOOL      state
 );
+
 
 /* gtQosMap.c */
 
@@ -8449,9 +8614,11 @@ GT_STATUS gsysGetEgressMonitorDest
     OUT GT_LPORT      *port
 );
 
+
 /* gtSysConfig.c */
 
 /* gtSysStatus.c */
+
 
 /* functions added on rev 2.2 */
 
@@ -8526,6 +8693,7 @@ GT_STATUS gprtGetMessagePort
     OUT GT_BOOL     *mode
 );
 
+
 /*******************************************************************************
 * gprtSetTrunkPort
 *
@@ -8558,6 +8726,7 @@ GT_STATUS gprtSetTrunkPort
     IN GT_U32        trunkId
 );
 
+
 /*******************************************************************************
 * gprtGetTrunkPort
 *
@@ -8588,6 +8757,9 @@ GT_STATUS gprtGetTrunkPort
     OUT GT_BOOL     *en,
     OUT GT_U32        *trunkId
 );
+
+
+
 
 /*******************************************************************************
 * gprtGetGlobal2Reg
@@ -9573,6 +9745,8 @@ GT_STATUS gsysGetTrunkRouting
     OUT GT_U32        *trunkRoute
 );
 
+
+
 /* Prototype added for 88E6095 Rev 1 or Rev 2 */
 
 /* gtPortCtrl.c */
@@ -9711,6 +9885,7 @@ GT_STATUS gprtSetFCOnRateLimitMode
     IN  GT_BOOL      en
 );
 
+
 /* gtPortRateCtrl.c */
 
 /*******************************************************************************
@@ -9785,6 +9960,7 @@ GT_STATUS grcGetBurstRate
     OUT GT_BURST_RATE   *rate
 );
 
+
 /*******************************************************************************
 * grcSetTCPBurstRate
 *
@@ -9822,6 +9998,7 @@ GT_STATUS grcSetTCPBurstRate
     IN GT_BURST_RATE   rate
 );
 
+
 /*******************************************************************************
 * grcGetTCPBurstRate
 *
@@ -9855,6 +10032,7 @@ GT_STATUS grcGetTCPBurstRate
     IN  GT_LPORT        port,
     OUT GT_BURST_RATE   *rate
 );
+
 
 /* gtSysCtrl.c */
 /*******************************************************************************
@@ -9993,6 +10171,7 @@ GT_STATUS gsysGetAgeInt
     OUT GT_BOOL        *en
 );
 
+
 /* For Zephyr */
 
 /* gtPhyCtrl.c */
@@ -10023,6 +10202,7 @@ GT_STATUS gprtGetPhyLinkStatus
     IN GT_LPORT  port,
     IN GT_BOOL      *linkStatus
 );
+
 
 /*******************************************************************************
 * gprtSetPktGenEnable
@@ -10121,6 +10301,7 @@ GT_STATUS gprtSetSerdesMode
     IN  GT_SERDES_MODE mode
 );
 
+
 /* gtSysCtrl.c */
 
 /*******************************************************************************
@@ -10185,6 +10366,7 @@ GT_STATUS gsysGetForceSnoopPri
     OUT GT_BOOL      *en
 );
 
+
 /*******************************************************************************
 * gsysSetSnoopPri
 *
@@ -10215,6 +10397,7 @@ GT_STATUS gsysSetSnoopPri
     IN GT_QD_DEV    *dev,
     IN GT_U16        pri
 );
+
 
 /*******************************************************************************
 * gsysGetSnoopPri
@@ -10247,6 +10430,7 @@ GT_STATUS gsysGetSnoopPri
     IN  GT_QD_DEV    *dev,
     OUT GT_U16      *pri
 );
+
 
 /*******************************************************************************
 * gsysSetForceARPPri
@@ -10308,6 +10492,7 @@ GT_STATUS gsysGetForceARPPri
     OUT GT_BOOL      *en
 );
 
+
 /*******************************************************************************
 * gsysSetARPPri
 *
@@ -10338,6 +10523,7 @@ GT_STATUS gsysSetARPPri
     IN GT_QD_DEV    *dev,
     IN GT_U16        pri
 );
+
 
 /*******************************************************************************
 * gsysGetARPPri
@@ -10370,6 +10556,7 @@ GT_STATUS gsysGetARPPri
     IN  GT_QD_DEV    *dev,
     OUT GT_U16      *pri
 );
+
 
 /* added for 88E6065 */
 
@@ -10406,6 +10593,7 @@ GT_STATUS gvlnSetForceMap
     IN  GT_LPORT     port,
     IN  GT_BOOL      mode
 );
+
 
 /********************************************************************
 * gvlnGetForceMap
@@ -10505,6 +10693,7 @@ GT_STATUS geventGetAgeIntEn
     IN  GT_LPORT    port,
     OUT GT_BOOL        *mode
 );
+
 
 /* gtPIRL.c */
 
@@ -10764,6 +10953,8 @@ GT_STATUS gpirlGetIngressRateResource
     OUT GT_U32        *resVec
 );
 
+
+
 /* gtPortStatus.c */
 
 /*******************************************************************************
@@ -10911,6 +11102,7 @@ GT_STATUS gprtGetOutQSize
     OUT GT_U16        *count
 );
 
+
 /* gtPortCtrl.c */
 
 /*******************************************************************************
@@ -10994,6 +11186,7 @@ GT_STATUS gprtGetSAFiltering
     OUT GT_SA_FILTERING    *mode
 );
 
+
 /*******************************************************************************
 * gprtSetARPtoCPU
 *
@@ -11022,6 +11215,7 @@ GT_STATUS gprtSetARPtoCPU
     IN GT_LPORT   port,
     IN GT_BOOL    mode
 );
+
 
 /*******************************************************************************
 * gprtGetARPtoCPU
@@ -11189,6 +11383,7 @@ GT_STATUS gprtGetPortSched
     OUT GT_PORT_SCHED_MODE        *mode
 );
 
+
 /*******************************************************************************
 * gprtSetProviderTag
 *
@@ -11247,6 +11442,8 @@ GT_STATUS gprtGetProviderTag
     IN  GT_LPORT    port,
     OUT GT_U16        *tag
 );
+
+
 
 /* gtPortRateCtrl.c */
 
@@ -11584,6 +11781,7 @@ GT_STATUS grcGetRsvdNrlEn
     OUT GT_BOOL   *en
 );
 
+
 /* gtPortRmon.c */
 
 /*******************************************************************************
@@ -11613,6 +11811,7 @@ GT_STATUS gstatsGetRealtimePortCounter
     IN  GT_STATS_COUNTERS3    counter,
     OUT GT_U32            *statsData
 );
+
 
 /* gtQosMap.c */
 
@@ -12171,6 +12370,7 @@ GT_STATUS gqosGetARPQPriOverride
     OUT GT_BOOL        *mode
 );
 
+
 /*******************************************************************************
 * gqosSetQPriValue
 *
@@ -12362,6 +12562,7 @@ GT_STATUS gqosGetDefFPri
     OUT GT_U8      *pri
 );
 
+
 /*******************************************************************************
 * gqosSetArpQPri
 *
@@ -12393,6 +12594,7 @@ GT_STATUS gqosSetArpQPri
     IN  GT_U8     pri
 );
 
+
 /*******************************************************************************
 * gqosGetArpQPri
 *
@@ -12422,6 +12624,7 @@ GT_STATUS gqosGetArpQPri
     IN  GT_QD_DEV *dev,
     OUT GT_U8     *pri
 );
+
 
 /* gtSysCtrl.c */
 
@@ -12658,6 +12861,8 @@ GT_STATUS gsysGetCPUPort
     OUT GT_LPORT  *cpuPort
 );
 
+
+
 /* gtSysStatus.c */
 
 /*******************************************************************************
@@ -12742,6 +12947,7 @@ GT_STATUS gfdbSetPortAtuLearnLimit
     IN  GT_LPORT      port,
     IN  GT_U32       limit
 );
+
 
 /*******************************************************************************
 * gfdbGetPortAtuLearnCnt
@@ -12854,6 +13060,7 @@ GT_STATUS gfdbGetAtuDynamicCountInDBNum
     IN  GT_U32         dbNum,
     OUT GT_U32         *count
 );
+
 
 /* gtBrgStu.c */
 
@@ -13021,6 +13228,7 @@ GT_STATUS gstuDelEntry
     IN  GT_STU_ENTRY     *stuEntry
 );
 
+
 /* gtCCPVT.c */
 
 /*******************************************************************************
@@ -13157,6 +13365,7 @@ GT_STATUS gpvtReadPVTData
     IN  GT_U32        pvtPointer,
     OUT GT_U32        *pvtData
 );
+
 
 /* gtEvents.c */
 
@@ -13550,6 +13759,7 @@ GT_STATUS gwdGetHistory
     OUT GT_WD_EVENT_HISTORY    *history
 );
 
+
 /* gtPIRL2.c */
 
 /*******************************************************************************
@@ -13645,6 +13855,7 @@ GT_STATUS gpirl2DisableResource
     IN  GT_LPORT    port,
     IN  GT_U32        irlRes
 );
+
 
 /* gtPolicy.c */
 
@@ -13770,6 +13981,7 @@ GT_STATUS gprtGetPolicy
     IN  GT_POLICY_TYPE    type,
     OUT GT_FRAME_POLICY    *policy
 );
+
 
 /* gtPortCtrl.c */
 
@@ -14218,6 +14430,7 @@ GT_STATUS gprtGetPortEType
     OUT GT_ETYPE    *etype
 );
 
+
 /* gtPortRateCtr.c */
 
 /*******************************************************************************
@@ -14312,6 +14525,7 @@ GT_STATUS grcGetFrameOverhead
     OUT GT_32    *overhead
 );
 
+
 /* gtPortStatus.c */
 
 /*******************************************************************************
@@ -14398,6 +14612,7 @@ GT_STATUS gprtGetRsvSize
     IN  GT_LPORT    port,
     OUT GT_U16        *count
 );
+
 
 /* gtPriTable.c */
 
@@ -14553,6 +14768,7 @@ GT_STATUS gsysGetQPriOverrideTable
     IN  GT_PRI_OVERRIDE_FTYPE    fType,
     OUT GT_QPRI_TBL_ENTRY    *entry
 );
+
 
 /* gtSysCtrl.c */
 
@@ -15605,6 +15821,7 @@ GT_STATUS gsysGetSDETPolarity
     OUT GT_U32      *sdetVec
 );
 
+
 /* gtBrgVlan.c for 2.6 release */
 
 /*******************************************************************************
@@ -15637,6 +15854,7 @@ GT_STATUS gvlnSetNoEgrPolicy
     IN GT_QD_DEV    *dev,
     IN GT_BOOL        mode
 );
+
 
 /*******************************************************************************
 * gvlnGetNoEgrPolicy
@@ -15767,6 +15985,7 @@ GT_STATUS gwdGetEgressWDEvent
     OUT GT_BOOL            *event
 );
 
+
 /*******************************************************************************
 * gsysSetQoSWeight
 *
@@ -15830,6 +16049,7 @@ GT_STATUS gsysGetQoSWeight
     IN  GT_QD_DEV         *dev,
     OUT GT_QoS_WEIGHT    *weight
 );
+
 
 /*
  *    gtPortCtrl.c
@@ -15953,6 +16173,7 @@ GT_STATUS gprtSetEnergyDetect
     IN  GT_LPORT  port,
     IN  GT_EDETECT_MODE   mode
 );
+
 
 /*
  *    gtSysCtrl.c
@@ -16139,6 +16360,7 @@ GT_STATUS gsysLportvec2Portvec
     OUT GT_U32         *portvec
 );
 
+
 /*
  * gtPIRL.c
  */
@@ -16171,6 +16393,7 @@ GT_STATUS gpirlSetCurTimeUpInt
     IN    GT_U32                upInt
 );
 
+
 /*
  * gtPIRL2.c
  */
@@ -16202,6 +16425,7 @@ GT_STATUS gpirl2SetCurTimeUpInt
     IN  GT_QD_DEV              *dev,
     IN    GT_U32                upInt
 );
+
 
 /*
  * gtPTP.c
@@ -16484,6 +16708,7 @@ GT_STATUS gptpGetPortPTPEn
     OUT GT_BOOL        *en
 );
 
+
 /*******************************************************************************
 * gptpGetPTPInt
 *
@@ -16670,6 +16895,7 @@ GT_STATUS gptpSetReg
     IN  GT_U32        data
 );
 
+
 #ifdef CONFIG_AVB_FPGA
 
 /*******************************************************************************
@@ -16699,6 +16925,7 @@ GT_STATUS gptpSetFPGAIntStatus
     IN  GT_U32    intStatus
 );
 
+
 /*******************************************************************************
 * gptpGetFPGAIntStatus
 *
@@ -16725,6 +16952,7 @@ GT_STATUS gptpGetFPGAIntStatus
     IN  GT_QD_DEV     *dev,
     IN  GT_U32    *intStatus
 );
+
 
 /*******************************************************************************
 * gptpSetFPGAIntEn
@@ -16887,6 +17115,7 @@ GT_STATUS gptpReset
     IN  GT_QD_DEV     *dev
 );
 
+
 /*******************************************************************************
 * gptpGetCycleAdjustEn
 *
@@ -16914,6 +17143,7 @@ GT_STATUS gptpGetCycleAdjustEn
     OUT GT_BOOL        *adjEn
 );
 
+
 /*******************************************************************************
 * gptpSetCycleAdjustEn
 *
@@ -16940,6 +17170,7 @@ GT_STATUS gptpSetCycleAdjustEn
     IN  GT_QD_DEV     *dev,
     IN  GT_BOOL        adjEn
 );
+
 
 /*******************************************************************************
 * gptpGetCycleAdjust
@@ -17264,6 +17495,7 @@ GT_STATUS gpcsSetRGMIITimingDelay
     IN  GT_BOOL      txmode
 );
 
+
 /* gtPortLed.c */
 
 /*******************************************************************************
@@ -17298,6 +17530,7 @@ GT_STATUS gprtSetLED
     IN  GT_U32        value
 );
 
+
 /*******************************************************************************
 * gprtGetLED
 *
@@ -17329,6 +17562,10 @@ GT_STATUS gprtGetLED
     OUT GT_U32        *value
 );
 
+
+
+
+
 /* gtPortStatus.c */
 
 /*******************************************************************************
@@ -17358,7 +17595,9 @@ GT_STATUS gprtGetQSizePerQPri
     OUT GT_U16        *counts
 );
 
+
 /* gtSysCtrl.c */
+
 
 /*******************************************************************************
 * gsysGetARPwoBC
@@ -17417,6 +17656,7 @@ GT_STATUS gsysSetARPwoBC
     IN  GT_BOOL     en
 );
 
+
 /*******************************************************************************
 * gsysGetCLK125En
 *
@@ -17447,6 +17687,7 @@ GT_STATUS gsysGetCLK125En
     OUT GT_BOOL      *en
 );
 
+
 /*******************************************************************************
 * gsysSetCLK125En
 *
@@ -17476,6 +17717,7 @@ GT_STATUS gsysSetCLK125En
     IN GT_QD_DEV    *dev,
     IN GT_BOOL        en
 );
+
 
 /* gtPriTable.c */
 
@@ -17562,6 +17804,7 @@ GT_STATUS gsysSetFPriOverrideTable
     IN  GT_FPRI_TBL_ENTRY    *entry
 );
 
+
 /*******************************************************************************
 * gsysGetFPriOverrideTable
 *
@@ -17643,6 +17886,7 @@ GT_STATUS gsysGetFPriOverrideTable
     IN  GT_PRI_OVERRIDE_FTYPE    fType,
     OUT GT_FPRI_TBL_ENTRY    *entry
 );
+
 
 /*******************************************************************************
 * gsysSetQPriAvbOverrideTable
@@ -17727,6 +17971,7 @@ GT_STATUS gsysSetQPriAvbOverrideTable
     IN  GT_QPRI_TBL_ENTRY    *entry
 );
 
+
 /*******************************************************************************
 * gsysGetQPriAvbOverrideTable
 *
@@ -17809,6 +18054,7 @@ GT_STATUS gsysGetQPriAvbOverrideTable
     OUT GT_QPRI_TBL_ENTRY    *entry
 );
 
+
 /* gtPortCtrl.c */
 
 /*******************************************************************************
@@ -17842,6 +18088,7 @@ GT_STATUS gprtGet200Base
     OUT GT_U32      *mode
 );
 
+
 /*******************************************************************************
 * gprtSet200Base
 *
@@ -17873,6 +18120,7 @@ GT_STATUS gprtSet200Base
     IN  GT_LPORT     port,
     IN  GT_U32      mode
 );
+
 
 /* gtPIRL2.c */
 
@@ -17909,6 +18157,7 @@ GT_STATUS gpirl2WriteTSMResource
     IN  GT_PIRL2_TSM_DATA    *pirlData
 );
 
+
 /*******************************************************************************
 * gpirl2ReadTSMResource
 *
@@ -17942,6 +18191,7 @@ GT_STATUS gpirl2ReadTSMResource
     OUT GT_PIRL2_TSM_DATA    *pirlData
 );
 
+
 /* gtPTP.c */
 
 /*******************************************************************************
@@ -17971,6 +18221,7 @@ GT_STATUS gtaiSetEventConfig
     IN  GT_QD_DEV     *dev,
     IN  GT_TAI_EVENT_CONFIG    *eventData
 );
+
 
 /*******************************************************************************
 * gtaiGetEventConfig
@@ -18253,6 +18504,7 @@ GT_STATUS gtaiGetTSClkPer
     OUT GT_U32        *clk
 );
 
+
 /*******************************************************************************
 * gtaiSetTSClkPer
 *
@@ -18447,6 +18699,7 @@ GT_STATUS gtaiSetTimeDec
     IN  GT_QD_DEV     *dev,
     IN  GT_U32        amount
 );
+
 
 /*******************************************************************************
 * gavbGetPriority
@@ -18683,6 +18936,7 @@ GT_STATUS gavbGetRecClkSel
     OUT GT_U32        *clkSel
 );
 
+
 /*******************************************************************************
 * gavbSetRecClkSel
 *
@@ -18896,6 +19150,7 @@ GT_STATUS gavbSetAvbOverride
     IN  GT_BOOL        en
 );
 
+
 /*******************************************************************************
 * gavbGetFilterBadAvb
 *
@@ -18957,6 +19212,7 @@ GT_STATUS gavbSetFilterBadAvb
     IN  GT_BOOL        en
 );
 
+
 /*******************************************************************************
 * gavbGetAvbTunnel
 *
@@ -18989,6 +19245,7 @@ GT_STATUS gavbGetAvbTunnel
     IN    GT_LPORT    port,
     OUT GT_BOOL        *en
 );
+
 
 /*******************************************************************************
 * gavbSetAvbTunnel
@@ -19024,6 +19281,7 @@ GT_STATUS gavbSetAvbTunnel
     IN  GT_BOOL        en
 );
 
+
 /*******************************************************************************
 * gavbGetAvbFramePolicy
 *
@@ -19054,6 +19312,7 @@ GT_STATUS gavbGetAvbFramePolicy
     IN    GT_AVB_FRAME_TYPE    fType,
     OUT GT_AVB_FRAME_POLICY        *policy
 );
+
 
 /*******************************************************************************
 * gavbSetAvbFramePolicy
@@ -20930,6 +21189,7 @@ GT_STATUS gsysGetEEPROM
     OUT  GT_U8            *znr
 );
 
+
 /* gtAdvVct.c */
 
 /*******************************************************************************
@@ -21690,6 +21950,7 @@ GT_STATUS gtcamGetNextTCAMData
     IN  GT_U32        tcamPointer,
     OUT GT_TCAM_DATA        *tcamData
 );
+
 
 #ifdef __cplusplus
 }

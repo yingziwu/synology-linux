@@ -67,6 +67,7 @@ static void value2human(int si, double bytes, double time, double* data, double*
 	}
 }
 
+
 int hash_data(struct session_op *sess, int fdc, int chunksize, int alignmask)
 {
 	struct crypt_op cop;

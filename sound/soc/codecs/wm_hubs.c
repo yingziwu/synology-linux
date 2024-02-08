@@ -173,7 +173,7 @@ static void calibrate_dc_servo(struct snd_soc_codec *codec)
 		break;
 	default:
 		WARN(1, "Unknown DCS readback method\n");
-		break;
+		return;
 	}
 
 	dev_dbg(codec->dev, "DCS input: %x %x\n", reg_l, reg_r);
@@ -255,6 +255,7 @@ SOC_SINGLE_TLV("IN1R Volume", WM8993_RIGHT_LINE_INPUT_1_2_VOLUME, 0, 31, 0,
 	       inpga_tlv),
 SOC_SINGLE("IN1R Switch", WM8993_RIGHT_LINE_INPUT_1_2_VOLUME, 7, 1, 1),
 SOC_SINGLE("IN1R ZC Switch", WM8993_RIGHT_LINE_INPUT_1_2_VOLUME, 6, 1, 0),
+
 
 SOC_SINGLE_TLV("IN2L Volume", WM8993_LEFT_LINE_INPUT_3_4_VOLUME, 0, 31, 0,
 	       inpga_tlv),
@@ -413,6 +414,7 @@ static int hp_supply_event(struct snd_soc_dapm_widget *w,
 				hubs->hp_startup_mode);
 			break;
 		}
+		break;
 
 	case SND_SOC_DAPM_PRE_PMD:
 		snd_soc_update_bits(codec, WM8993_CHARGE_PUMP_1,

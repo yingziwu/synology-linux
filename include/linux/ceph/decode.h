@@ -197,4 +197,5 @@ static inline void ceph_encode_string(void **p, void *end,
 		ceph_encode_string(p, end, s, n);		\
 	} while (0)
 
+
 #endif

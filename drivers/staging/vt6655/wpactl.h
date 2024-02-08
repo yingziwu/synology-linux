@@ -36,6 +36,7 @@
 
 /*---------------------  Export Definitions -------------------------*/
 
+
 //WPA related
 
 typedef enum { WPA_ALG_NONE, WPA_ALG_WEP, WPA_ALG_TKIP, WPA_ALG_CCMP } wpa_alg;
@@ -51,6 +52,8 @@ typedef enum { KEY_MGMT_802_1X, KEY_MGMT_CCKM,KEY_MGMT_PSK, KEY_MGMT_NONE,
 #define GENERIC_INFO_ELEM 0xdd
 #define RSN_INFO_ELEM 0x30
 
+
+
 typedef unsigned long long   NDIS_802_11_KEY_RSC;
 
 /*---------------------  Export Classes  ----------------------------*/
@@ -64,3 +67,6 @@ int wpa_ioctl(PSDevice pDevice, struct iw_point *p);
 int wpa_set_keys(PSDevice pDevice, void *ctx, bool fcpfkernel);
 
 #endif // __WPACL_H__
+
+
+

@@ -21,6 +21,7 @@ struct pci_device_id {
 	kernel_ulong_t driver_data;	/* Data private to the driver */
 };
 
+
 #define IEEE1394_MATCH_VENDOR_ID	0x0001
 #define IEEE1394_MATCH_MODEL_ID		0x0002
 #define IEEE1394_MATCH_SPECIFIER_ID	0x0004
@@ -35,6 +36,7 @@ struct ieee1394_device_id {
 	kernel_ulong_t driver_data
 		__attribute__((aligned(sizeof(kernel_ulong_t))));
 };
+
 
 /*
  * Device table entry for "new style" table-driven USB drivers.
@@ -208,6 +210,7 @@ struct pnp_card_device_id {
 		__u8 id[PNP_ID_LEN];
 	} devs[PNP_MAX_DEVICES];
 };
+
 
 #define SERIO_ANY	0xff
 
@@ -466,7 +469,8 @@ enum dmi_field {
 };
 
 struct dmi_strmatch {
-	unsigned char slot;
+	unsigned char slot:7;
+	unsigned char exact_match:1;
 	char substr[79];
 };
 
@@ -494,7 +498,8 @@ struct dmi_system_id {
 #define dmi_device_id dmi_system_id
 #endif
 
-#define DMI_MATCH(a, b)	{ a, b }
+#define DMI_MATCH(a, b)	{ .slot = a, .substr = b }
+#define DMI_EXACT_MATCH(a, b)	{ .slot = a, .substr = b, .exact_match = 1 }
 
 #define PLATFORM_NAME_SIZE	20
 #define PLATFORM_MODULE_PREFIX	"platform:"

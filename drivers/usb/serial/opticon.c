@@ -57,6 +57,8 @@ struct opticon_private {
 	int outstanding_urbs;
 };
 
+
+
 static void opticon_read_bulk_callback(struct urb *urb)
 {
 	struct opticon_private *priv = urb->context;
@@ -291,7 +293,7 @@ static int opticon_write(struct tty_struct *tty, struct usb_serial_port *port,
 
 	/* The conncected devices do not have a bulk write endpoint,
 	 * to transmit data to de barcode device the control endpoint is used */
-	dr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_NOIO);
+	dr = kmalloc(sizeof(struct usb_ctrlrequest), GFP_ATOMIC);
 	if (!dr) {
 		dev_err(&port->dev, "out of memory\n");
 		count = -ENOMEM;
@@ -372,6 +374,7 @@ static void opticon_throttle(struct tty_struct *tty)
 	priv->throttled = true;
 	spin_unlock_irqrestore(&priv->lock, flags);
 }
+
 
 static void opticon_unthrottle(struct tty_struct *tty)
 {

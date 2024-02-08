@@ -163,9 +163,11 @@ struct al_ddr_ctrl_regs {
 	struct al_dwc_ddr_umctl2_mp umctl2_mp;
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** MSTR register ****/
 /*  Select DDR3 SDRAM - 1 - DDR3 operating mode - 0 - DDR2 opera ... */

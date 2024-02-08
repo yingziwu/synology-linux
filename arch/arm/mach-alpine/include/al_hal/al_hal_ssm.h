@@ -94,6 +94,7 @@ struct al_ssm_dma_params {
 	uint8_t num_of_queues;/* number of queues */
 };
 
+
 /* Init DMA */
 int al_ssm_dma_init(struct al_ssm_dma *ssm_dma, struct al_ssm_dma_params *params);
 
@@ -158,6 +159,8 @@ struct al_udma *al_ssm_dma_rx_udma_handle_get(struct al_ssm_dma *ssm_dma);
  */
 struct al_udma_q *al_ssm_dma_rx_queue_handle_get(struct al_ssm_dma *ssm_dma,
 						 unsigned int	   qid);
+
+
 
 /* *INDENT-OFF* */
 #ifdef __cplusplus

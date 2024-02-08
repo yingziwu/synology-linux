@@ -121,6 +121,7 @@ static struct map_desc s3c_iodesc[] __initdata = {
 	},
 };
 
+
 struct sysdev_class s3c64xx_sysclass = {
 	.name	= "s3c64xx-core",
 };

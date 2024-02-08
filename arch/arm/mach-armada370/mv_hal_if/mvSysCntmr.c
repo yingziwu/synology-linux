@@ -68,6 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "boardEnv/mvBoardEnvLib.h"
 #include "cntmr/mvCntmr.h"
 
+
 /*******************************************************************************
 * mvSysCntmrInit - Initialize the Cntmr subsystem
 *

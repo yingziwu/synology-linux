@@ -158,6 +158,7 @@ unsigned int aac_response_normal(struct aac_queue * q)
 	return 0;
 }
 
+
 /**
  *	aac_command_normal	-	handle commands
  *	@q: queue to process
@@ -208,6 +209,7 @@ unsigned int aac_command_normal(struct aac_queue *q)
 		fib->data = hw_fib->data;
 		fib->dev = dev;
 		
+				
 		if (dev->aif_thread && fib != &fibctx) {
 		        list_add_tail(&fib->fiblink, &q->cmdq);
 	 	        aac_consumer_free(dev, q, HostNormCmdQueue);
@@ -268,6 +270,7 @@ static void aac_aif_callback(void *context, struct fib * fibptr)
 		0, 1,
 		(fib_callback)aac_aif_callback, fibctx);
 }
+
 
 /**
  *	aac_intr_normal	-	Handle command replies

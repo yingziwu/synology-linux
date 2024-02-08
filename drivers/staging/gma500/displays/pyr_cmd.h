@@ -31,3 +31,4 @@
 extern void pyr_cmd_init(struct drm_device *dev, struct panel_funcs *p_funcs);
 
 #endif
+

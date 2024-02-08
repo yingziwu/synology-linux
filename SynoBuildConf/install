@@ -1,12 +1,163 @@
 #!/bin/bash
 # Copyright (c) 2000-2015 Synology Inc. All rights reserved.
 
-UDEV_DEVICE_TABLE="${TmpInstDir}/lib/udev/devicetable"
-USB_USBMODEM_MAP="usb.usbmodem.table"
+KERNEL_MODULES_CONFIG_PATH=${TmpInstDir}/lib/modules-load.d
+KERNEL_MODULES_TABLE=".synotmp-module-list.conf"
 
-if [ ! -d ${UDEV_DEVICE_TABLE} ]; then
-	mkdir -p ${UDEV_DEVICE_TABLE}
+SYSTEMD_UNIT_DIR="${TmpInstDir}/lib/systemd/system"
+SYSTEMD_UNIT_SCRIPT_DIR="${TmpInstDir}/usr/syno/lib/systemd/scripts"
+
+# Auto generate bootup insert module list config into /lib/modules-load.d/
+SYNOAutoGenerateModulesConfig () {
+	local _install_list=${1}
+	local _insert_list=${2}
+	local _config_name=${3}
+	local _mod=""
+	local _mod_path=""
+
+	if [ -f ".synotmp-${_config_name}" ];then
+		rm -f ".synotmp-${_config_name}"
+	fi
+
+	for _mod in ${_insert_list};
+	do
+		_mod_path="/${_mod}.ko"
+		# Check the insert modules is really in install list
+		if [[ ${_install_list} == *${_mod_path}* ]]; then
+			echo ${_mod} >> ".synotmp-${_config_name}"
+		else
+			echo "Error: insert module [${_mod}] not in install list"
+		fi
+	done
+
+	if [ -f ".synotmp-${_config_name}" ];then
+		install -Dm644 ".synotmp-${_config_name}" "${KERNEL_MODULES_CONFIG_PATH}/${_config_name}"
+	fi
+}
+
+IPV6_COMMON_LIST="ipv6 tunnel4 sit"
+CRYPTO_MODULES_MARVELL_COMMON_LIST="ocf cryptodev cesa_ocf_drv cryptosoft"
+MISC_MODULES_COMMON_LIST="hfsplus llc p8022 psnap dm-snapshot sg"
+USB_MODULES_COMMON_LIST="usb-common usbcore xhci-hcd usb-storage usblp hid usbhid"
+
+if [ -f "${KERNEL_MODULES_TABLE}" ]; then
+	# get the platform list of modules.
+	ModuleList="`cat ${KERNEL_MODULES_TABLE}`"
+	[ -d ${KERNEL_MODULES_CONFIG_PATH} ] || install -d ${KERNEL_MODULES_CONFIG_PATH}
+
+	# Set the white list on each platform, please not use global white list
+	case ${BUILD_TARGET} in
+		MARVELL_88F6281)
+			# Deprecated
+			;;
+		MINDSPEED_COMCERTO2K)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST="cbc md5 aes_generic cts ansi_cprng des_generic ocf cryptodev authenc m86xxx_elp ecb sha1_generic sha256_generic cryptosoft arc4"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} hmac md4 libcrc32c zlib_deflate zlib_inflate xz_dec physmap input-core crc-ccitt crc-itu-t xor-neon"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="xhci-hcd usb-storage usblp input-core hid usbhid"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+
+			NET_MODULES_LIST="inet_lro inet_diag tcp_diag"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${NET_MODULES_LIST}" "70-net-kernel.conf"
+
+			SYNO_MODULES_LIST="syno_hddmon"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${SYNO_MODULES_LIST}" "70-syno-kernel.conf"
+			;;
+		ALPINE)
+			# Deprecated
+			;;
+		MARVELL_ARMADAXP)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_MARVELL_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd etxhci-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		MARVELL_ARMADA370)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_MARVELL_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="usb-common usbcore ehci-hcd etxhci-hcd usb-storage usblp hid usbhid"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		MARVELL_ARMADA375)
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST=${CRYPTO_MODULES_MARVELL_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			MISC_MODULES_LIST=${MISC_MODULES_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd etxhci-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		X64)
+			# Deprecated
+			;;
+		BROMOLOW|BROMOLOWESM)
+			# Deprecated
+			;;
+		CEDARVIEW)
+			# Deprecated
+			;;
+		EVANSPORT)
+			# Auto generate video driver conf into /lib/modules-load.d/video.conf
+			VIDEO_DRIVER_LIST="i2c-algo-bit button backlight thermal_sys video agpgart intel-gtt intel-agp fbdev drm fb output cfbimgblt cfbcopyarea cfbfillrect drm_kms_helper udma"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${VIDEO_DRIVER_LIST}" "70-video-kernel.conf"
+
+			IPV6_LIST=${IPV6_COMMON_LIST}
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${IPV6_LIST}" "70-ipv6-kernel.conf"
+
+			CRYPTO_MODULES_LIST="cbc md5 aes_generic cts ansi_cprng des_generic authenc aes-i586 ecb sha1_generic sha256_generic arc4"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CRYPTO_MODULES_LIST}" "70-crypto-kernel.conf"
+
+			CPUFREQ_MODULES_LIST="freq_table cpufreq_stats thermal_sys"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${CPUFREQ_MODULES_LIST}" "70-cpufreq-kernel.conf"
+
+			MISC_MODULES_LIST="${MISC_MODULES_COMMON_LIST} hmac md4 libcrc32c zlib_deflate crc-ccitt crc-itu-t"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${MISC_MODULES_LIST}" "70-misc-kernel.conf"
+
+			USB_MODULES_LIST="${USB_MODULES_COMMON_LIST} ehci-hcd etxhci-hcd uhci-hcd"
+			SYNOAutoGenerateModulesConfig "${ModuleList}" "${USB_MODULES_LIST}" "70-usb-kernel.conf"
+			;;
+		AVOTON)
+			# Deprecated
+			;;
+		*)
+			;;
+	esac
+else
+	echo "Error: Cannot find ${KERNEL_MODULES_TABLE} for generate insert modules list."
 fi
-if [ -f "${USB_USBMODEM_MAP}" ]; then
-	install -c ${USB_USBMODEM_MAP} ${UDEV_DEVICE_TABLE}
-fi
+
+# install services unit of kernel module to systemd
+[ -d ${SYSTEMD_UNIT_DIR} ] || install -d ${SYSTEMD_UNIT_DIR}
+[ -d ${SYSTEMD_UNIT_DIR}/sysinit.target.wants ] || install -d ${SYSTEMD_UNIT_DIR}/sysinit.target.wants
+[ -d ${SYSTEMD_UNIT_SCRIPT_DIR} ] || install -d ${SYSTEMD_UNIT_SCRIPT_DIR}
+install -m644 systemd/syno-kernel-modules-load.service ${SYSTEMD_UNIT_DIR}
+install -m755 systemd/syno-kernel-modules-load.sh ${SYSTEMD_UNIT_SCRIPT_DIR}
+ln -s ../syno-kernel-modules-load.service ${SYSTEMD_UNIT_DIR}/sysinit.target.wants/syno-kernel-modules-load.service
+
+install -m644 systemd/syno-fan-modules-load.service ${SYSTEMD_UNIT_DIR}
+install -m755 systemd/syno-fan-modules-load.sh ${SYSTEMD_UNIT_SCRIPT_DIR}
+ln -s ../syno-fan-modules-load.service ${SYSTEMD_UNIT_DIR}/sysinit.target.wants/syno-fan-modules-load.service

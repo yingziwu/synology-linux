@@ -1500,6 +1500,7 @@ void dwc_otg_core_init(dwc_otg_core_if_t * core_if)
 			   core_if->core_params->otg_ver, core_if->otg_ver);
 	}
 
+
 	/* Enable common interrupts */
 	dwc_otg_enable_common_interrupts(core_if);
 
@@ -1652,6 +1653,7 @@ void dwc_otg_core_dev_init(dwc_otg_core_if_t * core_if)
 		dctl.b.encontonbna = 1;
 		DWC_MODIFY_REG32(&dev_if->dev_global_regs->dctl, 0, dctl.d32);
 	}
+
 
 	DWC_WRITE_REG32(&dev_if->dev_global_regs->dcfg, dcfg.d32);
 
@@ -3271,6 +3273,7 @@ void dwc_otg_ep_activate(dwc_otg_core_if_t * core_if, dwc_ep_t * ep)
 
 		}
 
+
 		DWC_WRITE_REG32(addr, depctl.d32);
 		DWC_DEBUGPL(DBG_PCDV, "DEPCTL=%08x\n", DWC_READ_REG32(addr));
 	}
@@ -3290,6 +3293,8 @@ void dwc_otg_ep_activate(dwc_otg_core_if_t * core_if, dwc_ep_t * ep)
 			if (ep->type == DWC_OTG_EP_TYPE_ISOC) {
 				diepmsk.b.nak = 1;
 			}
+
+
 
 /*
 			if (core_if->dma_desc_enable) {
@@ -3688,6 +3693,7 @@ void dwc_otg_ep_start_transfer(dwc_otg_core_if_t * core_if, dwc_ep_t * ep)
 			ep->xfer_len += (MAX_PKT_CNT * ep->maxpacket < (ep->total_len - ep->xfer_len)) ?
 				 MAX_PKT_CNT * ep->maxpacket : (ep->total_len - ep->xfer_len);
 
+
 		/* Zero Length Packet? */
 		if ((ep->xfer_len - ep->xfer_count) == 0) {
 			deptsiz.b.xfersize = 0;
@@ -3912,6 +3918,7 @@ void dwc_otg_ep_start_transfer(dwc_otg_core_if_t * core_if, dwc_ep_t * ep)
 					   dev_global_regs->daintmsk),
 			    DWC_READ_REG32(&core_if->
 					   core_global_regs->gintmsk));
+
 
 		/* Timer is scheduling only for out bulk transfers for
 		 * "Device DDMA OUT NAK Enhancement" feature to inform user

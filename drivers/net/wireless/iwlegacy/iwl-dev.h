@@ -317,6 +317,7 @@ struct iwl_device_cmd {
 
 #define TFD_MAX_PAYLOAD_SIZE (sizeof(struct iwl_device_cmd))
 
+
 struct iwl_host_cmd {
 	const void *data;
 	unsigned long reply_page;
@@ -398,6 +399,7 @@ struct iwl_ht_agg {
 #define IWL_EMPTYING_HW_QUEUE_DELBA 3
 	u8 state;
 };
+
 
 struct iwl_tid_data {
 	u16 seq_number; /* 4965 only */
@@ -557,8 +559,10 @@ struct iwl_sensitivity_ranges {
 	u16 nrg_th_cca;
 };
 
+
 #define KELVIN_TO_CELSIUS(x) ((x)-273)
 #define CELSIUS_TO_KELVIN(x) ((x)+273)
+
 
 /**
  * struct iwl_hw_params
@@ -605,6 +609,7 @@ struct iwl_hw_params {
 	const struct iwl_sensitivity_ranges *sens;
 };
 
+
 /******************************************************************************
  *
  * Functions implemented in core module which are forward declared here
@@ -630,6 +635,7 @@ static inline int iwl_legacy_queue_used(const struct iwl_queue *q, int i)
 		!(i < q->read_ptr && i >= q->write_ptr);
 }
 
+
 static inline u8 iwl_legacy_get_cmd_index(struct iwl_queue *q, u32 index,
 								int is_huge)
 {
@@ -644,6 +650,7 @@ static inline u8 iwl_legacy_get_cmd_index(struct iwl_queue *q, u32 index,
 	/* Otherwise, use normal size buffers */
 	return index & (q->n_window - 1);
 }
+
 
 struct iwl_dma_ptr {
 	dma_addr_t dma;
@@ -1209,6 +1216,7 @@ struct iwl_priv {
 	s8 tx_power_device_lmt;
 	s8 tx_power_next;
 
+
 #ifdef CONFIG_IWLWIFI_LEGACY_DEBUG
 	/* debugging info */
 	u32 debug_level; /* per device debugging will override global
@@ -1270,6 +1278,7 @@ static inline u32 iwl_legacy_get_debug_level(struct iwl_priv *priv)
 	return iwlegacy_debug_level;
 }
 #endif
+
 
 static inline struct ieee80211_hdr *
 iwl_legacy_tx_queue_get_hdr(struct iwl_priv *priv,

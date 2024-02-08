@@ -21,6 +21,7 @@
 #endif
 #define LSP_VERSION    "linux-3.2.y-2013_Q1.2p2" LSP_PG_SZ_VER
 
+
 static inline void arch_idle(void)
 {
 	cpu_do_idle();

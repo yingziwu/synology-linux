@@ -98,3 +98,4 @@ void show_trace(struct task_struct* task, unsigned long * stack)
 
 	printk("\n");
 }
+

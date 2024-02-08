@@ -80,6 +80,7 @@
 #undef	FILE_NAME_OFFSET
 #define FILE_NAME_OFFSET DHF_FILE_NAME_OFFSET
 
+
 /*************************************************************************************************************
 *
 *.MODULE		CFG_RANGE_SPEC_STRCT* mmd_check_comp( CFG_RANGES_STRCT *actp, CFG_SUP_RANGE_STRCT *supp )
@@ -247,3 +248,4 @@ int		sup_endian;					//supplier endian flag
 #endif // HCF_ASSERT
 	return (CFG_RANGE_SPEC_STRCT*)actq;
 } // mmd_check_comp
+

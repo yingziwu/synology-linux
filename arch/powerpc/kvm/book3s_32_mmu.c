@@ -332,6 +332,7 @@ static int kvmppc_mmu_book3s_32_xlate(struct kvm_vcpu *vcpu, gva_t eaddr,
 	return r;
 }
 
+
 static u32 kvmppc_mmu_book3s_32_mfsrin(struct kvm_vcpu *vcpu, u32 srnum)
 {
 	return vcpu->arch.shared->sr[srnum];
@@ -395,6 +396,7 @@ static bool kvmppc_mmu_book3s_32_is_dcbz32(struct kvm_vcpu *vcpu)
 {
 	return true;
 }
+
 
 void kvmppc_mmu_book3s_32_init(struct kvm_vcpu *vcpu)
 {

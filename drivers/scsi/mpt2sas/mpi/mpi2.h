@@ -78,6 +78,7 @@
 #ifndef MPI2_H
 #define MPI2_H
 
+
 /*****************************************************************************
 *
 *        MPI Version Definitions
@@ -104,6 +105,7 @@
 #define MPI2_HEADER_VERSION_DEV_SHIFT       (0)
 #define MPI2_HEADER_VERSION ((MPI2_HEADER_VERSION_UNIT << 8) | MPI2_HEADER_VERSION_DEV)
 
+
 /*****************************************************************************
 *
 *        IOC State Definitions
@@ -121,6 +123,7 @@
 /* Fault state range for prodcut specific codes */
 #define MPI2_FAULT_PRODUCT_SPECIFIC_MIN                 (0x0000)
 #define MPI2_FAULT_PRODUCT_SPECIFIC_MAX                 (0xEFFF)
+
 
 /*****************************************************************************
 *
@@ -174,6 +177,7 @@ typedef volatile struct _MPI2_SYSTEM_INTERFACE_REGS
 #define MPI2_DOORBELL_FUNCTION_SHIFT            (24)
 #define MPI2_DOORBELL_ADD_DWORDS_MASK           (0x00FF0000)
 #define MPI2_DOORBELL_ADD_DWORDS_SHIFT          (16)
+
 
 /*
  * Defines for the WriteSequence register
@@ -270,6 +274,7 @@ typedef volatile struct _MPI2_SYSTEM_INTERFACE_REGS
 #define MPI2_REQUEST_DESCRIPTOR_POST_LOW_OFFSET     (0x000000C0)
 #define MPI2_REQUEST_DESCRIPTOR_POST_HIGH_OFFSET    (0x000000C4)
 
+
 /*****************************************************************************
 *
 *        Message Descriptors
@@ -300,6 +305,7 @@ typedef struct _MPI2_DEFAULT_REQUEST_DESCRIPTOR
 
 #define MPI2_REQ_DESCRIPT_FLAGS_IOC_FIFO_MARKER (0x01)
 
+
 /* High Priority Request Descriptor */
 typedef struct _MPI2_HIGH_PRIORITY_REQUEST_DESCRIPTOR
 {
@@ -313,6 +319,7 @@ typedef struct _MPI2_HIGH_PRIORITY_REQUEST_DESCRIPTOR
   Mpi2HighPriorityRequestDescriptor_t,
   MPI2_POINTER pMpi2HighPriorityRequestDescriptor_t;
 
+
 /* SCSI IO Request Descriptor */
 typedef struct _MPI2_SCSI_IO_REQUEST_DESCRIPTOR
 {
@@ -324,6 +331,7 @@ typedef struct _MPI2_SCSI_IO_REQUEST_DESCRIPTOR
 } MPI2_SCSI_IO_REQUEST_DESCRIPTOR,
   MPI2_POINTER PTR_MPI2_SCSI_IO_REQUEST_DESCRIPTOR,
   Mpi2SCSIIORequestDescriptor_t, MPI2_POINTER pMpi2SCSIIORequestDescriptor_t;
+
 
 /* SCSI Target Request Descriptor */
 typedef struct _MPI2_SCSI_TARGET_REQUEST_DESCRIPTOR
@@ -338,6 +346,7 @@ typedef struct _MPI2_SCSI_TARGET_REQUEST_DESCRIPTOR
   Mpi2SCSITargetRequestDescriptor_t,
   MPI2_POINTER pMpi2SCSITargetRequestDescriptor_t;
 
+
 /* RAID Accelerator Request Descriptor */
 typedef struct _MPI2_RAID_ACCEL_REQUEST_DESCRIPTOR {
     U8              RequestFlags;               /* 0x00 */
@@ -350,6 +359,7 @@ typedef struct _MPI2_RAID_ACCEL_REQUEST_DESCRIPTOR {
   Mpi2RAIDAcceleratorRequestDescriptor_t,
   MPI2_POINTER pMpi2RAIDAcceleratorRequestDescriptor_t;
 
+
 /* union of Request Descriptors */
 typedef union _MPI2_REQUEST_DESCRIPTOR_UNION
 {
@@ -361,6 +371,7 @@ typedef union _MPI2_REQUEST_DESCRIPTOR_UNION
     U64                                         Words;
 } MPI2_REQUEST_DESCRIPTOR_UNION, MPI2_POINTER PTR_MPI2_REQUEST_DESCRIPTOR_UNION,
   Mpi2RequestDescriptorUnion_t, MPI2_POINTER pMpi2RequestDescriptorUnion_t;
+
 
 /* Reply Descriptors */
 
@@ -399,6 +410,7 @@ typedef struct _MPI2_ADDRESS_REPLY_DESCRIPTOR
 
 #define MPI2_ADDRESS_REPLY_SMID_INVALID                 (0x00)
 
+
 /* SCSI IO Success Reply Descriptor */
 typedef struct _MPI2_SCSI_IO_SUCCESS_REPLY_DESCRIPTOR
 {
@@ -411,6 +423,7 @@ typedef struct _MPI2_SCSI_IO_SUCCESS_REPLY_DESCRIPTOR
   MPI2_POINTER PTR_MPI2_SCSI_IO_SUCCESS_REPLY_DESCRIPTOR,
   Mpi2SCSIIOSuccessReplyDescriptor_t,
   MPI2_POINTER pMpi2SCSIIOSuccessReplyDescriptor_t;
+
 
 /* TargetAssist Success Reply Descriptor */
 typedef struct _MPI2_TARGETASSIST_SUCCESS_REPLY_DESCRIPTOR
@@ -425,6 +438,7 @@ typedef struct _MPI2_TARGETASSIST_SUCCESS_REPLY_DESCRIPTOR
   MPI2_POINTER PTR_MPI2_TARGETASSIST_SUCCESS_REPLY_DESCRIPTOR,
   Mpi2TargetAssistSuccessReplyDescriptor_t,
   MPI2_POINTER pMpi2TargetAssistSuccessReplyDescriptor_t;
+
 
 /* Target Command Buffer Reply Descriptor */
 typedef struct _MPI2_TARGET_COMMAND_BUFFER_REPLY_DESCRIPTOR
@@ -443,6 +457,7 @@ typedef struct _MPI2_TARGET_COMMAND_BUFFER_REPLY_DESCRIPTOR
 /* defines for Flags field */
 #define MPI2_RPY_DESCRIPT_TCB_FLAGS_PHYNUM_MASK     (0x3F)
 
+
 /* RAID Accelerator Success Reply Descriptor */
 typedef struct _MPI2_RAID_ACCELERATOR_SUCCESS_REPLY_DESCRIPTOR {
     U8              ReplyFlags;                 /* 0x00 */
@@ -453,6 +468,7 @@ typedef struct _MPI2_RAID_ACCELERATOR_SUCCESS_REPLY_DESCRIPTOR {
   MPI2_POINTER PTR_MPI2_RAID_ACCELERATOR_SUCCESS_REPLY_DESCRIPTOR,
   Mpi2RAIDAcceleratorSuccessReplyDescriptor_t,
   MPI2_POINTER pMpi2RAIDAcceleratorSuccessReplyDescriptor_t;
+
 
 /* union of Reply Descriptors */
 typedef union _MPI2_REPLY_DESCRIPTORS_UNION
@@ -466,6 +482,8 @@ typedef union _MPI2_REPLY_DESCRIPTORS_UNION
     U64                                             Words;
 } MPI2_REPLY_DESCRIPTORS_UNION, MPI2_POINTER PTR_MPI2_REPLY_DESCRIPTORS_UNION,
 Mpi2ReplyDescriptorsUnion_t, MPI2_POINTER pMpi2ReplyDescriptorsUnion_t;
+
+
 
 /*****************************************************************************
 *
@@ -510,9 +528,13 @@ Mpi2ReplyDescriptorsUnion_t, MPI2_POINTER pMpi2ReplyDescriptorsUnion_t;
 /* end of product-specific range */
 #define MPI2_FUNCTION_MAX_PRODUCT_SPECIFIC          (0xFF)
 
+
+
+
 /* Doorbell functions */
 #define MPI2_FUNCTION_IOC_MESSAGE_UNIT_RESET        (0x40)
 #define MPI2_FUNCTION_HANDSHAKE                     (0x42)
+
 
 /*****************************************************************************
 *
@@ -627,6 +649,7 @@ Mpi2ReplyDescriptorsUnion_t, MPI2_POINTER pMpi2ReplyDescriptorsUnion_t;
 #define MPI2_IOCLOGINFO_TYPE_ISCSI              (0x4)
 #define MPI2_IOCLOGINFO_LOG_DATA_MASK           (0x0FFFFFFF)
 
+
 /*****************************************************************************
 *
 *        Standard Message Structures
@@ -651,6 +674,7 @@ typedef struct _MPI2_REQUEST_HEADER
 } MPI2_REQUEST_HEADER, MPI2_POINTER PTR_MPI2_REQUEST_HEADER,
   MPI2RequestHeader_t, MPI2_POINTER pMPI2RequestHeader_t;
 
+
 /****************************************************************************
 *  Default Reply
 ****************************************************************************/
@@ -672,6 +696,7 @@ typedef struct _MPI2_DEFAULT_REPLY
 } MPI2_DEFAULT_REPLY, MPI2_POINTER PTR_MPI2_DEFAULT_REPLY,
   MPI2DefaultReply_t, MPI2_POINTER pMPI2DefaultReply_t;
 
+
 /* common version structure/union used in messages and configuration pages */
 
 typedef struct _MPI2_VERSION_STRUCT
@@ -688,6 +713,7 @@ typedef union _MPI2_VERSION_UNION
     U32                     Word;
 } MPI2_VERSION_UNION;
 
+
 /* LUN field defines, common to many structures */
 #define MPI2_LUN_FIRST_LEVEL_ADDRESSING             (0x0000FFFF)
 #define MPI2_LUN_SECOND_LEVEL_ADDRESSING            (0xFFFF0000)
@@ -695,6 +721,7 @@ typedef union _MPI2_VERSION_UNION
 #define MPI2_LUN_FOURTH_LEVEL_ADDRESSING            (0xFFFF0000)
 #define MPI2_LUN_LEVEL_1_WORD                       (0xFF00)
 #define MPI2_LUN_LEVEL_1_DWORD                      (0x0000FF00)
+
 
 /*****************************************************************************
 *
@@ -731,6 +758,7 @@ typedef struct _MPI2_SGE_SIMPLE_UNION
 } MPI2_SGE_SIMPLE_UNION, MPI2_POINTER PTR_MPI2_SGE_SIMPLE_UNION,
   Mpi2SGESimpleUnion_t, MPI2_POINTER pMpi2SGESimpleUnion_t;
 
+
 /****************************************************************************
 *  MPI Chain Element structures
 ****************************************************************************/
@@ -765,6 +793,7 @@ typedef struct _MPI2_SGE_CHAIN_UNION
     } u;
 } MPI2_SGE_CHAIN_UNION, MPI2_POINTER PTR_MPI2_SGE_CHAIN_UNION,
   Mpi2SGEChainUnion_t, MPI2_POINTER pMpi2SGEChainUnion_t;
+
 
 /****************************************************************************
 *  MPI Transaction Context Element structures
@@ -831,6 +860,7 @@ typedef struct _MPI2_SGE_TRANSACTION_UNION
 } MPI2_SGE_TRANSACTION_UNION, MPI2_POINTER PTR_MPI2_SGE_TRANSACTION_UNION,
   Mpi2SGETransactionUnion_t, MPI2_POINTER pMpi2SGETransactionUnion_t;
 
+
 /****************************************************************************
 *  MPI SGE union for IO SGL's
 ****************************************************************************/
@@ -844,6 +874,7 @@ typedef struct _MPI2_MPI_SGE_IO_UNION
     } u;
 } MPI2_MPI_SGE_IO_UNION, MPI2_POINTER PTR_MPI2_MPI_SGE_IO_UNION,
   Mpi2MpiSGEIOUnion_t, MPI2_POINTER pMpi2MpiSGEIOUnion_t;
+
 
 /****************************************************************************
 *  MPI SGE union for SGL's with Simple and Transaction elements
@@ -859,6 +890,7 @@ typedef struct _MPI2_SGE_TRANS_SIMPLE_UNION
 } MPI2_SGE_TRANS_SIMPLE_UNION, MPI2_POINTER PTR_MPI2_SGE_TRANS_SIMPLE_UNION,
   Mpi2SGETransSimpleUnion_t, MPI2_POINTER pMpi2SGETransSimpleUnion_t;
 
+
 /****************************************************************************
 *  All MPI SGE types union
 ****************************************************************************/
@@ -873,6 +905,7 @@ typedef struct _MPI2_MPI_SGE_UNION
     } u;
 } MPI2_MPI_SGE_UNION, MPI2_POINTER PTR_MPI2_MPI_SGE_UNION,
   Mpi2MpiSgeUnion_t, MPI2_POINTER pMpi2MpiSgeUnion_t;
+
 
 /****************************************************************************
 *  MPI SGE field definition and masks
@@ -949,6 +982,7 @@ typedef struct _MPI2_MPI_SGE_UNION
 
 #define MPI2_GET_CHAIN_OFFSET(x)    ((x & MPI2_SGE_CHAIN_OFFSET_MASK) >> MPI2_SGE_CHAIN_OFFSET_SHIFT)
 
+
 /*****************************************************************************
 *
 *        Fusion-MPT IEEE Scatter Gather Elements
@@ -983,6 +1017,7 @@ typedef union _MPI2_IEEE_SGE_SIMPLE_UNION
 } MPI2_IEEE_SGE_SIMPLE_UNION, MPI2_POINTER PTR_MPI2_IEEE_SGE_SIMPLE_UNION,
   Mpi2IeeeSgeSimpleUnion_t, MPI2_POINTER pMpi2IeeeSgeSimpleUnion_t;
 
+
 /****************************************************************************
 *  IEEE Chain Element structures
 ****************************************************************************/
@@ -998,6 +1033,7 @@ typedef union _MPI2_IEEE_SGE_CHAIN_UNION
 } MPI2_IEEE_SGE_CHAIN_UNION, MPI2_POINTER PTR_MPI2_IEEE_SGE_CHAIN_UNION,
   Mpi2IeeeSgeChainUnion_t, MPI2_POINTER pMpi2IeeeSgeChainUnion_t;
 
+
 /****************************************************************************
 *  All IEEE SGE types union
 ****************************************************************************/
@@ -1011,6 +1047,7 @@ typedef struct _MPI2_IEEE_SGE_UNION
     } u;
 } MPI2_IEEE_SGE_UNION, MPI2_POINTER PTR_MPI2_IEEE_SGE_UNION,
   Mpi2IeeeSgeUnion_t, MPI2_POINTER pMpi2IeeeSgeUnion_t;
+
 
 /****************************************************************************
 *  IEEE SGE field definitions and masks
@@ -1063,6 +1100,9 @@ typedef struct _MPI2_IEEE_SGE_UNION
 #define MPI2_IEEE32_pSGE_SET_FLAGS(psg,f)    (psg)->FlagsLength |= MPI2_IEEE32_SGE_SET_FLAGS(f)
 #define MPI2_IEEE32_pSGE_SET_LENGTH(psg,l)   (psg)->FlagsLength |= MPI2_IEEE32_SGE_LENGTH(l)
 
+
+
+
 /*****************************************************************************
 *
 *        Fusion-MPT MPI/IEEE Scatter Gather Unions
@@ -1076,6 +1116,7 @@ typedef union _MPI2_SIMPLE_SGE_UNION
 } MPI2_SIMPLE_SGE_UNION, MPI2_POINTER PTR_MPI2_SIMPLE_SGE_UNION,
   Mpi2SimpleSgeUntion_t, MPI2_POINTER pMpi2SimpleSgeUntion_t;
 
+
 typedef union _MPI2_SGE_IO_UNION
 {
     MPI2_SGE_SIMPLE_UNION       MpiSimple;
@@ -1084,6 +1125,7 @@ typedef union _MPI2_SGE_IO_UNION
     MPI2_IEEE_SGE_CHAIN_UNION   IeeeChain;
 } MPI2_SGE_IO_UNION, MPI2_POINTER PTR_MPI2_SGE_IO_UNION,
   Mpi2SGEIOUnion_t, MPI2_POINTER pMpi2SGEIOUnion_t;
+
 
 /****************************************************************************
 *
@@ -1103,4 +1145,6 @@ typedef union _MPI2_SGE_IO_UNION
 #define MPI2_SGLFLAGS_SGL_TYPE_IEEE32               (0x01)
 #define MPI2_SGLFLAGS_SGL_TYPE_IEEE64               (0x02)
 
+
 #endif
+

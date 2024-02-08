@@ -79,6 +79,7 @@ struct sdhci_pci_chip {
 	struct sdhci_pci_slot	*slots[MAX_SLOTS]; /* Pointers to host slots */
 };
 
+
 /*****************************************************************************\
  *                                                                           *
  * Hardware specific quirk handling                                          *

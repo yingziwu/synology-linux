@@ -16,6 +16,7 @@
 #include <linux/module.h>
 #include <linux/usb.h>
 
+
 #define DRIVER_AUTHOR "Greg Kroah-Hartman, greg@kroah.com"
 #define DRIVER_DESC "USB LED Driver"
 

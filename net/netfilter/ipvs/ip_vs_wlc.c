@@ -87,6 +87,7 @@ ip_vs_wlc_schedule(struct ip_vs_service *svc, const struct sk_buff *skb)
 	return least;
 }
 
+
 static struct ip_vs_scheduler ip_vs_wlc_scheduler =
 {
 	.name =			"wlc",
@@ -95,6 +96,7 @@ static struct ip_vs_scheduler ip_vs_wlc_scheduler =
 	.n_list =		LIST_HEAD_INIT(ip_vs_wlc_scheduler.n_list),
 	.schedule =		ip_vs_wlc_schedule,
 };
+
 
 static int __init ip_vs_wlc_init(void)
 {

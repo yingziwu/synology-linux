@@ -661,6 +661,8 @@ int rdma_init_qp_attr(struct rdma_cm_id *id, struct ib_qp_attr *qp_attr,
 		} else
 			ret = iw_cm_init_qp_attr(id_priv->cm_id.iw, qp_attr,
 						 qp_attr_mask);
+		qp_attr->port_num = id_priv->id.port_num;
+		*qp_attr_mask |= IB_QP_PORT;
 		break;
 	default:
 		ret = -ENOSYS;
@@ -1142,6 +1144,7 @@ static struct rdma_id_private *cma_new_udp_id(struct rdma_cm_id *listen_id,
 			    listen_id->ps, IB_QPT_UD);
 	if (IS_ERR(id))
 		return NULL;
+
 
 	if (cma_get_net_info(ib_event->private_data, listen_id->ps,
 			     &ip_ver, &port, &src, &dst))
@@ -2735,6 +2738,9 @@ static int cma_accept_iw(struct rdma_id_private *id_priv,
 {
 	struct iw_cm_conn_param iw_param;
 	int ret;
+
+	if (!conn_param)
+		return -EINVAL;
 
 	ret = cma_modify_qp_rtr(id_priv, conn_param);
 	if (ret)

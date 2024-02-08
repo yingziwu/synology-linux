@@ -21,6 +21,7 @@
 **
 */
 
+
 #ifndef TIMER_INTF_H
 #define TIMER_INTF_H
 
@@ -35,5 +36,7 @@ typedef int (*system_delay_fptr) (void *hTimer, int timeInMs);
 typedef int (*system_timeElapsed_fptr) (void *hTimer, void *startTime, int *timeInMs);
 
 typedef int (*system_getTime_fptr) (void *hTimer, void *time);
+
+
 
 #endif

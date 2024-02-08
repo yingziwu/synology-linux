@@ -159,6 +159,7 @@ fdtonemiddle:					/* Loop if LOOP = 1 */
 	addib,COND(>)		-1, %r22, fdtoneloop	/* Outer loop count decr */
 	add		%r21, %r20, %r20	/* increment space */
 
+
 fdtdone:
 	/*
 	 * Switch back to virtual mode
@@ -231,6 +232,7 @@ fisync:
 
 	.procend
 ENDPROC(flush_instruction_cache_local)
+
 
 	.import cache_info, data
 ENTRY(flush_data_cache_local)
@@ -478,6 +480,7 @@ ENTRY(copy_user_page_asm)
 	 * use ldd/std on a 32 bit kernel.
 	 */
 
+
 1:
 	ldw		0(%r29), %r19
 	ldw		4(%r29), %r20
@@ -640,6 +643,7 @@ ENTRY(flush_dcache_page_asm)
 	add		%r28, %r25, %r25
 	sub		%r25, %r1, %r25
 
+
 1:      fdc,m		%r1(%r28)
 	fdc,m		%r1(%r28)
 	fdc,m		%r1(%r28)
@@ -701,6 +705,7 @@ ENTRY(flush_icache_page_asm)
 	add		%r28, %r25, %r25
 	sub		%r25, %r1, %r25
 
+
 	/* fic only has the type 26 form on PA1.1, requiring an
 	 * explicit space specification, so use %sr4 */
 1:      fic,m		%r1(%sr4,%r28)
@@ -744,6 +749,7 @@ ENTRY(flush_kernel_dcache_page_asm)
 #endif
 	add		%r26, %r25, %r25
 	sub		%r25, %r23, %r25
+
 
 1:      fdc,m		%r23(%r26)
 	fdc,m		%r23(%r26)
@@ -893,6 +899,7 @@ ENTRY(flush_kernel_icache_page)
 	add		%r26, %r25, %r25
 	sub		%r25, %r23, %r25
 
+
 1:      fic,m		%r23(%sr4, %r26)
 	fic,m		%r23(%sr4, %r26)
 	fic,m		%r23(%sr4, %r26)
@@ -1004,6 +1011,7 @@ srdis_pa20:
 	.word		0x144008bc		/* mfdiag %dr2, %r28 */
 	depdi		0, 54,1, %r28		/* clear DIAG_SPHASH_ENAB (bit 54) */
 	.word		0x145c1840		/* mtdiag %r28, %dr2 */
+
 
 srdis_done:
 	/* Switch back to virtual mode */

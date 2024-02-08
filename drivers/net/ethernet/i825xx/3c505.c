@@ -41,6 +41,7 @@
 #define DRV_NAME	"3c505"
 #define DRV_VERSION	"1.10a"
 
+
 /* Theory of operation:
  *
  * The 3c505 is quite an intelligent board.  All communication with it is done
@@ -178,6 +179,7 @@ static unsigned long dma_mem_alloc(int size)
 	int order = get_order(size);
 	return __get_dma_pages(GFP_KERNEL, order);
 }
+
 
 /*****************************************************************
  *
@@ -438,6 +440,7 @@ static bool send_pcb(struct net_device *dev, pcb_struct * pcb)
 	adapter->send_pcb_semaphore = 0;
 	return false;
 }
+
 
 /*****************************************************************
  *
@@ -771,6 +774,7 @@ static irqreturn_t elp_interrupt(int irq, void *dev_id)
 						       adapter->irx_pcb.data.failed ? "failed" : "succeeded");
 					break;
 
+
 					/*
 					 * received board statistics
 					 */
@@ -831,6 +835,7 @@ static irqreturn_t elp_interrupt(int irq, void *dev_id)
 	spin_unlock(&adapter->lock);
 	return IRQ_HANDLED;
 }
+
 
 /******************************************************
  *
@@ -925,6 +930,7 @@ static int elp_open(struct net_device *dev)
 			TIMEOUT_MSG(__LINE__);
 	}
 
+
 	/*
 	 * configure adapter to receive broadcast messages and wait for response
 	 */
@@ -960,6 +966,7 @@ static int elp_open(struct net_device *dev)
 	netif_start_queue(dev);
 	return 0;
 }
+
 
 /******************************************************
  *
@@ -1127,6 +1134,7 @@ static struct net_device_stats *elp_get_stats(struct net_device *dev)
 	return &dev->stats;
 }
 
+
 static void netdev_get_drvinfo(struct net_device *dev,
 			       struct ethtool_drvinfo *info)
 {
@@ -1187,6 +1195,7 @@ static int elp_close(struct net_device *dev)
 
 	return 0;
 }
+
 
 /************************************************************
  *

@@ -313,3 +313,4 @@ twofish_dec_blk_3way:
 	popq %r14;
 	popq %r15;
 	ret;
+

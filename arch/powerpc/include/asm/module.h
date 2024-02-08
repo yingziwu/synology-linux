@@ -12,6 +12,7 @@
 #include <linux/list.h>
 #include <asm/bug.h>
 
+
 #ifndef __powerpc64__
 /*
  * Thanks to Paul M for explaining this.
@@ -27,6 +28,7 @@ struct ppc_plt_entry {
 	unsigned int jump[4];
 };
 #endif	/* __powerpc64__ */
+
 
 struct mod_arch_specific {
 #ifdef __powerpc64__
@@ -80,14 +82,14 @@ struct mod_arch_specific {
 #    endif	/* MODULE */
 #endif
 
+
 struct exception_table_entry;
 void sort_ex_table(struct exception_table_entry *start,
 		   struct exception_table_entry *finish);
 
-#ifdef CONFIG_MODVERSIONS
+#if defined(CONFIG_MODVERSIONS) && defined(CONFIG_PPC64)
 #define ARCH_RELOCATES_KCRCTAB
-
-extern const unsigned long reloc_start[];
+#define reloc_start PHYSICAL_START
 #endif
 #endif /* __KERNEL__ */
 #endif	/* _ASM_POWERPC_MODULE_H */

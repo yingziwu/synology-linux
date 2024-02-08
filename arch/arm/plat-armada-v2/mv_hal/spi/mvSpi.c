@@ -76,6 +76,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define DB(x)
 #endif
 
+
 #ifndef MV_SPI_REG_BIT_SET
 #define MV_SPI_REG_BIT_SET	MV_REG_BIT_SET
 #endif
@@ -183,6 +184,7 @@ MV_STATUS mvSpiParamsSet(MV_U8 spiId, MV_U8 csId, MV_SPI_TYPE type)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvSpi16bitDataTxRx - Transmt and receive data
 *
@@ -194,6 +196,7 @@ MV_STATUS mvSpi16bitDataTxRx(MV_U8 spiId, MV_U16 txData, MV_U16 *pRxData)
 {
 	MV_U32 i;
 	MV_BOOL ready = MV_FALSE;
+
 
 	/* First clear the bit in the interrupt cause register */
 	MV_SPI_REG_WRITE(MV_SPI_INT_CAUSE_REG(spiId), 0x0);
@@ -245,6 +248,7 @@ MV_STATUS mvSpi16bitDataTxRx(MV_U8 spiId, MV_U16 txData, MV_U16 *pRxData)
 
     return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvSpi8bitDataTxRx - Transmt and receive data (8bits)
@@ -344,6 +348,7 @@ MV_STATUS mvSpiCsSet(MV_U8 spiId, MV_U8 csId)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvSpiIfConfigSet -
 *
@@ -386,6 +391,7 @@ MV_STATUS mvSpiIfConfigSet(MV_U8 spiId, MV_SPI_IF_PARAMS *ifParams)
 
 	return MV_OK;
 }
+
 
 /*******************************************************************************
 * mvSpiTimingParamsSet -
@@ -789,6 +795,7 @@ MV_STATUS mvSpiWrite(MV_U8 spiId, MV_U8 *pTxBuff, MV_U32 buffSize)
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvSpiReadWrite - Read and Write a buffer simultanuosely
 *
@@ -887,3 +894,5 @@ MV_VOID mvSpiIfByteLenSet(MV_U8 spiId, MV_U32 byteLen)
 
 	MV_SPI_REG_WRITE(MV_SPI_IF_CONFIG_REG(spiId), ctrlReg);
 }
+
+

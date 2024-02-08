@@ -95,6 +95,7 @@ int debugfs_valid_mountpoint(const char *debugfs)
 	return 0;
 }
 
+
 int debugfs_valid_entry(const char *path)
 {
 	struct stat st;

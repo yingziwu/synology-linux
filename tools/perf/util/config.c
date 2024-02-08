@@ -13,6 +13,7 @@
 
 #define DEBUG_CACHE_DIR ".debug"
 
+
 char buildid_dir[MAXPATHLEN]; /* root dir for buildid, binary cache */
 
 static FILE *config_file;

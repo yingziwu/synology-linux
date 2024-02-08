@@ -40,6 +40,7 @@
 #define TIMER1_RELOAD_OFF	0x0018
 #define TIMER1_VAL_OFF		0x001c
 
+
 /*
  * SoC-specific data.
  */
@@ -47,10 +48,12 @@ static void __iomem *bridge_base;
 static u32 bridge_timer0_clr_mask;
 static void __iomem *timer_base;
 
+
 /*
  * Number of timer ticks per jiffy.
  */
 static u32 ticks_per_jiffy;
+
 
 /*
  * Orion's sched_clock implementation. It has a resolution of
@@ -63,6 +66,7 @@ unsigned long long notrace sched_clock(void)
 	u32 cyc = ~readl(timer_base + TIMER1_VAL_OFF);
 	return cyc_to_sched_clock(&cd, cyc, (u32)~0);
 }
+
 
 static void notrace orion_update_sched_clock(void)
 {

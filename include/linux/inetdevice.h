@@ -38,6 +38,7 @@ enum
 	IPV4_DEVCONF_ACCEPT_LOCAL,
 	IPV4_DEVCONF_SRC_VMARK,
 	IPV4_DEVCONF_PROXY_ARP_PVLAN,
+	IPV4_DEVCONF_IGNORE_ROUTES_WITH_LINKDOWN,
 	__IPV4_DEVCONF_MAX
 };
 
@@ -138,6 +139,9 @@ static inline void ipv4_devconf_setall(struct in_device *in_dev)
 	 || (!IN_DEV_FORWARD(in_dev) && \
 	  IN_DEV_ORCONF((in_dev), ACCEPT_REDIRECTS)))
 
+#define IN_DEV_IGNORE_ROUTES_WITH_LINKDOWN(in_dev) \
+	IN_DEV_CONF_GET((in_dev), IGNORE_ROUTES_WITH_LINKDOWN)
+
 #define IN_DEV_ARPFILTER(in_dev)	IN_DEV_ORCONF((in_dev), ARPFILTER)
 #define IN_DEV_ARP_ANNOUNCE(in_dev)	IN_DEV_MAXCONF((in_dev), ARP_ANNOUNCE)
 #define IN_DEV_ARP_IGNORE(in_dev)	IN_DEV_MAXCONF((in_dev), ARP_IGNORE)
@@ -201,6 +205,7 @@ static __inline__ int bad_mask(__be32 mask, __be32 addr)
 #define for_ifa(in_dev)	{ struct in_ifaddr *ifa; \
   for (ifa = (in_dev)->ifa_list; ifa; ifa = ifa->ifa_next)
 
+
 #define endfor_ifa(in_dev) }
 
 static inline struct in_device *__in_dev_get_rcu(const struct net_device *dev)
@@ -252,5 +257,6 @@ static __inline__ int inet_mask_len(__be32 mask)
 		return 0;
 	return 32 - ffz(~hmask);
 }
+
 
 #endif /* _LINUX_INETDEVICE_H */

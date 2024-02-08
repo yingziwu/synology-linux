@@ -39,9 +39,11 @@
 #include <plat/usb.h>
 #include <plat/mux.h>
 
+
 #ifndef	DEBUG
 #undef	VERBOSE
 #endif
+
 
 #define	DRIVER_VERSION	"24 August 2004"
 #define	DRIVER_NAME	(isp1301_driver.driver.name)
@@ -72,6 +74,7 @@ struct isp1301 {
 #		define WORK_STOP	7	/* don't resubmit */
 };
 
+
 /* bits in OTG_CTRL */
 
 #define	OTG_XCEIV_OUTPUTS \
@@ -85,6 +88,7 @@ struct isp1301 {
 #define	OTG_CTRL_MASK	(OTG_DRIVER_SEL| \
 	OTG_XCEIV_OUTPUTS|OTG_XCEIV_INPUTS| \
 	OTG_CTRL_BITS)
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -132,11 +136,13 @@ static void enable_vbus_source(struct isp1301 *isp)
 	 */
 }
 
+
 /* products will deliver OTG messages with LEDs, GUI, etc */
 static inline void notresponding(struct isp1301 *isp)
 {
 	printk(KERN_NOTICE "OTG device not responding.\n");
 }
+
 
 /*-------------------------------------------------------------------------*/
 
@@ -1389,6 +1395,7 @@ isp1301_set_peripheral(struct otg_transceiver *otg, struct usb_gadget *gadget)
 #endif
 }
 
+
 /*-------------------------------------------------------------------------*/
 
 static int
@@ -1636,3 +1643,4 @@ static void __exit isp_exit(void)
 	i2c_del_driver(&isp1301_driver);
 }
 module_exit(isp_exit);
+

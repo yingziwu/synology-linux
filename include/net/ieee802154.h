@@ -55,6 +55,7 @@
 #define IEEE802154_FC_DAMODE(x)		\
 	(((x) & IEEE802154_FC_DAMODE_MASK) >> IEEE802154_FC_DAMODE_SHIFT)
 
+
 /* MAC's Command Frames Identifiers */
 #define IEEE802154_CMD_ASSOCIATION_REQ		0x01
 #define IEEE802154_CMD_ASSOCIATION_RESP		0x02
@@ -153,4 +154,7 @@ enum {
 	IEEE802154_SCAN_IN_PROGRESS = 0xfc,
 };
 
+
 #endif
+
+

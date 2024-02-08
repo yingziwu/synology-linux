@@ -135,6 +135,9 @@ void radeon_gart_table_vram_free(struct radeon_device *rdev)
 	radeon_bo_unref(&rdev->gart.robj);
 }
 
+
+
+
 /*
  * Common gart functions.
  */
@@ -168,8 +171,10 @@ void radeon_gart_unbind(struct radeon_device *rdev, unsigned offset,
 			}
 		}
 	}
-	mb();
-	radeon_gart_tlb_flush(rdev);
+	if (rdev->gart.ptr) {
+		mb();
+		radeon_gart_tlb_flush(rdev);
+	}
 }
 
 int radeon_gart_bind(struct radeon_device *rdev, unsigned offset,
@@ -214,8 +219,10 @@ int radeon_gart_bind(struct radeon_device *rdev, unsigned offset,
 			}
 		}
 	}
-	mb();
-	radeon_gart_tlb_flush(rdev);
+	if (rdev->gart.ptr) {
+		mb();
+		radeon_gart_tlb_flush(rdev);
+	}
 	return 0;
 }
 

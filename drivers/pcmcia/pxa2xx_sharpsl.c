@@ -80,6 +80,7 @@ static void sharpsl_pcmcia_hw_shutdown(struct soc_pcmcia_socket *skt)
 	}
 }
 
+
 static void sharpsl_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 				    struct pcmcia_state *state)
 {
@@ -128,6 +129,7 @@ static void sharpsl_pcmcia_socket_state(struct soc_pcmcia_socket *skt,
 		printk(KERN_ERR "sharpsl_pcmcia_socket_state(): CPR=%04X, Low voltage!\n", cpr);
 	}
 }
+
 
 static int sharpsl_pcmcia_configure_socket(struct soc_pcmcia_socket *skt,
 				       const socket_state_t *state)

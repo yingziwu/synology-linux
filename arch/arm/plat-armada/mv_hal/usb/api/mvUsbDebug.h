@@ -54,6 +54,7 @@ inside the USB stack.
 #define ARC_DEBUG_FLAG_EP1      0x00080000
 #define ARC_DEBUG_FLAG_STATS    0x00100000
 
+
 #define ARC_DEBUG_FLAG_ALL      0xffffffff
 
 extern uint_32  usbDebugFlags;
@@ -95,6 +96,7 @@ extern char    DEBUG_TRACE_ARRAY[TRACE_ARRAY_SIZE][MAX_STRING_SIZE];
 #else
 #   define ARC_DEBUG_TRACE(flags, fromat, x...)
 #endif
+
 
 /************************************************************
 The following are global data structures that can be used

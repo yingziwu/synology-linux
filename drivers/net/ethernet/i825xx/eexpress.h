@@ -131,6 +131,7 @@
 #define Cmd_Dump    0x0006
 #define Cmd_Diag    0x0007
 
+
 /*
  * Frame Descriptor (Receive block) defines
  */

@@ -101,7 +101,9 @@ extern "C" {
 /* XOR Engine Debug Register Map */
 #define XOR_DEBUG_REG(unit)                 (MV_XOR_REGS_BASE(unit)+(0x70))
 
+
 /* XOR register fileds */
+
 
 /* XOR Engine Channel Arbiter Register */
 #define XECAR_SLICE_OFFS(sliceNum)          (sliceNum)
@@ -128,6 +130,7 @@ extern "C" {
 #define XEXCR_DES_SWP_MASK                  (1 << XEXCR_DES_SWP_OFFS)
 #define XEXCR_REG_ACC_PROTECT_OFFS          (15)
 #define XEXCR_REG_ACC_PROTECT_MASK          (1 << XEXCR_REG_ACC_PROTECT_OFFS)
+
 
 /* XOR Engine [0..1] Activation Registers (XExACTR) */
 #define XEXACTR_XESTART_OFFS                (0)
@@ -217,6 +220,7 @@ extern "C" {
 #define XEDBR_XBAR_ERR_INSR_OFFS            (1)
 #define XEDBR_XBAR_ERR_INSR_MASK            (1 << XEDBR_XBAR_ERR_INSR_OFFS)
 
+
 /* XOR Engine address decode registers.	*/
 
 #define XOR_MAX_ADDR_DEC_WIN	8	/* Maximum address decode windows		*/
@@ -248,6 +252,7 @@ extern "C" {
 #define XEBARX_BASE_OFFS                    (16)
 #define XEBARX_BASE_MASK                    (0xFFFF << XEBARX_BASE_OFFS)
 
+
 /* XOR Engine Size Mask Registers (XESMRx) */
 #define XESMRX_SIZE_MASK_OFFS               (16)
 #define XESMRX_SIZE_MASK_MASK               (0xFFFF << XESMRX_SIZE_MASK_OFFS)
@@ -256,6 +261,7 @@ extern "C" {
 /* XOR Engine High Address Remap Register (XEHARRx1) */
 #define XEHARRX_REMAP_OFFS                  (0)
 #define XEHARRX_REMAP_MASK                  (0xFFFFFFFF << XEHARRX_REMAP_OFFS)
+
 
 #define XOR_OVERRIDE_CTRL_REG(chan)   (MV_XOR_REGS_BASE(XOR_UNIT(chan))+(0x2A0 + ((XOR_CHAN(chan)) * 4)))
 /* XOR Engine [0..1] Address Override Control Register (XExAOCR) */
@@ -271,6 +277,7 @@ extern "C" {
 #define XEAOCR_DA0OVRPTR_OFFS			25    /* Override Destination Address Pointer */
 
 #define XOR_MAX_OVERRIDE_WIN	4	/* Maximum address override windows		*/
+
 
 #ifdef __cplusplus
 }

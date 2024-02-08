@@ -32,6 +32,7 @@
 #include <linux/usb/usbnet.h>
 #include <linux/gfp.h>
 
+
 /*
  * This driver is an implementation of the CDC "Ethernet Emulation
  * Model" (EEM) specification, which encapsulates Ethernet frames
@@ -368,6 +369,7 @@ static struct usb_driver eem_driver = {
 	.suspend =	usbnet_suspend,
 	.resume =	usbnet_resume,
 };
+
 
 static int __init eem_init(void)
 {

@@ -16,6 +16,7 @@
 
 #include "op_impl.h"
 
+
 /* Compute all of the registers in preparation for enabling profiling.  */
 
 static void

@@ -929,6 +929,7 @@ struct RTV_RSP {		/* Structure is in Big Endian format */
 #define qtov_rsvd2_WORD		qtov		/* reserved */
 };
 
+
 typedef struct  _RPL {		/* Structure is in Big Endian format */
 	uint32_t maxsize;
 	uint32_t index;
@@ -1060,6 +1061,7 @@ union AttributesDef {
 	uint32_t word;
 };
 
+
 /*
  * HBA Attribute Entry (8 - 260 bytes)
  */
@@ -1165,6 +1167,7 @@ typedef struct {
 typedef struct {
 	ATTRIBUTE_BLOCK pab;
 } GPAT_ACC_PAYLOAD;
+
 
 /*
  *  Begin HBA configuration parameters.
@@ -2655,6 +2658,7 @@ struct hbq_mask {
 #endif
 };
 
+
 /* Structure for MB Command CONFIG_HBQ (7c) */
 
 struct config_hbq_var {
@@ -2708,6 +2712,7 @@ struct config_hbq_var {
 	uint32_t rsvd8;    /* w9 */
 
 	struct hbq_mask hbqMasks[6];
+
 
 	union {
 		uint32_t allprofiles[12];
@@ -2777,6 +2782,8 @@ struct config_hbq_var {
 	} profiles;
 
 };
+
+
 
 /* Structure for MB Command CONFIG_PORT (0x88) */
 typedef struct {
@@ -3738,6 +3745,7 @@ typedef struct _IOCB {	/* IOCB structure */
 #define IOSTAT_CNT             0x11
 
 } IOCB_t;
+
 
 #define SLI1_SLIM_SIZE   (4 * 1024)
 

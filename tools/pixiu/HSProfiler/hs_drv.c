@@ -93,6 +93,7 @@ char g_image_load_path[PATH_MAX];
 /* the pid of auto launched application */
 pid_t g_launch_app_pid = 0;
 
+
 static bool g_image_loaded;
 
 extern struct miscdevice px_hotspot_d;
@@ -468,6 +469,7 @@ static int allocate_module_buffer(unsigned int *size)
 		goto error;
 	}
 
+
 	g_module_buffer.buffer.address = address;
 	g_module_buffer.buffer.size           = buffer_size;
 	g_module_buffer.buffer.read_offset    = 0;
@@ -601,6 +603,7 @@ static int query_request(struct query_request_data *rd)
 		mask |= KDR_HS_LAUNCHED_APP_EXIT;
 		g_launched_app_exit = false;
 	}
+
 
 	if (g_image_loaded)
 	{
@@ -979,6 +982,7 @@ static int read_module_buffer(struct read_buffer_data * data)
 		return -EFAULT;
 	}
 
+
 	return 0;
 }
 
@@ -1170,6 +1174,7 @@ static unsigned int px_hotspot_d_poll(struct file *fp, struct poll_table_struct 
 
 	if (g_image_loaded)
 		mask |= POLLIN | POLLRDNORM;
+
 
 	return mask;
 }

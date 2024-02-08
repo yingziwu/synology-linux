@@ -73,6 +73,7 @@ void bacct_add_tsk(struct taskstats *stats, struct task_struct *tsk)
 	strncpy(stats->ac_comm, tsk->comm, sizeof(stats->ac_comm));
 }
 
+
 #ifdef CONFIG_TASK_XACCT
 
 #define KB 1024

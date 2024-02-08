@@ -57,6 +57,7 @@
 #define ULITE_CONTROL_RST_RX	0x02
 #define ULITE_CONTROL_IE	0x10
 
+
 static struct uart_port ulite_ports[ULITE_NR_UARTS];
 
 /* ---------------------------------------------------------------------
@@ -88,6 +89,7 @@ static int ulite_receive(struct uart_port *port, int stat)
 	if (stat & ULITE_STATUS_FRAME)
 		port->icount.frame++;
 
+
 	/* drop byte with parity error if IGNPAR specificed */
 	if (stat & port->ignore_status_mask & ULITE_STATUS_PARITY)
 		stat &= ~ULITE_STATUS_RXVALID;
@@ -96,6 +98,7 @@ static int ulite_receive(struct uart_port *port, int stat)
 
 	if (stat & ULITE_STATUS_PARITY)
 		flag = TTY_PARITY;
+
 
 	stat &= ~port->ignore_status_mask;
 
@@ -570,7 +573,8 @@ MODULE_DEVICE_TABLE(of, ulite_of_match);
 
 static int __devinit ulite_probe(struct platform_device *pdev)
 {
-	struct resource *res, *res2;
+	struct resource *res;
+	int irq;
 	int id = pdev->id;
 #ifdef CONFIG_OF
 	const __be32 *prop;
@@ -584,11 +588,11 @@ static int __devinit ulite_probe(struct platform_device *pdev)
 	if (!res)
 		return -ENODEV;
 
-	res2 = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-	if (!res2)
-		return -ENODEV;
+	irq = platform_get_irq(pdev, 0);
+	if (irq <= 0)
+		return -ENXIO;
 
-	return ulite_assign(&pdev->dev, id, res->start, res2->start);
+	return ulite_assign(&pdev->dev, id, res->start, irq);
 }
 
 static int __devexit ulite_remove(struct platform_device *pdev)

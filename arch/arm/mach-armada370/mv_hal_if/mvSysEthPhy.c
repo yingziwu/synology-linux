@@ -74,6 +74,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "neta/gbe/mvEthRegs.h"
 #endif
 
+
 /*******************************************************************************
 * mvSysEthPhyInit - Initialize the EthPhy subsystem
 *

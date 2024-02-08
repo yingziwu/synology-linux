@@ -61,11 +61,16 @@
 //#define	PLICE_DEBUG
 /*---------------------  Static Definitions -------------------------*/
 
+
+
+
 /*---------------------  Static Classes  ----------------------------*/
 
 /*---------------------  Static Variables  --------------------------*/
 static int          msglevel                =MSG_LEVEL_INFO;
 //static int          msglevel                =MSG_LEVEL_DEBUG;
+
+
 
 const unsigned short awHWRetry0[5][5] = {
                                             {RATE_18M, RATE_18M, RATE_12M, RATE_12M, RATE_12M},
@@ -82,6 +87,8 @@ const unsigned short awHWRetry1[5][5] = {
                                             {RATE_54M, RATE_54M, RATE_36M, RATE_18M, RATE_18M}
                                            };
 
+
+
 /*---------------------  Static Functions  --------------------------*/
 
 void s_vCheckSensitivity(
@@ -94,12 +101,18 @@ void s_uCalculateLinkQual(
     );
 #endif
 
+
 void s_vCheckPreEDThreshold(
     void *hDeviceContext
     );
 /*---------------------  Export Variables  --------------------------*/
 
+
 /*---------------------  Export Functions  --------------------------*/
+
+
+
+
 
 /*+
  *
@@ -256,6 +269,7 @@ if(pDevice->bLinkPass==false) pCurrBSS->bSelected = false;
 
 }
 
+
 /*+
  *
  * Routine Description:
@@ -265,6 +279,7 @@ if(pDevice->bLinkPass==false) pCurrBSS->bSelected = false;
  *    None.
  *
 -*/
+
 
 void
 BSSvClearBSSList(
@@ -297,6 +312,8 @@ BSSvClearBSSList(
 
     return;
 }
+
+
 
 /*+
  *
@@ -338,6 +355,8 @@ BSSpAddrIsInBSSList(
     return NULL;
 };
 
+
+
 /*+
  *
  * Routine Description:
@@ -377,6 +396,8 @@ BSSbInsertToBSSList (
     unsigned int ii;
     bool bParsingQuiet = false;
     PWLAN_IE_QUIET  pQuiet = NULL;
+
+
 
     pBSSList = (PKnownBSS)&(pMgmt->sBSSList[0]);
 
@@ -550,6 +571,7 @@ BSSbInsertToBSSList (
     return true;
 }
 
+
 /*+
  *
  * Routine Description:
@@ -591,8 +613,11 @@ BSSbUpdateToBSSList (
     bool bParsingQuiet = false;
     PWLAN_IE_QUIET  pQuiet = NULL;
 
+
+
     if (pBSSList == NULL)
         return false;
+
 
     HIDWORD(pBSSList->qwBSSTimestamp) = cpu_to_le32(HIDWORD(qwTimestamp));
     LODWORD(pBSSList->qwBSSTimestamp) = cpu_to_le32(LODWORD(qwTimestamp));
@@ -722,6 +747,10 @@ BSSbUpdateToBSSList (
     return true;
 }
 
+
+
+
+
 /*+
  *
  * Routine Description:
@@ -751,6 +780,8 @@ BSSDBbIsSTAInNodeDB(void *pMgmtObject, unsigned char *abyDstAddr,
 
    return false;
 };
+
+
 
 /*+
  *
@@ -812,6 +843,8 @@ BSSvCreateOneNode(void *hDeviceContext, unsigned int *puNodeIndex)
     return;
 };
 
+
+
 /*+
  *
  * Routine Description:
@@ -833,6 +866,7 @@ BSSvRemoveOneNode(
     PSMgmtObject    pMgmt = pDevice->pMgmt;
     unsigned char byMask[8] = {1, 2, 4, 8, 0x10, 0x20, 0x40, 0x80};
     struct sk_buff  *skb;
+
 
     while ((skb = skb_dequeue(&pMgmt->sNodeDBTable[uNodeIndex].sTxPSQueue)) != NULL)
             dev_kfree_skb(skb);
@@ -901,6 +935,10 @@ BSSvUpdateAPNode(
 
 };
 
+
+
+
+
 /*+
  *
  * Routine Description:
@@ -911,6 +949,7 @@ BSSvUpdateAPNode(
  *    None
  *
 -*/
+
 
 void
 BSSvAddMulticastNode(
@@ -943,6 +982,10 @@ BSSvAddMulticastNode(
     pMgmt->sNodeDBTable[0].uRatePollTimeout = FALLBACK_POLL_SECOND;
 
 };
+
+
+
+
 
 /*+
  *
@@ -1031,6 +1074,7 @@ CARDbRadioPowerOn(pDevice);
 start:
 #endif
 
+
     if (pDevice->wUseProtectCntDown > 0) {
         pDevice->wUseProtectCntDown --;
     }
@@ -1039,7 +1083,7 @@ start:
         pDevice->byERPFlag &= ~(WLAN_SET_ERP_USE_PROTECTION(1));
     }
 
-{
+    if (pDevice->eCommandState == WLAN_ASSOCIATE_WAIT) {
        pDevice->byReAssocCount++;
    if((pDevice->byReAssocCount > 10) && (pDevice->bLinkPass != true)) {  //10 sec timeout
                      printk("Re-association timeout!!!\n");
@@ -1100,6 +1144,7 @@ start:
                 if (pMgmt->sNodeDBTable[ii].bPSEnable)
                     uSleepySTACnt++;
 
+
             }
 
             // Rate fallback check
@@ -1140,6 +1185,7 @@ start:
         }
 
     }
+
 
     if ((pMgmt->eCurrMode == WMAC_MODE_ESS_AP) && (pDevice->eCurrentPHYType == PHY_TYPE_11G)) {
 
@@ -1189,6 +1235,7 @@ start:
         }
 
     }
+
 
     // Check if any STA in PS mode, enable DTIM multicast deliver
     if (pMgmt->eCurrMode == WMAC_MODE_ESS_AP) {
@@ -1316,6 +1363,9 @@ start:
     return;
 }
 
+
+
+
 /*+
  *
  * Routine Description:
@@ -1328,6 +1378,8 @@ start:
  *    none.
  *
 -*/
+
+
 
 void
 BSSvUpdateNodeTxCounter(
@@ -1497,7 +1549,11 @@ BSSvUpdateNodeTxCounter(
 
     return;
 
+
 }
+
+
+
 
 /*+
  *
@@ -1516,6 +1572,7 @@ BSSvUpdateNodeTxCounter(
  *    None.
  *
 -*/
+
 
 void
 BSSvClearNodeDBTable(
@@ -1544,6 +1601,7 @@ BSSvClearNodeDBTable(
 
     return;
 };
+
 
 void s_vCheckSensitivity(
     void *hDeviceContext
@@ -1592,6 +1650,7 @@ void s_vCheckSensitivity(
         }
     }
 }
+
 
 void
 BSSvClearAnyBSSJoinRecord (
@@ -1675,3 +1734,4 @@ void s_vCheckPreEDThreshold(
     }
     return;
 }
+

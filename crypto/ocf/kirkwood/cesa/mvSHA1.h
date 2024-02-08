@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_SHA1_MAC_LEN 20
 
+
 typedef struct
 {
     MV_U32 state[5];
@@ -82,5 +83,6 @@ void mvSHA1Update(MV_SHA1_CTX *context, MV_U8 const *buf, unsigned int len);
 void mvSHA1Final(MV_U8* digest, MV_SHA1_CTX *context);
 
 void mvSHA1(MV_U8 const *buf, unsigned int len, MV_U8* digest);
+
 
 #endif /* __mvSHA1_h__ */

@@ -13,6 +13,7 @@
  * released under the GPL
  */
 
+
 #include "ieee80211.h"
 #include "dot11d.h"
 /* FIXME: add A freqs */
@@ -23,6 +24,7 @@ const long ieee80211_wlan_frequencies[] = {
 	2452, 2457, 2462, 2467,
 	2472, 2484
 };
+
 
 int ieee80211_wx_set_freq(struct ieee80211_device *ieee, struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
@@ -80,6 +82,7 @@ out:
 	return ret;
 }
 
+
 int ieee80211_wx_get_freq(struct ieee80211_device *ieee,
 			     struct iw_request_info *a,
 			     union iwreq_data *wrqu, char *b)
@@ -124,6 +127,7 @@ int ieee80211_wx_get_wap(struct ieee80211_device *ieee,
 
 	return 0;
 }
+
 
 int ieee80211_wx_set_wap(struct ieee80211_device *ieee,
 			 struct iw_request_info *info,
@@ -219,6 +223,8 @@ int ieee80211_wx_set_rate(struct ieee80211_device *ieee,
 	return 0;
 }
 
+
+
 int ieee80211_wx_get_rate(struct ieee80211_device *ieee,
 			     struct iw_request_info *info,
 			     union iwreq_data *wrqu, char *extra)
@@ -230,6 +236,7 @@ int ieee80211_wx_get_rate(struct ieee80211_device *ieee,
 
 	return 0;
 }
+
 
 int ieee80211_wx_set_rts(struct ieee80211_device *ieee,
 			     struct iw_request_info *info,
@@ -398,6 +405,7 @@ int ieee80211_wx_set_essid(struct ieee80211_device *ieee,
 	if(proto_started)
 		ieee80211_stop_protocol(ieee);
 
+
 	/* this is just to be sure that the GET wx callback
 	 * has consisten infos. not needed otherwise
 	 */
@@ -489,8 +497,10 @@ int ieee80211_wx_get_name(struct ieee80211_device *ieee,
 	else if(ieee->state != IEEE80211_NOLINK)
 		strcat(wrqu->name," link..");
 
+
 	return 0;
 }
+
 
 /* this is mostly stolen from hostap */
 int ieee80211_wx_set_power(struct ieee80211_device *ieee,

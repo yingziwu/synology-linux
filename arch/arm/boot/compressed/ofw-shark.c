@@ -9,10 +9,12 @@
  * And bootargs are copied from OpenFirmware.
  */
 
+
 #include <linux/kernel.h>
 #include <linux/types.h>
 #include <asm/setup.h>
 #include <asm/page.h>
+
 
 asmlinkage void
 create_params (unsigned long *buffer)
@@ -79,6 +81,7 @@ create_params (unsigned long *buffer)
 	tag->hdr.tag = 0;
 	tag->hdr.size = 0;
 }
+
 
 typedef int (*ofw_handle_t)(void *);
 

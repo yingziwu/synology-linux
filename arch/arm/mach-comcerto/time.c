@@ -181,6 +181,7 @@ static void timer_free(struct timer_hw *thw)
 	spin_unlock_irqrestore(&comcerto_timer_lock, flags);
 }
 
+
 static struct timer_hw *__timer_alloc(struct comcerto_timer *t)
 {
 	struct timer_hw *thw;
@@ -331,6 +332,7 @@ int timer_hw_handler(u8 id)
 	return -1;
 }
 
+
 struct comcerto_clock_device
 {
 	int timer;
@@ -412,6 +414,7 @@ static struct clocksource clocksource =
 	.shift	= 28,
 	.flags	= CLOCK_SOURCE_IS_CONTINUOUS,
 };
+
 
 /***********************************************************
  *   KERNEL TIMER                                          *
@@ -597,3 +600,4 @@ static void __init comcerto_timer_init(void)
 struct sys_timer comcerto_timer = {
 	.init	= comcerto_timer_init,
 };
+

@@ -66,6 +66,7 @@ typedef GT_U32 GT_SEM;
 typedef GT_U32 GT_LPORT;
 typedef GT_U32 GT_ETYPE;
 
+
 /* Define the different device type that may exist in system        */
 typedef enum
 {
@@ -128,6 +129,7 @@ typedef enum
 
 }GT_DEVICE;
 
+
 /* Definition for the revision number of the device        */
 typedef enum
 {
@@ -136,6 +138,7 @@ typedef enum
     GT_REV_2,
     GT_REV_3
 }GT_DEVICE_REV;
+
 
 /* ToDo: No Used */
 typedef enum
@@ -197,6 +200,7 @@ typedef enum
     PPU_STATE_POLLING
 } GT_PPU_STATE;
 
+
 /*
  * Typedef: enum GT_PORT_CONFIG_MODE
  *
@@ -217,6 +221,7 @@ typedef enum
     PORTCFG_DISABLED = 7
 } GT_PORT_CONFIG_MODE;
 
+
 typedef enum
 {
     GT_SA_FILTERING_DISABLE = 0,
@@ -224,6 +229,7 @@ typedef enum
     GT_SA_DROP_ON_UNLOCK,
     GT_SA_DROP_TO_CPU
 } GT_SA_FILTERING;
+
 
 /* Definition for the Ingree/Egress Frame Mode */
 typedef enum
@@ -252,6 +258,7 @@ typedef enum
     GT_JUMBO_MODE_10240
 } GT_JUMBO_MODE;
 
+
 /*
  * Typedef: enum GT_PRI_OVERRIDE
  *
@@ -279,6 +286,7 @@ typedef enum
     PRI_OVERRIDE_QUEUE
 } GT_PRI_OVERRIDE;
 
+
 /*
  * Typedef: enum GT_FRAME_POLICY
  *
@@ -298,6 +306,7 @@ typedef enum
     FRAME_POLICY_TRAP,
     FRAME_POLICY_DISCARD
 } GT_FRAME_POLICY;
+
 
 /*
  * Typedef: enum GT_POLICY_TYPE
@@ -326,6 +335,7 @@ typedef enum
     POLICY_TYPE_OPT82,
     POLICY_TYPE_UDP
 } GT_POLICY_TYPE;
+
 
 /*
  * Typedef: enum GT_PRI_OVERRIDE_FTYPE
@@ -402,6 +412,7 @@ typedef enum
     FTYPE_IP_NON_DSA_CONTROL
 } GT_PRI_OVERRIDE_FTYPE;
 
+
 /*
  * Typedef: struct GT_QPRI_TBL_ENTRY
  *
@@ -422,6 +433,7 @@ typedef struct
     GT_U32        qPriority;
 }GT_QPRI_TBL_ENTRY;
 
+
 /*
  * Typedef: struct GT_FPRI_TBL_ENTRY
  *
@@ -438,6 +450,7 @@ typedef struct
     GT_BOOL        fPriEn;
     GT_U32        fPriority;
 }GT_FPRI_TBL_ENTRY;
+
 
 /* Maximam number of ports a switch may have. */
 #define MAX_SWITCH_PORTS    11
@@ -459,6 +472,8 @@ typedef struct
     GT_U8        queue[MAX_QOS_WEIGHTS];
 }GT_QoS_WEIGHT;
 
+
+
 /*
  * Typedef: struct GT_VERSION
  *
@@ -472,6 +487,7 @@ typedef struct
 {
     GT_U8   version[VERSION_MAX_LEN];
 }GT_VERSION;
+
 
 /*
  * typedef: struct GT_RMU
@@ -487,6 +503,8 @@ typedef struct
     GT_BOOL        rmuEn;
     GT_LPORT    port;
 } GT_RMU;
+
+
 
 /*
  * Typedef:
@@ -512,6 +530,7 @@ typedef enum
     ATU_SIZE_8192
 }ATU_SIZE;
 
+
 /*
  * typedef: enum GT_PORT_STP_STATE
  *
@@ -530,6 +549,7 @@ typedef enum
     GT_PORT_LEARNING,
     GT_PORT_FORWARDING
 } GT_PORT_STP_STATE;
+
 
 /*
  * typedef: enum GT_EGRESS_MODE
@@ -560,6 +580,7 @@ typedef enum
     GT_SECURE
 } GT_DOT1Q_MODE;
 
+
 /* typedef: enum GT_SW_MODE */
 
 typedef enum
@@ -569,6 +590,7 @@ typedef enum
     GT_STAND_ALONE,       /* ports come up enabled, ignore EEPROM */
     GT_EEPROM_ATTATCHED   /* EEPROM defined prot states */
 } GT_SW_MODE;
+
 
 /*
  * Typedef: enum GT_ATU_OPERARION
@@ -595,6 +617,7 @@ typedef enum
     FLUSH_UNLOCKED_IN_DB,    /* for atu only */
     SERVICE_VIOLATIONS     /* for vtu only */
 } GT_ATU_OPERATION, GT_VTU_OPERATION;
+
 
 /*
  * typedef: enum GT_FLUSH_CMD
@@ -630,6 +653,7 @@ typedef enum
     GT_MOVE_ALL_UNBLK = 2,
     GT_MOVE_ALL_UNLOCKED = 2
 }GT_MOVE_CMD;
+
 
 /*
  * typedef: enum GT_ATU_UC_STATE
@@ -682,6 +706,7 @@ typedef enum
     GT_UC_STATIC                  = 0xF
 } GT_ATU_UC_STATE;
 
+
 /*
  * typedef: enum GT_ATU_MC_STATE
  *
@@ -725,6 +750,7 @@ typedef enum
     GT_MC_PRIO_STATIC     = 0xF
 } GT_ATU_MC_STATE;
 
+
 /*
  *  typedef: struct GT_ATU_EXT_PRI
  *
@@ -762,6 +788,7 @@ typedef struct
     GT_U8             macFPri;
     GT_U8             macQPri;
 } GT_ATU_EXT_PRI;
+
 
 /*
  *  typedef: struct GT_ATU_ENTRY
@@ -801,6 +828,7 @@ typedef struct
     } entryState;
     GT_ATU_EXT_PRI    exPrio;
 } GT_ATU_ENTRY;
+
 
 /*
  *  typedef: struct GT_VTU_DATA
@@ -873,6 +901,7 @@ typedef struct
     GT_BOOL            vidNRateLimit;
 } GT_VTU_EXT_INFO;
 
+
 /*
  *  typedef: struct GT_VTU_ENTRY
  *
@@ -907,6 +936,7 @@ typedef struct
     GT_VTU_EXT_INFO    vidExInfo;
 } GT_VTU_ENTRY;
 
+
 /*
  * Typedef: enum GT_STU_OPERARION
  *
@@ -923,6 +953,7 @@ typedef enum
     GET_NEXT_STU_ENTRY =6
 } GT_STU_OPERATION;
 
+
 /*
  *  typedef: struct GT_STU_ENTRY
  *
@@ -937,6 +968,7 @@ typedef struct
     GT_U16                sid;
     GT_PORT_STP_STATE    portState[MAX_SWITCH_PORTS];
 } GT_STU_ENTRY;
+
 
 /*
  *  typedef: struct GT_VTU_INT_STATUS
@@ -999,6 +1031,7 @@ typedef struct
 #define GT_AGE_VIOLATION        0x8
 #define GT_AGE_OUT_VIOLATION    0x10
 
+
 /*
 
   * Typedef: enum GT_PVT_OPERATION
@@ -1017,6 +1050,7 @@ typedef enum
     PVT_READ        = 0x4
 } GT_PVT_OPERATION;
 
+
 /*
  *  typedef: struct GT_PVT_OP_DATA
  *
@@ -1031,6 +1065,7 @@ typedef struct
     GT_U32    pvtAddr;
     GT_U32    pvtData;
 } GT_PVT_OP_DATA;
+
 
 /*
  *  typedef: enum GT_PIRL_FC_DEASSERT
@@ -1049,6 +1084,7 @@ typedef enum
     GT_PIRL_FC_DEASSERT_EMPTY = 0,
     GT_PIRL_FC_DEASSERT_CBS_LIMIT
 } GT_PIRL_FC_DEASSERT;
+
 
 /*
  *  typedef: enum GT_PIRL_ELIMIT_MODE
@@ -1074,6 +1110,7 @@ typedef enum
     GT_PIRL_ELIMIT_LAYER2,
     GT_PIRL_ELIMIT_LAYER3
 } GT_PIRL_ELIMIT_MODE;
+
 
 /* typedef: enum GT_RATE_LIMIT_MODE
  * The ingress limit mode in the rate control register (0xA)
@@ -1107,6 +1144,7 @@ typedef enum
     GT_128M,              /* 128M  bits/sec, Note: supported only by Gigabit Ethernet Switch */
     GT_256M              /* 256M  bits/sec, Note: supported only by Gigabit Ethernet Switch */
 } GT_PRI0_RATE,GT_EGRESS_RATE;
+
 
 /*
  * Typedef: union GT_ERATE_TYPE
@@ -1149,6 +1187,7 @@ typedef union
 
 #define MAX_RATE_LIMIT        256000    /* unit of Kbps */
 #define MIN_RATE_LIMIT        65        /* unit of Kbps */
+
 
 #define GT_GET_RATE_LIMIT_PER_FRAME(_frames, _dec)    \
         ((_frames)?(1000000000 / (32 * (_frames)) + (1000000000 % (32 * (_frames))?1:0)):0)
@@ -1224,6 +1263,7 @@ typedef enum
     PIRL_READ_RESOURCE        = 0x4
 } GT_PIRL_OPERATION, GT_PIRL2_OPERATION;
 
+
 /*
  *  typedef: struct GT_PIRL_OP_DATA
  *
@@ -1291,6 +1331,7 @@ typedef enum
     ESB_LIMIT_ACTION_DROP     = 0x0,
     ESB_LIMIT_ACTION_FC        = 0x1
 } GT_ESB_LIMIT_ACTION;
+
 
 /*
  * Typedef: enum GT_BUCKET_RATE_TYPE
@@ -1392,6 +1433,8 @@ typedef enum
     GT_PIRL2_COUNT_ALL_LAYER2,
     GT_PIRL2_COUNT_ALL_LAYER3
 } GT_PIRL2_COUNT_MODE;
+
+
 
 /*
  *  typedef: struct GT_PIRL_RESOURCE
@@ -1548,6 +1591,7 @@ typedef struct
     GT_PIRL_COUNT_MODE    byteTobeCounted;
 } GT_PIRL_DATA;
 
+
 /*
  *  typedef: struct GT_PIRL2_RESOURCE
  *
@@ -1644,6 +1688,7 @@ typedef struct
     GT_PIRL2_COUNT_MODE    byteTobeCounted;
 } GT_PIRL2_RESOURCE;
 
+
 /*
  *  typedef: struct GT_PIRL2_BUCKET_DATA
  *
@@ -1738,6 +1783,8 @@ typedef struct
     GT_PIRL2_COUNT_MODE    byteTobeCounted;
 } GT_PIRL2_DATA;
 
+
+
 /*
  *  typedef: struct GT_PIRL_CUSTOM_TSM_CFG
  *
@@ -1776,6 +1823,7 @@ typedef struct
     GT_PIRL_ACTION        actionMode;
 } GT_PIRL_CUSTOM_TSM_CFG;
 
+
 /*
  *  typedef: struct GT_PIRL2_TSM_DATA
  *
@@ -1811,6 +1859,8 @@ typedef struct
     GT_U32        priMask;
 } GT_PIRL2_TSM_RESOURCE;
 
+
+
 /*
  *  typedef: struct GT_PIRL2_TSM_DATA
  *
@@ -1838,7 +1888,10 @@ typedef struct
     GT_U32        priMask;
 } GT_PIRL2_TSM_DATA;
 
+
+
 #define MAX_PTP_CONSECUTIVE_READ    4
+
 
 /*
  * Typedef: enum GT_PTP_OPERATION
@@ -1860,6 +1913,7 @@ typedef enum
     PTP_READ_TIMESTAMP_DATA    = 0x8,
 } GT_PTP_OPERATION;
 
+
 /*
  * Typedef: enum GT_PTP_SPEC
  *
@@ -1874,6 +1928,7 @@ typedef enum
     PTP_IEEE_1588        = 0x0,
     PTP_IEEE_802_1AS    = 0x1
 } GT_PTP_SPEC;
+
 
 /*
  *  typedef: struct GT_PTP_OP_DATA
@@ -1897,6 +1952,8 @@ typedef struct
     GT_U32    nData;
 } GT_PTP_OP_DATA;
 
+
+
 /*
  *  typedef: struct GT_PTP_GLOBAL_CONFIG
  *
@@ -1913,6 +1970,7 @@ typedef struct
     GT_U32    msgIdTSEn;
     GT_U32    tsArrPtr;
 } GT_PTP_GLOBAL_CONFIG;
+
 
 /*
  *  typedef: struct GT_PTP_PORT_CONFIG
@@ -1973,6 +2031,7 @@ typedef struct
 	GT_PTP_PORT_CONFIG      ptpPortConfig[MAX_SWITCH_PORTS];
 } GT_PTP_CONFIG;
 
+
 /*
  * Typedef: enum GT_PTP_TIME
  *
@@ -1989,6 +2048,7 @@ typedef enum
     PTP_ARR1_TIME = 0x1,
     PTP_DEP_TIME = 0x2
 } GT_PTP_TIME;
+
 
 /*
  * Typedef: enum GT_PTP_INT_STATUS
@@ -2012,6 +2072,7 @@ typedef enum
     PTP_INT_DROP         = 0x2
 } GT_PTP_INT_STATUS;
 
+
 /*
  *  typedef: struct GT_PTP_TS_STATUS
  *
@@ -2030,6 +2091,7 @@ typedef struct
     GT_U32    ptpSeqId;
     GT_PTP_INT_STATUS    status;
 } GT_PTP_TS_STATUS;
+
 
 /*
  *  typedef: struct GT_PTP_PORT_DISCARD_STATS
@@ -2060,6 +2122,8 @@ typedef enum
     PTP_ARR_TS_MODE_LOC_35  = 34,  /* PTP Arrival mode: TS at offset 35 in common header */
     PTP_ARR_TS_MODE_LOC_ff         /* PTP Arrival mode: TS at the end of the frame */
 } GT_PTP_ARR_TS_MODE;
+
+
 
 #ifdef CONFIG_AVB_FPGA
 
@@ -2118,6 +2182,7 @@ typedef struct
     GT_BOOL    intEn;
 } GT_TAI_EVENT_CONFIG;
 
+
 /*
  *  typedef: struct GT_TAI_EVENT_STATUS
  *
@@ -2137,6 +2202,7 @@ typedef struct
     GT_BOOL    eventErr;
 } GT_TAI_EVENT_STATUS;
 
+
 typedef enum
 {
     GT_TAI_TRIG_PERIODIC_PURSE = 0,    /* generate periodic purse */
@@ -2154,6 +2220,7 @@ typedef enum
 										(TAI global Status 0xA, 0xB) is also updated at that
 										instant. */
 } GT_TAI_MULTI_PTP_SYNC_MODE;
+
 
 /*
  *  typedef: struct GT_TAI_CLOCK_SELECT
@@ -2207,6 +2274,8 @@ typedef struct
     GT_U32    trigClkComp;
 } GT_TAI_TRIGGER_CONFIG;
 
+
+
 /* AVB functions */
 typedef enum
 {
@@ -2219,6 +2288,7 @@ typedef enum
     GT_LEGACY_LO_FPRI,    /* Legacy Lo Frame Priority */
     GT_LEGACY_LO_QPRI    /* Legacy Lo Queue Priority */
 } GT_AVB_PRI_TYPE;
+
 
 typedef enum
 {
@@ -2234,6 +2304,7 @@ typedef enum
                                     entry state and whose DPV has this source port's
                                     bit set to a one is considered AVB. */
 } GT_AVB_MODE;
+
 
 /*
  * Typedef: enum GT_AVB_FRAME_POLICY
@@ -2252,6 +2323,7 @@ typedef enum
     AVB_FRAME_POLICY_MIRROR,
     AVB_FRAME_POLICY_TRAP
 } GT_AVB_FRAME_POLICY;
+
 
 /*
  * Typedef: enum GT_AVB_FRAME_TYPE
@@ -2276,6 +2348,7 @@ typedef enum
     AVB_HI_FRAME,
     AVB_LO_FRAME
 } GT_AVB_FRAME_TYPE;
+
 
 /*
  * Typedef: enum GT_TCAM_OPERATION
@@ -2325,6 +2398,8 @@ typedef enum
     TCAM_HIT_96_E9  = 0x809,
     TCAM_HIT_48_MISS  = 0x0FF,
 } GT_TCAM_HIT_STATUS;
+
+
 
 /*
  *  typedef: struct GT_TCAM_DATA
@@ -2390,6 +2465,7 @@ typedef enum
  *      lowHit       - TCAM Entry for High 48-byte Hit..
 */
 
+
 typedef union
 /*typedef struct */
 {
@@ -2447,6 +2523,7 @@ typedef struct
     GT_TCAM_DATA    *tcamDataP;
 } GT_TCAM_OP_DATA;
 
+
 /*
  * typedef: enum GT_EVENT_TYPE
  *
@@ -2482,6 +2559,7 @@ typedef struct
         (GT_AVB_INT | GT_DEVICE_INT | GT_STATS_DONE | GT_VTU_PROB | GT_VTU_DONE | GT_ATU_PROB |     \
         GT_ATU_DONE | GT_EE_INTERRUPT)
 
+
 /*
  *  typedef: struct GT_DEV_EVENT
  *
@@ -2507,6 +2585,7 @@ typedef struct
     GT_U32        phyList;
 } GT_DEV_EVENT;
 
+
 /*
  *  typedef: struct GT_DEV_INT_STATUS
  *
@@ -2531,6 +2610,7 @@ typedef struct
     GT_U32        linkInt;
     GT_U32        phyInt;
 } GT_DEV_INT_STATUS;
+
 
 /*
 * GT_DEVICE_INT
@@ -2572,6 +2652,7 @@ typedef struct
 #define GT_WD_EGRESS    0x2
 #define GT_WD_FORCE        0x4
 
+
 /*
 * typedef: struct GT_WD_EVENT_HISTORY
 *
@@ -2590,6 +2671,7 @@ typedef struct
     GT_BOOL    wdEvent;
     GT_BOOL egressEvent;
 } GT_WD_EVENT_HISTORY;
+
 
 /*
 * typedef: enum GT_PHY_INT
@@ -2646,6 +2728,7 @@ typedef enum
     SPEED_10_DUPLEX_HALF
 }GT_PHY_AUTO_MODE;
 
+
 /*
 * typedef: enum GT_PHY_PAUSE_MODE
 *
@@ -2665,6 +2748,7 @@ typedef enum
     GT_PHY_BOTH_PAUSE
 } GT_PHY_PAUSE_MODE;
 
+
 /*
 * typedef: enum GT_PHY_SPEED
 *
@@ -2681,6 +2765,7 @@ typedef enum
     PHY_SPEED_100_MBPS,
     PHY_SPEED_1000_MBPS
 } GT_PHY_SPEED;
+
 
 /*
 * typedef: enum GT_SERDES_MODE
@@ -2700,6 +2785,7 @@ typedef enum
     PHY_SERDES_SGMII_PHY,
     PHY_SERDES_SGMII_MAC
 } GT_SERDES_MODE;
+
 
 /*
 * typedef: enum GT_EDETECT_MODE
@@ -2737,6 +2823,7 @@ typedef enum
     GT_CPUPORT_INGRESS        /* 0x11 */
 } GT_INGRESS_MODE;
 
+
 /*
  * typedef: enum GT_EGRESS_FLOOD
  *
@@ -2755,6 +2842,7 @@ typedef enum
     GT_BLOCK_EGRESS_UNKNOWN_UNICAST,
     GT_BLOCK_EGRESS_NONE
 } GT_EGRESS_FLOOD;
+
 
 /*
  *  typedef: enum GT_MC_RATE
@@ -2775,6 +2863,7 @@ typedef enum
     GT_MC_100_PERCENT_RL,
 } GT_MC_RATE;
 
+
 /*
  *  typedef: enum GT_INGRESS_RATE_MODE
  *
@@ -2789,6 +2878,7 @@ typedef enum
     GT_RATE_PRI_BASE = 0,
     GT_RATE_BURST_BASE
 } GT_INGRESS_RATE_MODE;
+
 
 /*
  *  typedef: enum GT_PORT_SCHED_MODE
@@ -2812,6 +2902,7 @@ typedef enum
     GT_PORT_SCHED_STRICT_PRI3,
     GT_PORT_SCHED_STRICT_PRI2_3
 } GT_PORT_SCHED_MODE;
+
 
 /*
  *  typedef: struct GT_PORT_STAT
@@ -2855,6 +2946,7 @@ typedef struct
     GT_U16  inFiltered;
     GT_U16  outFiltered;
 } GT_PORT_STAT2;
+
 
 /*
  **  typedef: struct GT_PORT_Q_COUNTERS
@@ -2948,6 +3040,7 @@ typedef struct _HW_DEV_REG_ACCESS
         HW_DEV_RW_REG   rw_reg_list[MAX_ACCESS_REG_NUM]; /* INPUT,OUTPUT: Reg Access information */
 } HW_DEV_REG_ACCESS;
 
+
 typedef GT_BOOL (*FGT_HW_ACCESS)(GT_QD_DEV* dev, HW_DEV_REG_ACCESS *regList);
 #endif
 
@@ -2982,6 +3075,7 @@ typedef struct _BSP_FUNCTIONS
     FGT_SEM_TAKE    semTake;    /* try to get a semapore */
     FGT_SEM_GIVE    semGive;    /* return semaphore */
 }BSP_FUNCTIONS;
+
 
 /*
  *    Type definition for MIB counter operation
@@ -3039,6 +3133,7 @@ typedef struct _GT_STATS_COUNTER_SET
     GT_U32    OutDiscards;
 
 } GT_STATS_COUNTER_SET;
+
 
 typedef enum
 {
@@ -3145,6 +3240,7 @@ typedef struct _GT_STATS_COUNTER_SET2
 
 } GT_STATS_COUNTER_SET2;
 
+
 typedef enum
 {
     STATS2_InGoodOctetsHi = 0,
@@ -3228,6 +3324,7 @@ typedef struct _GT_STATS_COUNTER_SET3
 
 } GT_STATS_COUNTER_SET3;
 
+
 typedef enum
 {
     STATS3_InGoodOctetsLo = 0,
@@ -3284,8 +3381,10 @@ typedef struct _GT_1000T_MASTER_SLAVE
     GT_BOOL masterPrefer;
 } GT_1000T_MASTER_SLAVE;
 
+
 #define GT_MDI_PAIR_NUM         4    /* (1,2),(3,6),(4,5),(7,8) */
 #define GT_CHANNEL_PAIR_NUM     2    /* (channel A,B),(channel C,D) */
+
 
 /*
  * typedef: enum GT_PHY_LINK_STATUS
@@ -3303,6 +3402,7 @@ typedef enum
     GT_PHY_LINK_COPPER = 1,
     GT_PHY_LINK_FIBER = 2
 } GT_PHY_LINK_STATUS;
+
 
 /* Definition for packet generator */
 
@@ -3335,6 +3435,7 @@ typedef struct
     GT_PG_TX       tx;
 } GT_PG;
 
+
 /*
  * typedef: enum GT_TEST_STATUS
  *
@@ -3356,6 +3457,7 @@ typedef enum
     GT_OPEN_CABLE,
     GT_SHORT_CABLE,
 } GT_TEST_STATUS;
+
 
 /*
  * typedef: enum GT_NORMAL_CABLE_LEN
@@ -3381,6 +3483,7 @@ typedef enum
     GT_UNKNOWN_LEN,
 
 } GT_NORMAL_CABLE_LEN;
+
 
 /*
  * typedef: enum GT_CABLE_LEN
@@ -3417,6 +3520,7 @@ typedef struct
 
 } GT_CABLE_STATUS;
 
+
 /*
  * typedef: enum GT_CABLE_TYPE
  *
@@ -3432,6 +3536,7 @@ typedef enum
     GT_CROSSOVER_CABLE
 
 } GT_CABLE_TYPE;
+
 
 /*
  * typedef: enum GT_RX_CHANNEL
@@ -3467,6 +3572,7 @@ typedef enum
     GT_NEGATIVE
 
 } GT_POLARITY_STATUS;
+
 
 /*
  * typedef: struct GT_1000BT_EXTENDED_STATUS
@@ -3520,6 +3626,7 @@ typedef struct
     GT_U32                cableLen[GT_MDI_PAIR_NUM];
 } GT_ADV_EXTENDED_STATUS;
 
+
 /*
  * if isGigPhy in GT_CABLE_STATUS is not GT_TRUE, cableStatus and cableLen
  * will have only 2 pairs available.
@@ -3534,6 +3641,7 @@ typedef struct
 #define PHY_10000M        2 /* 10 Gigabit phy, unused */
 #define PHY_1000M_B        3 /* Gigabit phy which needs work-around */
 #define PHY_1000M_MP    4 /* Gigabit phy with multiple page mode */
+
 
 /* Definition for Advance Virtual Cable Test */
 
@@ -3556,6 +3664,7 @@ typedef enum
     GT_ADV_VCT_TCS_CROSSPAIR_3            = 0x7
 } GT_ADV_VCT_TRANS_CHAN_SEL;
 
+
 typedef enum
 {
     /* Advanced VCT Mode */
@@ -3575,6 +3684,7 @@ typedef enum
     GT_ADV_VCT_MAX_PEAK        =0x00,
     GT_ADV_VCT_FIRST_PEAK        =0x01,
 } GT_ADV_VCT_MOD;
+
 
 typedef unsigned int GT_ADV_VCT_PEAKDET_HYST;
 
@@ -3600,6 +3710,7 @@ typedef struct
     GT_ADV_VCT_SAMPLE_AVG            sampleAvg;
     GT_ADV_VCT_PEAKDET_HYST        peakDetHyst;
 } GT_ADV_VCT_MODE;
+
 
 /*
  * typedef: enum GT_ADV_VCT_STATUS
@@ -3633,6 +3744,7 @@ typedef enum
     GT_ADV_VCT_CROSS_PAIR_SHORT
 } GT_ADV_VCT_STATUS;
 
+
 /*
  * typedef: struct GT_CROSS_PAIR_LIST
  *
@@ -3650,6 +3762,7 @@ typedef struct _GT_CROSS_SHORT_LIST
     GT_BOOL    channel[GT_MDI_PAIR_NUM];
     GT_16     dist2fault[GT_MDI_PAIR_NUM];
 } GT_CROSS_SHORT_LIST;
+
 
 /*
  * typedef: struct GT_ADV_CABLE_STATUS
@@ -3676,6 +3789,7 @@ typedef struct
         GT_16     dist2fault;
     }u[GT_MDI_PAIR_NUM];
 } GT_ADV_CABLE_STATUS;
+
 
 /*
  * Definition:
@@ -3726,6 +3840,7 @@ typedef struct
 #define GT_LED_FORCE_ON            22
 #define GT_LED_RESERVE                23
 
+
 /*
  * typedef: enum GT_LED_CFG
  *
@@ -3751,6 +3866,7 @@ typedef enum
     GT_LED_CFG_SPECIAL_CONTROL
 } GT_LED_CFG;
 
+
 /*
  * typedef: enum GT_AVB_RECOVERED_CLOCK
  *
@@ -3766,6 +3882,7 @@ typedef enum
     GT_SECONDARY_RECOVERED_CLOCK
 } GT_AVB_RECOVERED_CLOCK;
 
+
 /* Define QAV interrupt bits */
 
 #define GT_QAV_INT_STATUS_ENQ_LMT_BIT            0x8000    /* EnQ Limit Interrupt Enable */
@@ -3777,6 +3894,7 @@ typedef enum
 #define GT_QAV_INT_ENABLE_ISO_DEL_BIT            0x04  /* Iso Delay Interrupt Enable */
 #define GT_QAV_INT_ENABLE_ISO_DIS_BIT            0x02  /* Iso Discard Interrupt Enable */
 #define GT_QAV_INT_ENABLE_ISO_LIMIT_EX_BIT        0x01  /* Iso Packet Memory Exceeded Interrupt Enable */
+
 
 /*
  * Typedef: enum GT_EEPROM_OPERATION
@@ -3796,6 +3914,7 @@ typedef enum
     GT_EEPROM_RESTART                = 0x6,
     GT_EEPROM_HALT                    = 0x7,
 } GT_EEPROM_OPERATION;
+
 
 /*
  *  typedef: struct GT_EEPROM_OP_DATA
@@ -3891,8 +4010,10 @@ typedef struct
     } cfgData3;
 }GT_CONFIG_DATA;
 
+
 /* definition for Trunking */
 #define IS_TRUNK_ID_VALID(_dev, _id)    (((_id) < 16) ? 1 : 0)
+
 
 /* definition for device scan mode */
 #define SMI_AUTO_SCAN_MODE        0    /* Scan 0 or 0x10 base address to find the QD */
@@ -3903,6 +4024,7 @@ typedef struct
     GT_U32    scanMode;    /* check definition for device scan mode */
     GT_U32    baseAddr;    /* meaningful if scanMode is not SMI_AUTO_SCAN_MODE */
 } GT_SCAN_MODE;
+
 
 #define GT_SKIP_INIT_SETUP    0x736b6970
 
@@ -4046,6 +4168,9 @@ struct _GT_QD_DEV
 	MAD_DEV	mad_dev;
 #endif
 };
+
+
+
 
 #ifdef __cplusplus
 }

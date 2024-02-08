@@ -72,6 +72,7 @@ struct wmi_block {
 	struct device dev;
 };
 
+
 /*
  * If the GUID data block is marked as expensive, we must enable and
  * explicitily disable data collection.

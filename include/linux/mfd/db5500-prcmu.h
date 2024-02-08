@@ -113,6 +113,7 @@ static inline int db5500_prcmu_get_arm_opp(void)
 	return 0;
 }
 
+
 #endif /* CONFIG_MFD_DB5500_PRCMU */
 
 #endif /* __MFD_DB5500_PRCMU_H */

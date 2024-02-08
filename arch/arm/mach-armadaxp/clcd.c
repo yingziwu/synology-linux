@@ -400,7 +400,9 @@ static struct fb_videomode video_modes[] = {
 	.sync		= 0,
 	},
 
+
 };
+
 
 #if defined(CONFIG_FB_DOVE_CLCD)
 
@@ -417,6 +419,7 @@ static struct resource lcd0_vid_res[] = {
 	},
 };
 
+
 static struct resource lcd0_res[] = {
 	[0] = {
 		.start	= LCD_PHYS_BASE,
@@ -429,6 +432,7 @@ static struct resource lcd0_res[] = {
 		.flags	= IORESOURCE_IRQ,
 	},
 };
+
 
 static struct platform_device lcd0_platform_device = {
 	.name = "dovefb",
@@ -489,6 +493,8 @@ static struct i2c_board_info __initdata i2c_ths8200[] = {
 	},
 };
 
+
+
 int clcd_platform_init(struct dovefb_mach_info *lcd0_dmi_data,
 		       struct dovefb_mach_info *lcd0_vid_dmi_data,
 		       struct dovebl_platform_data *backlight_data)
@@ -548,3 +554,4 @@ int clcd_platform_init(struct dovefb_mach_info *lcd0_dmi_data,
 
 	return 0;
 }
+

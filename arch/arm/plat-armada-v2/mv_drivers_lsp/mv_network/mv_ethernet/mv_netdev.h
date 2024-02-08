@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -105,6 +106,7 @@ extern u32 eth_dbg;
 # define ETH_DBG(FLG, X)
 #endif
 
+
 /****************************************************** 
  * driver statistics control --                       *
  ******************************************************/
@@ -144,6 +146,7 @@ extern u32 eth_dbg;
 #define ETH_PICR_MASK		(BIT1  | ETH_RXQ_MASK | ETH_RXQ_RES_MASK)
 /* phy/link-status-change, tx-done-q0 - q7 */
 #define ETH_PICER_MASK		(ETH_LINK_MASK | ETH_TXQ_MASK) 
+
 
 #if defined(CONFIG_MV_GATEWAY)
 #define GTW_MAX_NUM_OF_IFS  5
@@ -525,3 +528,4 @@ void                mv_eth_nfp_stats_print(unsigned int port);
 #ifdef ETH_MV_TX_EN
 void                eth_tx_en_config(int port, int value);
 #endif /* ETH_MV_TX_EN */
+

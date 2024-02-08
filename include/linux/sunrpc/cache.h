@@ -119,6 +119,7 @@ struct cache_detail {
 	} u;
 };
 
+
 /* this must be embedded in any request structure that
  * identifies an object that will want a callback on
  * a cache fill
@@ -142,6 +143,7 @@ struct cache_deferred_req {
 					   int too_many);
 };
 
+
 extern const struct file_operations cache_file_operations_pipefs;
 extern const struct file_operations content_file_operations_pipefs;
 extern const struct file_operations cache_flush_operations_pipefs;
@@ -160,6 +162,7 @@ sunrpc_cache_pipe_upcall(struct cache_detail *detail, struct cache_head *h,
 				      char **,
 				      int *));
 
+
 extern void cache_clean_deferred(void *owner);
 
 static inline struct cache_head  *cache_get(struct cache_head *h)
@@ -167,6 +170,7 @@ static inline struct cache_head  *cache_get(struct cache_head *h)
 	kref_get(&h->ref);
 	return h;
 }
+
 
 static inline void cache_put(struct cache_head *h, struct cache_detail *cd)
 {

@@ -153,6 +153,7 @@ GT_U16 miiSmiIfInit
     return 0;
 }
 
+
 /*******************************************************************************
 * miiSmiManualIfInit
 *
@@ -233,6 +234,7 @@ GT_U16 miiSmiManualIfInit
     return 0;
 }
 
+
 /*******************************************************************************
 * miiSmiIfReadRegister
 *
@@ -283,6 +285,7 @@ GT_STATUS miiSmiIfReadRegister
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * miiSmiIfWriteRegister
 *
@@ -330,6 +333,7 @@ GT_STATUS miiSmiIfWriteRegister
 	}
 	return GT_OK;
 }
+
 
 /*****************************************************************************
 * qdMultiAddrRead

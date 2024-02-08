@@ -60,6 +60,9 @@
 
 /*---------------------  Export Functions  --------------------------*/
 
+
+
+
 /*
  * Description: Read a byte from EEPROM, by MAC I2C
  *
@@ -106,6 +109,7 @@ unsigned char SROMbyReadEmbedded(unsigned long dwIoBase, unsigned char byContntO
     VNSvOutPortB(dwIoBase + MAC_REG_I2MCFG, byOrg);
     return byData;
 }
+
 
 /*
  * Description: Write a byte to EEPROM, by MAC I2C
@@ -159,6 +163,7 @@ bool SROMbWriteEmbedded(unsigned long dwIoBase, unsigned char byContntOffset, un
     return true;
 }
 
+
 /*
  * Description: Turn bits on in eeprom
  *
@@ -181,6 +186,7 @@ void SROMvRegBitsOn(unsigned long dwIoBase, unsigned char byContntOffset, unsign
     SROMbWriteEmbedded(dwIoBase, byContntOffset,(unsigned char)(byOrgData | byBits));
 }
 
+
 /*
  * Description: Turn bits off in eeprom
  *
@@ -200,6 +206,7 @@ void SROMvRegBitsOff(unsigned long dwIoBase, unsigned char byContntOffset, unsig
     byOrgData = SROMbyReadEmbedded(dwIoBase, byContntOffset);
     SROMbWriteEmbedded(dwIoBase, byContntOffset,(unsigned char)(byOrgData & (~byBits)));
 }
+
 
 /*
  * Description: Test if bits on in eeprom
@@ -223,6 +230,7 @@ bool SROMbIsRegBitsOn(unsigned long dwIoBase, unsigned char byContntOffset, unsi
     return (byOrgData & byTestBits) == byTestBits;
 }
 
+
 /*
  * Description: Test if bits off in eeprom
  *
@@ -244,6 +252,7 @@ bool SROMbIsRegBitsOff(unsigned long dwIoBase, unsigned char byContntOffset, uns
     byOrgData = SROMbyReadEmbedded(dwIoBase, byContntOffset);
     return !(byOrgData & byTestBits);
 }
+
 
 /*
  * Description: Read all contents of eeprom to buffer
@@ -267,6 +276,7 @@ void SROMvReadAllContents(unsigned long dwIoBase, unsigned char *pbyEepromRegs)
         pbyEepromRegs++;
     }
 }
+
 
 /*
  * Description: Write all contents of buffer to eeprom
@@ -292,6 +302,7 @@ void SROMvWriteAllContents(unsigned long dwIoBase, unsigned char *pbyEepromRegs)
     }
 }
 
+
 /*
  * Description: Read Ethernet Address from eeprom to buffer
  *
@@ -314,6 +325,7 @@ void SROMvReadEtherAddress(unsigned long dwIoBase, unsigned char *pbyEtherAddres
         pbyEtherAddress++;
     }
 }
+
 
 /*
  * Description: Write Ethernet Address from buffer to eeprom
@@ -338,6 +350,7 @@ void SROMvWriteEtherAddress(unsigned long dwIoBase, unsigned char *pbyEtherAddre
         pbyEtherAddress++;
     }
 }
+
 
 /*
  * Description: Read Sub_VID and Sub_SysId from eeprom to buffer
@@ -403,3 +416,5 @@ bool SROMbAutoLoad(unsigned long dwIoBase)
         return false;
     return true;
 }
+
+

@@ -1,7 +1,13 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/* -*- linux-c -*-
+ * sysctl_net_core.c: sysctl interface to net core subsystem.
+ *
+ * Begun April 1, 1996, Mike Shaver.
+ * Added /proc/sys/net/core directory entry (empty =) ). [MS]
+ */
+
 #include <linux/mm.h>
 #include <linux/sysctl.h>
 #include <linux/module.h>
@@ -16,6 +22,11 @@
 #include <net/sock.h>
 #include <net/net_ratelimit.h>
 
+static int zero = 0;
+static int ushort_max = USHRT_MAX;
+static int min_sndbuf = SOCK_MIN_SNDBUF;
+static int min_rcvbuf = SOCK_MIN_RCVBUF;
+
 #ifdef CONFIG_RPS
 #ifdef MY_DEF_HERE
 static int rps_sock_flow_init()
@@ -28,7 +39,7 @@ static int rps_sock_flow_init()
 	orig_size = orig_sock_table ? orig_sock_table->mask + 1 : 0;
 
 	if (size > (1 << 30)) {
-		 
+		/* Enforce limit to prevent overflow */
 		return -EINVAL;
 	}
 
@@ -54,7 +65,7 @@ static int rps_sock_flow_init()
 
 	return 0;
 }
-#endif  
+#endif /* MY_DEF_HERE */
 
 static int rps_sock_flow_sysctl(ctl_table *table, int write,
 				void __user *buffer, size_t *lenp, loff_t *ppos)
@@ -80,7 +91,7 @@ static int rps_sock_flow_sysctl(ctl_table *table, int write,
 	if (write) {
 		if (size) {
 			if (size > 1<<30) {
-				 
+				/* Enforce limit to prevent overflow */
 				mutex_unlock(&sock_flow_mutex);
 				return -EINVAL;
 			}
@@ -113,7 +124,7 @@ static int rps_sock_flow_sysctl(ctl_table *table, int write,
 
 	return ret;
 }
-#endif  
+#endif /* CONFIG_RPS */
 
 static struct ctl_table net_core_table[] = {
 #ifdef CONFIG_NET
@@ -122,28 +133,32 @@ static struct ctl_table net_core_table[] = {
 		.data		= &sysctl_wmem_max,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &min_sndbuf,
 	},
 	{
 		.procname	= "rmem_max",
 		.data		= &sysctl_rmem_max,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &min_rcvbuf,
 	},
 	{
 		.procname	= "wmem_default",
 		.data		= &sysctl_wmem_default,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &min_sndbuf,
 	},
 	{
 		.procname	= "rmem_default",
 		.data		= &sysctl_rmem_default,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.proc_handler	= proc_dointvec_minmax,
+		.extra1		= &min_rcvbuf,
 	},
 	{
 		.procname	= "dev_weight",
@@ -204,7 +219,7 @@ static struct ctl_table net_core_table[] = {
 		.proc_handler	= rps_sock_flow_sysctl
 	},
 #endif
-#endif  
+#endif /* CONFIG_NET */
 	{
 		.procname	= "netdev_budget",
 		.data		= &netdev_budget,
@@ -228,7 +243,9 @@ static struct ctl_table netns_core_table[] = {
 		.data		= &init_net.core.sysctl_somaxconn,
 		.maxlen		= sizeof(int),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec
+		.extra1		= &zero,
+		.extra2		= &ushort_max,
+		.proc_handler	= proc_dointvec_minmax
 	},
 	{ }
 };
@@ -294,7 +311,7 @@ static __init int sysctl_core_init(void)
 	if (0 != rps_sock_flow_init()) {
 		printk("Error! Failed to init RFS for networking!\n");
 	}
-#endif  
+#endif /* MY_DEF_HERE */
 	return register_pernet_subsys(&sysctl_core_ops);
 }
 

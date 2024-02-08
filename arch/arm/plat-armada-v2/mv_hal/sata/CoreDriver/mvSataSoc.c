@@ -70,6 +70,7 @@ static MV_U32 edmaRegOffstSataSoc[8] = { 0x22000, 0x24000, 0x26000, 0x28000,
 	0x32000, 0x34000, 0x36000, 0x38000
 };
 
+
 #define getEdmaRegOffsetSataSoc(x) edmaRegOffstSataSoc[(x)]
 
 MV_BOOL mvSataPhyShutdown(MV_U8 port)

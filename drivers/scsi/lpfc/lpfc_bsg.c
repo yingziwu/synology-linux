@@ -368,6 +368,7 @@ lpfc_bsg_send_mgmt_cmd(struct fc_bsg_job *job)
 	else
 		rc = -EIO;
 
+
 	/* iocb failed so cleanup */
 	pci_unmap_sg(phba->pcidev, job->request_payload.sg_list,
 		     job->request_payload.sg_cnt, DMA_TO_DEVICE);
@@ -2234,6 +2235,7 @@ static int lpfcdiag_loop_get_xri(struct lpfc_hba *phba, uint16_t rpi,
 	ctreq->FsSubType = 0;
 	ctreq->CommandResponse.bits.CmdRsp = ELX_LOOPBACK_XRI_SETUP;
 	ctreq->CommandResponse.bits.Size = 0;
+
 
 	cmd->un.xseq64.bdl.addrHigh = putPaddrHigh(dmabuf->phys);
 	cmd->un.xseq64.bdl.addrLow = putPaddrLow(dmabuf->phys);
@@ -4167,6 +4169,7 @@ lpfc_bsg_issue_mbox(struct lpfc_hba *phba, struct fc_bsg_job *job,
 	int rc = 0;
 	uint8_t *from;
 	uint32_t size;
+
 
 	/* in case no data is transferred */
 	job->reply->reply_payload_rcv_len = 0;

@@ -25,7 +25,7 @@ struct comm_runtime {
 	struct sfire_chip *chip;
 
 	struct urb receiver;
-	u8 receiver_buffer[COMM_RECEIVER_BUFSIZE];
+	u8 *receiver_buffer;
 
 	u8 serial; /* urb serial */
 
@@ -41,3 +41,4 @@ int __devinit usb6fire_comm_init(struct sfire_chip *chip);
 void usb6fire_comm_abort(struct sfire_chip *chip);
 void usb6fire_comm_destroy(struct sfire_chip *chip);
 #endif /* USB6FIRE_COMM_H */
+

@@ -36,6 +36,7 @@
 #include "sam9_smc.h"
 #include "generic.h"
 
+
 static void __init pcontrol_g20_init_early(void)
 {
 	stamp9g20_init_early();
@@ -100,12 +101,14 @@ static void __init add_device_pcontrol(void)
 	sam9_smc_configure(7, &pcontrol_smc_config[1]);
 }
 
+
 /*
  * USB Host port
  */
 static struct at91_usbh_data __initdata usbh_data = {
 	.ports		= 2,
 };
+
 
 /*
  * USB Device port
@@ -115,6 +118,7 @@ static struct at91_udc_data __initdata pcontrol_g20_udc_data = {
 	.pullup_pin	= AT91_PIN_PA4,		/* K-state, active low */
 };
 
+
 /*
  * MACB Ethernet device
  */
@@ -122,6 +126,7 @@ static struct at91_eth_data __initdata macb_data = {
 	.phy_irq_pin	= AT91_PIN_PA28,
 	.is_rmii	= 1,
 };
+
 
 /*
  * I2C devices: eeprom and phy/switch
@@ -132,6 +137,7 @@ static struct i2c_board_info __initdata pcontrol_g20_i2c_devices[] = {
 }, {		/* D8  address width=1, 1 byte has 32 bits! */
 	I2C_BOARD_INFO("lan9303", 0x0a)
 }, };
+
 
 /*
  * LEDs
@@ -170,6 +176,7 @@ static struct gpio_led pcontrol_g20_leds[] = {
 	}
 };
 
+
 /*
  * SPI devices
  */
@@ -187,6 +194,7 @@ static struct spi_board_info pcontrol_g20_spi_devices[] = {
 	},
 };
 
+
 static void __init pcontrol_g20_board_init(void)
 {
 	stamp9g20_board_init();
@@ -203,6 +211,7 @@ static void __init pcontrol_g20_board_init(void)
 	/* piggyback  A2 */
 	at91_set_gpio_output(AT91_PIN_PB31, 1);
 }
+
 
 MACHINE_START(PCONTROL_G20, "PControl G20")
 	/* Maintainer: pgsellmann@portner-elektronik.at */

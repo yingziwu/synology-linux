@@ -29,6 +29,7 @@
 #include <linux/usb/usbnet.h>
 #include <linux/usb/rndis_host.h>
 
+
 /*
  * RNDIS is NDIS remoted over USB.  It's a MSFT variant of CDC ACM ... of
  * course ACM was intended for modems, not Ethernet links!  USB's standard
@@ -489,6 +490,10 @@ EXPORT_SYMBOL_GPL(rndis_unbind);
  */
 int rndis_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
 {
+	/* This check is no longer done by usbnet */
+	if (skb->len < dev->net->hard_header_len)
+		return 0;
+
 	/* peripheral may have batched packets to us... */
 	while (likely(skb->len)) {
 		struct rndis_data_hdr	*hdr = (void *)skb->data;
@@ -577,6 +582,7 @@ fill:
 	return skb;
 }
 EXPORT_SYMBOL_GPL(rndis_tx_fixup);
+
 
 static const struct driver_info	rndis_info = {
 	.description =	"RNDIS device",

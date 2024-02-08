@@ -45,6 +45,7 @@ static char *chstate(unsigned n)
 	}
 }
 
+
 static int dump_ch(char *buf, int max, struct smd_channel *ch)
 {
 	volatile struct smd_half_channel *s = ch->send;
@@ -242,6 +243,7 @@ static int smd_debugfs_init(void)
 late_initcall(smd_debugfs_init);
 #endif
 
+
 #define MAX_NUM_SLEEP_CLIENTS		64
 #define MAX_SLEEP_NAME_LEN		8
 
@@ -263,6 +265,7 @@ struct tramp_gpio_smem {
 	uint32_t polarity[NUM_GPIO_INT_REGISTERS];
 };
 
+
 void smsm_print_sleep_info(void)
 {
 	unsigned long flags;
@@ -271,6 +274,7 @@ void smsm_print_sleep_info(void)
 	struct tramp_gpio_smem *gpio;
 	struct smsm_interrupt_info *int_info;
 #endif
+
 
 	spin_lock_irqsave(&smem_lock, flags);
 
@@ -311,3 +315,4 @@ void smsm_print_sleep_info(void)
 #endif
 	spin_unlock_irqrestore(&smem_lock, flags);
 }
+

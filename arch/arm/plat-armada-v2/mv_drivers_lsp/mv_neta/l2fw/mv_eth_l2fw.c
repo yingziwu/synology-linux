@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -72,6 +73,7 @@ static inline int       mv_eth_l2fw_rx(struct eth_port *pp, int rx_todo, int rxq
 static inline MV_STATUS mv_eth_l2fw_tx(struct eth_pbuf *pkt, struct eth_port *pp,
 					   int withXor, struct neta_rx_desc *rx_desc);
 
+
 static L2FW_RULE *l2fw_lookup(MV_U32 srcIP, MV_U32 dstIP)
 {
 	MV_U32 hash;
@@ -103,6 +105,7 @@ void l2fw_show_numHashEntries(void)
 
 }
 
+
 void l2fw_flush(void)
 {
 	MV_U32 i = 0;
@@ -112,6 +115,7 @@ void l2fw_flush(void)
 		l2fw_hash[i] = NULL;
 	numHashEntries = 0;
 }
+
 
 void l2fw_rules_dump(void)
 {
@@ -152,6 +156,7 @@ void l2fw_ports_dump(void)
 
 	}
 }
+
 
 MV_STATUS l2fw_add(MV_U32 srcIP, MV_U32 dstIP, int port)
 {
@@ -199,6 +204,7 @@ MV_STATUS l2fw_add(MV_U32 srcIP, MV_U32 dstIP, int port)
     return MV_OK;
 }
 
+
 #ifdef CONFIG_MV_INCLUDE_XOR
 static void dump_xor(void)
 {
@@ -227,6 +233,7 @@ static void dump_xor(void)
 		MV_REG_READ(XOR_WINDOW_CTRL_REG(1, XOR_CHAN(0)))) ;
 }
 #endif
+
 
 static int mv_eth_poll_l2fw(struct napi_struct *napi, int budget)
 {
@@ -285,6 +292,7 @@ static int mv_eth_poll_l2fw(struct napi_struct *napi, int budget)
 	budget -= rx_done;
 #endif /* (CONFIG_MV_ETH_RXQ > 1) */
 
+
 	if (budget > 0) {
 		unsigned long flags;
 		causeRxTx = 0;
@@ -303,6 +311,7 @@ static int mv_eth_poll_l2fw(struct napi_struct *napi, int budget)
 
 	return rx_done;
 }
+
 
 void mv_eth_set_l2fw(struct eth_port_l2fw *ppl2fw, int cmd, int rx_port, int tx_port)
 {
@@ -527,6 +536,7 @@ static inline int xorReady(void)
 }
 #endif /* CONFIG_MV_INCLUDE_XOR */
 
+
 void l2fw(int cmd, int rx_port, int tx_port)
 {
 	struct eth_port_l2fw *ppl2fw;
@@ -667,6 +677,7 @@ static inline MV_STATUS mv_eth_l2fw_tx(struct eth_pbuf *pkt, struct eth_port *pp
 
 	return MV_OK;
 }
+
 
 static inline int mv_eth_l2fw_rx(struct eth_port *pp, int rx_todo, int rxq)
 {
@@ -839,6 +850,7 @@ static inline int mv_eth_l2fw_rx(struct eth_port *pp, int rx_todo, int rxq)
 			ppl2fw->statErr++;
 			mv_eth_rxq_refill(pp, rxq, pkt, pool, rx_desc);
 		}
+
 
 	} /* of while */
 

@@ -48,6 +48,7 @@ static struct sys_timer glantank_timer = {
 	.init		= glantank_timer_init,
 };
 
+
 /*
  * GLAN Tank I/O.
  */
@@ -65,6 +66,7 @@ void __init glantank_map_io(void)
 	iop3xx_map_io();
 	iotable_init(glantank_io_desc, ARRAY_SIZE(glantank_io_desc));
 }
+
 
 /*
  * GLAN Tank PCI.
@@ -111,6 +113,7 @@ static int __init glantank_pci_init(void)
 }
 
 subsys_initcall(glantank_pci_init);
+
 
 /*
  * GLAN Tank machine initialization.

@@ -62,6 +62,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __INCmvEthRegsh
 #define __INCmvEthRegsh
 
@@ -133,6 +134,7 @@ extern "C" {
 #define ETH_PROT_WIN_MASK(winNum)           (0x3 << ETH_PROT_WIN_OFFS(winNum))
 /*-----------------------------------------------------------------------------------------------*/
 
+
 /***** Port Configuration reg (PxCR) *****/
 #define ETH_PORT_CONFIG_REG(port)           (ETH_REG_BASE(port) + 0x2400)
 
@@ -195,6 +197,7 @@ extern "C" {
 #define ETH_VLAN_ETHER_TYPE_REG(port)       (ETH_REG_BASE(port) + 0x2410)
 #define ETH_MAC_ADDR_LOW_REG(port)          (ETH_REG_BASE(port) + 0x2414)
 #define ETH_MAC_ADDR_HIGH_REG(port)         (ETH_REG_BASE(port) + 0x2418)
+
 
 /***** Port Sdma Configuration reg (SDCR) *****/
 #define ETH_SDMA_CONFIG_REG(port)           (ETH_REG_BASE(port) + 0x241c)
@@ -383,6 +386,7 @@ extern "C" {
 #endif /* MV_ETH_GMAC_NEW */
 /*-----------------------------------------------------------------------------------------------*/
 
+
 /***** Transmit Queue Command (TxQC) register *****/
 #define ETH_TX_QUEUE_COMMAND_REG(p, txp)    (NETA_TX_REG_BASE((p), (txp)) + 0x0048)
 
@@ -538,6 +542,7 @@ extern "C" {
 #endif /* MV_ETH_WRR_NEW */
 /**************************************************************************************************/
 
+
 #define ETH_MIB_COUNTERS_BASE(port, txp)    (ETH_REG_BASE(port) + 0x3000 + ((txp) * 0x80))
 #define ETH_DA_FILTER_SPEC_MCAST_BASE(port) (ETH_REG_BASE(port) + 0x3400)
 #define ETH_DA_FILTER_OTH_MCAST_BASE(port)  (ETH_REG_BASE(port) + 0x3500)
@@ -580,6 +585,7 @@ extern "C" {
 #define ETH_MIB_BAD_CRC_EVENT               0x74
 #define ETH_MIB_COLLISION                   0x78
 #define ETH_MIB_LATE_COLLISION              0x7c
+
 
 #ifndef MV_ETH_GMAC_NEW
 /*****************************************************/

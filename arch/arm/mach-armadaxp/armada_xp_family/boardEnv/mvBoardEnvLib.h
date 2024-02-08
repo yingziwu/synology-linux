@@ -157,6 +157,7 @@ typedef enum _devBoardOtherTypeClass {
 	MV_BOARD_UNKNOWN = 0x80000000
 } MV_BOARD_OTHER_TYPE_CLASS;
 
+
 #define MV_BOARD_TDM	MV_BOARD_TDM_32CH
 
 typedef struct _boardModuleTypeInfo {
@@ -447,8 +448,10 @@ MV_STATUS mvBoardConfIdSet(MV_U16 conf);
 MV_U16 mvBoardPexModeGet(MV_VOID);
 MV_STATUS mvBoardPexModeSet(MV_U16 conf);
 
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
 
 #endif /* __INCmvBoardEnvLibh */

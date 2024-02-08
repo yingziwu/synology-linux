@@ -54,11 +54,12 @@ u32 fib_rules_tclass(const struct fib_result *res)
 }
 #endif
 
-int fib_lookup(struct net *net, struct flowi4 *flp, struct fib_result *res)
+int fib_lookup(struct net *net, struct flowi4 *flp,
+		 struct fib_result *res, unsigned int flags)
 {
 	struct fib_lookup_arg arg = {
 		.result = res,
-		.flags = FIB_LOOKUP_NOREF,
+		.flags = flags | FIB_LOOKUP_NOREF,
 	};
 	int err;
 
@@ -102,6 +103,7 @@ static int fib4_rule_action(struct fib_rule *rule, struct flowi *flp,
 errout:
 	return err;
 }
+
 
 static int fib4_rule_match(struct fib_rule *rule, struct flowi *fl, int flags)
 {

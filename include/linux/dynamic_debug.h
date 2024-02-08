@@ -31,6 +31,7 @@ struct _ddebug {
 	char enabled;
 } __attribute__((aligned(8)));
 
+
 int ddebug_add_module(struct _ddebug *tab, unsigned int n,
 				const char *modname);
 

@@ -214,6 +214,7 @@ struct serpent_ctx {
 	u32 expkey[SERPENT_EXPKEY_WORDS];
 };
 
+
 static int serpent_setkey(struct crypto_tfm *tfm, const u8 *key,
 			  unsigned int keylen)
 {

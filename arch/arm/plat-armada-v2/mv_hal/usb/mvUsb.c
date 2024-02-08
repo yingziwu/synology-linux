@@ -828,6 +828,7 @@ MV_STATUS mvUsbUtmiPhyInit(int dev, MV_USB_HAL_DATA *usbHalData)
 	} else
 		mvUsbPhyInit(dev);
 
+
 	return status;
 }
 /*******************************************************************************

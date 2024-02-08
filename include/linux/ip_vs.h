@@ -67,6 +67,7 @@
 #define IP_VS_SO_GET_DAEMON	(IP_VS_BASE_CTL+7)
 #define IP_VS_SO_GET_MAX	IP_VS_SO_GET_DAEMON
 
+
 /*
  *      IPVS Connection Flags
  *      Only flags 0..15 are sent to backup server
@@ -129,6 +130,7 @@ struct ip_vs_service_user {
 	__be32			netmask;	/* persistent netmask */
 };
 
+
 struct ip_vs_dest_user {
 	/* destination server address */
 	__be32			addr;
@@ -142,6 +144,7 @@ struct ip_vs_dest_user {
 	__u32		u_threshold;	/* upper threshold */
 	__u32		l_threshold;	/* lower threshold */
 };
+
 
 /*
  *	IPVS statistics object (for user space)
@@ -160,6 +163,7 @@ struct ip_vs_stats_user {
 	__u32			outbps;		/* current out byte rate */
 };
 
+
 /* The argument to IP_VS_SO_GET_INFO */
 struct ip_vs_getinfo {
 	/* version number */
@@ -171,6 +175,7 @@ struct ip_vs_getinfo {
 	/* number of virtual services */
 	unsigned int		num_services;
 };
+
 
 /* The argument to IP_VS_SO_GET_SERVICE */
 struct ip_vs_service_entry {
@@ -193,6 +198,7 @@ struct ip_vs_service_entry {
 	struct ip_vs_stats_user stats;
 };
 
+
 struct ip_vs_dest_entry {
 	__be32			addr;		/* destination address */
 	__be16			port;
@@ -210,6 +216,7 @@ struct ip_vs_dest_entry {
 	struct ip_vs_stats_user stats;
 };
 
+
 /* The argument to IP_VS_SO_GET_DESTS */
 struct ip_vs_get_dests {
 	/* which service: user fills in these */
@@ -225,6 +232,7 @@ struct ip_vs_get_dests {
 	struct ip_vs_dest_entry	entrytable[0];
 };
 
+
 /* The argument to IP_VS_SO_GET_SERVICES */
 struct ip_vs_get_services {
 	/* number of virtual services */
@@ -234,12 +242,14 @@ struct ip_vs_get_services {
 	struct ip_vs_service_entry entrytable[0];
 };
 
+
 /* The argument to IP_VS_SO_GET_TIMEOUT */
 struct ip_vs_timeout_user {
 	int			tcp_timeout;
 	int			tcp_fin_timeout;
 	int			udp_timeout;
 };
+
 
 /* The argument to IP_VS_SO_GET_DAEMON */
 struct ip_vs_daemon_user {

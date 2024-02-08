@@ -71,6 +71,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpp/mvGppRegs.h"
 #endif
 
+
 /* TDM Interrupt Service Routine */
 static irqreturn_t tdm_if_isr(int irq, void* dev_id);
 
@@ -97,6 +98,7 @@ static int proc_rx_over_read(char *buffer, char **buffer_location, off_t offset,
                             int buffer_length, int *zero, void *ptr);
 static int proc_tx_under_read(char *buffer, char **buffer_location, off_t offset,
                             int buffer_length, int *zero, void *ptr);
+
 
 /* Module */
 static int __init tdm_if_module_init(void);
@@ -168,6 +170,7 @@ MV_STATUS tdm_if_init(tdm_if_register_ops_t* register_ops, tdm_if_params_t* tdm_
 		printk("%s: Warning, TDM is powered off\n",__FUNCTION__);
 		return MV_OK;
 	}
+
 
 	if((register_ops == NULL) || (tdm_if_params == NULL)) {
 		printk("%s: bad parameters\n",__FUNCTION__);
@@ -247,6 +250,7 @@ MV_STATUS tdm_if_init(tdm_if_register_ops_t* register_ops, tdm_if_params_t* tdm_
 	TRC_REC("<-%s\n",__FUNCTION__);
 	return MV_OK;
 }
+
 
 void tdm_if_exit(void)
 {
@@ -406,6 +410,7 @@ static irqreturn_t tdm_if_isr(int irq, void* dev_id)
 		if(int_type & MV_TX_ERROR_INT)
 			tx_under++;
 	}
+
 
 out:
 	TRC_REC("<-%s\n",__FUNCTION__);

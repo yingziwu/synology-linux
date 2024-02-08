@@ -83,6 +83,7 @@ GT_STATUS gcosSetPortDefaultTc
     return retVal;
 }
 
+
 /*******************************************************************************
 * gcosGetPortDefaultTc
 *
@@ -152,6 +153,8 @@ GT_STATUS gcosGetPortDefaultTc
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gqosSetPrioMapRule
 *
@@ -213,6 +216,8 @@ GT_STATUS gqosSetPrioMapRule
     }
     return retVal;
 }
+
+
 
 /*******************************************************************************
 * gqosGetPrioMapRule
@@ -276,6 +281,8 @@ GT_STATUS gqosGetPrioMapRule
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gqosIpPrioMapEn
 *
@@ -334,6 +341,9 @@ GT_STATUS gqosIpPrioMapEn
     return retVal;
 }
 
+
+
+
 /*******************************************************************************
 * gqosGetIpPrioMapEn
 *
@@ -390,6 +400,9 @@ GT_STATUS gqosGetIpPrioMapEn
 
     return retVal;
 }
+
+
+
 
 /*******************************************************************************
 * gqosUserPrioMapEn
@@ -449,6 +462,9 @@ GT_STATUS gqosUserPrioMapEn
     return retVal;
 }
 
+
+
+
 /*******************************************************************************
 * gqosGetUserPrioMapEn
 *
@@ -506,6 +522,7 @@ GT_STATUS gqosGetUserPrioMapEn
     return retVal;
 }
 
+
 /*******************************************************************************
 * gcosGetUserPrio2Tc
 *
@@ -562,6 +579,8 @@ GT_STATUS gcosGetUserPrio2Tc
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gcosSetUserPrio2Tc
 *
@@ -615,6 +634,8 @@ GT_STATUS gcosSetUserPrio2Tc
 
     return retVal;
 }
+
+
 
 /*******************************************************************************
 * gcosGetDscp2Tc
@@ -675,6 +696,8 @@ GT_STATUS gcosGetDscp2Tc
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gcosSetDscp2Tc
 *
@@ -732,6 +755,8 @@ GT_STATUS gcosSetDscp2Tc
 
     return retVal;
 }
+
+
 
 /*******************************************************************************
 * gqosGetTagRemap
@@ -809,6 +834,7 @@ GT_STATUS gqosGetTagRemap
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosSetTagRemap
 *
@@ -882,6 +908,7 @@ GT_STATUS gqosSetTagRemap
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gqosSetQPriValue
@@ -1010,6 +1037,7 @@ GT_STATUS gqosGetQPriValue
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gqosSetForceQPri
@@ -1141,6 +1169,7 @@ GT_STATUS gqosGetForceQPri
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosSetDefFPri
 *
@@ -1205,6 +1234,7 @@ GT_STATUS gqosSetDefFPri
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosGetDefFPri
 *
@@ -1263,6 +1293,7 @@ GT_STATUS gqosGetDefFPri
     *pri = (GT_U8)data;
     return retVal;
 }
+
 
 /*******************************************************************************
 * gqosSetVIDFPriOverride
@@ -1335,6 +1366,7 @@ GT_STATUS gqosSetVIDFPriOverride
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosGetVIDFPriOverride
 *
@@ -1404,6 +1436,7 @@ GT_STATUS gqosGetVIDFPriOverride
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gqosSetSAFPriOverride
@@ -1695,6 +1728,7 @@ GT_STATUS gqosGetDAFPriOverride
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosSetVIDQPriOverride
 *
@@ -1766,6 +1800,7 @@ GT_STATUS gqosSetVIDQPriOverride
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosGetVIDQPriOverride
 *
@@ -1835,6 +1870,7 @@ GT_STATUS gqosGetVIDQPriOverride
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gqosSetSAQPriOverride
@@ -2267,6 +2303,7 @@ GT_STATUS gqosGetARPQPriOverride
     return retVal;
 }
 
+
 /*******************************************************************************
 * gqosSetArpQPri
 *
@@ -2328,6 +2365,7 @@ GT_STATUS gqosSetArpQPri
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gqosGetArpQPri

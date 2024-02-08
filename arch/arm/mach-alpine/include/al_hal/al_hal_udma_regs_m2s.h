@@ -283,9 +283,11 @@ struct udma_m2s_regs {
 	struct udma_m2s_q m2s_q[4];                      /* [0x1000] */
 };
 
+
 /*
 * Registers Fields
 */
+
 
 /**** comp_wr_cfg_1 register ****/
 /* AXI write  ID (AWID) */

@@ -249,3 +249,4 @@ static inline unsigned long kernel_stack_pointer(struct pt_regs *regs)
 #endif /* __ASSEMBLY__ */
 
 #endif
+

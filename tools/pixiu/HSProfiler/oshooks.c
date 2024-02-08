@@ -38,6 +38,7 @@
 #include "vdkiocode.h"
 #include "common.h"
 
+
 #define MODULE_FLAG_1ST       0x00000001
 #define MODULE_FLAG_GLOBAL    0x00000002
 
@@ -80,6 +81,7 @@ typedef asmlinkage long (*sys_kill_t) (int pid, int sig);
 typedef asmlinkage long (*sys_tkill_t) (int pid, int sig);
 typedef asmlinkage long (*sys_tgkill_t) (int pid, int tid, int sig);
 typedef asmlinkage long (*sys_prctl_t) (int option, unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
+
 
 /* formally we use register IP to calculate SP value, which is incorrect.
  * code optimization will use IP register for temp usage, thus mess up.
@@ -281,6 +283,7 @@ static void check_launched_app_exit(pid_t pid)
 	}
 }
 
+
 static void write_module_info(const char *  module_path,
                               unsigned long name_offset,
                               pid_t         pid,
@@ -349,6 +352,7 @@ static void static_enum_kernel_modules(void)
 	                  PAGE_OFFSET + 0x8000, 4096 * 2 * 1024,
 	                  MODULE_FLAG_GLOBAL, 0);
 }
+
 
 /*
  * enumerate all modules for process
@@ -482,6 +486,8 @@ static void static_enum_exiting_process_modules(void)
 
 }
 
+
+
 int module_init_notifier(struct notifier_block *self,
                          unsigned long event,
                          void *arg)
@@ -493,6 +499,7 @@ int module_init_notifier(struct notifier_block *self,
 	lsc = get_sample_count();
 
 	name_offset = 0;
+
 
 	if (event == MODULE_STATE_COMING)
 	{
@@ -628,6 +635,7 @@ asmlinkage int px_sys_execve(const char *filenameei, char ** const argv, char **
 
 	return ret;
 }
+
 
 asmlinkage int px_sys_mmap2(
 		unsigned long addr, unsigned long len,
@@ -830,6 +838,7 @@ asmlinkage long px_sys_tkill(int pid, int sig)
 {
 	long ret = 0;
 	sys_tkill_t saved_sys_tkill = px_original_sys_tkill;
+
 
 	ret = saved_sys_tkill(pid, sig);
 

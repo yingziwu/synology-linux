@@ -174,11 +174,8 @@ ext2_get_acl(struct inode *inode, int type)
 	return acl;
 }
 
-/*
- * inode->i_mutex: down
- */
 static int
-ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
+__ext2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
 {
 	int name_index;
 	void *value = NULL;
@@ -226,6 +223,31 @@ ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
 }
 
 /*
+ * inode->i_mutex: down
+ */
+static int
+ext2_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+{
+	int error;
+	int update_mode = 0;
+	umode_t mode = inode->i_mode;
+
+	if (type == ACL_TYPE_ACCESS && acl) {
+		error = posix_acl_update_mode(inode, &mode, &acl);
+		if (error)
+			return error;
+		update_mode = 1;
+	}
+	error = __ext2_set_acl(inode, acl, type);
+	if (!error && update_mode) {
+		inode->i_mode = mode;
+		inode->i_ctime = CURRENT_TIME_SEC;
+		mark_inode_dirty(inode);
+	}
+	return error;
+}
+
+/*
  * Initialize the ACLs of a new inode. Called from ext2_new_inode.
  *
  * dir->i_mutex: down
@@ -248,7 +270,7 @@ ext2_init_acl(struct inode *inode, struct inode *dir)
 	}
 	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
 		if (S_ISDIR(inode->i_mode)) {
-			error = ext2_set_acl(inode, ACL_TYPE_DEFAULT, acl);
+			error = __ext2_set_acl(inode, acl, ACL_TYPE_DEFAULT);
 			if (error)
 				goto cleanup;
 		}
@@ -257,7 +279,7 @@ ext2_init_acl(struct inode *inode, struct inode *dir)
 			return error;
 		if (error > 0) {
 			/* This is an extended ACL */
-			error = ext2_set_acl(inode, ACL_TYPE_ACCESS, acl);
+			error = __ext2_set_acl(inode, acl, ACL_TYPE_ACCESS);
 		}
 	}
 cleanup:
@@ -295,7 +317,7 @@ ext2_acl_chmod(struct inode *inode)
 	error = posix_acl_chmod(&acl, GFP_KERNEL, inode->i_mode);
 	if (error)
 		return error;
-	error = ext2_set_acl(inode, ACL_TYPE_ACCESS, acl);
+	error = ext2_set_acl(inode, acl, ACL_TYPE_ACCESS);
 	posix_acl_release(acl);
 	return error;
 }
@@ -378,7 +400,7 @@ ext2_xattr_set_acl(struct dentry *dentry, const char *name, const void *value,
 	} else
 		acl = NULL;
 
-	error = ext2_set_acl(dentry->d_inode, type, acl);
+	error = ext2_set_acl(dentry->d_inode, acl, type);
 
 release_and_out:
 	posix_acl_release(acl);

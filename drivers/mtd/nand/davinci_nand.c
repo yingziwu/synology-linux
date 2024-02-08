@@ -80,6 +80,7 @@ static bool ecc4_busy;
 
 #define to_davinci_nand(m) container_of(m, struct davinci_nand_info, mtd)
 
+
 static inline unsigned int davinci_nand_readl(struct davinci_nand_info *info,
 		int offset)
 {
@@ -237,6 +238,9 @@ static void nand_davinci_hwctl_4bit(struct mtd_info *mtd, int mode)
 	struct davinci_nand_info *info = to_davinci_nand(mtd);
 	unsigned long flags;
 	u32 val;
+
+	/* Reset ECC hardware */
+	davinci_nand_readl(info, NAND_4BIT_ECC1_OFFSET);
 
 	spin_lock_irqsave(&davinci_nand_lock, flags);
 
@@ -831,3 +835,4 @@ module_exit(nand_davinci_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Texas Instruments");
 MODULE_DESCRIPTION("Davinci NAND flash driver");
+

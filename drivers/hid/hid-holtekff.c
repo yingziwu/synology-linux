@@ -238,3 +238,4 @@ static void __exit holtek_exit(void)
 
 module_init(holtek_init);
 module_exit(holtek_exit);
+

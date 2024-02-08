@@ -60,6 +60,7 @@ static int trackpoint_toggle_bit(struct ps2dev *ps2dev, unsigned char loc, unsig
 	return 0;
 }
 
+
 /*
  * Trackpoint-specific attributes
  */
@@ -130,6 +131,7 @@ static ssize_t trackpoint_set_bit_attr(struct psmouse *psmouse, void *data,
 	return count;
 }
 
+
 #define TRACKPOINT_BIT_ATTR(_name, _command, _mask, _inv)				\
 	static struct trackpoint_attr_data trackpoint_attr_##_name = {		\
 		.field_offset	= offsetof(struct trackpoint_data, _name),	\
@@ -184,7 +186,8 @@ static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *fir
 	if (ps2_command(&psmouse->ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
 		return -1;
 
-	if (param[0] != TP_MAGIC_IDENT)
+	/* add new TP ID. */
+	if (!(param[0] & TP_MAGIC_IDENT))
 		return -1;
 
 	if (firmware_id)
@@ -295,8 +298,11 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
 		return 0;
 
 	if (trackpoint_read(&psmouse->ps2dev, TP_EXT_BTN, &button_info)) {
-		printk(KERN_WARNING "trackpoint.c: failed to get extended button data\n");
-		button_info = 0;
+		printk(KERN_WARNING "trackpoint.c: failed to get extended button data, assuming 3 buttons\n");
+		button_info = 0x33;
+	} else if (!button_info) {
+		printk(KERN_WARNING "trackpoint.c: got 0 in extended button data, assuming 3 buttons\n");
+		button_info = 0x33;
 	}
 
 	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
@@ -330,3 +336,4 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
 
 	return 0;
 }
+

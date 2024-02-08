@@ -23,6 +23,7 @@
  * USA
 */
 
+
 #include "mv_sas.h"
 
 static int lldd_max_execute_num = 1;
@@ -318,6 +319,7 @@ static int __devinit mvs_alloc(struct mvs_info *mvi, struct Scsi_Host *shost)
 err_out:
 	return 1;
 }
+
 
 int mvs_ioremap(struct mvs_info *mvi, int bar, int bar_ex)
 {

@@ -181,6 +181,7 @@ int sst_alloc_stream(char *params, unsigned int stream_ops,
 	return str_id;
 }
 
+
 /*
  * sst_alloc_stream_response - process alloc reply
  *
@@ -214,6 +215,7 @@ int sst_alloc_stream_response(unsigned int str_id,
 	}
 	return retval;
 }
+
 
 /**
 * sst_get_fw_info - Send msg to query for firmware configurations
@@ -250,6 +252,7 @@ int sst_get_fw_info(struct snd_sst_fw_info *info)
 	}
 	return retval;
 }
+
 
 /**
 * sst_pause_stream - Send msg for a pausing stream
@@ -400,6 +403,7 @@ int sst_resume_stream(int str_id)
 
 	return retval;
 }
+
 
 /**
  * sst_drop_stream - Send msg for stopping stream
@@ -575,3 +579,5 @@ int sst_free_stream(int str_id)
 
 	return retval;
 }
+
+

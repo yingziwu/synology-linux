@@ -222,6 +222,7 @@ static struct irq_chip mpic_chip = {
 #endif
 };
 
+
 static void mpic_handle_cascade_irq(unsigned int irq, struct irq_desc *desc)
 {
 	struct mpic_data *mpic = &mpic_data;

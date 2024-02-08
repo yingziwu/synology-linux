@@ -20,6 +20,7 @@
 #ifndef __LANGWELL_UDC_H
 #define __LANGWELL_UDC_H
 
+
 /* MACRO defines */
 #define	CAP_REG_OFFSET		0x0
 #define	OP_REG_OFFSET		0x28
@@ -38,6 +39,7 @@
 #define RESET_TIMEOUT		1000
 #define SETUPSTAT_TIMEOUT	100
 #define PRIME_TIMEOUT		100
+
 
 /* device memory space registers */
 
@@ -60,6 +62,7 @@ struct langwell_cap_regs {
 #define DEN(d)	\
 	(((d)>>0)&0x1f)		/* bits 4:0, device endpoint number */
 } __attribute__ ((packed));
+
 
 /* Operational Registers, BAR0 + OP_REG_OFFSET */
 struct langwell_op_regs {
@@ -304,3 +307,4 @@ struct langwell_op_regs {
 } __attribute__ ((packed));
 
 #endif /* __LANGWELL_UDC_H */
+

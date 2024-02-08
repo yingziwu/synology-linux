@@ -72,6 +72,7 @@ static void Wb35Tx(struct wbsoft_priv *adapter)
 	int         	retv;
 	u32		SendIndex;
 
+
 	if (pHwData->SurpriseRemove)
 		goto cleanup;
 
@@ -207,6 +208,7 @@ static void Wb35Tx_EP2VM_complete(struct urb * pUrb)
 	u32 *		pltmp = (u32 *)pWb35Tx->EP2_buf;
 	u32		i;
 	u16		InterruptInLength;
+
 
 	// Variable setting
 	pWb35Tx->EP2vm_state = VM_COMPLETED;

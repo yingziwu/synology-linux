@@ -20,11 +20,14 @@
 
 #include "proslic.h"
 
+
+
 /*
 ** SI3226X DataTypes/Function Definitions
 */
 
 #define NUMIRQ 4
+
 
 /*
 ** Defines structure for configuring gpio
@@ -107,6 +110,7 @@ typedef struct {
     ramData uvthresh_scale;
     ramData uvthresh_bias;
 } Si3226x_General_Cfg;
+
 
 /*
 ** Defines structure for configuring pcm
@@ -226,11 +230,14 @@ typedef struct {
 	ramData rxaceq_c3;
 } Si3226x_audioEQ_Cfg;
 
+
+
 /*
 ** Defines structure for configuring audio gain
 */
 
 typedef ProSLIC_audioGain_Cfg Si3226x_audioGain_Cfg;
+
 
 typedef struct {
 	Si3226x_audioEQ_Cfg audioEQ;
@@ -244,6 +251,8 @@ typedef struct {
 	int16 txgain_db; /*overall gain associated with this configuration*/
 	int16 rxgain_db;
 } Si3226x_Impedance_Cfg;
+
+
 
 /*
 ** Defines structure for configuring tone generator
@@ -296,6 +305,8 @@ typedef struct {
     ramData vov_dcdc_os;
     ramData vov_ring_bat_max;
 } Si3226x_Ring_Cfg;
+
+
 
 /*
 ** This defines names for the interrupts in the ProSLIC

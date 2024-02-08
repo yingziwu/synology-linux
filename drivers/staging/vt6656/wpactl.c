@@ -46,6 +46,8 @@
 
 #define VIAWGET_WPA_MAX_BUF_SIZE 1024
 
+
+
 static const int frequency_list[] = {
 	2412, 2417, 2422, 2427, 2432, 2437, 2442,
 	2447, 2452, 2457, 2462, 2467, 2472, 2484
@@ -57,6 +59,9 @@ static const int frequency_list[] = {
 static int          msglevel                =MSG_LEVEL_INFO;
 
 /*---------------------  Static Functions  --------------------------*/
+
+
+
 
 /*---------------------  Export Variables  --------------------------*/
 static void wpadev_setup(struct net_device *dev)
@@ -123,6 +128,7 @@ static int wpa_init_wpadev(PSDevice pDevice)
 	return 0;
 }
 
+
 /*
  * Description:
  *      unregister net_device (wpadev)
@@ -153,6 +159,10 @@ static int wpa_release_wpadev(PSDevice pDevice)
 
 	return 0;
 }
+
+
+
+
 
 /*
  * Description:
@@ -202,6 +212,7 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
     BYTE    byKeyDecMode = KEY_CTL_WEP;
 	int ret = 0;
 	int uu, ii;
+
 
 	if (param->u.wpa_key.alg_name > WPA_ALG_CCMP)
 		return -EINVAL;
@@ -261,6 +272,7 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
         return ret;
 	}
 
+
 	if (param->u.wpa_key.seq && param->u.wpa_key.seq_len > sizeof(abySeq))
 		return -EINVAL;
 
@@ -303,6 +315,7 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
 
 	if (param->u.wpa_key.set_tx)
 		dwKeyIndex |= (1 << 31);
+
 
     if (pDevice->eEncryptionStatus == Ndis802_11Encryption3Enabled)
         byKeyDecMode = KEY_CTL_CCMP;
@@ -427,6 +440,7 @@ int wpa_set_wpadev(PSDevice pDevice, int val)
 
 }
 
+
 /*
  * Description:
  *      enable wpa auth & mode
@@ -453,6 +467,9 @@ static int wpa_set_wpa(PSDevice pDevice,
 
     return ret;
 }
+
+
+
 
  /*
  * Description:
@@ -483,6 +500,8 @@ static int wpa_set_disassociate(PSDevice pDevice,
 
     return ret;
 }
+
+
 
 /*
  * Description:
@@ -526,6 +545,8 @@ pItemSSID->len = param->u.scan_req.ssid_len;
     return ret;
 }
 
+
+
 /*
  * Description:
  *      get bssid
@@ -550,6 +571,7 @@ static int wpa_get_bssid(PSDevice pDevice,
     return ret;
 
 }
+
 
 /*
  * Description:
@@ -579,6 +601,8 @@ static int wpa_get_ssid(PSDevice pDevice,
 
     return ret;
 }
+
+
 
 /*
  * Description:
@@ -610,6 +634,8 @@ static int wpa_get_scan(PSDevice pDevice,
 //******mike:bubble sort by stronger RSSI*****//
 
     PBYTE ptempBSS;
+
+
 
     ptempBSS = kmalloc(sizeof(KnownBSS), (int)GFP_ATOMIC);
 
@@ -717,6 +743,8 @@ static int wpa_get_scan(PSDevice pDevice,
     kfree(pBuf);
     return ret;
 }
+
+
 
 /*
  * Description:
@@ -880,6 +908,7 @@ static int wpa_set_associate(PSDevice pDevice,
     return ret;
 }
 
+
 /*
  * Description:
  *      wpa_ioctl main function supported for wpa supplicant
@@ -986,3 +1015,4 @@ out:
 
 	return ret;
 }
+

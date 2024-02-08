@@ -202,6 +202,7 @@ static u16 Mds_BodyCopy(struct wbsoft_priv *adapter, struct wb35_descriptor *pDe
 	u16	SizeLeft, CopySize, CopyLeft, stmp;
 	u8	buf_index, FragmentCount = 0;
 
+
 	/* Copy fragment body */
 	buffer = TargetBuffer; /* shift 8B usb + 24B 802.11 */
 	SizeLeft = pDes->buffer_total_size;
@@ -298,6 +299,7 @@ static void Mds_HeaderCopy(struct wbsoft_priv *adapter, struct wb35_descriptor *
 	u16	stmp;
 	u8	i, ctmp1, ctmp2, ctmpf;
 	u16	FragmentThreshold = CURRENT_FRAGMENT_THRESHOLD;
+
 
 	stmp = pDes->buffer_total_size;
 	/*
@@ -443,6 +445,7 @@ Mds_Tx(struct wbsoft_priv *adapter)
 	u8		FillIndex, TxDesIndex, FragmentCount, FillCount;
 	unsigned char	BufferFilled = false;
 
+
 	if (pMds->TxPause)
 		return;
 	if (!hal_driver_init_OK(pHwData))
@@ -477,6 +480,7 @@ Mds_Tx(struct wbsoft_priv *adapter)
 				printk("[Mds_Tx] Excess max tx buffer.\n");
 				break; /* buffer is not enough */
 			}
+
 
 			/*
 			 * Start transmitting

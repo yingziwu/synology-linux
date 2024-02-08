@@ -184,6 +184,7 @@ struct hfsc_sched {
 
 #define	HT_INFINITY	0xffffffffffffffffULL	/* infinite time value */
 
+
 /*
  * eligible tree holds backlogged classes being sorted by their eligible times.
  * there is one eligible tree per hfsc instance.
@@ -1380,6 +1381,8 @@ hfsc_dump_class_stats(struct Qdisc *sch, unsigned long arg,
 	return gnet_stats_copy_app(d, &xstats, sizeof(xstats));
 }
 
+
+
 static void
 hfsc_walk(struct Qdisc *sch, struct qdisc_walker *arg)
 {
@@ -1432,6 +1435,8 @@ hfsc_init_qdisc(struct Qdisc *sch, struct nlattr *opt)
 	struct tc_hfsc_qopt *qopt;
 	int err;
 
+	qdisc_watchdog_init(&q->watchdog, sch);
+
 	if (opt == NULL || nla_len(opt) < sizeof(*qopt))
 		return -EINVAL;
 	qopt = nla_data(opt);
@@ -1456,8 +1461,6 @@ hfsc_init_qdisc(struct Qdisc *sch, struct nlattr *opt)
 
 	qdisc_class_hash_insert(&q->clhash, &q->root.cl_common);
 	qdisc_class_hash_grow(sch, &q->clhash);
-
-	qdisc_watchdog_init(&q->watchdog, sch);
 
 	return 0;
 }

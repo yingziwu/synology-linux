@@ -14,6 +14,7 @@
 
 #include <asm/uaccess.h>
 
+
 /*
  * Fetch a robust-list pointer. Bit 0 signals PI futexes:
  */
@@ -153,7 +154,7 @@ compat_sys_get_robust_list(int pid, compat_uptr_t __user *head_ptr,
 	}
 
 	ret = -EPERM;
-	if (!ptrace_may_access(p, PTRACE_MODE_READ))
+	if (!ptrace_may_access(p, PTRACE_MODE_READ_REALCREDS))
 		goto err_unlock;
 
 	head = p->compat_robust_list;

@@ -36,7 +36,7 @@
 #include <linux/skbuff.h>
 #include <linux/ethtool.h>
 #include <linux/if_ether.h>
-#include <linux/tcp.h>
+#include <net/tcp.h>
 #include <linux/udp.h>
 #include <linux/moduleparam.h>
 #include <linux/mm.h>
@@ -205,6 +205,7 @@ static int xennet_can_sg(struct net_device *dev)
 {
 	return dev->features & NETIF_F_SG;
 }
+
 
 static void rx_refill_timeout(unsigned long data)
 {
@@ -488,6 +489,16 @@ static int xennet_start_xmit(struct sk_buff *skb, struct net_device *dev)
 	int frags = skb_shinfo(skb)->nr_frags;
 	unsigned int offset = offset_in_page(data);
 	unsigned int len = skb_headlen(skb);
+
+	/* If skb->len is too big for wire format, drop skb and alert
+	 * user about misconfiguration.
+	 */
+	if (unlikely(skb->len > XEN_NETIF_MAX_TX_SIZE)) {
+		net_alert_ratelimited(
+			"xennet: skb->len = %u, too big for wire format\n",
+			skb->len);
+		goto drop;
+	}
 
 	frags += DIV_ROUND_UP(offset + len, PAGE_SIZE);
 	if (unlikely(frags > MAX_SKB_FRAGS + 1)) {
@@ -1042,7 +1053,7 @@ err:
 
 static int xennet_change_mtu(struct net_device *dev, int mtu)
 {
-	int max = xennet_can_sg(dev) ? 65535 - ETH_HLEN : ETH_DATA_LEN;
+	int max = xennet_can_sg(dev) ? XEN_NETIF_MAX_TX_SIZE : ETH_DATA_LEN;
 
 	if (mtu > max)
 		return -EINVAL;
@@ -1393,6 +1404,8 @@ static void xennet_disconnect_backend(struct netfront_info *info)
 	spin_unlock_irq(&info->tx_lock);
 	spin_unlock_bh(&info->rx_lock);
 
+	del_timer_sync(&info->rx_refill_timer);
+
 	if (info->netdev->irq)
 		unbind_from_irqhandler(info->netdev->irq, info->netdev);
 	info->evtchn = info->netdev->irq = 0;
@@ -1706,7 +1719,6 @@ static void netback_changed(struct xenbus_device *dev,
 	case XenbusStateInitialised:
 	case XenbusStateReconfiguring:
 	case XenbusStateReconfigured:
-	case XenbusStateConnected:
 	case XenbusStateUnknown:
 	case XenbusStateClosed:
 		break;
@@ -1717,6 +1729,9 @@ static void netback_changed(struct xenbus_device *dev,
 		if (xennet_connect(netdev) != 0)
 			break;
 		xenbus_switch_state(dev, XenbusStateConnected);
+		break;
+
+	case XenbusStateConnected:
 		netif_notify_peers(netdev);
 		break;
 
@@ -1914,6 +1929,7 @@ static struct xenbus_device_id netfront_ids[] = {
 	{ "" }
 };
 
+
 static int __devexit xennet_remove(struct xenbus_device *dev)
 {
 	struct netfront_info *info = dev_get_drvdata(&dev->dev);
@@ -1925,8 +1941,6 @@ static int __devexit xennet_remove(struct xenbus_device *dev)
 	xennet_sysfs_delif(info->netdev);
 
 	unregister_netdev(info->netdev);
-
-	del_timer_sync(&info->rx_refill_timer);
 
 	free_percpu(info->stats);
 
@@ -1958,6 +1972,7 @@ static int __init netif_init(void)
 	return xenbus_register_frontend(&netfront_driver);
 }
 module_init(netif_init);
+
 
 static void __exit netif_exit(void)
 {

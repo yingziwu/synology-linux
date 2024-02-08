@@ -158,6 +158,7 @@ extern "C" {
 #define CORE_DIVCLK_RELOAD_RATIO_OFFS		8
 #define CORE_DIVCLK_RELOAD_RATIO_MASK		(1 << CORE_DIVCLK_RELOAD_RATIO_OFFS)
 
+
 #define DEV_ID_REG			0x18238
 #define VENDOR_ID_OFFS			0
 #define VENDOR_ID_MASK			0xFFFF
@@ -383,6 +384,8 @@ typedef enum _mvTargetId {
 	PNC_BM_TARGET_ID = 0xC,    /* Port 12 -> PP2 Unit                   */
 	MAX_TARGETS_ID
 } MV_TARGET_ID;
+
+
 
 #endif /* MV_ASMLANGUAGE */
 

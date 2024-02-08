@@ -18,6 +18,7 @@
  *    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+
 #ifndef CXD2820R_H
 #define CXD2820R_H
 
@@ -83,6 +84,7 @@ struct cxd2820r_config {
 	u8 gpio_dvbt2[3];
 	u8 gpio_dvbc[3];
 };
+
 
 #if defined(CONFIG_DVB_CXD2820R) || \
 	(defined(CONFIG_DVB_CXD2820R_MODULE) && defined(MODULE))

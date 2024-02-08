@@ -124,6 +124,7 @@ struct resource pmu_resource_bg2[] = {
 };
 #endif /* PX_SOC_BG2 */
 
+
 u32 PJ4B_Read_PMNC(void)
 {
 	u32 v = 0;
@@ -147,6 +148,7 @@ void PJ4B_Write_CNTENSET(u32 value)
 {
 	__asm__ __volatile__ ("mcr  p15, 0, %0, c9, c12, 1" : :"r"(value));
 }
+
 
 u32 PJ4B_Read_CNTENCLR(void)
 {

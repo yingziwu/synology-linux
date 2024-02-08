@@ -396,6 +396,7 @@ static int start_pmu(bool is_start_paused)
 		pmu_regs.pmnc |= 0x1;
 	}
 
+
 	/* enable the interrupts */
 	PJ4_Write_INTENS(pmu_regs.intens);
 

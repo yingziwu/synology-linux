@@ -12,6 +12,7 @@
 #include <linux/highmem.h>
 #include <linux/kernel.h>
 #include <linux/linkage.h>
+#include <linux/preempt.h>
 #include <linux/sched.h>
 #include <linux/smp.h>
 #include <linux/mm.h>
@@ -33,6 +34,7 @@
 #include <asm/mmu_context.h>
 #include <asm/war.h>
 #include <asm/cacheflush.h> /* for run_uncached() */
+
 
 /*
  * Special Variant of smp_call_function for use by cache functions:
@@ -238,6 +240,7 @@ static void __cpuinit r4k_blast_icache_page_setup(void)
 	else if (ic_lsize == 64)
 		r4k_blast_icache_page = blast_icache64_page;
 }
+
 
 static void (* r4k_blast_icache_page_indexed)(unsigned long addr);
 
@@ -597,11 +600,13 @@ static void r4k_dma_cache_wback_inv(unsigned long addr, unsigned long size)
 	/* Catch bad driver code */
 	BUG_ON(size == 0);
 
+	preempt_disable();
 	if (cpu_has_inclusive_pcaches) {
 		if (size >= scache_size)
 			r4k_blast_scache();
 		else
 			blast_scache_range(addr, addr + size);
+		preempt_enable();
 		__sync();
 		return;
 	}
@@ -617,6 +622,7 @@ static void r4k_dma_cache_wback_inv(unsigned long addr, unsigned long size)
 		R4600_HIT_CACHEOP_WAR_IMPL;
 		blast_dcache_range(addr, addr + size);
 	}
+	preempt_enable();
 
 	bc_wback_inv(addr, size);
 	__sync();
@@ -627,13 +633,11 @@ static void r4k_dma_cache_inv(unsigned long addr, unsigned long size)
 	/* Catch bad driver code */
 	BUG_ON(size == 0);
 
+	preempt_disable();
 	if (cpu_has_inclusive_pcaches) {
 		if (size >= scache_size)
 			r4k_blast_scache();
 		else {
-			unsigned long lsize = cpu_scache_line_size();
-			unsigned long almask = ~(lsize - 1);
-
 			/*
 			 * There is no clearly documented alignment requirement
 			 * for the cache instruction on MIPS processors and
@@ -642,11 +646,9 @@ static void r4k_dma_cache_inv(unsigned long addr, unsigned long size)
 			 * hit ops with insufficient alignment.  Solved by
 			 * aligning the address to cache line size.
 			 */
-			cache_op(Hit_Writeback_Inv_SD, addr & almask);
-			cache_op(Hit_Writeback_Inv_SD,
-				 (addr + size - 1) & almask);
 			blast_inv_scache_range(addr, addr + size);
 		}
+		preempt_enable();
 		__sync();
 		return;
 	}
@@ -654,14 +656,10 @@ static void r4k_dma_cache_inv(unsigned long addr, unsigned long size)
 	if (cpu_has_safe_index_cacheops && size >= dcache_size) {
 		r4k_blast_dcache();
 	} else {
-		unsigned long lsize = cpu_dcache_line_size();
-		unsigned long almask = ~(lsize - 1);
-
 		R4600_HIT_CACHEOP_WAR_IMPL;
-		cache_op(Hit_Writeback_Inv_D, addr & almask);
-		cache_op(Hit_Writeback_Inv_D, (addr + size - 1)  & almask);
 		blast_inv_dcache_range(addr, addr + size);
 	}
+	preempt_enable();
 
 	bc_inv(addr, size);
 	__sync();

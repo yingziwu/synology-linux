@@ -15,6 +15,7 @@
 #include <linux/err.h>
 #include "sysfs.h"
 
+
 static void remove_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
 			 const struct attribute_group *grp)
 {
@@ -53,6 +54,7 @@ static int create_files(struct sysfs_dirent *dir_sd, struct kobject *kobj,
 		remove_files(dir_sd, kobj, grp);
 	return error;
 }
+
 
 static int internal_create_group(struct kobject *kobj, int update,
 				 const struct attribute_group *grp)
@@ -120,6 +122,8 @@ int sysfs_update_group(struct kobject *kobj,
 {
 	return internal_create_group(kobj, 1, grp);
 }
+
+
 
 void sysfs_remove_group(struct kobject * kobj, 
 			const struct attribute_group * grp)
@@ -196,6 +200,7 @@ void sysfs_unmerge_group(struct kobject *kobj,
 	}
 }
 EXPORT_SYMBOL_GPL(sysfs_unmerge_group);
+
 
 EXPORT_SYMBOL_GPL(sysfs_create_group);
 EXPORT_SYMBOL_GPL(sysfs_update_group);

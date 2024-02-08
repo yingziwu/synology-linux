@@ -182,6 +182,7 @@ if (debug >= level)						\
 	printk(KERN_DEBUG "drxk: %s" fmt, __func__, ## arg);	\
 } while (0)
 
+
 static inline u32 MulDiv32(u32 a, u32 b, u32 c)
 {
 	u64 tmp64;
@@ -263,6 +264,7 @@ static u32 Log10Times100(u32 x)
 		6404702,	/* 6404701.706649 */
 		6553600,	/* 6553600.000000 */
 	};
+
 
 	if (x == 0)
 		return 0;
@@ -610,6 +612,7 @@ error:
 	return status;
 }
 
+
 static int init_state(struct drxk_state *state)
 {
 	/*
@@ -751,6 +754,7 @@ static int init_state(struct drxk_state *state)
 	state->m_atvPreSawCfg.reference = 0x04;
 	state->m_atvPreSawCfg.usePreSaw = true;
 
+
 	/* DVBT RF */
 	state->m_dvbtRfAgcCfg.ctrlMode = DRXK_AGC_CTRL_OFF;
 	state->m_dvbtRfAgcCfg.outputLevel = 0;
@@ -759,6 +763,7 @@ static int init_state(struct drxk_state *state)
 	state->m_dvbtRfAgcCfg.top = 0x2100;
 	state->m_dvbtRfAgcCfg.cutOffCurrent = 4000;
 	state->m_dvbtRfAgcCfg.speed = 1;
+
 
 	/* DVBT IF */
 	state->m_dvbtIfAgcCfg.ctrlMode = DRXK_AGC_CTRL_AUTO;
@@ -1372,6 +1377,7 @@ error2:
 	mutex_unlock(&state->mutex);
 	return status;
 }
+
 
 static int DownloadMicrocode(struct drxk_state *state,
 			     const u8 pMCImage[], u32 Length)
@@ -3700,6 +3706,7 @@ static int SetDVBTStandard(struct drxk_state *state,
 	if (status < 0)
 		goto error;
 
+
 #ifdef COMPILE_FOR_NONRT
 	status = write16(state, FEC_RS_MEASUREMENT_PERIOD__A, 0x400);
 	if (status < 0)
@@ -3759,6 +3766,7 @@ error:
 		printk(KERN_ERR "drxk: Error %d on %s\n", status, __func__);
 	return status;
 }
+
 
 /*============================================================================*/
 
@@ -3859,6 +3867,7 @@ static int SetDVBT(struct drxk_state *state, u16 IntermediateFreqkHz,
 		transmissionParams |= OFDM_SC_RA_RAM_OP_PARAM_HIER_A4;
 		break;
 	}
+
 
 	/* constellation */
 	switch (state->param.u.ofdm.constellation) {
@@ -4051,6 +4060,7 @@ static int SetDVBT(struct drxk_state *state, u16 IntermediateFreqkHz,
 	if (status < 0)
 		goto error;
 
+
 	status = scu_command(state, SCU_RAM_COMMAND_STANDARD_OFDM | SCU_RAM_COMMAND_CMD_DEMOD_START, 0, NULL, 1, &cmdResult);
 	if (status < 0)
 		goto error;
@@ -4074,6 +4084,7 @@ error:
 
 	return status;
 }
+
 
 /*============================================================================*/
 
@@ -4137,6 +4148,7 @@ static int PowerUpQAM(struct drxk_state *state)
 
 	return status;
 }
+
 
 /** Power Down QAM */
 static int PowerDownQAM(struct drxk_state *state)
@@ -4382,6 +4394,7 @@ static int SetQAM16(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM State Machine (FSM) Thresholds */
 
 	status = write16(state, SCU_RAM_QAM_FSM_RTH__A, 140);
@@ -4412,6 +4425,7 @@ static int SetQAM16(struct drxk_state *state)
 	status = write16(state, SCU_RAM_QAM_FSM_FREQ_LIM__A, 24);
 	if (status < 0)
 		goto error;
+
 
 	/* QAM FSM Tracking Parameters */
 
@@ -4513,6 +4527,7 @@ static int SetQAM32(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM Loop Controller Coeficients */
 
 	status = write16(state, SCU_RAM_QAM_LC_CA_FINE__A, 15);
@@ -4577,6 +4592,7 @@ static int SetQAM32(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM State Machine (FSM) Thresholds */
 
 	status = write16(state, SCU_RAM_QAM_FSM_RTH__A, 90);
@@ -4607,6 +4623,7 @@ static int SetQAM32(struct drxk_state *state)
 	status = write16(state, SCU_RAM_QAM_FSM_FREQ_LIM__A, 10);
 	if (status < 0)
 		goto error;
+
 
 	/* QAM FSM Tracking Parameters */
 
@@ -4703,6 +4720,7 @@ static int SetQAM64(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM Loop Controller Coeficients */
 
 	status = write16(state, SCU_RAM_QAM_LC_CA_FINE__A, 15);
@@ -4767,6 +4785,7 @@ static int SetQAM64(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM State Machine (FSM) Thresholds */
 
 	status = write16(state, SCU_RAM_QAM_FSM_RTH__A, 100);
@@ -4797,6 +4816,7 @@ static int SetQAM64(struct drxk_state *state)
 	status = write16(state, SCU_RAM_QAM_FSM_FREQ_LIM__A, 15);
 	if (status < 0)
 		goto error;
+
 
 	/* QAM FSM Tracking Parameters */
 
@@ -4889,11 +4909,13 @@ static int SetQAM128(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM Slicer Settings */
 
 	status = write16(state, SCU_RAM_QAM_SL_SIG_POWER__A, DRXK_QAM_SL_SIG_POWER_QAM128);
 	if (status < 0)
 		goto error;
+
 
 	/* QAM Loop Controller Coeficients */
 
@@ -4958,6 +4980,7 @@ static int SetQAM128(struct drxk_state *state)
 	status = write16(state, SCU_RAM_QAM_LC_CF1_COARSE__A, 0);
 	if (status < 0)
 		goto error;
+
 
 	/* QAM State Machine (FSM) Thresholds */
 
@@ -5088,6 +5111,7 @@ static int SetQAM256(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM Loop Controller Coeficients */
 
 	status = write16(state, SCU_RAM_QAM_LC_CA_FINE__A, 15);
@@ -5152,6 +5176,7 @@ static int SetQAM256(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM State Machine (FSM) Thresholds */
 
 	status = write16(state, SCU_RAM_QAM_FSM_RTH__A, 50);
@@ -5183,6 +5208,7 @@ static int SetQAM256(struct drxk_state *state)
 	if (status < 0)
 		goto error;
 
+
 	/* QAM FSM Tracking Parameters */
 
 	status = write16(state, SCU_RAM_QAM_FSM_MEDIAN_AV_MULT__A, (u16) 8);
@@ -5209,6 +5235,7 @@ error:
 		printk(KERN_ERR "drxk: Error %d on %s\n", status, __func__);
 	return status;
 }
+
 
 /*============================================================================*/
 /**
@@ -5895,6 +5922,7 @@ static int SwitchAntennaToDVBT(struct drxk_state *state)
 	return status;
 }
 
+
 static int PowerDownDevice(struct drxk_state *state)
 {
 	/* Power down to requested mode */
@@ -6191,6 +6219,7 @@ static int drxk_set_parameters(struct dvb_frontend *fe,
 		       "drxk: Error: get_if_frequency() not defined at tuner. Can't work without it!\n");
 		return -EINVAL;
 	}
+
 
 	if (fe->ops.i2c_gate_ctrl)
 		fe->ops.i2c_gate_ctrl(fe, 1);

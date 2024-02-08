@@ -34,6 +34,7 @@ static struct mfd_cell tps65910s[] = {
 	},
 };
 
+
 static int tps65910_i2c_read(struct tps65910 *tps65910, u8 reg,
 				  int bytes, void *dest)
 {
@@ -202,6 +203,7 @@ static const struct i2c_device_id tps65910_i2c_id[] = {
        { }
 };
 MODULE_DEVICE_TABLE(i2c, tps65910_i2c_id);
+
 
 static struct i2c_driver tps65910_i2c_driver = {
 	.driver = {

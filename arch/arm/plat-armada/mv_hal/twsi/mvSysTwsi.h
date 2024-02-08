@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
 /*******************************************************************************
 * mvSysTwsiInterruptEnable
 *
@@ -89,6 +90,7 @@ extern "C" {
 *
 *******************************************************************************/
 MV_STATUS mvSysTwsiInterruptEnable(MV_U32 chanNum, MV_BOOL enable);
+
 
 /*******************************************************************************
 * mvSysTwsiMainCauseIsSet

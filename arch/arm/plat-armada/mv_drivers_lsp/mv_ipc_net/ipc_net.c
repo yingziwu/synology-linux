@@ -560,6 +560,8 @@ static int ipc_net_remove(struct platform_device *pdev)
     return 0;
 }
 
+
+
 static struct platform_driver ipc_net_driver = {
 	.probe    = ipc_net_probe,
 	.remove   = ipc_net_remove,

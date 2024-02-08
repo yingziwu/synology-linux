@@ -110,6 +110,7 @@ void cvm_oct_free_tx_skbs(struct net_device *dev)
 		skb_to_free = cvmx_fau_fetch_and_add32(priv->fau+qos*4, MAX_SKB_TO_FREE);
 		skb_to_free = cvm_oct_adjust_skb_to_free(skb_to_free, priv->fau+qos*4);
 
+
 		total_freed += skb_to_free;
 		if (skb_to_free > 0) {
 			struct sk_buff *to_free_list = NULL;
@@ -343,7 +344,7 @@ int cvm_oct_xmit(struct sk_buff *skb, struct net_device *dev)
 	}
 	if (unlikely
 	    (skb->truesize !=
-	     sizeof(*skb) + skb_end_pointer(skb) - skb->head)) {
+	     sizeof(*skb) + skb_end_offset(skb))) {
 		/*
 		   printk("TX buffer truesize has been changed\n");
 		 */

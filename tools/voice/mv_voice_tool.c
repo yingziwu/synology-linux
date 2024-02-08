@@ -327,6 +327,7 @@ int main(void)
 #endif
 				break;
 
+
 			case '2':
 				printf("%s Enter line id: ", TOOL_PREFIX);
 				gets(str);
@@ -982,6 +983,7 @@ static void sw_loopback_two_phones_test(int tdm_fd, unsigned char line0, unsigne
 		wait_for_vpapi_event();
 	}
 
+
 	while((hook_state[line0] == 1) && (hook_state[line1] == 1)) {
 
 		FD_ZERO(&rd_fds);
@@ -1104,6 +1106,7 @@ static int vpapi_init(void)
 						properly(status=%d) ##\n", line_id, dev_id, status);
 				return -1;
 			}
+
 
 			/* Map unique LineId to LineCtx */
 			status = vpapi_map_line_id(line_id);
@@ -1296,6 +1299,7 @@ static void vpapi_release(void)
 	VpLineIdType line_id = 0;
 	VpOptionEventMaskType event_mask;
 	VpStatusType status;
+
 
 	/* Clear all events */
 	memset(&event_mask, 0xff, sizeof(VpOptionEventMaskType));

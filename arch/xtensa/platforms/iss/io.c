@@ -7,6 +7,7 @@
 
 extern int __simc ();
 
+
 char iss_serial_getc()
 {
   char c;
@@ -28,3 +29,4 @@ void iss_serial_puts( char *s )
 /*#error Need I/O ports to specific hardware!*/
 
 #endif
+

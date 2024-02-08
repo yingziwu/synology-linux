@@ -41,6 +41,7 @@
 #include <net/irda/ircomm_event.h>
 #include <net/irda/ircomm_lmp.h>
 
+
 /*
  * Function ircomm_lmp_connect_request (self, userdata)
  *

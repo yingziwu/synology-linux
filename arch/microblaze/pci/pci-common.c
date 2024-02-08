@@ -55,6 +55,7 @@ unsigned long isa_io_base;
 unsigned long pci_dram_offset;
 static int pci_bus_count;
 
+
 void set_pci_dma_ops(struct dma_map_ops *dma_ops)
 {
 	pci_dma_ops = dma_ops;
@@ -1478,6 +1479,7 @@ void __devinit pcibios_claim_one_bus(struct pci_bus *bus)
 }
 EXPORT_SYMBOL_GPL(pcibios_claim_one_bus);
 
+
 /* pcibios_finish_adding_to_bus
  *
  * This is to be called by the hotplug code after devices have been
@@ -1736,3 +1738,4 @@ int early_find_capability(struct pci_controller *hose, int bus, int devfn,
 {
 	return pci_bus_find_capability(fake_pci_bus(hose, bus), devfn, cap);
 }
+

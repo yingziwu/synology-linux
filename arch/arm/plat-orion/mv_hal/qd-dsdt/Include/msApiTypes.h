@@ -18,8 +18,10 @@
  *     This file defines common data types used on Host and NetGX sides.
  */
 
+
 #ifndef MV_TYPES_H
 #define MV_TYPES_H
+
 
 /* general */
 
@@ -29,6 +31,7 @@
 #define OUT
 #undef INOUT
 #define INOUT
+
 
 #ifndef NULL
 #define NULL ((void*)0)
@@ -50,6 +53,7 @@ typedef union {
 	GT_U32	l[2];
 } GT_U64;
 
+
 typedef enum {
     GT_FALSE = 0,
     GT_TRUE  = 1
@@ -58,12 +62,14 @@ typedef enum {
 typedef void          (*GT_VOIDFUNCPTR) (void); /* ptr to function returning void */
 typedef unsigned int  (*GT_INTFUNCPTR)  (void); /* ptr to function returning int  */
 
+
 /* module state */
 typedef enum {
 	GT_STATE_NONE = 0,	/* Uninitialized */
 	GT_STATE_IDLE,		/* Initialized, but not started (or stopped) */
 	GT_STATE_ACTIVE		/* Started */
 } GT_STATE;
+
 
 #define	GT_ETHERNET_HEADER_SIZE		(6)
 
@@ -75,8 +81,10 @@ typedef struct
 /* This macro checks for a multicast mac address    */
 #define GT_IS_MULTICAST_MAC(mac)  ((mac.arEther[0] & 0x1) == 1)
 
+
 /* This macro checks for an broadcast mac address     */
 #define GT_IS_BROADCAST_MAC(mac) (((mac).arEther[0] == 0xFF) && ((mac).arEther[1] == 0xFF) && ((mac).arEther[2] == 0xFF) && ((mac).arEther[3] == 0xFF) && ((mac).arEther[4] == 0xFF) && ((mac).arEther[5] == 0xFF))
+
 
 /* status / error codes */
 typedef int GT_STATUS;

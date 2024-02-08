@@ -84,6 +84,7 @@
 #define CCR3_RCRC       0x04
 #define CCR3_XCRC       0x02
 
+
 /* RTR1-4 (Receive Timeslot Register 1-4)
    ---------------- E1 & T1 ------------------------------ */
 
@@ -123,6 +124,7 @@
 #define RTR4_TS30       0x02
 #define RTR4_TS31       0x01
 
+
 /* TTR1-4 (Transmit Timeslot Register 1-4)
    ---------------- E1 & T1 ------------------------------ */
 
@@ -161,6 +163,8 @@
 #define TTR4_TS29       0x04
 #define TTR4_TS30       0x02
 #define TTR4_TS31       0x01
+
+
 
 /* IMR0-4 (Interrupt Mask Register 0-4)
 
@@ -282,6 +286,7 @@
 #define FMR5_XLD        0x20
 #define FMR5_XLU        0x10
 
+
 /* LOOP (Channel Loop Back)
 
    ------------------ E1 & T1 ---------------------------- */
@@ -293,6 +298,8 @@
 #define LOOP_CLA2       0x04
 #define LOOP_CLA1       0x02
 #define LOOP_CLA0       0x01
+
+
 
 /* XSW (Transmit Service Word Pulseframe)
 
@@ -307,6 +314,7 @@
 #define XSW_XY3         0x02
 #define XSW_XY4         0x01
 
+
 /* XSP (Transmit Spare Bits)
 
    ------------------- E1 --------------------------- */
@@ -319,6 +327,7 @@
 #define XSP_XSIF        0x04
 #define XSP_XS13        0x02
 #define XSP_XS15        0x01
+
 
 /* XC0/1 (Transmit Control 0/1)
    ------------------ E1 & T1 ---------------------------- */
@@ -342,6 +351,7 @@
 #define XC1_XTO1        0x02
 #define XC1_XTO0        0x01
 
+
 /* RC0/1 (Receive Control 0/1)
    ------------------ E1 & T1 ---------------------------- */
 
@@ -362,6 +372,8 @@
 #define RC1_RTO2        0x04
 #define RC1_RTO1        0x02
 #define RC1_RTO0        0x01
+
+
 
 /* XPM0-2 (Transmit Pulse Mask 0-2)
    --------------------- E1 & T1 ------------------------- */
@@ -392,6 +404,7 @@
 #define XPM2_XP32       0x02
 #define XPM2_XP31       0x01
 
+
 /* TSWM (Transparent Service Word Mask)
    ------------------ E1 ---------------------------- */
 
@@ -416,6 +429,7 @@
 #define IDLE_IDL2       0x04
 #define IDLE_IDL1       0x02
 #define IDLE_IDL0       0x01
+
 
 /* XSA4-8 <Transmit SA4-8 Register(Read/Write) >
    -------------------E1 ----------------------------- */
@@ -465,6 +479,7 @@
 #define XSA8_XS81       0x02
 #define XSA8_XS80       0x01
 
+
 /* XDL1-3 (Transmit DL-Bit Register1-3 (read/write))
    ----------------------- T1 --------------------- */
 
@@ -494,6 +509,7 @@
 #define XDL3_XDL32      0x04
 #define XDL3_XDL31      0x02
 #define XDL3_XDL30      0x01
+
 
 /* ICB1-4 (Idle Channel Register 1-4)
    ------------------ E1 ---------------------------- */
@@ -572,6 +588,8 @@
 #define FMR3_CFRZ       0x02
 #define FMR3_EXTIW      0x01
 
+
+
 /* CCB1-3 (Clear Channel Register)
    ------------------- T1 ----------------------- */
 
@@ -602,6 +620,7 @@
 #define CCB3_CH23       0x02
 #define CCB3_CH24       0x01
 
+
 /* LIM0/1 (Line Interface Mode 0/1)
    ------------------- E1 & T1 --------------------------- */
 
@@ -623,6 +642,7 @@
 #define LIM1_RL         0x02
 #define LIM1_DRS        0x01
 
+
 /* PCDR (Pulse Count Detection Register(Read/Write))
    ------------------ E1 & T1 ------------------------- */
 
@@ -643,6 +663,7 @@
 #define PCRR_PCR2	0x04
 #define PCRR_PCR1	0x02
 #define PCRR_PCR0	0x01
+
 
 /* LIM2 (Line Interface Mode 2)
 
@@ -677,8 +698,10 @@
 #define DEC_DCVC        0x02
 #define DEC_DFEC        0x01
 
+
 /* FALC Register Bits (Receive Mode)
    ---------------------------------------------------------------------------- */
+
 
 /* FRS0/1 (Framer Receive Status Register 0/1)
    ----------------- E1 & T1 ---------------------------------- */
@@ -717,6 +740,7 @@
 #define FRS3_FEH1       0x02
 #define FRS3_FEH0       0x01
 
+
 /* RSW (Receive Service Word Pulseframe)
    ----------------- E1 ------------------------------ */
 
@@ -728,6 +752,7 @@
 #define RSW_RY3         0x02
 #define RSW_RY4         0x01
 
+
 /* RSP (Receive Spare Bits / Additional Status)
    ---------------- E1 ------------------------------- */
 
@@ -738,6 +763,7 @@
 #define RSP_RSIF        0x04
 #define RSP_RS13        0x02
 #define RSP_RS15        0x01
+
 
 /* FECL (Framing Error Counter)
    ---------------- E1 & T1 -------------------------- */
@@ -760,6 +786,7 @@
 #define FECH_FE9        0x02
 #define FECH_FE8        0x01
 
+
 /* CVCl (Code Violation Counter)
    ----------------- E1 ------------------------- */
 
@@ -780,6 +807,7 @@
 #define CVCH_CV10       0x04
 #define CVCH_CV9        0x02
 #define CVCH_CV8        0x01
+
 
 /* CEC1-3L (CRC Error Counter)
    ------------------ E1 ----------------------------- */
@@ -838,6 +866,7 @@
 #define CEC3H_CR9       0x02
 #define CEC3H_CR8       0x01
 
+
 /* CECL (CRC Error Counter)
 
    ------------------ T1 ----------------------------- */
@@ -880,6 +909,7 @@
 #define EBCH_EB10       0x04
 #define EBCH_EB9        0x02
 #define EBCH_EB8        0x01
+
 
 /* RSA4-8 (Receive Sa4-8-Bit Register)
    -------------------- E1 --------------------------- */
@@ -939,6 +969,7 @@
 #define RSA6S_SA        0x02
 #define RSA6S_S8        0x01
 
+
 /* RDL1-3 Receive DL-Bit Register1-3)
    ------------------------ T1 ------------------------- */
 
@@ -969,6 +1000,7 @@
 #define RDL3_RDL31      0x02
 #define RDL3_RDL30      0x01
 
+
 /* SIS (Signaling Status Register)
 
    -------------------- E1 & T1 -------------------------- */
@@ -979,6 +1011,7 @@
 #define SIS_RLI         0x08
 #define SIS_CEC         0x04
 #define SIS_BOM         0x01
+
 
 /* RSIS (Receive Signaling Status Register)
 
@@ -992,6 +1025,7 @@
 #define RSIS_HA0        0x04
 #define RSIS_HFR        0x02
 #define RSIS_LA         0x01
+
 
 /* RBCL/H (Receive Byte Count Low/High)
 
@@ -1011,6 +1045,7 @@
 #define RBCH_RBC10      0x04
 #define RBCH_RBC9       0x02
 #define RBCH_RBC8       0x01
+
 
 /* ISR1-3  (Interrupt Status Register 1-3)
 
@@ -1060,6 +1095,7 @@
 #define  FISR3_SLN	0x02
 #define  FISR3_SLP	0x01
 
+
 /* GIS  (Global Interrupt Status Register)
 
    --------------------- E1 & T1 --------------------- */
@@ -1069,6 +1105,7 @@
 #define  GIS_ISR1	0x02
 #define  GIS_ISR0	0x01
 
+
 /* VSTR  (Version Status Register)
 
    --------------------- E1 & T1 --------------------- */
@@ -1077,6 +1114,7 @@
 #define  VSTR_VN2	0x04
 #define  VSTR_VN1	0x02
 #define  VSTR_VN0	0x01
+
 
 /*>>>>>>>>>>>>>>>>>>>>>  Local Control Structures  <<<<<<<<<<<<<<<<<<<<<<<<< */
 
@@ -1200,3 +1238,4 @@
 #define RS(nbr)	(0x70 + (nbr))	/* Rx CAS Reg (0 to 15) */
 
 #endif	/* _FALC_LH_H */
+

@@ -162,6 +162,7 @@ mb_incoherent(void)
 #define prepare_arch_switch(next) _prepare_arch_switch(next)
 void _prepare_arch_switch(struct task_struct *next);
 
+
 /*
  * switch_to(n) should switch tasks to task nr n, first
  * checking that n isn't the current task, in which case it does nothing.

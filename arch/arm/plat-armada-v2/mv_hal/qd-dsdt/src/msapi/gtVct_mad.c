@@ -20,6 +20,7 @@
 
 #include <madApi.h>
 
+
 /*******************************************************************************
 * gvctGetCableStatus_mad
 *
@@ -120,6 +121,8 @@ GT_STATUS gvctGetCableDiag_mad
     return status;
 }
 
+
+
 /*******************************************************************************
 * gvctGet1000BTExtendedStatus_mad
 *
@@ -205,6 +208,7 @@ GT_STATUS gvctGet1000BTExtendedStatus_mad
       gtSemGive(dev,dev->phyRegsSem);
       return GT_FALSE;
     }
+
 
     if(ppuEn != GT_FALSE)
     {

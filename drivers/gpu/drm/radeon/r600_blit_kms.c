@@ -664,6 +664,7 @@ static unsigned r600_blit_create_rect(unsigned num_gpu_pages,
 		BUG_ON(pages == 0);
 	}
 
+
 	DRM_DEBUG("blit_rectangle: h=%d, w=%d, pages=%d\n", h, w, pages);
 
 	/* return width and height only of the caller wants it */
@@ -674,6 +675,7 @@ static unsigned r600_blit_create_rect(unsigned num_gpu_pages,
 
 	return pages;
 }
+
 
 int r600_blit_prepare_copy(struct radeon_device *rdev, unsigned num_gpu_pages)
 {

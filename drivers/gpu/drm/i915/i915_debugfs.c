@@ -40,6 +40,7 @@
 
 #define DRM_I915_RING_DEBUG 1
 
+
 #if defined(CONFIG_DEBUG_FS)
 
 enum {
@@ -121,7 +122,7 @@ static const char *cache_level_str(int type)
 static void
 describe_obj(struct seq_file *m, struct drm_i915_gem_object *obj)
 {
-	seq_printf(m, "%p: %s%s %8zd %04x %04x %d %d%s%s%s",
+	seq_printf(m, "%pK: %s%s %8zd %04x %04x %d %d%s%s%s",
 		   &obj->base,
 		   get_pin_flag(obj),
 		   get_tiling_flag(obj),
@@ -320,6 +321,7 @@ static int i915_gem_gtt_info(struct seq_file *m, void* data)
 	return 0;
 }
 
+
 static int i915_gem_pageflip_info(struct seq_file *m, void *data)
 {
 	struct drm_info_node *node = (struct drm_info_node *) m->private;
@@ -453,6 +455,7 @@ static int i915_gem_seqno_info(struct seq_file *m, void *data)
 
 	return 0;
 }
+
 
 static int i915_interrupt_info(struct seq_file *m, void *data)
 {

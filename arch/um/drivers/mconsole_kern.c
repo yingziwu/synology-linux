@@ -37,6 +37,7 @@ static int do_unlink_socket(struct notifier_block *notifier,
 	return mconsole_unlink_socket();
 }
 
+
 static struct notifier_block reboot_notifier = {
 	.notifier_call		= do_unlink_socket,
 	.priority		= 0,
@@ -132,7 +133,7 @@ void mconsole_proc(struct mc_request *req)
 	ptr += strlen("proc");
 	ptr = skip_spaces(ptr);
 
-	file = file_open_root(mnt->mnt_root, mnt, ptr, O_RDONLY);
+	file = file_open_root(mnt->mnt_root, mnt, ptr, O_RDONLY, 0);
 	if (IS_ERR(file)) {
 		mconsole_reply(req, "Failed to open file", 1, 0);
 		goto out;

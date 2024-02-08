@@ -33,6 +33,7 @@
 
 #include <prom.h>
 
+
 const char *get_system_type(void)
 {
 	return "Alchemy Pb1100";

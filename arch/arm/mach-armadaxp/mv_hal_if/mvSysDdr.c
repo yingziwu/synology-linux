@@ -68,6 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "boardEnv/mvBoardEnvSpec.h"
 #include "twsi/mvTwsi.h"
 
+
 /*******************************************************************************
 * mvSysDdrSpdRead
 *
@@ -99,6 +100,7 @@ MV_STATUS mvSysDdrSpdRead(MV_U8 *data, MV_U32 size)
 	return mvTwsiRead(MV_BOARD_DIMM_I2C_CHANNEL, &slave, data, size);
 }
 
+
 /*******************************************************************************
 * mvSysDdrSpdWrite
 *
@@ -129,3 +131,4 @@ MV_STATUS mvSysDdrSpdWrite(MV_U8 *data, MV_U32 size)
 
 	return	mvTwsiWrite(MV_BOARD_DIMM_I2C_CHANNEL, &slave, data, size);
 }
+

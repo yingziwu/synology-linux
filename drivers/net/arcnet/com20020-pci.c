@@ -41,6 +41,7 @@
 
 #include <asm/io.h>
 
+
 #define VERSION "arcnet: COM20020 PCI support\n"
 
 /* Module parameters */

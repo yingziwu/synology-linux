@@ -88,8 +88,10 @@ PNMI_STATIC int Asf(SK_AC *pAC, SK_IOC IoC, int action, SK_U32 Id,
 	unsigned int TableIndex, SK_U32 NetIndex);
 #endif /* SK_ASF */
 
+
 /* defines *******************************************************************/
 #define ID_TABLE_SIZE (sizeof(IdTable)/sizeof(IdTable[0]))
+
 
 /* global variables **********************************************************/
 
@@ -1277,3 +1279,4 @@ PNMI_STATIC const SK_PNMI_TAB_ENTRY IdTable[] = {
 		0,
 		SK_PNMI_RO, General, 0},
 };
+

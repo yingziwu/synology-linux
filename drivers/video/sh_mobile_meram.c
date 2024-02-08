@@ -652,6 +652,7 @@ err:
 	return error;
 }
 
+
 static int sh_mobile_meram_remove(struct platform_device *pdev)
 {
 	struct sh_mobile_meram_priv *priv = platform_get_drvdata(pdev);

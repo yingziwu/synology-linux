@@ -167,6 +167,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define QOS_TBL_PRI					0
 #define QOS_TBL_PRI_MASK				(((1 << ACT_QOS_ATTR_PRI_BITS) - 1) << QOS_TBL_PRI)
 
+
 #define QOS_TBL_DSCP					3
 #define QOS_TBL_DSCP_MASK				(((1 << ACT_QOS_ATTR_DSCP_BITS) - 1) << QOS_TBL_DSCP)
 
@@ -288,6 +289,7 @@ int	mvPp2ClsC2ModSet(MV_PP2_CLS_C2_ENTRY *c2, int data_ptr, int instr_offs, int 
 int	mvPp2ClsC2MtuSet(MV_PP2_CLS_C2_ENTRY *c2, int mtu_inx);
 int	mvPp2ClsC2DupSet(MV_PP2_CLS_C2_ENTRY *c2, int dupid, int count);
 int	mvPp2ClsC2SeqSet(MV_PP2_CLS_C2_ENTRY *c2, int miss, int id);
+
 
 /*-------------------------------------------------------------------------------*/
 /*		Classifier C2 engine Hit counters Public APIs		    	 */

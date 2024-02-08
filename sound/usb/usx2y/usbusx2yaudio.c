@@ -30,6 +30,7 @@
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  */
 
+
 #include <linux/interrupt.h>
 #include <linux/slab.h>
 #include <linux/usb.h>
@@ -65,6 +66,7 @@
 #else
  #define nr_of_packs() USX2Y_NRPACKS
 #endif
+
 
 static int usX2Y_urb_capt_retire(struct snd_usX2Y_substream *subs)
 {
@@ -255,6 +257,7 @@ static inline int usX2Y_usbframe_complete(struct snd_usX2Y_substream *capsubs,
 	return 0;
 }
 
+
 static void usX2Y_clients_stop(struct usX2Ydev *usX2Y)
 {
 	int s, u;
@@ -270,7 +273,11 @@ static void usX2Y_clients_stop(struct usX2Ydev *usX2Y)
 		struct snd_usX2Y_substream *subs = usX2Y->subs[s];
 		if (subs) {
 			if (atomic_read(&subs->state) >= state_PRERUNNING) {
+				unsigned long flags;
+
+				snd_pcm_stream_lock_irqsave(subs->pcm_substream, flags);
 				snd_pcm_stop(subs->pcm_substream, SNDRV_PCM_STATE_XRUN);
+				snd_pcm_stream_unlock_irqrestore(subs->pcm_substream, flags);
 			}
 			for (u = 0; u < NRURBS; u++) {
 				struct urb *urb = subs->urb[u];
@@ -292,19 +299,6 @@ static void usX2Y_error_urb_status(struct usX2Ydev *usX2Y,
 	usX2Y_clients_stop(usX2Y);
 }
 
-static void usX2Y_error_sequence(struct usX2Ydev *usX2Y,
-				 struct snd_usX2Y_substream *subs, struct urb *urb)
-{
-	snd_printk(KERN_ERR
-"Sequence Error!(hcd_frame=%i ep=%i%s;wait=%i,frame=%i).\n"
-"Most propably some urb of usb-frame %i is still missing.\n"
-"Cause could be too long delays in usb-hcd interrupt handling.\n",
-		   usb_get_current_frame_number(usX2Y->dev),
-		   subs->endpoint, usb_pipein(urb->pipe) ? "in" : "out",
-		   usX2Y->wait_iso_frame, urb->start_frame, usX2Y->wait_iso_frame);
-	usX2Y_clients_stop(usX2Y);
-}
-
 static void i_usX2Y_urb_complete(struct urb *urb)
 {
 	struct snd_usX2Y_substream *subs = urb->context;
@@ -321,12 +315,9 @@ static void i_usX2Y_urb_complete(struct urb *urb)
 		usX2Y_error_urb_status(usX2Y, subs, urb);
 		return;
 	}
-	if (likely((urb->start_frame & 0xFFFF) == (usX2Y->wait_iso_frame & 0xFFFF)))
-		subs->completed_urb = urb;
-	else {
-		usX2Y_error_sequence(usX2Y, subs, urb);
-		return;
-	}
+
+	subs->completed_urb = urb;
+
 	{
 		struct snd_usX2Y_substream *capsubs = usX2Y->subs[SNDRV_PCM_STREAM_CAPTURE],
 			*playbacksubs = usX2Y->subs[SNDRV_PCM_STREAM_PLAYBACK];
@@ -389,6 +380,7 @@ static void usX2Y_subs_prepare(struct snd_usX2Y_substream *subs)
 	subs->hwptr_done = 0;
 	subs->transfer_done = 0;
 }
+
 
 static void usX2Y_urb_release(struct urb **urb, int free_tb)
 {
@@ -568,6 +560,7 @@ static int snd_usX2Y_pcm_trigger(struct snd_pcm_substream *substream, int cmd)
 	return 0;
 }
 
+
 /*
  * allocate a buffer, setup samplerate
  *
@@ -725,6 +718,7 @@ static int usX2Y_rate_set(struct usX2Ydev *usX2Y, int rate)
 	return err;
 }
 
+
 static int usX2Y_format_set(struct usX2Ydev *usX2Y, snd_pcm_format_t format)
 {
 	int alternate, err;
@@ -753,6 +747,7 @@ static int usX2Y_format_set(struct usX2Ydev *usX2Y, snd_pcm_format_t format)
 	usX2Y->rate = 0;
 	return err;
 }
+
 
 static int snd_usX2Y_pcm_hw_params(struct snd_pcm_substream *substream,
 				   struct snd_pcm_hw_params *hw_params)
@@ -882,6 +877,8 @@ static struct snd_pcm_hardware snd_usX2Y_2c =
 	.fifo_size =              0
 };
 
+
+
 static int snd_usX2Y_pcm_open(struct snd_pcm_substream *substream)
 {
 	struct snd_usX2Y_substream	*subs = ((struct snd_usX2Y_substream **)
@@ -898,6 +895,8 @@ static int snd_usX2Y_pcm_open(struct snd_pcm_substream *substream)
 	return 0;
 }
 
+
+
 static int snd_usX2Y_pcm_close(struct snd_pcm_substream *substream)
 {
 	struct snd_pcm_runtime *runtime = substream->runtime;
@@ -907,6 +906,7 @@ static int snd_usX2Y_pcm_close(struct snd_pcm_substream *substream)
 
 	return 0;
 }
+
 
 static struct snd_pcm_ops snd_usX2Y_pcm_ops = 
 {
@@ -919,6 +919,7 @@ static struct snd_pcm_ops snd_usX2Y_pcm_ops =
 	.trigger =	snd_usX2Y_pcm_trigger,
 	.pointer =	snd_usX2Y_pcm_pointer,
 };
+
 
 /*
  * free a usb stream instance

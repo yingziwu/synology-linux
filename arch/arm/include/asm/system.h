@@ -17,34 +17,45 @@
 #define CPU_ARCH_ARMv6		8
 #define CPU_ARCH_ARMv7		9
 
-#define CR_M	(1 << 0)	 
-#define CR_A	(1 << 1)	 
-#define CR_C	(1 << 2)	 
-#define CR_W	(1 << 3)	 
-#define CR_P	(1 << 4)	 
-#define CR_D	(1 << 5)	 
-#define CR_L	(1 << 6)	 
-#define CR_B	(1 << 7)	 
-#define CR_S	(1 << 8)	 
-#define CR_R	(1 << 9)	 
-#define CR_F	(1 << 10)	 
-#define CR_Z	(1 << 11)	 
-#define CR_I	(1 << 12)	 
-#define CR_V	(1 << 13)	 
-#define CR_RR	(1 << 14)	 
-#define CR_L4	(1 << 15)	 
+/*
+ * CR1 bits (CP#15 CR1)
+ */
+#define CR_M	(1 << 0)	/* MMU enable				*/
+#define CR_A	(1 << 1)	/* Alignment abort enable		*/
+#define CR_C	(1 << 2)	/* Dcache enable			*/
+#define CR_W	(1 << 3)	/* Write buffer enable			*/
+#define CR_P	(1 << 4)	/* 32-bit exception handler		*/
+#define CR_D	(1 << 5)	/* 32-bit data address range		*/
+#define CR_L	(1 << 6)	/* Implementation defined		*/
+#define CR_B	(1 << 7)	/* Big endian				*/
+#define CR_S	(1 << 8)	/* System MMU protection		*/
+#define CR_R	(1 << 9)	/* ROM MMU protection			*/
+#define CR_F	(1 << 10)	/* Implementation defined		*/
+#define CR_Z	(1 << 11)	/* Implementation defined		*/
+#define CR_I	(1 << 12)	/* Icache enable			*/
+#define CR_V	(1 << 13)	/* Vectors relocated to 0xffff0000	*/
+#define CR_RR	(1 << 14)	/* Round Robin cache replacement	*/
+#define CR_L4	(1 << 15)	/* LDR pc can set T bit			*/
 #define CR_DT	(1 << 16)
 #define CR_IT	(1 << 18)
 #define CR_ST	(1 << 19)
-#define CR_FI	(1 << 21)	 
-#define CR_U	(1 << 22)	 
-#define CR_XP	(1 << 23)	 
-#define CR_VE	(1 << 24)	 
-#define CR_EE	(1 << 25)	 
-#define CR_TRE	(1 << 28)	 
-#define CR_AFE	(1 << 29)	 
-#define CR_TE	(1 << 30)	 
+#define CR_FI	(1 << 21)	/* Fast interrupt (lower latency mode)	*/
+#define CR_U	(1 << 22)	/* Unaligned access operation		*/
+#define CR_XP	(1 << 23)	/* Extended page tables			*/
+#define CR_VE	(1 << 24)	/* Vectored interrupts			*/
+#define CR_EE	(1 << 25)	/* Exception (Big) Endian		*/
+#define CR_TRE	(1 << 28)	/* TEX remap enable			*/
+#define CR_AFE	(1 << 29)	/* Access flag enable			*/
+#define CR_TE	(1 << 30)	/* Thumb exception enable		*/
 
+/*
+ * This is used to ensure the compiler did actually allocate the register we
+ * asked it for some inline assembly sequences.  Apparently we can't trust
+ * the compiler from one version to another so a bit of paranoia won't hurt.
+ * This string is meant to be concatenated with the inline asm string and
+ * will cause compilation to stop on mismatch.
+ * (for details, see gcc PR 15089)
+ */
 #define __asmeq(x, y)  ".ifnc " x "," y " ; .err ; .endif\n\t"
 
 #ifndef __ASSEMBLY__
@@ -58,6 +69,7 @@
 struct thread_info;
 struct task_struct;
 
+/* information about the system we're running on */
 extern unsigned int system_rev;
 extern unsigned int system_serial_low;
 extern unsigned int system_serial_high;
@@ -181,8 +193,8 @@ extern unsigned int user_debug;
 #define set_mb(var, value)	do { var = value; smp_mb(); } while (0)
 #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
 
-extern unsigned long cr_no_alignment;	 
-extern unsigned long cr_alignment;	 
+extern unsigned long cr_no_alignment;	/* defined in entry-armv.S */
+extern unsigned long cr_alignment;	/* defined in entry-armv.S */
 
 static inline unsigned int get_cr(void)
 {
@@ -221,8 +233,18 @@ static inline void set_copro_access(unsigned int val)
 	isb();
 }
 
+/*
+ * switch_mm() may do a full cache flush over the context switch,
+ * so enable interrupts over the context switch to avoid high
+ * latency.
+ */
 #define __ARCH_WANT_INTERRUPTS_ON_CTXSW
 
+/*
+ * switch_to(prev, next) should switch from task `prev' to `next'
+ * `prev' will never be the same as `next'.  schedule() itself
+ * contains the memory barrier to tell GCC not to cache `current'.
+ */
 extern struct task_struct *__switch_to(struct task_struct *, struct thread_info *, struct thread_info *);
 
 #define switch_to(prev,next,last)					\
@@ -231,7 +253,21 @@ do {									\
 } while (0)
 
 #if defined(CONFIG_CPU_SA1100) || defined(CONFIG_CPU_SA110)
- 
+/*
+ * On the StrongARM, "swp" is terminally broken since it bypasses the
+ * cache totally.  This means that the cache becomes inconsistent, and,
+ * since we use normal loads/stores as well, this is really bad.
+ * Typically, this causes oopsen in filp_close, but could have other,
+ * more disastrous effects.  There are two work-arounds:
+ *  1. Disable interrupts and emulate the atomic swap
+ *  2. Clean the cache, perform atomic swap, flush the cache
+ *
+ * We choose (1) since its the "easiest" to achieve here and is not
+ * dependent on the processor type.
+ *
+ * NOTE that this solution won't work on an SMP system, so explcitly
+ * forbid it here.
+ */
 #define swp_is_buggy
 #endif
 
@@ -340,11 +376,16 @@ void cpu_idle_wait(void);
 #include <asm-generic/cmpxchg-local.h>
 
 #if __LINUX_ARM_ARCH__ < 6
- 
+/* min ARCH < ARMv6 */
+
 #ifdef CONFIG_SMP
 #error "SMP is not supported on this platform"
 #endif
 
+/*
+ * cmpxchg_local and cmpxchg64_local are atomic wrt current CPU. Always make
+ * them available.
+ */
 #define cmpxchg_local(ptr, o, n)				  	       \
 	((__typeof__(*(ptr)))__cmpxchg_local_generic((ptr), (unsigned long)(o),\
 			(unsigned long)(n), sizeof(*(ptr))))
@@ -354,9 +395,13 @@ void cpu_idle_wait(void);
 #include <asm-generic/cmpxchg.h>
 #endif
 
-#else	 
+#else	/* min ARCH >= ARMv6 */
 
 extern void __bad_cmpxchg(volatile void *ptr, int size);
+
+/*
+ * cmpxchg only support 32-bits operands on ARMv6.
+ */
 
 static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 				      unsigned long new, int size)
@@ -364,7 +409,7 @@ static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
 	unsigned long oldval, res;
 
 	switch (size) {
-#ifndef CONFIG_CPU_V6	 
+#ifndef CONFIG_CPU_V6	/* min ARCH >= ARMv6K */
 	case 1:
 		do {
 			asm volatile("@ __cmpxchg1\n"
@@ -435,7 +480,7 @@ static inline unsigned long __cmpxchg_local(volatile void *ptr,
 	unsigned long ret;
 
 	switch (size) {
-#ifdef CONFIG_CPU_V6	 
+#ifdef CONFIG_CPU_V6	/* min ARCH == ARMv6 */
 	case 1:
 	case 2:
 		ret = __cmpxchg_local_generic(ptr, old, new, size);
@@ -454,8 +499,13 @@ static inline unsigned long __cmpxchg_local(volatile void *ptr,
 				       (unsigned long)(n),		\
 				       sizeof(*(ptr))))
 
-#ifndef CONFIG_CPU_V6	 
+#ifndef CONFIG_CPU_V6	/* min ARCH >= ARMv6K */
 
+/*
+ * Note : ARMv7-M (currently unsupported by Linux) does not support
+ * ldrexd/strexd. If ARMv7-M is ever supported by the Linux kernel, it should
+ * not be allowed to use __cmpxchg64.
+ */
 static inline unsigned long long __cmpxchg64(volatile void *ptr,
 					     unsigned long long old,
 					     unsigned long long new)
@@ -504,18 +554,18 @@ static inline unsigned long long __cmpxchg64_mb(volatile void *ptr,
 					 (unsigned long long)(o),	\
 					 (unsigned long long)(n)))
 
-#else  
+#else /* min ARCH = ARMv6 */
 
 #define cmpxchg64_local(ptr, o, n) __cmpxchg64_local_generic((ptr), (o), (n))
 
 #endif
 
-#endif	 
+#endif	/* __LINUX_ARM_ARCH__ >= 6 */
 
-#endif  
+#endif /* __ASSEMBLY__ */
 
 #define arch_align_stack(x) (x)
 
-#endif  
+#endif /* __KERNEL__ */
 
 #endif

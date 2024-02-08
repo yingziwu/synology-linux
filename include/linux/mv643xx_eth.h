@@ -81,4 +81,5 @@ struct mv643xx_eth_platform_data {
 	int			tx_sram_size;
 };
 
+
 #endif

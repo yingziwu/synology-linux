@@ -100,6 +100,7 @@ typedef enum _devBoardOtherTypeClass {
 	MV_BOARD_UNKNOWN	= 0x80000000
 } MV_BOARD_OTHER_TYPE_CLASS;
 
+
 typedef enum _devBoardClass {
 	BOARD_DEV_NOR_FLASH,
 	BOARD_DEV_NAND_FLASH,
@@ -402,6 +403,7 @@ struct _mvBoardMppModule {
 	MV_U32 mppValue;
 };
 
+
 #define MPP_MII_MODULE		{ {0, 0x10111111}, {1, 0x11111111}, {2, 0x11211111} }
 #define MPP_TDM_MODULE		{ {6, 0x45333333}, {7, 0x00004444} }
 #define MPP_I2S_MODULE		{6, 0x55544554}
@@ -566,6 +568,7 @@ MV_NFC_ECC_MODE mvBoardNandECCModeGet(void);
 { "rdserdes4",	MV_SATR_RD_SERDES4_CFG,		0x4,	2,	1,	1,	{1, 0, 1, 0}, 0},\
 { "max_option",	MV_SATR_MAX_OPTION,		0x0,	0,	0,	0,	{0, 0, 0, 0}, 0},\
 };
+
 
 #ifdef __cplusplus
 }

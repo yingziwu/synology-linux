@@ -28,6 +28,7 @@
 #include <linux/ptrace.h>
 #include <linux/regset.h>
 #include <linux/user.h>
+#include <linux/elf.h>
 
 #include <asm/system.h>
 #include <asm/user.h>
@@ -40,6 +41,7 @@ static int genregs_get(struct task_struct *target,
 	int ret;
 	unsigned int dummy;
 	struct pt_regs *regs = task_pt_regs(target);
+
 
 	if (!regs)
 		return -EIO;

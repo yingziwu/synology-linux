@@ -24,6 +24,7 @@
 #include <linux/slab.h>
 #include <mach/msm_fb.h>
 
+
 #define LCD_CONTROL_BLOCK_BASE 0x110000
 #define CMN         (LCD_CONTROL_BLOCK_BASE|0x10)
 #define INTFLG      (LCD_CONTROL_BLOCK_BASE|0x18)
@@ -60,6 +61,7 @@ struct panel_info {
 	struct msmfb_callback *toshiba_callback;
 	int toshiba_got_int;
 };
+
 
 static void toshiba_request_vsync(struct msm_panel_data *panel_data,
 				  struct msmfb_callback *callback)
@@ -280,3 +282,4 @@ static int __init mddi_client_toshiba_init(void)
 }
 
 module_init(mddi_client_toshiba_init);
+

@@ -470,6 +470,7 @@ void mv_pnc_wol_dump(void)
 		mv_pnc_wol_rule_dump(i);
 }
 
+
 int  mv_pnc_wol_pkt_match(int port, char *data, int size, int *ruleId)
 {
 	int               i, j;

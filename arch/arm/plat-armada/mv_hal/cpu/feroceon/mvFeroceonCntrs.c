@@ -119,3 +119,4 @@ int		mvCpuCntrsMap(int counter, MV_CPU_CNTRS_OPS op)
 void mvCpuCntrsInit(void)
 {
 }
+

@@ -27,6 +27,7 @@
 #include "clock.h"
 #include "clock36xx.h"
 
+
 /**
  * omap36xx_pwrdn_clk_enable_with_hsdiv_restore - enable clocks suffering
  *         from HSDivider PWRDN problem Implements Errata ID: i556.

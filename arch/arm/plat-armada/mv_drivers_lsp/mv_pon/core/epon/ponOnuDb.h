@@ -65,6 +65,7 @@
 #define ONU_TX_DIS                        (0x00) 
 #define ONU_TX_EN                         (0x01) 
 
+
 /* EPON Registration Definitions */
 #define ONU_REGISTER                      (0x01) 
 #define ONU_REGISTER_ACK                  (0x02) 
@@ -278,3 +279,8 @@ MV_STATUS matchDestAddressToMacId(MV_U8 *destAddr, MV_U32 *macId);
 ------------------------------------------------------------------------------*/    
 
 #endif /* _ONU_EPON_DB_H */
+
+ 
+
+
+

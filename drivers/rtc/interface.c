@@ -400,6 +400,8 @@ int rtc_initialize_alarm(struct rtc_device *rtc, struct rtc_wkalrm *alarm)
 }
 EXPORT_SYMBOL_GPL(rtc_initialize_alarm);
 
+
+
 int rtc_alarm_irq_enable(struct rtc_device *rtc, unsigned int enabled)
 {
 	int err = mutex_lock_interruptible(&rtc->ops_lock);
@@ -478,6 +480,7 @@ out:
 }
 EXPORT_SYMBOL_GPL(rtc_update_irq_enable);
 
+
 /**
  * rtc_handle_legacy_irq - AIE, UIE and PIE event hook
  * @rtc: pointer to the rtc device
@@ -506,6 +509,7 @@ void rtc_handle_legacy_irq(struct rtc_device *rtc, int num, int mode)
 	kill_fasync(&rtc->async_queue, SIGIO, POLL_IN);
 }
 
+
 /**
  * rtc_aie_update_irq - AIE mode rtctimer hook
  * @private: pointer to the rtc_device
@@ -518,6 +522,7 @@ void rtc_aie_update_irq(void *private)
 	rtc_handle_legacy_irq(rtc, 1, RTC_AF);
 }
 
+
 /**
  * rtc_uie_update_irq - UIE mode rtctimer hook
  * @private: pointer to the rtc_device
@@ -529,6 +534,7 @@ void rtc_uie_update_irq(void *private)
 	struct rtc_device *rtc = (struct rtc_device *)private;
 	rtc_handle_legacy_irq(rtc, 1,  RTC_UF);
 }
+
 
 /**
  * rtc_pie_update_irq - PIE mode hrtimer hook
@@ -743,9 +749,23 @@ EXPORT_SYMBOL_GPL(rtc_irq_set_freq);
  */
 static int rtc_timer_enqueue(struct rtc_device *rtc, struct rtc_timer *timer)
 {
+	struct timerqueue_node *next = timerqueue_getnext(&rtc->timerqueue);
+	struct rtc_time tm;
+	ktime_t now;
+
 	timer->enabled = 1;
+	__rtc_read_time(rtc, &tm);
+	now = rtc_tm_to_ktime(tm);
+
+	/* Skip over expired timers */
+	while (next) {
+		if (next->expires.tv64 >= now.tv64)
+			break;
+		next = timerqueue_iterate_next(next);
+	}
+
 	timerqueue_add(&rtc->timerqueue, &timer->node);
-	if (&timer->node == timerqueue_getnext(&rtc->timerqueue)) {
+	if (!next || timer->node.expires.tv64 < next->expires.tv64) {
 		struct rtc_wkalrm alarm;
 		int err;
 		alarm.time = rtc_ktime_to_tm(timer->node.expires);
@@ -862,6 +882,7 @@ again:
 	mutex_unlock(&rtc->ops_lock);
 }
 
+
 /* rtc_timer_init - Initializes an rtc_timer
  * @timer: timer to be intiialized
  * @f: function pointer to be called when timer fires
@@ -917,3 +938,5 @@ int rtc_timer_cancel(struct rtc_device *rtc, struct rtc_timer* timer)
 	mutex_unlock(&rtc->ops_lock);
 	return ret;
 }
+
+

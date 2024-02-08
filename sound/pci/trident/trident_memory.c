@@ -166,6 +166,7 @@ __found_pages:
 	return blk;
 }
 
+
 /*
  * check if the given pointer is valid for pages
  */
@@ -201,6 +202,8 @@ snd_trident_alloc_sg_pages(struct snd_trident *trident,
 	hdr = trident->tlb.memhdr;
 	if (snd_BUG_ON(!hdr))
 		return NULL;
+
+	
 
 	mutex_lock(&hdr->block_mutex);
 	blk = search_empty(hdr, runtime->dma_bytes);
@@ -286,6 +289,7 @@ snd_trident_alloc_pages(struct snd_trident *trident,
 	else
 		return snd_trident_alloc_cont_pages(trident, substream);
 }
+
 
 /*
  * release DMA buffer from page table

@@ -262,6 +262,8 @@ int SkGeGetSettings(struct net_device *dev,
 	return(0);
 }
 
+
+
 /*****************************************************************************
  *
  * 	SkGeGetDrvInfo - returns generic driver and adapter information
@@ -354,6 +356,7 @@ void SkGeGetPauseParam(struct net_device *dev,
 	}
 }
 
+
 /*****************************************************************************
  *
  * 	SkGeGetCoalesce - retrieves the IRQ moderation settings 
@@ -440,6 +443,7 @@ SK_U32 SkGeGetRxCsum(struct net_device *dev)
 	return pAC->RxPort[port].UseRxCsum;
 }
 
+
 /*****************************************************************************
  *
  * 	SkGeGetStrings - retrieves the statistic strings
@@ -475,6 +479,7 @@ void SkGeGetStrings(struct net_device *dev,
 #endif
 }
 
+
 /*****************************************************************************
  *
  * 	SkGeGetStatsLen - retrieves the statistic count
@@ -489,6 +494,9 @@ int SkGeGetStatsLen(struct net_device *dev)
 {
 	return SK98LIN_STATS_LEN;
 }
+
+
+
 
 /*****************************************************************************
  *
@@ -533,6 +541,7 @@ void SkGeGetEthStats(struct net_device *dev,
 		}
 	}
 }
+
 
 /*****************************************************************************
  *
@@ -650,6 +659,7 @@ int SkGeSetWolSettings(struct net_device *dev,
 	return -EFAULT;
 }
 
+
 /*****************************************************************************
  *
  *	SkGeSetPauseParam - configures the pause parameters of an adapter
@@ -677,6 +687,7 @@ int SkGeSetPauseParam(struct net_device *dev,
 	int			prevRxPause      = 0;
 	unsigned int		Len              = 1;
 
+
         if (port == 0) {
                 Instance = (pAC->RlmtNets == 2) ? 1 : 2;
         } else {
@@ -700,6 +711,7 @@ int SkGeSetPauseParam(struct net_device *dev,
 	if ((prevRxPause == 0) && (prevTxPause == 0)) {
 		prevAutonegValue = SK_FALSE;
 	}
+
 
 	/*
 	** perform modifications regarding the changes 
@@ -748,6 +760,7 @@ int SkGeSetPauseParam(struct net_device *dev,
 	}
         return 0;
 }
+
 
 /*****************************************************************************
  *
@@ -1037,6 +1050,7 @@ int SkGePhysId(struct net_device *dev,
 	  SkMacClearRst(pAC, IoC, port);
 	}
 
+
 	if ((data < 1) || (data > 30)) {
 		data = 3; /* three seconds default */
 	}
@@ -1249,6 +1263,9 @@ int SkGeSetTSO(struct net_device *dev,
 
 }
 #endif
+
+
+
 
 /*******************************************************************************
  *

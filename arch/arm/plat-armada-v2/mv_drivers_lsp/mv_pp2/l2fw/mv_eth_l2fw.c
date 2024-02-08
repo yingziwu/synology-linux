@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -98,6 +99,7 @@ void l2fw_show_numHashEntries(void)
 
 }
 
+
 void mv_l2fw_flush(void)
 {
 	MV_U32 i = 0;
@@ -110,6 +112,7 @@ void mv_l2fw_flush(void)
 		}
 	numHashEntries = 0;
 }
+
 
 void mv_l2fw_rules_dump(void)
 {
@@ -154,6 +157,7 @@ void mv_l2fw_ports_dump(void)
 
 	}
 }
+
 
 int mv_l2fw_add(MV_U32 srcIP, MV_U32 dstIP, int port)
 {
@@ -296,10 +300,12 @@ static int mv_pp2_poll_l2fw(struct napi_struct *napi, int budget)
 	return rx_done;
 }
 
+
 static int mv_l2fw_update_napi(struct eth_port *pp, bool l2fw)
 {
 	int group;
 	struct napi_group_ctrl *napi_group;
+
 
 	for (group = 0; group < 1/*MV_ETH_MAX_NAPI_GROUPS*/; group++) {
 		napi_group = pp->napi_group[group];
@@ -573,6 +579,7 @@ void setXorDesc(void)
 	/* TODO mask xor intterupts*/
 }
 
+
 inline int xorReady(void)
 {
 	int timeout = 0;
@@ -756,6 +763,7 @@ out:
 	return NETDEV_TX_OK;
 }
 
+
 inline int mv_l2fw_txq_done(struct eth_port *pp, struct tx_queue *txq_ctrl)
 {
 	struct txq_cpu_ctrl *txq_cpu_ptr = &txq_ctrl->txq_cpu[smp_processor_id()];
@@ -865,6 +873,9 @@ static int mv_l2fw_txp_clean(int port, int txp)
 
 	return 0;
 }
+
+
+
 
 inline void mv_l2fw_pool_refill(struct eth_port *pp,
 				     struct bm_pool *pool, struct pp2_rx_desc *rx_desc)
@@ -1079,6 +1090,7 @@ static void mv_l2fw_shared_cleanup(void)
 	l2fw_hash = NULL;
 }
 
+
 static int mv_l2fw_shared_init(void)
 {
 	int size, bytes;
@@ -1152,6 +1164,7 @@ oom:
 
 	return -ENOMEM;
 }
+
 
 static void mv_l2fw_port_free(int port)
 {

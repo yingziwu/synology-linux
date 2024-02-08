@@ -41,6 +41,7 @@
 #define RETRY_TIMES_THRD_H         2    // times
 #define RETRY_TIMES_THRD_L         1    // times
 
+
 #define RATE_1M         0
 #define RATE_2M         1
 #define RATE_5M         2
@@ -60,9 +61,13 @@
 
 /*---------------------  Export Variables  --------------------------*/
 
+
 /*---------------------  Export Types  ------------------------------*/
 
+
 /*---------------------  Export Functions  --------------------------*/
+
+
 
 void
 RATEvParseMaxRate(
@@ -94,6 +99,7 @@ WORD
 RATEwGetRateIdx(
      BYTE byRate
     );
+
 
 BYTE
 DATARATEbyGetRateIdx(

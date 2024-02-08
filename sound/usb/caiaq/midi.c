@@ -45,6 +45,7 @@ static void snd_usb_caiaq_midi_input_trigger(struct snd_rawmidi_substream *subst
 	dev->midi_receive_substream = up ? substream : NULL;
 }
 
+
 static int snd_usb_caiaq_midi_output_open(struct snd_rawmidi_substream *substream)
 {
 	return 0;
@@ -97,6 +98,7 @@ static void snd_usb_caiaq_midi_output_trigger(struct snd_rawmidi_substream *subs
 		dev->midi_out_substream = NULL;
 	}
 }
+
 
 static struct snd_rawmidi_ops snd_usb_caiaq_midi_output =
 {
@@ -169,3 +171,4 @@ void snd_usb_caiaq_midi_output_done(struct urb* urb)
 
 	snd_usb_caiaq_midi_send(dev, dev->midi_out_substream);
 }
+

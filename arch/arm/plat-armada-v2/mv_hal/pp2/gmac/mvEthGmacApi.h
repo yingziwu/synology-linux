@@ -151,6 +151,7 @@ static INLINE MV_VOID mvGmacPortSumIsrUnmask(int port)
 #endif
 }
 
+
 void mvGmacDefaultsSet(int port);
 void mvGmacPortEnable(int port);
 void mvGmacPortDisable(int port);

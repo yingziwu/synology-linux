@@ -106,6 +106,7 @@ struct mxr_buffer {
 	struct list_head	list;
 };
 
+
 /** internal states of layer */
 enum mxr_layer_state {
 	/** layers is not shown */
@@ -348,3 +349,4 @@ void mxr_reg_vp_format(struct mxr_device *mdev,
 void mxr_reg_dump(struct mxr_device *mdev);
 
 #endif /* SAMSUNG_MIXER_H */
+

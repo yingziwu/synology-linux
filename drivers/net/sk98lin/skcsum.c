@@ -409,6 +409,7 @@ int					NetNumber)		/* Net number */
 	NextLevelProtoStats->TxOkCts++;	/* Success. */
 }	/* SkCsGetSendInfo */
 
+
 /******************************************************************************
  *
  *	SkCsGetReceiveInfo - verify checksum information for a received packet
@@ -961,6 +962,7 @@ unsigned	Len)		/* Packet length (without MAC header). */
 	return (NextLevelProtocol == SKCS_PROTO_ID_TCP ?
 		SKCS_STATUS_TCP_CSUM_ERROR : SKCS_STATUS_UDP_CSUM_ERROR);
 }	/* SkCsGetReceiveInfo */
+
 
 /******************************************************************************
  *

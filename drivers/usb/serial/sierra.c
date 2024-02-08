@@ -311,6 +311,7 @@ static const struct usb_device_id id_table[] = {
 };
 MODULE_DEVICE_TABLE(usb, id_table);
 
+
 struct sierra_port_private {
 	spinlock_t lock;	/* lock the structure */
 	int outstanding_urbs;	/* number of out urbs in flight */
@@ -818,6 +819,7 @@ static void sierra_close(struct usb_serial_port *port)
 	struct sierra_intf_private *intfdata = port->serial->private;
 	struct urb *urb;
 
+
 	dev_dbg(&port->dev, "%s\n", __func__);
 	portdata = usb_get_serial_port_data(port);
 
@@ -875,6 +877,7 @@ static int sierra_open(struct tty_struct *tty, struct usb_serial_port *port)
 	portdata->rts_state = 1;
 	portdata->dtr_state = 1;
 
+
 	endpoint = port->bulk_in_endpointAddress;
 	for (i = 0; i < portdata->num_in_urbs; i++) {
 		urb = sierra_setup_urb(serial, endpoint, USB_DIR_IN, port,
@@ -911,6 +914,7 @@ err_submit:
 
 	return err;
 }
+
 
 static void sierra_dtr_rts(struct usb_serial_port *port, int on)
 {
@@ -1166,6 +1170,7 @@ static int __init sierra_init(void)
 	retval = usb_serial_register(&sierra_device);
 	if (retval)
 		goto failed_device_register;
+
 
 	retval = usb_register(&sierra_driver);
 	if (retval)

@@ -104,6 +104,7 @@ static const struct i2c_board_info wm1259_devs[] = {
 	},
 };
 
+
 static __devinitdata const struct {
 	u8 id;
 	const char *name;

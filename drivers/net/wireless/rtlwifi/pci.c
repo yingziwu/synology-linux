@@ -512,6 +512,7 @@ static void _rtl_pci_tx_chk_waitq(struct ieee80211_hw *hw)
 	}
 }
 
+
 static void _rtl_pci_tx_isr(struct ieee80211_hw *hw, int prio)
 {
 	struct rtl_priv *rtlpriv = rtl_priv(hw);
@@ -623,6 +624,7 @@ static void _rtl_receive_one(struct ieee80211_hw *hw, struct sk_buff *skb,
 	struct sk_buff *uskb = NULL;
 	u8 *pdata;
 
+
 	memcpy(IEEE80211_SKB_RXCB(skb), &rx_status, sizeof(rx_status));
 
 	if (is_broadcast_ether_addr(hdr->addr1)) {
@@ -683,6 +685,8 @@ static void _rtl_pci_rx_interrupt(struct ieee80211_hw *hw)
 	};
 	int index = rtlpci->rx_ring[rx_queue_idx].idx;
 
+	if (rtlpci->driver_is_goingto_unload)
+		return;
 	/*RX NORMAL PKT */
 	while (count--) {
 		/*rx descriptor */
@@ -1428,6 +1432,7 @@ static int rtl_pci_tx(struct ieee80211_hw *hw, struct sk_buff *skb,
 	rtlpriv->cfg->ops->set_desc((u8 *)pdesc, true,
 				    HW_DESC_OWN, (u8 *)&temp_one);
 
+
 	if ((ring->entries - skb_queue_len(&ring->queue)) < 2 &&
 	    hw_queue != BEACON_QUEUE) {
 
@@ -1560,6 +1565,7 @@ static void rtl_pci_stop(struct ieee80211_hw *hw)
 	 */
 	set_hal_stop(rtlhal);
 
+	rtlpci->driver_is_goingto_unload = true;
 	rtlpriv->cfg->ops->disable_interrupt(hw);
 	tasklet_kill(&rtlpriv->works.ips_leave_tasklet);
 
@@ -1577,7 +1583,6 @@ static void rtl_pci_stop(struct ieee80211_hw *hw)
 	ppsc->rfchange_inprogress = true;
 	spin_unlock_irqrestore(&rtlpriv->locks.rf_ps_lock, flags);
 
-	rtlpci->driver_is_goingto_unload = true;
 	rtlpriv->cfg->ops->hw_disable(hw);
 	rtlpriv->cfg->ops->led_control(hw, LED_CTL_POWER_OFF);
 

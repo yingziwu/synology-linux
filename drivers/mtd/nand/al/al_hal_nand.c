@@ -1,4 +1,38 @@
- 
+/*******************************************************************************
+Copyright (C) 2013 Annapurna Labs Ltd.
+
+This file may be licensed under the terms of the Annapurna Labs Commercial
+License Agreement.
+
+Alternatively, this file can be distributed under the terms of the GNU General
+Public License V2 or V3 as published by the Free Software Foundation and can be
+found at http://www.gnu.org/licenses/gpl-2.0.html
+
+Alternatively, redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following conditions are
+met:
+
+    *     Redistributions of source code must retain the above copyright notice,
+	  this list of conditions and the following disclaimer.
+
+    *     Redistributions in binary form must reproduce the above copyright
+	  notice, this list of conditions and the following disclaimer in
+	  the documentation and/or other materials provided with the
+	  distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+*******************************************************************************/
+
 #include "al_hal_nand.h"
 #include "al_hal_nand_regs.h"
 #include "al_hal_nand_coded_properties.h"
@@ -60,6 +94,8 @@ static int _al_nand_get_bch_cw_parity_size(
 static int _al_nand_get_cw_spare_cnt(
 	struct al_nand_ctrl_obj	*obj);
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_init(
 	struct al_nand_ctrl_obj	*obj,
 	void __iomem		*nand_base,
@@ -117,12 +153,16 @@ int al_nand_init(
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_terminate(
 	struct al_nand_ctrl_obj	*obj)
 {
 	al_assert(obj);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_reset(
 	struct al_nand_ctrl_obj	*obj,
 	int			reset_mask)
@@ -143,6 +183,8 @@ void al_nand_reset(
 	}
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_dev_select(
 	struct al_nand_ctrl_obj	*obj,
 	int			dev_index)
@@ -172,6 +214,8 @@ void al_nand_dev_select(
 	obj->current_dev_index = dev_index;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_dev_config_basic(
 	struct al_nand_ctrl_obj *obj)
 {
@@ -200,6 +244,8 @@ done:
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_dev_config(
 	struct al_nand_ctrl_obj	*obj,
 	struct al_nand_dev_properties	*dev_properties,
@@ -234,7 +280,8 @@ done:
 
 	return status;
 }
- 
+/******************************************************************************/
+/******************************************************************************/
 #if NAND_CODED_PROPERTIES_NUM_WORDS != 4
 #error NAND_CODED_PROPERTIES_NUM_WORDS != 4
 #endif
@@ -386,6 +433,9 @@ int al_nand_properties_decode(
 	return 0;
 }
 
+
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_cw_config(
 	struct al_nand_ctrl_obj	*obj,
 	uint32_t		cw_size,
@@ -418,6 +468,8 @@ void al_nand_cw_config(
 	obj->cw_size_remaining = 0;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_ecc_set_enabled(
 	struct al_nand_ctrl_obj	*obj,
 	int			enabled)
@@ -436,6 +488,8 @@ void al_nand_ecc_set_enabled(
 	al_reg_write32(&obj->regs_base->bch_ctrl_reg_0, reg_val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_wp_set_enable(
 	struct al_nand_ctrl_obj	*obj,
 	int			enable)
@@ -466,6 +520,8 @@ void al_nand_tx_set_enable(
 	al_reg_write32(&obj->regs_base->ctl_reg0, reg_val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_uncorr_err_get(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -478,6 +534,8 @@ int al_nand_uncorr_err_get(
 	return AL_REG_BIT_GET(reg_val, AL_NAND_NFC_INT_STAT_UNCORR_ERR);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_uncorr_err_clear(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -490,6 +548,8 @@ void al_nand_uncorr_err_clear(
 	al_reg_write32(&obj->regs_base->nfc_int_stat, reg_val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_corr_err_get(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -502,6 +562,8 @@ int al_nand_corr_err_get(
 	return AL_REG_BIT_GET(reg_val, AL_NAND_NFC_INT_STAT_CORR_ERR);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_corr_err_clear(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -514,6 +576,8 @@ void al_nand_corr_err_clear(
 	al_reg_write32(&obj->regs_base->nfc_int_stat, reg_val);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_dev_is_ready(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -532,6 +596,8 @@ int al_nand_dev_is_ready(
 	return is_ready;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 static void _al_nand_cmd_seq_size_page_read(
 	struct al_nand_ctrl_obj	*obj,
 	int			num_bytes,
@@ -562,30 +628,32 @@ static void _al_nand_cmd_seq_size_page_read(
 
 	if (ecc_enabled) {
 		num_required_entries =
-			1 +  
-			obj->dev_properties.num_col_cyc +  
-			obj->dev_properties.num_row_cyc +  
-			1 +  
-			1 +  
-			2 +  
-			1 +  
-			obj->dev_properties.num_col_cyc +  
-			1 +  
-			1 +  
-			2 * code_word_count;  
+			1 + /* first read command */
+			obj->dev_properties.num_col_cyc + /* spare off */
+			obj->dev_properties.num_row_cyc + /* row address */
+			1 + /* second read command */
+			1 + /* wait for ready */
+			2 + /* spare count read */
+			1 + /* change read column address first command */
+			obj->dev_properties.num_col_cyc + /* column address*/
+			1 + /* change read column address second command */
+			1 + /* wait cycle count */
+			2 * code_word_count; /* codeword size */
 	} else {
 		num_required_entries =
-			1 +  
-			obj->dev_properties.num_col_cyc +  
-			obj->dev_properties.num_row_cyc +  
-			1 +  
-			1 +  
-			2 * code_word_count;  
+			1 + /* first read command */
+			obj->dev_properties.num_col_cyc + /* column address*/
+			obj->dev_properties.num_row_cyc + /* row address */
+			1 + /* second read command */
+			1 + /* wait for ready */
+			2 * code_word_count; /* codeword size */
 	}
 
 	*cmd_seq_buff_num_entries = num_required_entries;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_cmd_seq_gen_page_read(
 	struct al_nand_ctrl_obj	*obj,
 	int			column,
@@ -773,6 +841,8 @@ done:
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_cmd_seq_size_page_write(
 	struct al_nand_ctrl_obj	*obj,
 	int			num_bytes,
@@ -801,33 +871,35 @@ void al_nand_cmd_seq_size_page_write(
 
 	if (ecc_enabled) {
 		num_required_entries =
-			1 +  
-			obj->dev_properties.num_col_cyc +  
-			obj->dev_properties.num_row_cyc +  
-			1 +  
-			1 +  
-			2 * code_word_count +  
-			1 +  
-			obj->dev_properties.num_col_cyc +  
-			1 +  
-			2 +  
-			1 +  
-			1;  
+			1 + /* first program command */
+			obj->dev_properties.num_col_cyc + /* column address*/
+			obj->dev_properties.num_row_cyc + /* row address */
+			1 + /* NOP */
+			1 + /* wait for cycle count */
+			2 * code_word_count + /* codeword size */
+			1 + /* change program column address first command */
+			obj->dev_properties.num_col_cyc + /* spare off */
+			1 + /* wait for cycle count */
+			2 + /* spare count write */
+			1 + /* second program command */
+			1; /* wait for ready */
 	} else {
 		num_required_entries =
-			1 +  
-			obj->dev_properties.num_col_cyc +  
-			obj->dev_properties.num_row_cyc +  
-			1 +  
-			1 +  
-			2 * code_word_count +  
-			1 +  
-			1;  
+			1 + /* first program command */
+			obj->dev_properties.num_col_cyc + /* column address*/
+			obj->dev_properties.num_row_cyc + /* row address */
+			1 + /* NOP */
+			1 + /* wait for cycle count */
+			2 * code_word_count + /* codeword size */
+			1 + /* second program command */
+			1; /* wait for ready */
 	}
 
 	*cmd_seq_buff_num_entries = num_required_entries;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_cmd_seq_gen_page_write(
 	struct al_nand_ctrl_obj	*obj,
 	int			column,
@@ -1033,6 +1105,8 @@ done:
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_cmd_single_execute(
 	struct al_nand_ctrl_obj	*obj,
 	uint32_t		cmd)
@@ -1044,6 +1118,8 @@ void al_nand_cmd_single_execute(
 		cmd);
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void al_nand_cmd_seq_execute(
 	struct al_nand_ctrl_obj	*obj,
 	uint32_t		*cmd_seq_buff,
@@ -1062,6 +1138,8 @@ void al_nand_cmd_seq_execute(
 	}
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_cmd_buff_is_empty(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -1086,6 +1164,8 @@ int al_nand_cmd_buff_is_empty(
 	return empty;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 void __iomem *al_nand_data_buff_base_get(
 			struct al_nand_ctrl_obj	*obj)
 {
@@ -1169,6 +1249,8 @@ done:
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 int al_nand_data_buff_write(
 	struct al_nand_ctrl_obj	*obj,
 	int			num_bytes,
@@ -1237,6 +1319,8 @@ done:
 	return status;
 }
 
+/******************************************************************************/
+/******************************************************************************/
 static int _al_nand_dev_config_modes(
 	struct al_nand_ctrl_obj	*obj)
 {
@@ -1518,6 +1602,8 @@ static int _al_nand_get_cw_spare_cnt(
 	}
 }
 
+/******************************************************************************/
+/******************************************************************************/
 uint32_t al_nand_int_status_get(
 		struct al_nand_ctrl_obj	*obj)
 {
@@ -1534,6 +1620,8 @@ void al_nand_int_enable(
 
 	al_assert(obj);
 
+	/* before enabling the interrupt the status must be cleared cause the
+	 * controller doesn't clear the status when it no longer valid */
 	al_reg_write32(&obj->regs_base->nfc_int_stat, int_mask);
 
 	val = al_reg_read32(&obj->regs_base->nfc_int_en);

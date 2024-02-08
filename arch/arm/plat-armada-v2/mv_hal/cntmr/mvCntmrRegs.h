@@ -87,6 +87,7 @@ extern "C" {
 */
 #define INVALID_CNTMR(cntmrNum)    	((cntmrNum) >= MV_CNTMR_MAX_COUNTER)
 
+
 #define CPU_TIMER(t)			(t-TIMER5)
 
 #define CNTMR_BASE(tmrNum)		((tmrNum <= MAX_GLOBAL_TIMER) ? (MV_CNTMR_REGS_OFFSET) : \
@@ -99,6 +100,8 @@ extern "C" {
 #define CNTMR_VAL_REG(tmrNum)		((tmrNum <= MAX_GLOBAL_TIMER) ? 					 \
 										(CNTMR_BASE(tmrNum)  + 0x14 + (tmrNum * 8)) : \
 										(MV_CPUIF_LOCAL_REGS_OFFSET + 0x54 + ((tmrNum-5) * 8)))
+
+
 
 /* #define CNTMR_CTRL_REG(tmrNum)	(tmrNum <=MAX_GLOBAL_TIMER) ? (MV_CNTMR_REGS_OFFSET) :
 						 (MV_CPUIF_REGS_OFFSET(0) + 0x84) */
@@ -116,12 +119,14 @@ extern "C" {
 #define CTCR_ARM_TIMER_EN(cntr)		(1 << CTCR_ARM_TIMER_EN_OFFS(cntr))
 #define CTCR_ARM_TIMER_DIS(cntr)	(0 << CTCR_ARM_TIMER_EN_OFFS(cntr))
 
+
 #define CTCR_ARM_TIMER_AUTO_OFFS(timer)	((timer <= MAX_GLOBAL_TIMER) ? (1 + (timer * 2)) : \
                                                                                (1 + ((CPU_TIMER(timer))) * 2))
 
 #define CTCR_ARM_TIMER_AUTO_MASK(cntr)	(1 << CTCR_ARM_TIMER_EN_OFFS(cntr))
 #define CTCR_ARM_TIMER_AUTO_EN(cntr)	(1 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
 #define CTCR_ARM_TIMER_AUTO_DIS(cntr)	(0 << CTCR_ARM_TIMER_AUTO_OFFS(cntr))
+
 
 #define CTCR_ARM_TIMER_RATIO_OFFS(timer) ((timer < TIMER4) ? (19 + timer*3) :	\
 										 ((timer == TIMER4) ? 16 :				\
@@ -138,6 +143,7 @@ extern "C" {
 #define CTCR_ARM_TIMER_25MhzFRQ_MASK(cntr)	(1 << CTCR_ARM_TIMER_25MhzFRQ_ENABLE_OFFS(cntr))
 #define CTCR_ARM_TIMER_25MhzFRQ_EN(cntr)	(1 << CTCR_ARM_TIMER_25MhzFRQ_ENABLE_OFFS(cntr))
 #define CTCR_ARM_TIMER_25MhzFRQ_DIS(cntr)	(0 << CTCR_ARM_TIMER_25MhzFRQ_ENABLE_OFFS(cntr))
+
 
 /* ARM Timer\Watchdog Reload Register */
 /* CNTMR_RELOAD_REG (TRR) */

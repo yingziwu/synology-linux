@@ -616,6 +616,7 @@ typedef struct isdn_devt {
 
 extern isdn_dev *dev;
 
+
 #endif /* __KERNEL__ */
 
 #endif /* __ISDN_H__ */

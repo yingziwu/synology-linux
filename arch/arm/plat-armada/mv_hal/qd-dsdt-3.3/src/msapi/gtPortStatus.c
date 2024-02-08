@@ -194,6 +194,7 @@ GT_STATUS procPx_Mode
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gprtGetPartnerLinkPause
 *
@@ -621,6 +622,8 @@ GT_STATUS gprtSetPHYDetect
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetLinkState
 *
@@ -686,6 +689,7 @@ GT_STATUS gprtGetLinkState
     /* return */
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetPortMode
@@ -764,6 +768,8 @@ GT_STATUS gprtGetPortMode
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetPhyMode
 *
@@ -840,6 +846,8 @@ GT_STATUS gprtGetPhyMode
     /* return */
     return retVal;
 }
+
+
 
 /*******************************************************************************
 * gprtGetDuplex
@@ -920,6 +928,8 @@ GT_STATUS gprtGetDuplex
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetSpeed
 *
@@ -992,6 +1002,7 @@ GT_STATUS gprtGetSpeed
     /* return */
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetSpeedMode
@@ -1071,6 +1082,8 @@ GT_STATUS gprtGetSpeedMode
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtSetDuplex
 *
@@ -1143,6 +1156,7 @@ GT_STATUS gprtSetDuplex
     /* return */
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetHighErrorRate
@@ -1290,6 +1304,7 @@ GT_STATUS gprtGetMGMII
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtSetMGMII
 *
@@ -1364,6 +1379,8 @@ GT_STATUS gprtSetMGMII
     return retVal;
 }
 
+
+
 /*******************************************************************************
 * gprtGetTxPaused
 *
@@ -1427,6 +1444,7 @@ GT_STATUS gprtGetTxPaused
     /* return */
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetFlowCtrl
@@ -1492,6 +1510,7 @@ GT_STATUS gprtGetFlowCtrl
     /* return */
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetFdFlowDis
@@ -1814,6 +1833,7 @@ GT_STATUS gprtGetOutQSize
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetBufHigh
 *
@@ -2020,6 +2040,7 @@ GT_STATUS gprtGetRsvSize
     return retVal;
 }
 
+
 /*******************************************************************************
 * gprtGetQSizePerQPri
 *
@@ -2080,6 +2101,7 @@ GT_STATUS gprtGetQSizePerQPri
 
     return retVal;
 }
+
 
 /*******************************************************************************
 * gprtGetC_Duplex

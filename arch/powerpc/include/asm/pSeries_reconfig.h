@@ -30,5 +30,6 @@ static inline void pSeries_reconfig_notifier_unregister(struct notifier_block *n
 static inline void pSeries_coalesce_init(void) { }
 #endif /* CONFIG_PPC_PSERIES */
 
+
 #endif /* __KERNEL__ */
 #endif /* _PPC64_PSERIES_RECONFIG_H */

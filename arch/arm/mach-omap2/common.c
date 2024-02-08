@@ -153,3 +153,4 @@ void __init omap4_map_io(void)
 	omap44xx_map_common_io();
 }
 #endif
+

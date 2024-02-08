@@ -110,11 +110,6 @@
 #define i91u_MAXQUEUE		2
 #define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.04a"
 
-#define I950_DEVICE_ID	0x9500	/* Initio's inic-950 product ID   */
-#define I940_DEVICE_ID	0x9400	/* Initio's inic-940 product ID   */
-#define I935_DEVICE_ID	0x9401	/* Initio's inic-935 product ID   */
-#define I920_DEVICE_ID	0x0002	/* Initio's other product ID      */
-
 #ifdef DEBUG_i91u
 static unsigned int i91u_debug = DEBUG_DEFAULT;
 #endif
@@ -126,17 +121,6 @@ static int setup_debug = 0;
 #endif
 
 static void i91uSCBPost(u8 * pHcb, u8 * pScb);
-
-/* PCI Devices supported by this driver */
-static struct pci_device_id i91u_pci_devices[] = {
-	{ PCI_VENDOR_ID_INIT,  I950_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-	{ PCI_VENDOR_ID_INIT,  I940_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-	{ PCI_VENDOR_ID_INIT,  I935_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-	{ PCI_VENDOR_ID_INIT,  I920_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-	{ PCI_VENDOR_ID_DOMEX, I920_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0},
-	{ }
-};
-MODULE_DEVICE_TABLE(pci, i91u_pci_devices);
 
 #define DEBUG_INTERRUPT 0
 #define DEBUG_QUEUE     0
@@ -239,6 +223,7 @@ static u8 i91udftNvRam[64] =
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0};			/*      - CheckSum -            */
 
+
 static u8 initio_rate_tbl[8] =	/* fast 20      */
 {
 				/* nanosecond divide by 4 */
@@ -291,6 +276,7 @@ static void initio_do_pause(unsigned amount)
  DO                                             +---
  (data sent from nvram)
 
+
 ******************************************************************/
 
 /**
@@ -326,6 +312,7 @@ static void initio_se2_instr(unsigned long base, u8 instr)
 	udelay(30);
 }
 
+
 /**
  *	initio_se2_ew_en	-	Enable erase/write
  *	@base: Base address of InitIO controller
@@ -339,6 +326,7 @@ void initio_se2_ew_en(unsigned long base)
 	udelay(30);
 }
 
+
 /**
  *	initio_se2_ew_ds	-	Disable erase/write
  *	@base: Base address of InitIO controller
@@ -351,6 +339,7 @@ void initio_se2_ew_ds(unsigned long base)
 	outb(0, base + TUL_NVRAM);	/* -CS  */
 	udelay(30);
 }
+
 
 /**
  *	initio_se2_rd		-	read E2PROM word
@@ -764,6 +753,7 @@ static struct scsi_ctrl_blk *initio_find_first_pend_scb(struct initio_host * hos
 {
 	struct scsi_ctrl_blk *first;
 
+
 	first = host->first_pending;
 	while (first != NULL) {
 		if (first->opcode != ExecSCSI)
@@ -839,6 +829,7 @@ static struct scsi_ctrl_blk *initio_pop_busy_scb(struct initio_host * host)
 {
 	struct scsi_ctrl_blk *tmp;
 
+
 	if ((tmp = host->first_busy) != NULL) {
 		if ((host->first_busy = tmp->next) == NULL)
 			host->last_busy = NULL;
@@ -891,6 +882,7 @@ struct scsi_ctrl_blk *initio_find_busy_scb(struct initio_host * host, u16 tarlun
 {
 	struct scsi_ctrl_blk *tmp, *prev;
 	u16 scbp_tarlun;
+
 
 	prev = tmp = host->first_busy;
 	while (tmp != NULL) {
@@ -1005,6 +997,7 @@ static int initio_abort_srb(struct initio_host * host, struct scsi_cmnd *srbp)
 				}
 				tmp->next = NULL;
 
+
 				tmp->hastat = HOST_ABORTED;
 				tmp->flags |= SCF_DONE;
 				if (tmp->flags & SCF_POST)
@@ -1037,6 +1030,7 @@ static int initio_bad_seq(struct initio_host * host)
 	initio_reset_scsi(host, 8);	/* 7/29/98 */
 	return initio_post_scsi_rst(host);
 }
+
 
 /************************************************************************/
 static void initio_exec_scb(struct initio_host * host, struct scsi_ctrl_blk * scb)
@@ -1303,6 +1297,7 @@ static int initio_next_state(struct initio_host * host)
 	}
 }
 
+
 /**
  *	initio_state_1		-	SCSI state machine
  *	@host: InitIO host we are controlling
@@ -1355,6 +1350,7 @@ static int initio_state_1(struct initio_host * host)
 	/* Into before CDB xfer */
 	return 3;
 }
+
 
 /**
  *	initio_state_2		-	SCSI state machine
@@ -1515,6 +1511,7 @@ static int initio_state_4(struct initio_host * host)
 		}
 	}
 }
+
 
 /**
  *	initio_state_5		-	SCSI state machine
@@ -1840,6 +1837,7 @@ int initio_status_msg(struct initio_host * host)
 	return initio_bad_seq(host);
 }
 
+
 /* scsi bus free */
 int int_initio_busfree(struct initio_host * host)
 {
@@ -1863,6 +1861,7 @@ int int_initio_busfree(struct initio_host * host)
 	outb(TSC_HW_RESELECT, host->addr + TUL_SCtrl1);	/* Enable HW reselect       */
 	return -1;
 }
+
 
 /**
  *	int_initio_scsi_rst	-	SCSI reset occurred
@@ -2006,6 +2005,7 @@ static int int_initio_bad_seq(struct initio_host * host)
 		host->targets[i].flags &= ~(TCF_SYNC_DONE | TCF_WDTR_DONE);
 	return -1;
 }
+
 
 /**
  *	initio_msgout_abort_targ		-	abort a tag
@@ -2287,6 +2287,7 @@ static int initio_sync_done(struct initio_host * host)
 	return -1;
 }
 
+
 static int initio_post_scsi_rst(struct initio_host * host)
 {
 	struct scsi_ctrl_blk *scb;
@@ -2323,6 +2324,7 @@ static void initio_select_atn_stop(struct initio_host * host, struct scsi_ctrl_b
 	host->active_tc = &host->targets[scb->target];
 	outb(TSC_SELATNSTOP, host->addr + TUL_SCmd);
 }
+
 
 static void initio_select_atn(struct initio_host * host, struct scsi_ctrl_blk * scb)
 {
@@ -2375,6 +2377,7 @@ int initio_bus_device_reset(struct initio_host * host)
 
 	initio_unlink_pend_scb(host, scb);
 	initio_release_scb(host, scb);
+
 
 	tar = scb->target;	/* target                       */
 	active_tc->flags &= ~(TCF_SYNC_DONE | TCF_WDTR_DONE | TCF_BUSY);
@@ -2527,6 +2530,7 @@ static irqreturn_t i91u_intr(int irqno, void *dev_id)
 	else
 		return IRQ_NONE;
 }
+
 
 /**
  *	initio_build_scb		-	Build the mappings and SCB

@@ -48,6 +48,7 @@ void gen_poly(void);    /* Generate generator polynomial */
  */
 static inline char encode_rs(dtype data[], dtype bb[]);
 
+
 /* Reed-Solomon errors decoding
  * The received block goes into data[]
  *
@@ -79,4 +80,6 @@ int mv_nand_correct_data_rs(struct mtd_info *mtd, u_char *data, u_char *store_ec
 static void mv_nand_enable_hwecc(struct mtd_info *mtd, int mode);
 #endif
 
+
 #endif /* _NAND_H_ */
+

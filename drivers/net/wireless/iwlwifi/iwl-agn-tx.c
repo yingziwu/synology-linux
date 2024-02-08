@@ -81,6 +81,7 @@ static void iwlagn_tx_cmd_build_basic(struct iwl_priv *priv,
 		 skb->protocol == cpu_to_be16(ETH_P_PAE)))
 		tx_flags |= TX_CMD_FLG_IGNORE_BT;
 
+
 	tx_cmd->sta_id = sta_id;
 	if (ieee80211_has_morefrags(fc))
 		tx_flags |= TX_CMD_FLG_MORE_FRAG_MSK;
@@ -853,8 +854,6 @@ int iwlagn_rx_reply_compressed_ba(struct iwl_priv *priv,
 	struct iwl_compressed_ba_resp *ba_resp = &pkt->u.compressed_ba;
 	struct iwl_ht_agg *agg;
 	struct sk_buff_head reclaimed_skbs;
-	struct ieee80211_tx_info *info;
-	struct ieee80211_hdr *hdr;
 	struct sk_buff *skb;
 	unsigned long flags;
 	int sta_id;
@@ -940,24 +939,32 @@ int iwlagn_rx_reply_compressed_ba(struct iwl_priv *priv,
 			  0, &reclaimed_skbs);
 	freed = 0;
 	while (!skb_queue_empty(&reclaimed_skbs)) {
+		struct ieee80211_hdr *hdr;
+		struct ieee80211_tx_info *info;
 
 		skb = __skb_dequeue(&reclaimed_skbs);
-		hdr = (struct ieee80211_hdr *)skb->data;
+		hdr = (void *)skb->data;
+		info = IEEE80211_SKB_CB(skb);
 
 		if (ieee80211_is_data_qos(hdr->frame_control))
 			freed++;
 		else
 			WARN_ON_ONCE(1);
 
-		info = IEEE80211_SKB_CB(skb);
 		kmem_cache_free(priv->tx_cmd_pool, (info->driver_data[1]));
+
+		memset(&info->status, 0, sizeof(info->status));
+		/* Packet was transmitted successfully, failures come as single
+		 * frames because before failing a frame the firmware transmits
+		 * it without aggregation at least once.
+		 */
+		info->flags |= IEEE80211_TX_STAT_ACK;
 
 		if (freed == 1) {
 			/* this is the first skb we deliver in this batch */
 			/* put the rate scaling data there */
 			info = IEEE80211_SKB_CB(skb);
 			memset(&info->status, 0, sizeof(info->status));
-			info->flags |= IEEE80211_TX_STAT_ACK;
 			info->flags |= IEEE80211_TX_STAT_AMPDU;
 			info->status.ampdu_ack_len = ba_resp->txed_2_done;
 			info->status.ampdu_len = ba_resp->txed;

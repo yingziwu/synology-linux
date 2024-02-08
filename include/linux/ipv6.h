@@ -15,6 +15,7 @@
  *	*under construction*
  */
 
+
 struct in6_pktinfo {
 	struct in6_addr	ipi6_addr;
 	int		ipi6_ifindex;
@@ -49,6 +50,7 @@ struct ipv6_rt_hdr {
 	 *	variable length field
 	 */
 };
+
 
 struct ipv6_opt_hdr {
 	__u8 		nexthdr;
@@ -151,6 +153,7 @@ struct ipv6_devconf {
 #endif
 	__s32		max_addresses;
 	__s32		accept_ra_defrtr;
+	__s32		accept_ra_min_hop_limit;
 	__s32		accept_ra_pinfo;
 #ifdef CONFIG_IPV6_ROUTER_PREF
 	__s32		accept_ra_rtr_pref;
@@ -211,6 +214,8 @@ enum {
 	DEVCONF_DISABLE_IPV6,
 	DEVCONF_ACCEPT_DAD,
 	DEVCONF_FORCE_TLLAO,
+	DEVCONF_USE_OIF_ADDRS_ONLY = 37,
+	DEVCONF_ACCEPT_RA_MIN_HOP_LIMIT,
 	DEVCONF_MAX
 };
 
@@ -253,6 +258,7 @@ struct inet6_skb_parm {
 #define IP6SKB_XFRM_TRANSFORMED	1
 #define IP6SKB_FORWARDED	2
 #define IP6SKB_REROUTED		4
+#define IP6SKB_FRAGMENTED      16
 };
 
 #define IP6CB(skb)	((struct inet6_skb_parm*)((skb)->cb))
@@ -366,7 +372,7 @@ struct ipv6_pinfo {
 	struct ipv6_ac_socklist	*ipv6_ac_list;
 	struct ipv6_fl_socklist *ipv6_fl_list;
 
-	struct ipv6_txoptions	*opt;
+	struct ipv6_txoptions __rcu	*opt;
 	struct sk_buff		*pktoptions;
 	struct sk_buff		*rxpmtu;
 	struct {

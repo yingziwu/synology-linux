@@ -228,6 +228,7 @@ static int __init iop_wdt_init(void)
 
 	spin_lock_init(&wdt_lock);
 
+
 	/* check if the reset was caused by the watchdog timer */
 	boot_status = (read_rcsr() & IOP_RCSR_WDT) ? WDIOF_CARDRESET : 0;
 

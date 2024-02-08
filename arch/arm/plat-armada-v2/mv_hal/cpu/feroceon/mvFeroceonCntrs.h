@@ -72,6 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_CPU_CNTR_SIZE			64 /* bits */
 
+
 /* internal */
 static INLINE int mvCpuCntrsStart(int counter, int op)
 {
@@ -171,6 +172,8 @@ MV_ASM("mcr p15, 0, %0, c15, c13, 6" : : "r"(reg));
 MV_ASM("mcr p15, 0, %0, c15, c13, 7" : : "r"(reg));
 }
 
+
 void mvCpuCntrsInit(void);
 
 #endif /* __mvFeroceonCntrs_h__ */
+

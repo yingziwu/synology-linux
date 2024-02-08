@@ -164,6 +164,7 @@ static LIST_HEAD(omap_hwmod_list);
 /* mpu_oh: used to add/remove MPU initiator from sleepdep list */
 static struct omap_hwmod *mpu_oh;
 
+
 /* Private functions */
 
 /**
@@ -1448,6 +1449,7 @@ static int _enable(struct omap_hwmod *oh)
 		return -EINVAL;
 	}
 
+
 	/*
 	 * If an IP contains only one HW reset line, then de-assert it in order
 	 * to allow the module state transition. Otherwise the PRCM will return
@@ -1807,6 +1809,7 @@ static int __init _register(struct omap_hwmod *oh)
 
 	return 0;
 }
+
 
 /* Public functions */
 
@@ -2527,6 +2530,7 @@ int omap_hwmod_read_hardreset(struct omap_hwmod *oh, const char *name)
 
 	return ret;
 }
+
 
 /**
  * omap_hwmod_for_each_by_class - call @fn for each hwmod of class @classname

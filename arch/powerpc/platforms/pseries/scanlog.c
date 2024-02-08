@@ -39,6 +39,7 @@
 #define SCANLOG_HWERROR -1
 #define SCANLOG_CONTINUE 1
 
+
 static unsigned int ibm_scan_log_dump;			/* RTAS token */
 static struct proc_dir_entry *proc_ppc64_scan_log_dump;	/* The proc file */
 

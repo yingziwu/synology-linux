@@ -957,3 +957,4 @@ module_exit(omap_aes_mod_exit);
 MODULE_DESCRIPTION("OMAP AES hw acceleration support.");
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Dmitry Kasatkin");
+

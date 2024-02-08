@@ -61,6 +61,7 @@ int Si321x_LoadRegTables (proslicChanType_ptr *hProslic, ProslicRAMInit *pRamTab
 */
 int Si321x_LoadPatch (proslicChanType_ptr hProslic, proslicPatch *pPatch);
 
+
 /*
 ** Function: PROSLIC_EnableInterrupts
 **
@@ -466,6 +467,7 @@ int Si321x_MWI (proslicChanType *pProslic,uInt8 lampOn);
 */
 int Si321x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 
+
 /*
 ** Function: PROSLIC_StopTone
 **
@@ -480,6 +482,7 @@ int Si321x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 */
 int Si321x_ToneGenStop (proslicChanType *pProslic);
 
+
 /*
 ** Function: PROSLIC_StartRing
 **
@@ -493,6 +496,7 @@ int Si321x_ToneGenStop (proslicChanType *pProslic);
 ** none
 */
 int Si321x_RingStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopRing
@@ -567,6 +571,7 @@ int Si321x_SendCID (proslicChanType *pProslic, uInt8 *buffer, uInt8 numBytes);
 ** none
 */
 int Si321x_PCMStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopPCM

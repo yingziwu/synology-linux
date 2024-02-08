@@ -17,6 +17,7 @@
 #include <gtHwCntl.h>
 #include <gtDrvSwRegs.h>
 
+
 /*******************************************************************************
 * gsysSetUseIpMappingTable
 *
@@ -75,6 +76,7 @@ GT_STATUS gsysSetUseIpMappingTable
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gsysGetUseIpMappingTable
 *
@@ -121,6 +123,7 @@ GT_STATUS gsysGetUseIpMappingTable
         return GT_NOT_SUPPORTED;
     }
 
+
     retVal = hwGetGlobalRegField(dev,QD_REG_IP_MAPPING_TABLE,14,1,&data);
     if(retVal != GT_OK)
        {
@@ -132,6 +135,8 @@ GT_STATUS gsysGetUseIpMappingTable
 
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gsysSetIpMappingPrio
@@ -235,6 +240,8 @@ GT_STATUS gsysSetIpMappingPrio
            return retVal;
     }
 
+
+
     gtSemGive(dev,dev->tblRegsSem);
 
     if(retVal != GT_OK)
@@ -245,6 +252,7 @@ GT_STATUS gsysSetIpMappingPrio
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gsysGetIpMappingPrio
@@ -339,6 +347,7 @@ GT_STATUS gsysGetIpMappingPrio
     } while (data&0x8000);
 #endif
 
+
     *ipFpri = (data >> 4) & 7;
     *ipQpri = (data) & 3;
 
@@ -352,6 +361,7 @@ GT_STATUS gsysGetIpMappingPrio
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * eepromOperationPerform
@@ -411,6 +421,7 @@ static GT_STATUS eepromOperationPerform
 
     gtSemTake(dev,dev->eepromRegsSem,OS_WAIT_FOREVER);
 
+
     /* Wait until the eeprom in ready. */
 #ifdef GT_RMGMT_ACCESS
     {
@@ -441,6 +452,7 @@ static GT_STATUS eepromOperationPerform
         }
     }
 #endif
+
 
     /* Set the EEPROM Operation register */
     switch (eepromOp)
@@ -513,6 +525,7 @@ static GT_STATUS eepromOperationPerform
                 return retVal;
             }
 
+
 #ifdef GT_RMGMT_ACCESS
             {
               HW_DEV_REG_ACCESS regAccess;
@@ -543,6 +556,7 @@ static GT_STATUS eepromOperationPerform
             }
 #endif
 
+
             retVal = hwReadGlobal2Reg(dev,QD_REG_EEPROM_DATA,&data);
             opData->eepromData = (GT_U32)data;
 
@@ -557,6 +571,7 @@ static GT_STATUS eepromOperationPerform
                 gtSemGive(dev,dev->eepromRegsSem);
                 return retVal;
             }
+
 
             break;
 
@@ -579,6 +594,7 @@ static GT_STATUS eepromOperationPerform
     gtSemGive(dev,dev->eepromRegsSem);
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gsysReadEeprom
@@ -673,6 +689,7 @@ GT_STATUS gsysWriteEeprom
 
 }
 
+
 /*******************************************************************************
 * gsysRestartEeprom
 *
@@ -718,6 +735,7 @@ GT_STATUS gsysRestartEeprom
 
 }
 
+
 /*******************************************************************************
 * gsysHaltEeprom
 *
@@ -759,6 +777,7 @@ GT_STATUS gsysHaltEeprom
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysGetStEeprom
@@ -813,12 +832,14 @@ GT_STATUS gsysGetStEeprom
            return retVal;
     }
 
+
     *runSt   = (data&GT_EEPROM_OP_ST_RUNNING_MASK)?GT_TRUE:GT_FALSE;
     *writeEn = (data&GT_EEPROM_OP_ST_WRITE_EN_MASK)?GT_TRUE:GT_FALSE;
 
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysSetScratchMiscCtrl
@@ -926,11 +947,15 @@ GT_STATUS gsysSetScratchMiscCtrl
            return retVal;
     }
 
+
+
     gtSemGive(dev,dev->tblRegsSem);
 
        return retVal;
 
 }
+
+
 
 /*******************************************************************************
 * gsysGetScratchMiscCtrl
@@ -1035,8 +1060,12 @@ GT_STATUS gsysGetScratchMiscCtrl
 
     gtSemGive(dev,dev->tblRegsSem);
 
+
     return retVal;
 }
+
+
+
 
 /*******************************************************************************
 * gsysSetScratchBits
@@ -1160,6 +1189,7 @@ GT_STATUS gsysGetScratchBits
 
 }
 
+
 /*******************************************************************************
 * gsysSetGpioConfigMod
 *
@@ -1216,9 +1246,11 @@ GT_STATUS gsysSetGpioConfigMod
            return retVal;
     }
 
+
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysGetGpioConfigMod
@@ -1282,6 +1314,7 @@ GT_STATUS gsysGetGpioConfigMod
 
 }
 
+
 /*******************************************************************************
 * gsysSetGpioDirection
 *
@@ -1339,9 +1372,11 @@ GT_STATUS gsysSetGpioDirection
            return retVal;
     }
 
+
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysGetGpioDirection
@@ -1407,6 +1442,8 @@ GT_STATUS gsysGetGpioDirection
 
 }
 
+
+
 /*******************************************************************************
 * gsysSetGpioData
 *
@@ -1471,6 +1508,7 @@ GT_STATUS gsysSetGpioData
            DBG_INFO(("Failed.\n"));
            return retVal;
     }
+
 
     return GT_OK;
 
@@ -1547,6 +1585,7 @@ GT_STATUS gsysGetGpioData
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysGetConfigData
@@ -1666,6 +1705,8 @@ GT_STATUS gsysGetConfigData
 
 }
 
+
+
 /*******************************************************************************
 * gsysSetSyncETai
 *
@@ -1727,6 +1768,8 @@ GT_STATUS gsysSetSyncETai
 
 }
 
+
+
 /*******************************************************************************
 * gsysGetSyncETai
 *
@@ -1782,6 +1825,7 @@ GT_STATUS gsysGetSyncETai
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysSetP6_Clock
@@ -1900,6 +1944,9 @@ GT_STATUS gsysGetP6_Clock
 
 }
 
+
+
+
 /*******************************************************************************
 * gsysSetP5_Clock
 *
@@ -2016,6 +2063,7 @@ GT_STATUS gsysGetP5_Clock
     return GT_OK;
 
 }
+
 
 /*******************************************************************************
 * gsysSetEEPROM

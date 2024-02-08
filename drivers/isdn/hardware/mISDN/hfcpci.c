@@ -133,6 +133,7 @@ struct hfcPCI_hw {
 #define CLKDEL_TE	0x0e	/* CLKDEL in TE mode */
 #define CLKDEL_NT	0x6c	/* CLKDEL in NT mode */
 
+
 struct hfc_pci {
 	u_char			subtype;
 	u_char			chanlimit;
@@ -309,6 +310,7 @@ hfcpci_Timer(struct hfc_pci *hc)
  *	add_timer(&hc->hw.timer);
  */
 }
+
 
 /*
  * select a b-channel entry matching and active
@@ -909,6 +911,8 @@ next_t_frame:
 	dev_kfree_skb(bch->tx_skb);
 	get_next_bframe(bch);
 }
+
+
 
 /*
  * handle L1 state changes TE
@@ -1744,6 +1748,7 @@ inithfcpci(struct hfc_pci *hc)
 	mode_hfcpci(&hc->bch[1], 2, -1);
 }
 
+
 static int
 init_card(struct hfc_pci *hc)
 {
@@ -1751,6 +1756,7 @@ init_card(struct hfc_pci *hc)
 	u_long	flags;
 
 	printk(KERN_DEBUG "init_card: entered\n");
+
 
 	spin_lock_irqsave(&hc->lock, flags);
 	disable_hwirq(hc);
@@ -2274,6 +2280,7 @@ hfc_remove_pci(struct pci_dev *pdev)
 			    __func__);
 }
 
+
 static struct pci_driver hfc_driver = {
 	.name = "hfcpci",
 	.probe = hfc_probe,
@@ -2309,8 +2316,8 @@ _hfcpci_softirq(struct device *dev, void *arg)
 static void
 hfcpci_softirq(void *arg)
 {
-	(void) driver_for_each_device(&hfc_driver.driver, NULL, arg,
-					_hfcpci_softirq);
+	WARN_ON_ONCE(driver_for_each_device(&hfc_driver.driver, NULL, arg,
+				      _hfcpci_softirq) != 0);
 
 	/* if next event would be in the past ... */
 	if ((s32)(hfc_jiffies + tics - jiffies) <= 0)

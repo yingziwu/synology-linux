@@ -90,6 +90,7 @@ struct sctp_ep_common;
 struct sctp_ssnmap;
 struct crypto_hash;
 
+
 #include <net/sctp/tsnmap.h>
 #include <net/sctp/ulpevent.h>
 #include <net/sctp/ulpqueue.h>
@@ -113,6 +114,7 @@ struct sctp_hashbucket {
 	rwlock_t	lock;
 	struct hlist_head	chain;
 } __attribute__((__aligned__(8)));
+
 
 /* The SCTP globals structure. */
 extern struct sctp_globals {
@@ -207,6 +209,7 @@ extern struct sctp_globals {
 	struct list_head addr_waitq;
 	struct timer_list addr_wq_timer;
 	struct list_head auto_asconf_splist;
+	/* Lock that protects both addr_waitq and auto_asconf_splist */
 	spinlock_t addr_wq_lock;
 
 	/* Lock that protects the local_addr_list writers */
@@ -353,6 +356,10 @@ struct sctp_sock {
 	atomic_t pd_mode;
 	/* Receive to here while partial delivery is in effect. */
 	struct sk_buff_head pd_lobby;
+
+	/* These must be the last fields, as they will skipped on copies,
+	 * like on accept and peeloff operations
+	 */
 	struct list_head auto_asconf_list;
 	int do_auto_asconf;
 };
@@ -373,6 +380,7 @@ struct sctp6_sock {
        struct ipv6_pinfo inet6;
 };
 #endif /* CONFIG_IPV6 */
+
 
 /* This is our APPLICATION-SPECIFIC state cookie.
  * THIS IS NOT DICTATED BY THE SPECIFICATION.
@@ -447,6 +455,7 @@ struct sctp_cookie {
 	__u32 raw_addr_list_len;
 	struct sctp_init_chunk peer_init[0];
 };
+
 
 /* The format of our cookie that we send to our peer. */
 struct sctp_signed_cookie {
@@ -594,10 +603,6 @@ struct sctp_af {
 					 int saddr);
 	void		(*from_sk)	(union sctp_addr *,
 					 struct sock *sk);
-	void		(*to_sk_saddr)	(union sctp_addr *,
-					 struct sock *sk);
-	void		(*to_sk_daddr)	(union sctp_addr *,
-					 struct sock *sk);
 	void		(*from_addr_param) (union sctp_addr *,
 					    union sctp_addr_param *,
 					    __be16 port, int iif);
@@ -638,9 +643,12 @@ struct sctp_pf {
 	int  (*supported_addrs)(const struct sctp_sock *, __be16 *);
 	struct sock *(*create_accept_sk) (struct sock *sk,
 					  struct sctp_association *asoc);
-	void (*addr_v4map) (struct sctp_sock *, union sctp_addr *);
+	int (*addr_to_user)(struct sctp_sock *sk, union sctp_addr *addr);
+	void (*to_sk_saddr)(union sctp_addr *, struct sock *sk);
+	void (*to_sk_daddr)(union sctp_addr *, struct sock *sk);
 	struct sctp_af *af;
 };
+
 
 /* Structure to track chunk fragments that have been acked, but peer
  * fragments of the same message have not.
@@ -1085,6 +1093,7 @@ unsigned long sctp_transport_timeout(struct sctp_transport *);
 void sctp_transport_reset(struct sctp_transport *);
 void sctp_transport_update_pmtu(struct sctp_transport *, u32);
 
+
 /* This is the structure we use to queue packets as they come into
  * SCTP.  We write packets to it and read chunks from it.
  */
@@ -1250,6 +1259,7 @@ int sctp_is_any(struct sock *sk, const union sctp_addr *addr);
 int sctp_addr_is_valid(const union sctp_addr *addr);
 int sctp_is_ep_boundall(struct sock *sk);
 
+
 /* What type of endpoint?  */
 typedef enum {
 	SCTP_EP_TYPE_SOCKET,
@@ -1302,6 +1312,7 @@ struct sctp_ep_common {
 	 */
 	struct sctp_bind_addr bind_addr;
 };
+
 
 /* RFC Section 1.4 Key Terms
  *
@@ -1433,6 +1444,7 @@ struct sctp_inithdr_host {
  * inside an SCTP TCB. Each implementation may need its own additional
  * parameters for optimization.
  */
+
 
 /* Here we have information about each individual association. */
 struct sctp_association {
@@ -1572,7 +1584,8 @@ struct sctp_association {
 		 *             : order.  When DATA chunks are out of order,
 		 *             : SACK's are not delayed (see Section 6).
 		 */
-		__u8    sack_needed;     /* Do we need to sack the peer? */
+		__u8    sack_needed:1,     /* Do we need to sack the peer? */
+			zero_window_announced:1;
 		__u32	sack_cnt;
 
 		/* These are capabilities which our peer advertised.  */
@@ -1684,6 +1697,7 @@ struct sctp_association {
 	/* SACK delay timeout */
 	unsigned long sackdelay;
 	__u32 sackfreq;
+
 
 	unsigned long timeouts[SCTP_NUM_TIMEOUT_TYPES];
 	struct timer_list timers[SCTP_NUM_TIMEOUT_TYPES];
@@ -1827,6 +1841,8 @@ struct sctp_association {
 	 * or "ADDIP" for short.
 	 */
 
+
+
 	/* ADDIP Section 4.1.1 Congestion Control of ASCONF Chunks
 	 *
 	 * R1) One and only one ASCONF Chunk MAY be in transit and
@@ -1931,6 +1947,7 @@ struct sctp_association {
 	     temp:1;		/* Is it a temporary association? */
 };
 
+
 /* An eyecatcher for determining if we are really looking at an
  * association data structure.
  */
@@ -1948,6 +1965,7 @@ static inline struct sctp_association *sctp_assoc(struct sctp_ep_common *base)
 }
 
 /* These are function signatures for manipulating associations.	 */
+
 
 struct sctp_association *
 sctp_association_new(const struct sctp_endpoint *, const struct sock *,

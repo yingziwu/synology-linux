@@ -126,6 +126,7 @@ static inline void nuc900_i2c_enable_irq(struct nuc900_i2c *i2c)
 	writel(tmp | IRQEN, i2c->regs + CSR);
 }
 
+
 /* nuc900_i2c_message_start
  *
  * put the start of a message onto the bus
@@ -380,6 +381,7 @@ static irqreturn_t nuc900_i2c_irq(int irqno, void *dev_id)
  out:
 	return IRQ_HANDLED;
 }
+
 
 /* nuc900_i2c_set_master
  *

@@ -53,6 +53,7 @@
 
 #include "atmel.h"
 
+
 /*====================================================================*/
 
 MODULE_AUTHOR("Simon Kelley");
@@ -152,6 +153,7 @@ static int atmel_config(struct pcmcia_device *link)
 				link);
 	if (!((local_info_t*)link->priv)->eth_dev)
 			goto failed;
+
 
 	return 0;
 

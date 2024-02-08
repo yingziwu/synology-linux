@@ -65,6 +65,7 @@ static struct {
 
 static int heartbeat = DEFAULT_HEARTBEAT;
 
+
 static void jz4740_wdt_service(void)
 {
 	writew(0x0, jz4740_wdt.base + JZ_REG_WDT_TIMER_COUNTER);
@@ -267,6 +268,7 @@ err_release_region:
 	return ret;
 }
 
+
 static int __devexit jz4740_wdt_remove(struct platform_device *pdev)
 {
 	jz4740_wdt_disable();
@@ -283,6 +285,7 @@ static int __devexit jz4740_wdt_remove(struct platform_device *pdev)
 	return 0;
 }
 
+
 static struct platform_driver jz4740_wdt_driver = {
 	.probe = jz4740_wdt_probe,
 	.remove = __devexit_p(jz4740_wdt_remove),
@@ -291,6 +294,7 @@ static struct platform_driver jz4740_wdt_driver = {
 		.owner	= THIS_MODULE,
 	},
 };
+
 
 static int __init jz4740_wdt_init(void)
 {

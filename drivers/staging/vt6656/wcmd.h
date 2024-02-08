@@ -35,8 +35,11 @@
 
 /*---------------------  Export Definitions -------------------------*/
 
+
+
 #define AUTHENTICATE_TIMEOUT   1000 //ms
 #define ASSOCIATE_TIMEOUT      1000 //ms
+
 
 // Command code
 typedef enum tagCMD_CODE {

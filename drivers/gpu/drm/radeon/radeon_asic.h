@@ -234,6 +234,7 @@ extern u32 rs600_page_flip(struct radeon_device *rdev, int crtc, u64 crtc_base);
 extern void rs600_post_page_flip(struct radeon_device *rdev, int crtc);
 void rs600_set_safe_registers(struct radeon_device *rdev);
 
+
 /*
  * rs690,rs740
  */
@@ -271,6 +272,7 @@ void rv515_mc_stop(struct radeon_device *rdev, struct rv515_mc_save *save);
 void rv515_mc_resume(struct radeon_device *rdev, struct rv515_mc_save *save);
 void rv515_clock_startup(struct radeon_device *rdev);
 void rv515_debugfs(struct radeon_device *rdev);
+
 
 /*
  * r520,rv530,rv560,rv570,r580

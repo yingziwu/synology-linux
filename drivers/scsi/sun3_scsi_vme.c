@@ -69,6 +69,7 @@ extern int sun3_map_test(unsigned long, char *);
 //#define	ENABLE_IRQ()	enable_irq( SUN3_VEC_VMESCSI0 ); 
 #define ENABLE_IRQ()
 
+
 static irqreturn_t scsi_sun3_intr(int irq, void *dummy);
 static inline unsigned char sun3scsi_read(int reg);
 static inline void sun3scsi_write(int reg, int value);
@@ -350,6 +351,7 @@ static irqreturn_t scsi_sun3_intr(int irq, void *dummy)
 
 	dregs->csr &= ~CSR_DMA_ENABLE;
 
+
 #ifdef SUN3_SCSI_DEBUG
 	printk("scsi_intr csr %x\n", csr);
 #endif
@@ -399,6 +401,7 @@ void sun3_sun3_debug (void)
 	}
 }
 #endif
+
 
 /* sun3scsi_dma_setup() -- initialize the dma controller for a read/write */
 static unsigned long sun3scsi_dma_setup(void *data, unsigned long count, int write_flag)
@@ -535,6 +538,7 @@ static int sun3scsi_dma_finish(int write_flag)
 			break;
 		}
 		
+		
 	}
 
 	dvma_unmap(sun3_dma_orig_addr);
@@ -579,6 +583,7 @@ static struct scsi_host_template driver_template = {
 	.cmd_per_lun		= CMD_PER_LUN,
 	.use_clustering		= DISABLE_CLUSTERING
 };
+
 
 #include "scsi_module.c"
 

@@ -104,6 +104,7 @@ xfs_find_handle(
 	    !S_ISLNK(inode->i_mode))
 		goto out_put;
 
+
 	memcpy(&handle.ha_fsid, ip->i_mount->m_fixedfsid, sizeof(xfs_fsid_t));
 
 	if (cmd == XFS_IOC_PATH_TO_FSHANDLE) {
@@ -302,6 +303,7 @@ do_readlink(
 	return len;
 }
 
+
 int
 xfs_readlink_by_handle(
 	struct file		*parfilp,
@@ -402,7 +404,8 @@ xfs_attrlist_by_handle(
 		return -XFS_ERROR(EPERM);
 	if (copy_from_user(&al_hreq, arg, sizeof(xfs_fsop_attrlist_handlereq_t)))
 		return -XFS_ERROR(EFAULT);
-	if (al_hreq.buflen > XATTR_LIST_MAX)
+	if (al_hreq.buflen < sizeof(struct attrlist) ||
+	    al_hreq.buflen > XATTR_LIST_MAX)
 		return -XFS_ERROR(EINVAL);
 
 	/*
@@ -1028,6 +1031,7 @@ xfs_ioctl_setattr(
 			}
 		}
 	}
+
 
 	if (mask & FSX_XFLAGS) {
 		/*

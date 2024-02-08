@@ -13,6 +13,7 @@
 #include <asm/amigahw.h>
 #include <asm/amigayle.h>
 
+
 #ifdef CONFIG_ZORRO
 
 static const struct resource zorro_resources[] __initconst = {
@@ -42,6 +43,7 @@ static const struct resource zorro_resources[] __initconst = {
 	}
 };
 
+
 static int __init amiga_init_bus(void)
 {
 	if (!MACH_IS_AMIGA || !AMIGAHW_PRESENT(ZORRO))
@@ -53,6 +55,7 @@ static int __init amiga_init_bus(void)
 }
 
 subsys_initcall(amiga_init_bus);
+
 
 static int z_dev_present(zorro_id id)
 {
@@ -72,17 +75,20 @@ static inline int z_dev_present(zorro_id id) { return 0; }
 
 #endif /* !CONFIG_ZORRO */
 
+
 static const struct resource a3000_scsi_resource __initconst = {
 	.start	= 0xdd0000,
 	.end	= 0xdd00ff,
 	.flags	= IORESOURCE_MEM,
 };
 
+
 static const struct resource a4000t_scsi_resource __initconst = {
 	.start	= 0xdd0000,
 	.end	= 0xdd0fff,
 	.flags	= IORESOURCE_MEM,
 };
+
 
 static const struct resource a1200_ide_resource __initconst = {
 	.start	= 0xda0000,
@@ -96,6 +102,7 @@ static const struct gayle_ide_platform_data a1200_ide_pdata __initconst = {
 	.explicit_ack	= 1,
 };
 
+
 static const struct resource a4000_ide_resource __initconst = {
 	.start	= 0xdd2000,
 	.end	= 0xdd3fff,
@@ -108,11 +115,13 @@ static const struct gayle_ide_platform_data a4000_ide_pdata __initconst = {
 	.explicit_ack	= 0,
 };
 
+
 static const struct resource amiga_rtc_resource __initconst = {
 	.start	= 0x00dc0000,
 	.end	= 0x00dcffff,
 	.flags	= IORESOURCE_MEM,
 };
+
 
 static int __init amiga_init_devices(void)
 {
@@ -125,9 +134,11 @@ static int __init amiga_init_devices(void)
 	if (AMIGAHW_PRESENT(AMI_VIDEO))
 		platform_device_register_simple("amiga-video", -1, NULL, 0);
 
+
 	/* sound hardware */
 	if (AMIGAHW_PRESENT(AMI_AUDIO))
 		platform_device_register_simple("amiga-audio", -1, NULL, 0);
+
 
 	/* storage interfaces */
 	if (AMIGAHW_PRESENT(AMI_FLOPPY))
@@ -156,6 +167,7 @@ static int __init amiga_init_devices(void)
 					 sizeof(a4000_ide_pdata));
 	}
 
+
 	/* other I/O hardware */
 	if (AMIGAHW_PRESENT(AMI_KEYBOARD))
 		platform_device_register_simple("amiga-keyboard", -1, NULL, 0);
@@ -168,6 +180,7 @@ static int __init amiga_init_devices(void)
 
 	if (AMIGAHW_PRESENT(AMI_PARALLEL))
 		platform_device_register_simple("amiga-parallel", -1, NULL, 0);
+
 
 	/* real time clocks */
 	if (AMIGAHW_PRESENT(A2000_CLK))

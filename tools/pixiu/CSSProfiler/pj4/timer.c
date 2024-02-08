@@ -76,6 +76,7 @@ static int timer_no = 2;
 static int dev_oscr;
 #endif
 
+
 #if defined(PX_SOC_ARMADA610) && defined(HW_TBS)
 static void select_timer(void)
 {
@@ -87,6 +88,7 @@ static void select_timer(void)
 	timer_group = 2;
 #endif
 #endif
+
 
 /* select timer number */
 #ifdef PJ4_TIMER_NO
@@ -463,6 +465,7 @@ int start_tbs(bool is_start_paused)
 #endif
 	return 0;
 }
+
 
 int stop_tbs(void)
 {

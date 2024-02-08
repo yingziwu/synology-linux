@@ -517,6 +517,7 @@ static void ep0_rxstate(struct musb *musb)
 	} else
 		csr = MUSB_CSR0_P_SVDRXPKTRDY | MUSB_CSR0_P_SENDSTALL;
 
+
 	/* Completion handler may choose to stall, e.g. because the
 	 * message just received holds invalid data.
 	 */
@@ -909,6 +910,7 @@ finish:
 
 	return retval;
 }
+
 
 static int
 musb_g_ep0_enable(struct usb_ep *ep, const struct usb_endpoint_descriptor *desc)

@@ -234,3 +234,4 @@ VOID putUsbSuspend(struct work_struct *work)
 	if (psIntfAdapter->bSuspended == FALSE)
 		usb_autopm_put_interface(intf);
 }
+

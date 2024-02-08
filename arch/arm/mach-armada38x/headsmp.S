@@ -58,3 +58,4 @@ ENTRY(a38x_secondary_startup)
 #endif
 	bl      v7_invalidate_l1
 	b	secondary_startup
+

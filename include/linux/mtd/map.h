@@ -268,6 +268,7 @@ void map_destroy(struct mtd_info *mtd);
 #define INVALIDATE_CACHED_RANGE(map, from, size) \
 	do { if(map->inval_cache) map->inval_cache(map, from, size); } while(0)
 
+
 static inline int map_word_equal(struct map_info *map, map_word val1, map_word val2)
 {
 	int i;
@@ -326,7 +327,7 @@ static inline int map_word_bitsset(struct map_info *map, map_word val1, map_word
 
 static inline map_word map_word_load(struct map_info *map, const void *ptr)
 {
-	map_word r;
+	map_word r = {{0} };
 
 	if (map_bankwidth_is_1(map))
 		r.x[0] = *(unsigned char *)ptr;
@@ -360,7 +361,7 @@ static inline map_word map_word_load_partial(struct map_info *map, map_word orig
 			bitpos = (map_bankwidth(map)-1-i)*8;
 #endif
 			orig.x[0] &= ~(0xff << bitpos);
-			orig.x[0] |= buf[i-start] << bitpos;
+			orig.x[0] |= (unsigned long)buf[i-start] << bitpos;
 		}
 	}
 	return orig;
@@ -379,7 +380,7 @@ static inline map_word map_word_ff(struct map_info *map)
 
 	if (map_bankwidth(map) < MAP_FF_LIMIT) {
 		int bw = 8 * map_bankwidth(map);
-		r.x[0] = (1 << bw) - 1;
+		r.x[0] = (1UL << bw) - 1;
 	} else {
 		for (i=0; i<map_words(map); i++)
 			r.x[i] = ~0UL;
@@ -453,6 +454,7 @@ extern void simple_map_init(struct map_info *);
 #define map_copy_from(map, to, from, len) inline_map_copy_from(map, to, from, len)
 #define map_write(map, datum, ofs) inline_map_write(map, datum, ofs)
 #define map_copy_to(map, to, from, len) inline_map_copy_to(map, to, from, len)
+
 
 #define simple_map_init(map) BUG_ON(!map_bankwidth_supported((map)->bankwidth))
 #define map_is_linear(map) ({ (void)(map); 1; })

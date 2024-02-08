@@ -407,6 +407,7 @@ typedef uint16 VpHookPrequalEventDataType;
 #define VP_HOOK_PREQUAL_START   (0) /* Debounced off-hook detected, but offHookMin > 0 */
 #define VP_HOOK_PREQUAL_ABORT   (1) /* Debounced on-hook detected, but duration < offHookMin */
 
+
 /**
  * Non-maskable events are (with reasons):
  *

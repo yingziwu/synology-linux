@@ -192,6 +192,7 @@ SYSCALL_DEFINE6(osf_mmap, unsigned long, addr, unsigned long, len,
 	return ret;
 }
 
+
 /*
  * The OSF/1 statfs structure is much larger, but this should
  * match the beginning, at least.
@@ -1025,8 +1026,10 @@ SYSCALL_DEFINE4(osf_wait4, pid_t, pid, int __user *, ustatus, int, options,
 	if (!access_ok(VERIFY_WRITE, ur, sizeof(*ur)))
 		return -EFAULT;
 
-	err = 0;
-	err |= put_user(status, ustatus);
+	err = put_user(status, ustatus);
+	if (ret < 0)
+		return err ? err : ret;
+
 	err |= __put_user(r.ru_utime.tv_sec, &ur->ru_utime.tv_sec);
 	err |= __put_user(r.ru_utime.tv_usec, &ur->ru_utime.tv_usec);
 	err |= __put_user(r.ru_stime.tv_sec, &ur->ru_stime.tv_sec);
@@ -1077,6 +1080,7 @@ SYSCALL_DEFINE2(osf_usleep_thread, struct timeval32 __user *, sleep,
  fault:
 	return -EFAULT;
 }
+
 
 struct timex32 {
 	unsigned int modes;	/* mode selector */

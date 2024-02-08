@@ -97,6 +97,8 @@ GT_STATUS gprtSetEgressMode
     return GT_OK;
 }
 
+
+
 /*******************************************************************************
 * gprtGetEgressMode
 *
@@ -167,6 +169,8 @@ GT_STATUS gprtGetEgressMode
     return GT_OK;
 }
 
+
+
 /*******************************************************************************
 * gprtSetVlanTunnel
 *
@@ -217,6 +221,8 @@ GT_STATUS gprtSetVlanTunnel
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gprtGetVlanTunnel
@@ -272,6 +278,8 @@ GT_STATUS gprtGetVlanTunnel
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gvlnSetPortVlanPorts
@@ -341,6 +349,8 @@ GT_STATUS gvlnSetPortVlanPorts
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gvlnGetPortVlanPorts
@@ -413,6 +423,7 @@ GT_STATUS gvlnGetPortVlanPorts
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gvlnSetPortUserPriLsb
 *
@@ -470,6 +481,8 @@ GT_STATUS gvlnSetPortUserPriLsb
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gvlnGetPortUserPriLsb
@@ -533,6 +546,7 @@ GT_STATUS gvlnGetPortUserPriLsb
     return GT_OK;
 }
 
+
 /*******************************************************************************
 * gvlnSetPortVid
 *
@@ -578,6 +592,7 @@ GT_STATUS gvlnSetPortVid
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gvlnGetPortVid
@@ -632,6 +647,7 @@ GT_STATUS gvlnGetPortVid
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gvlnSetPortVlanDBNum
@@ -716,6 +732,8 @@ GT_STATUS gvlnSetPortVlanDBNum
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
+
 
 /*******************************************************************************
 * gvlnGetPortVlanDBNum
@@ -915,6 +933,7 @@ GT_STATUS gvlnGetPortVlanDot1qMode
     return GT_OK;
 }
 
+
 /********************************************************************
 * gvlnSetPortVlanForceDefaultVID
 *
@@ -970,6 +989,8 @@ GT_STATUS gvlnSetPortVlanForceDefaultVID
     return GT_OK;
 }
 
+
+
 /*******************************************************************************
 * gvlnGetPortVlanForceDefaultVID
 *
@@ -1003,6 +1024,7 @@ GT_STATUS gvlnGetPortVlanForceDefaultVID
     GT_U16          data;           /* The register's read data.    */
     GT_U8           phyPort;        /* Physical port.               */
 
+
     DBG_INFO(("gvlnGetPortVlanDot1qMode Called.\n"));
 
     phyPort = GT_LPORT_2_PORT(port);
@@ -1028,6 +1050,7 @@ GT_STATUS gvlnGetPortVlanForceDefaultVID
     DBG_INFO(("OK.\n"));
     return GT_OK;
 }
+
 
 /********************************************************************
 * gvlnSetForceMap
@@ -1089,6 +1112,7 @@ GT_STATUS gvlnSetForceMap
     return GT_OK;
 }
 
+
 /********************************************************************
 * gvlnGetForceMap
 *
@@ -1147,6 +1171,7 @@ GT_STATUS gvlnGetForceMap
 
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * gvlnSetNoEgrPolicy

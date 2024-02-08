@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  *  linux/mm/swapfile.c
  *
@@ -1556,6 +1559,9 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
 	int oom_score_adj;
 	int i, type, prev;
 	int err;
+#ifdef MY_DEF_HERE
+	extern int gSynoSwapFlag;
+#endif /* MY_DEF_HERE */
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
@@ -1564,6 +1570,15 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
 	err = PTR_ERR(pathname);
 	if (IS_ERR(pathname))
 		goto out;
+
+#ifdef MY_DEF_HERE
+	if (0 == gSynoSwapFlag) {
+		printk(KERN_ERR
+			"*ERROR*, ppid:%d(%s), pid:%d(%s), use swapoff without syno framework!\n",
+			task_pid_nr(current->parent), current->parent->comm,
+			task_pid_nr(current), current->comm);
+	}
+#endif /* MY_DEF_HERE */
 
 	victim = filp_open(pathname, O_RDWR|O_LARGEFILE, 0);
 	putname(pathname);
@@ -1649,7 +1664,6 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
 	p->max = 0;
 	swap_map = p->swap_map;
 	p->swap_map = NULL;
-	p->flags = 0;
 	spin_unlock(&swap_lock);
 	mutex_unlock(&swapon_mutex);
 	vfree(swap_map);
@@ -1667,6 +1681,16 @@ SYSCALL_DEFINE1(swapoff, const char __user *, specialfile)
 		mutex_unlock(&inode->i_mutex);
 	}
 	filp_close(swap_file, NULL);
+
+	/*
+	 * Clear the SWP_USED flag after all resources are freed so that swapon
+	 * can reuse this swap_info in alloc_swap_info() safely.  It is ok to
+	 * not hold p->lock after we cleared its SWP_WRITEOK.
+	 */
+	spin_lock(&swap_lock);
+	p->flags = 0;
+	spin_unlock(&swap_lock);
+
 	err = 0;
 	atomic_inc(&proc_poll_event);
 	wake_up_interruptible(&proc_poll_wait);
@@ -1904,6 +1928,8 @@ static unsigned long read_swap_header(struct swap_info_struct *p,
 		swab32s(&swap_header->info.version);
 		swab32s(&swap_header->info.last_page);
 		swab32s(&swap_header->info.nr_badpages);
+		if (swap_header->info.nr_badpages > MAX_SWAP_BADPAGES)
+			return 0;
 		for (i = 0; i < swap_header->info.nr_badpages; i++)
 			swab32s(&swap_header->info.badpages[i]);
 	}
@@ -2014,9 +2040,21 @@ SYSCALL_DEFINE2(swapon, const char __user *, specialfile, int, swap_flags)
 	unsigned char *swap_map = NULL;
 	struct page *page = NULL;
 	struct inode *inode = NULL;
+#ifdef MY_DEF_HERE
+	extern int gSynoSwapFlag;
+#endif /* MY_DEF_HERE */
 
 	if (!capable(CAP_SYS_ADMIN))
 		return -EPERM;
+
+#ifdef MY_DEF_HERE
+	if (0 == gSynoSwapFlag) {
+		printk(KERN_ERR
+			"*ERROR*, ppid:%d(%s), pid:%d(%s), use swapon without syno framework!\n",
+			task_pid_nr(current->parent), current->parent->comm,
+			task_pid_nr(current), current->comm);
+	}
+#endif /* MY_DEF_HERE */
 
 	p = alloc_swap_info();
 	if (IS_ERR(p))

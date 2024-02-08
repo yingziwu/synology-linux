@@ -25,8 +25,10 @@
  * Save that for the future.
  */
 
+
 #include <asm/errno.h>
 #include <asm/regdef.h>
+
 
 /* Allow an exception for an insn; exit if we get one.  */
 #define EX(x,y...)			\
@@ -35,6 +37,7 @@
 	.long 99b - .;			\
 	lda $31, $exception-99b($0); 	\
 	.previous
+
 
 	.set noat
 	.set noreorder
@@ -154,6 +157,7 @@ $a_eoc:
 	br	$a_eos
 	nop
 	nop
+
 
 /* The source and destination are not co-aligned.  Align the destination
    and cope.  We have to be very careful about not reading too much and

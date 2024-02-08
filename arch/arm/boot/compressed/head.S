@@ -28,6 +28,7 @@
 #include <mach/armada370.h>
 #endif
 
+	.arch	armv7-a
 /*
  * Debugging stuff
  *

@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -259,6 +260,7 @@ static DEVICE_ATTR(pppoe_etype,   S_IWUSR, NULL,     pme_hex_store);
 static DEVICE_ATTR(pppoe_len,     S_IWUSR, NULL,     pme_hex_store);
 static DEVICE_ATTR(pppoe_proto,   S_IWUSR, NULL,     pme_dec_hex_store);
 static DEVICE_ATTR(max_config,    S_IWUSR, NULL,     pme_dec_store);
+
 
 static struct attribute *pme_attrs[] = {
 	&dev_attr_help.attr,

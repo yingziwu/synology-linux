@@ -65,6 +65,7 @@ void displayVCTResult
 	}
 }
 
+
 GT_STATUS vctTest(GT_QD_DEV *dev,GT_LPORT port)
 {
 	GT_STATUS status;
@@ -115,6 +116,7 @@ GT_STATUS vctTest(GT_QD_DEV *dev,GT_LPORT port)
 
 	return GT_OK;
 }
+
 
 GT_STATUS getExtendedStatus(GT_QD_DEV *dev,GT_LPORT port)
 {

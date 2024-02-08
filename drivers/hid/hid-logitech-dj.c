@@ -21,6 +21,7 @@
  *
  */
 
+
 #include <linux/device.h>
 #include <linux/hid.h>
 #include <linux/module.h>
@@ -176,6 +177,7 @@ static const u8 hid_reportid_size_map[NUMBER_OF_HID_REPORTS] = {
 	[8] = 2,		/* Media Center */
 };
 
+
 #define LOGITECH_DJ_INTERFACE_NUMBER 0x02
 
 static struct hid_ll_driver logi_dj_ll_driver;
@@ -225,13 +227,6 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
 	    SPFUNCTION_DEVICE_LIST_EMPTY) {
 		dbg_hid("%s: device list is empty\n", __func__);
 		djrcv_dev->querying_devices = false;
-		return;
-	}
-
-	if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
-	    (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
-		dev_err(&djrcv_hdev->dev, "%s: invalid device index:%d\n",
-			__func__, dj_report->device_index);
 		return;
 	}
 
@@ -444,6 +439,7 @@ static void logi_dj_recv_forward_report(struct dj_receiver_dev *djrcv_dev,
 	}
 }
 
+
 static int logi_dj_recv_send_report(struct dj_receiver_dev *djrcv_dev,
 				    struct dj_report *dj_report)
 {
@@ -483,6 +479,7 @@ static int logi_dj_recv_query_paired_devices(struct dj_receiver_dev *djrcv_dev)
 	return retval;
 }
 
+
 static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
 					  unsigned timeout)
 {
@@ -501,6 +498,7 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
 	kfree(dj_report);
 	return retval;
 }
+
 
 static int logi_dj_ll_open(struct hid_device *hid)
 {
@@ -663,6 +661,7 @@ static void logi_dj_ll_stop(struct hid_device *hid)
 	dbg_hid("%s\n", __func__);
 }
 
+
 static struct hid_ll_driver logi_dj_ll_driver = {
 	.parse = logi_dj_ll_parse,
 	.start = logi_dj_ll_start,
@@ -672,6 +671,7 @@ static struct hid_ll_driver logi_dj_ll_driver = {
 	.hidinput_input_event = logi_dj_ll_input_event,
 };
 
+
 static int logi_dj_raw_event(struct hid_device *hdev,
 			     struct hid_report *report, u8 *data,
 			     int size)
@@ -679,7 +679,6 @@ static int logi_dj_raw_event(struct hid_device *hdev,
 	struct dj_receiver_dev *djrcv_dev = hid_get_drvdata(hdev);
 	struct dj_report *dj_report = (struct dj_report *) data;
 	unsigned long flags;
-	bool report_processed = false;
 
 	dbg_hid("%s, size:%d\n", __func__, size);
 
@@ -707,27 +706,41 @@ static int logi_dj_raw_event(struct hid_device *hdev,
 	 * anything else with it.
 	 */
 
+	/* case 1) */
+	if (data[0] != REPORT_ID_DJ_SHORT)
+		return false;
+
+	if ((dj_report->device_index < DJ_DEVICE_INDEX_MIN) ||
+	    (dj_report->device_index > DJ_DEVICE_INDEX_MAX)) {
+		/*
+		 * Device index is wrong, bail out.
+		 * This driver can ignore safely the receiver notifications,
+		 * so ignore those reports too.
+		 */
+		if (dj_report->device_index != DJ_RECEIVER_INDEX)
+			dev_err(&hdev->dev, "%s: invalid device index:%d\n",
+				__func__, dj_report->device_index);
+		return false;
+	}
+
 	spin_lock_irqsave(&djrcv_dev->lock, flags);
-	if (dj_report->report_id == REPORT_ID_DJ_SHORT) {
-		switch (dj_report->report_type) {
-		case REPORT_TYPE_NOTIF_DEVICE_PAIRED:
-		case REPORT_TYPE_NOTIF_DEVICE_UNPAIRED:
-			logi_dj_recv_queue_notification(djrcv_dev, dj_report);
-			break;
-		case REPORT_TYPE_NOTIF_CONNECTION_STATUS:
-			if (dj_report->report_params[CONNECTION_STATUS_PARAM_STATUS] ==
-			    STATUS_LINKLOSS) {
-				logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
-			}
-			break;
-		default:
-			logi_dj_recv_forward_report(djrcv_dev, dj_report);
+	switch (dj_report->report_type) {
+	case REPORT_TYPE_NOTIF_DEVICE_PAIRED:
+	case REPORT_TYPE_NOTIF_DEVICE_UNPAIRED:
+		logi_dj_recv_queue_notification(djrcv_dev, dj_report);
+		break;
+	case REPORT_TYPE_NOTIF_CONNECTION_STATUS:
+		if (dj_report->report_params[CONNECTION_STATUS_PARAM_STATUS] ==
+		    STATUS_LINKLOSS) {
+			logi_dj_recv_forward_null_report(djrcv_dev, dj_report);
 		}
-		report_processed = true;
+		break;
+	default:
+		logi_dj_recv_forward_report(djrcv_dev, dj_report);
 	}
 	spin_unlock_irqrestore(&djrcv_dev->lock, flags);
 
-	return report_processed;
+	return true;
 }
 
 static int logi_dj_probe(struct hid_device *hdev,
@@ -781,6 +794,12 @@ static int logi_dj_probe(struct hid_device *hdev,
 	if (retval) {
 		dev_err(&hdev->dev,
 			"%s:parse of interface 2 failed\n", __func__);
+		goto hid_parse_fail;
+	}
+
+	if (!hid_validate_values(hdev, HID_OUTPUT_REPORT, REPORT_ID_DJ_SHORT,
+				 0, DJREPORT_SHORT_LENGTH - 1)) {
+		retval = -ENODEV;
 		goto hid_parse_fail;
 	}
 
@@ -920,6 +939,7 @@ static struct hid_driver logi_djreceiver_driver = {
 #endif
 };
 
+
 static const struct hid_device_id logi_dj_devices[] = {
 	{HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
 		USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER)},
@@ -933,6 +953,7 @@ static struct hid_driver logi_djdevice_driver = {
 	.id_table = logi_dj_devices,
 	.probe = logi_djdevice_probe,
 };
+
 
 static int __init logi_dj_init(void)
 {

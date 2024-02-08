@@ -60,6 +60,7 @@ static void ca15x4_smp_enable(unsigned int max_cpus)
 		set_cpu_present(i, true);
 }
 
+
 /*
  * Write pen_release in a way that is guaranteed to be visible to all
  * observers, irrespective of whether they're taking part in coherency

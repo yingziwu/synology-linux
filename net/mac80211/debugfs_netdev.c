@@ -33,8 +33,7 @@ static ssize_t ieee80211_if_read(
 	ssize_t ret = -EINVAL;
 
 	read_lock(&dev_base_lock);
-	if (sdata->dev->reg_state == NETREG_REGISTERED)
-		ret = (*format)(sdata, buf, sizeof(buf));
+	ret = (*format)(sdata, buf, sizeof(buf));
 	read_unlock(&dev_base_lock);
 
 	if (ret >= 0)
@@ -62,8 +61,7 @@ static ssize_t ieee80211_if_write(
 
 	ret = -ENODEV;
 	rtnl_lock();
-	if (sdata->dev->reg_state == NETREG_REGISTERED)
-		ret = (*write)(sdata, buf, count);
+	ret = (*write)(sdata, buf, count);
 	rtnl_unlock();
 
 freebuf:
@@ -136,6 +134,7 @@ static ssize_t ieee80211_if_write_##name(struct file *file,		\
 				  ppos, ieee80211_if_parse_##name);	\
 }									\
 __IEEE80211_IF_FILE(name, ieee80211_if_write_##name)
+
 
 #define IEEE80211_IF_FILE(name, field, format)				\
 		IEEE80211_IF_FMT_##format(name, field)			\
@@ -370,6 +369,7 @@ static ssize_t ieee80211_if_parse_tsf(
 }
 __IEEE80211_IF_FILE_W(tsf);
 
+
 /* WDS attributes */
 IEEE80211_IF_FILE(peer, u.wds.remote_addr, MAC);
 
@@ -418,6 +418,7 @@ IEEE80211_IF_FILE(dot11MeshGateAnnouncementProtocol,
 IEEE80211_IF_FILE(dot11MeshHWMPRannInterval,
 		u.mesh.mshcfg.dot11MeshHWMPRannInterval, DEC);
 #endif
+
 
 #define DEBUGFS_ADD(name) \
 	debugfs_create_file(#name, 0400, sdata->debugfs.dir, \
@@ -597,6 +598,7 @@ void ieee80211_debugfs_remove_netdev(struct ieee80211_sub_if_data *sdata)
 
 	debugfs_remove_recursive(sdata->debugfs.dir);
 	sdata->debugfs.dir = NULL;
+	sdata->debugfs.subdir_stations = NULL;
 }
 
 void ieee80211_debugfs_rename_netdev(struct ieee80211_sub_if_data *sdata)

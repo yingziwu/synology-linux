@@ -89,6 +89,7 @@ struct resource pmu_resource_nevo[] = {
 };
 #endif
 
+
 u32 A9_Read_PMCR(void)
 {
 	u32 v = 0;
@@ -112,6 +113,7 @@ void A9_Write_CNTENSET(u32 value)
 {
 	__asm__ __volatile__ ("mcr  p15, 0, %0, c9, c12, 1" : :"r"(value));
 }
+
 
 u32 A9_Read_CNTENCLR(void)
 {

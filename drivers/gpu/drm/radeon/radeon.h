@@ -116,12 +116,15 @@ enum radeon_pll_errata {
 	CHIP_ERRATA_PLL_DELAY           = 0x00000004
 };
 
+
 struct radeon_device;
+
 
 /*
  * BIOS.
  */
 bool radeon_get_bios(struct radeon_device *rdev);
+
 
 /*
  * Dummy page
@@ -132,6 +135,7 @@ struct radeon_dummy_page {
 };
 int radeon_dummy_page_init(struct radeon_device *rdev);
 void radeon_dummy_page_fini(struct radeon_device *rdev);
+
 
 /*
  * Clocks
@@ -320,6 +324,7 @@ int radeon_gart_bind(struct radeon_device *rdev, unsigned offset,
 		     dma_addr_t *dma_addr);
 void radeon_gart_restore(struct radeon_device *rdev);
 
+
 /*
  * GPU MC structures, functions & helpers
  */
@@ -359,6 +364,7 @@ struct radeon_scratch {
 
 int radeon_scratch_get(struct radeon_device *rdev, uint32_t *reg);
 void radeon_scratch_free(struct radeon_device *rdev, uint32_t reg);
+
 
 /*
  * IRQS.
@@ -546,6 +552,7 @@ int radeon_ring_test(struct radeon_device *rdev);
 int radeon_ring_init(struct radeon_device *rdev, unsigned ring_size);
 void radeon_ring_fini(struct radeon_device *rdev);
 
+
 /*
  * CS.
  */
@@ -612,6 +619,7 @@ typedef int (*radeon_packet0_check_t)(struct radeon_cs_parser *p,
 typedef int (*radeon_packet3_check_t)(struct radeon_cs_parser *p,
 				      struct radeon_cs_packet *pkt);
 
+
 /*
  * AGP
  */
@@ -619,6 +627,7 @@ int radeon_agp_init(struct radeon_device *rdev);
 void radeon_agp_resume(struct radeon_device *rdev);
 void radeon_agp_suspend(struct radeon_device *rdev);
 void radeon_agp_fini(struct radeon_device *rdev);
+
 
 /*
  * Writeback
@@ -840,10 +849,12 @@ int radeon_pm_get_type_index(struct radeon_device *rdev,
  */
 void radeon_benchmark(struct radeon_device *rdev, int test_number);
 
+
 /*
  * Testing
  */
 void radeon_test_moves(struct radeon_device *rdev);
+
 
 /*
  * Debugfs
@@ -852,6 +863,7 @@ int radeon_debugfs_add_files(struct radeon_device *rdev,
 			     struct drm_info_list *files,
 			     unsigned nfiles);
 int radeon_debugfs_fence_init(struct radeon_device *rdev);
+
 
 /*
  * ASIC specific functions.
@@ -1081,6 +1093,7 @@ union radeon_asic_config {
 void radeon_agp_disable(struct radeon_device *rdev);
 int radeon_asic_init(struct radeon_device *rdev);
 
+
 /*
  * IOCTL.
  */
@@ -1116,6 +1129,7 @@ struct r600_vram_scratch {
 	volatile uint32_t		*ptr;
 	u64				gpu_addr;
 };
+
 
 /*
  * Mutex which allows recursive locking from the same process.
@@ -1156,6 +1170,7 @@ static inline void radeon_mutex_unlock(struct radeon_mutex *mutex)
 	mutex->owner = NULL;
 	mutex_unlock(&mutex->mutex);
 }
+
 
 /*
  * Core structure, functions and helpers.
@@ -1326,6 +1341,7 @@ static inline void rv370_pcie_wreg(struct radeon_device *rdev, uint32_t reg, uin
 
 void r100_pll_errata_after_index(struct radeon_device *rdev);
 
+
 /*
  * ASICs helpers.
  */
@@ -1378,6 +1394,7 @@ int radeon_combios_init(struct radeon_device *rdev);
 void radeon_combios_fini(struct radeon_device *rdev);
 int radeon_atombios_init(struct radeon_device *rdev);
 void radeon_atombios_fini(struct radeon_device *rdev);
+
 
 /*
  * RING helpers.

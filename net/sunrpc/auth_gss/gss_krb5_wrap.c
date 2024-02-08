@@ -82,9 +82,9 @@ gss_krb5_remove_padding(struct xdr_buf *buf, int blocksize)
 					>>PAGE_CACHE_SHIFT;
 		unsigned int offset = (buf->page_base + len - 1)
 					& (PAGE_CACHE_SIZE - 1);
-		ptr = kmap_atomic(buf->pages[last], KM_USER0);
+		ptr = kmap_atomic(buf->pages[last]);
 		pad = *(ptr + offset);
-		kunmap_atomic(ptr, KM_USER0);
+		kunmap_atomic(ptr);
 		goto out;
 	} else
 		len -= buf->page_len;
@@ -193,6 +193,7 @@ gss_wrap_kerberos_v1(struct krb5_ctx *kctx, int offset,
 	g_make_token_header(&kctx->mech_used,
 				GSS_KRB5_TOK_HDR_LEN +
 				kctx->gk5e->cksumlength + plainlen, &ptr);
+
 
 	/* ptr now at header described in rfc 1964, section 1.2.1: */
 	ptr[0] = (unsigned char) ((KG_TOK_WRAP_MSG >> 8) & 0xff);
@@ -465,6 +466,7 @@ gss_unwrap_kerberos_v2(struct krb5_ctx *kctx, int offset, struct xdr_buf *buf)
 	u8		decrypted_hdr[GSS_KRB5_TOK_HDR_LEN];
 	unsigned int	movelen;
 
+
 	dprintk("RPC:       %s\n", __func__);
 
 	if (kctx->gk5e->decrypt_v2 == NULL)
@@ -582,3 +584,4 @@ gss_unwrap_kerberos(struct gss_ctx *gctx, int offset, struct xdr_buf *buf)
 		return gss_unwrap_kerberos_v2(kctx, offset, buf);
 	}
 }
+

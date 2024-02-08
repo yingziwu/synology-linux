@@ -187,6 +187,7 @@ int Si3226x_PrintDebugReg (proslicChanType_ptr hProslic);
 */
 int Si3226x_PrintDebugRAM (proslicChanType_ptr hProslic);
 
+
 /*
 ** Function: Si3226x_PowerUpConverter
 **
@@ -305,6 +306,7 @@ int Si3226x_VerifyPatch (proslicChanType_ptr hProslic, const proslicPatch *pPatc
 int Si3226x_EnableInterrupts (proslicChanType_ptr hProslic);
 int Si3226x_DisableInterrupts (proslicChanType_ptr hProslic);
 
+
 /*
 ** Function: PROSLIC_SetLoopbackMode
 **
@@ -319,6 +321,7 @@ int Si3226x_DisableInterrupts (proslicChanType_ptr hProslic);
 */
 int Si3226x_SetLoopbackMode (proslicChanType_ptr hProslic, ProslicLoopbackModes newMode);
 
+
 /*
 ** Function: PROSLIC_SetMuteStatus
 **
@@ -332,6 +335,8 @@ int Si3226x_SetLoopbackMode (proslicChanType_ptr hProslic, ProslicLoopbackModes 
 **
 */
 int Si3226x_SetMuteStatus (proslicChanType_ptr hProslic, ProslicMuteModes muteEn);
+
+
 
 /*
 **
@@ -690,6 +695,7 @@ int Si3226x_MWI (proslicChanType *pProslic,uInt8 lampOn);
 */
 int Si3226x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 
+
 /*
 ** Function: PROSLIC_StopTone
 **
@@ -704,6 +710,7 @@ int Si3226x_ToneGenStart (proslicChanType *pProslic, uInt8 timerEn);
 */
 int Si3226x_ToneGenStop (proslicChanType *pProslic);
 
+
 /*
 ** Function: PROSLIC_StartRing
 **
@@ -717,6 +724,7 @@ int Si3226x_ToneGenStop (proslicChanType *pProslic);
 ** none
 */
 int Si3226x_RingStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopRing
@@ -791,6 +799,7 @@ int Si3226x_CheckCIDBuffer (proslicChanType *pProslic, uInt8 *fsk_buf_avail);
 ** none
 */
 int Si3226x_PCMStart (proslicChanType *pProslic);
+
 
 /*
 ** Function: PROSLIC_StopPCM
@@ -908,6 +917,7 @@ int Si3226x_PulseMeterStart (proslicChanType *pProslic);
 */
 int Si3226x_PulseMeterStop (proslicChanType *pProslic);
 
+
 /*
 ** Function: PROSLIC_LBCal
 **
@@ -947,6 +957,7 @@ int Si3226x_dbgSetDCFeed (proslicChanType *pProslic, uInt32 v_vlim_val, uInt32 i
 */
 int Si3226x_dbgSetDCFeedVopen (proslicChanType *pProslic, uInt32 v_vlim_val, int32 preset);
 
+
 /*
 ** Function: PROSLIC_dbgSetDCFeedIloop
 **
@@ -956,6 +967,7 @@ int Si3226x_dbgSetDCFeedVopen (proslicChanType *pProslic, uInt32 v_vlim_val, int
 ** and loop current.
 */
 int Si3226x_dbgSetDCFeedIloop (proslicChanType *pProslic, uInt32 i_ilim_val, int32 preset);
+
 
 /*
 ** Function: PROSLIC_dbgRingingSetup
@@ -985,6 +997,7 @@ int Si3226x_dbgSetRXGain (proslicChanType *pProslic, int32 gain, int impedance_p
 */
 int Si3226x_dbgSetTXGain (proslicChanType *pProslic, int32 gain, int impedance_preset, int audio_gain_preset);
 
+
 /*
 ** Function: PROSLIC_LineMonitor
 **
@@ -992,6 +1005,7 @@ int Si3226x_dbgSetTXGain (proslicChanType *pProslic, int32 gain, int impedance_p
 ** Monitor line voltages and currents
 */
 int Si3226x_LineMonitor(proslicChanType *pProslic, proslicMonitorType *monitor);
+
 
 /*
 ** Function: PROSLIC_PSTNCheck
@@ -1025,5 +1039,6 @@ int Si3226x_SetPowersaveMode(proslicChanType *pProslic, int pwrsave);
 ** return scaled value in int32 format
 */
 int32 Si3226x_ReadMADCScaled(proslicChanType *pProslic, uInt16 addr, int32 scale);
+
 
 #endif

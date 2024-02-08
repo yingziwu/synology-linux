@@ -539,6 +539,7 @@ static void efx_ethtool_self_test(struct net_device *net_dev,
 	if (!efx_tests)
 		goto fail;
 
+
 	ASSERT_RTNL();
 	if (efx->state != STATE_RUNNING) {
 		rc = -EIO;
@@ -795,12 +796,14 @@ static void efx_ethtool_get_pauseparam(struct net_device *net_dev,
 	pause->autoneg = !!(efx->wanted_fc & EFX_FC_AUTO);
 }
 
+
 static void efx_ethtool_get_wol(struct net_device *net_dev,
 				struct ethtool_wolinfo *wol)
 {
 	struct efx_nic *efx = netdev_priv(net_dev);
 	return efx->type->get_wol(efx, wol);
 }
+
 
 static int efx_ethtool_set_wol(struct net_device *net_dev,
 			       struct ethtool_wolinfo *wol)

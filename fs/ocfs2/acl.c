@@ -137,6 +137,7 @@ static struct posix_acl *ocfs2_get_acl_nolock(struct inode *inode,
 	return acl;
 }
 
+
 /*
  * Get posix acl.
  */
@@ -482,6 +483,17 @@ static int ocfs2_xattr_set_acl(struct dentry *dentry, const char *name,
 	} else
 		acl = NULL;
 
+	if (type == ACL_TYPE_ACCESS && acl) {
+		umode_t mode;
+
+		ret = posix_acl_update_mode(inode, &mode, &acl);
+		if (ret)
+			goto cleanup;
+
+		ret = ocfs2_acl_set_mode(inode, NULL, NULL, mode);
+		if (ret)
+			goto cleanup;
+	}
 	ret = ocfs2_set_acl(NULL, inode, NULL, type, acl, NULL, NULL);
 
 cleanup:

@@ -83,6 +83,7 @@ static int atoh(char *s, int len)
 	return i;
 }
 
+
 #ifdef CONFIG_MV_CPU_PERF_CNTRS
 void mv_proc_start_cntrs(int cc0, int cc1, int cc2, int cc3)
 {
@@ -169,6 +170,7 @@ void mv_proc_show_dram_stats_cntrs(void)
 	printk(KERN_NOTICE "HCLK       - 0x%llx.\n", hclk);
 	return;
 }
+
 
 #endif /*  */
 /* The format of writing to this module is as follows -
@@ -327,6 +329,7 @@ int evb_resource_dump_write(struct file *file, const char *buffer, unsigned long
 	return count;
 }
 
+
 /********************************************************************
 * evb_resource_dump_read -
 *
@@ -343,6 +346,7 @@ int evb_resource_dump_read(char *buffer, char **buffer_location, off_t offset, i
 		return 0;
 	return sprintf(buffer, "%08x\n", evb_resource_dump_result);
 }
+
 
 /********************************************************************
 * start_regdump_memdump -
@@ -417,6 +421,7 @@ int board_type_read(char *buffer, char **buffer_location, off_t offset, int buff
 	mvBoardNameGet(name_buff);
 	return sprintf(buffer, "%s\n", name_buff);
 }
+
 
 /********************************************************************
 * start_soc_type -
@@ -523,3 +528,6 @@ void __exit stop_write_from_sock_stat(void)
 module_init(start_write_from_sock_stat);
 module_exit(stop_write_from_sock_stat);
 #endif /* COLLECT_WRITE_SOCK_TO_FILE_STAT */
+
+
+

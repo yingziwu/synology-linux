@@ -100,6 +100,7 @@ struct dn_rt_hash_bucket
 
 extern struct neigh_table dn_neigh_table;
 
+
 static unsigned char dn_hiord_addr[6] = {0xAA,0x00,0x04,0x00,0x00,0x00};
 
 static const int dn_rt_min_delay = 2 * HZ;
@@ -529,6 +530,7 @@ static int dn_route_rx_long(struct sk_buff *skb)
 		goto drop_it;
 	ptr += 6;
 
+
 	/* Source info */
 	ptr += 2;
 	cb->src = dn_eth2dn(ptr);
@@ -546,6 +548,8 @@ drop_it:
 	kfree_skb(skb);
 	return NET_RX_DROP;
 }
+
+
 
 static int dn_route_rx_short(struct sk_buff *skb)
 {
@@ -994,10 +998,13 @@ source_ok:
 	if (!fld.daddr) {
 		fld.daddr = fld.saddr;
 
-		err = -EADDRNOTAVAIL;
 		if (dev_out)
 			dev_put(dev_out);
+		err = -EINVAL;
 		dev_out = init_net.loopback_dev;
+		if (!dev_out->dn_ptr)
+			goto out;
+		err = -EADDRNOTAVAIL;
 		dev_hold(dev_out);
 		if (!fld.daddr) {
 			fld.daddr =
@@ -1070,6 +1077,8 @@ source_ok:
 		if (dev_out == NULL)
 			goto out;
 		dn_db = rcu_dereference_raw(dev_out->dn_ptr);
+		if (!dn_db)
+			goto e_inval;
 		/* Possible improvement - check all devices for local addr */
 		if (dn_dev_islocal(dev_out, fld.daddr)) {
 			dev_put(dev_out);
@@ -1111,6 +1120,8 @@ select_source:
 			dev_put(dev_out);
 		dev_out = init_net.loopback_dev;
 		dev_hold(dev_out);
+		if (!dev_out->dn_ptr)
+			goto e_inval;
 		fld.flowidn_oif = dev_out->ifindex;
 		if (res.fi)
 			dn_fib_info_put(res.fi);
@@ -1199,6 +1210,7 @@ e_neighbour:
 	dst_free(&rt->dst);
 	goto e_nobufs;
 }
+
 
 /*
  * N.B. The flags may be moved into the flowi at some future stage.
@@ -1871,3 +1883,4 @@ void __exit dn_route_cleanup(void)
 	proc_net_remove(&init_net, "decnet_cache");
 	dst_entries_destroy(&dn_dst_ops);
 }
+

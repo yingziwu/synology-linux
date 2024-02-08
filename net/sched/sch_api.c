@@ -73,6 +73,8 @@ static int tclass_notify(struct net *net, struct sk_buff *oskb,
 
    All real intelligent work is done inside qdisc modules.
 
+
+
    Every discipline has two major routines: enqueue and dequeue.
 
    ---dequeue
@@ -123,9 +125,11 @@ static int tclass_notify(struct net *net, struct sk_buff *oskb,
 /* Protects list of registered TC modules. It is pure SMP lock. */
 static DEFINE_RWLOCK(qdisc_mod_lock);
 
+
 /************************************************
  *	Queueing disciplines manipulation.	*
  ************************************************/
+
 
 /* The list of all installed queueing disciplines. */
 
@@ -862,6 +866,8 @@ qdisc_create(struct net_device *dev, struct netdev_queue *dev_queue,
 
 		return sch;
 	}
+	/* ops->init() failed, we call ->destroy() like qdisc_create_dflt() */
+	ops->destroy(sch);
 err_out3:
 	dev_put(dev);
 	kfree((char *) sch - sch->padded);
@@ -1345,9 +1351,13 @@ done:
 	return skb->len;
 }
 
+
+
 /************************************************
  *	Traffic classes manipulation.		*
  ************************************************/
+
+
 
 static int tc_ctl_tclass(struct sk_buff *skb, struct nlmsghdr *n, void *arg)
 {
@@ -1472,6 +1482,7 @@ out:
 
 	return err;
 }
+
 
 static int tc_fill_tclass(struct sk_buff *skb, struct Qdisc *q,
 			  unsigned long cl,

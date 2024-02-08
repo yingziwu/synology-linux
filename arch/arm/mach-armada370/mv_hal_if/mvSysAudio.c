@@ -70,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "audio/mvAudio.h"
 #include "audio/mvAudioRegs.h"
 
+
 /*******************************************************************************
 * mvSysAudioInit - Initialize the Audio subsystem
 *
@@ -136,6 +137,7 @@ MV_STATUS mvSysAudioCodecRegRead(MV_VOID *codecHandle, MV_U32  regOffset, MV_U32
 
 	return mvTwsiRead(mvBoardA2DTwsiChanNumGet(0), &slave, (MV_U8*)regData, 1);
 }
+
 
 /*******************************************************************************
 * mvSysAudioCodecRegWrite

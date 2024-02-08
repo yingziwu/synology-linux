@@ -32,6 +32,7 @@
 #define PXA2_PMU_FLAG    7
 #define PXA2_PMU_EVTSEL  8
 
+
 #define EVENT_CNT_NUM 		4
 #define PMNC_ENABLE_BIT 	0x00000001
 #define FLAG_OVERFLOW_BITS 	0x0000001F

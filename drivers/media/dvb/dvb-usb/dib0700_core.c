@@ -23,6 +23,7 @@ MODULE_PARM_DESC(nb_packet_buffer_size,
 
 DVB_DEFINE_MOD_OPT_ADAPTER_NR(adapter_nr);
 
+
 int dib0700_get_version(struct dvb_usb_device *d, u32 *hwversion,
 			u32 *romversion, u32 *ramversion, u32 *fwtype)
 {
@@ -346,6 +347,7 @@ int dib0700_identify_state(struct usb_device *udev, struct dvb_usb_device_proper
 	if (!b)
 		return	-ENOMEM;
 
+
 	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
 		REQUEST_GET_VERSION, USB_TYPE_VENDOR | USB_DIR_IN, 0, 0, b, 16, USB_CTRL_GET_TIMEOUT);
 
@@ -423,6 +425,7 @@ int dib0700_set_i2c_speed(struct dvb_usb_device *d, u16 scl_kHz)
 
 	return ret;
 }
+
 
 int dib0700_ctrl_clock(struct dvb_usb_device *d, u32 clk_MHz, u8 clock_out_gp3)
 {
@@ -670,7 +673,7 @@ static void dib0700_rc_urb_completion(struct urb *purb)
 {
 	struct dvb_usb_device *d = purb->context;
 	struct dib0700_rc_response *poll_reply;
-	u32 uninitialized_var(keycode);
+	u32 keycode;
 	u8 toggle;
 
 	deb_info("%s()\n", __func__);
@@ -710,7 +713,8 @@ static void dib0700_rc_urb_completion(struct urb *purb)
 		if ((poll_reply->system == 0x00) && (poll_reply->data == 0x00)
 		    && (poll_reply->not_data == 0xff)) {
 			poll_reply->data_state = 2;
-			break;
+			rc_repeat(d->rc_dev);
+			goto resubmit;
 		}
 
 		if ((poll_reply->system ^ poll_reply->not_system) != 0xff) {

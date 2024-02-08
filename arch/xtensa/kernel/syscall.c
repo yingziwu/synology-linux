@@ -54,3 +54,4 @@ asmlinkage long xtensa_fadvise64_64(int fd, int advice, unsigned long long offse
 {
 	return sys_fadvise64_64(fd, offset, len, advice);
 }
+

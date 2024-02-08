@@ -651,6 +651,7 @@ cryptodev_engine_ciphers(ENGINE *e, const EVP_CIPHER **cipher,
 	return (*cipher != NULL);
 }
 
+
 #ifdef USE_CRYPTODEV_DIGESTS
 
 /* convert digest type to cryptodev */
@@ -664,6 +665,7 @@ digest_nid_to_cryptodev(int nid)
 			return (digests[i].id);
 	return (0);
 }
+
 
 static int cryptodev_digest_init(EVP_MD_CTX *ctx)
 {
@@ -742,6 +744,7 @@ static int cryptodev_digest_update(EVP_MD_CTX *ctx, const void *data,
 	return (1);
 }
 
+
 static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
 {
 	struct crypt_op cryp;
@@ -774,6 +777,7 @@ static int cryptodev_digest_final(EVP_MD_CTX *ctx, unsigned char *md)
 
 	return 1;
 }
+
 
 static int cryptodev_digest_cleanup(EVP_MD_CTX *ctx)
 {
@@ -847,6 +851,7 @@ static int cryptodev_digest_copy(EVP_MD_CTX *to,const EVP_MD_CTX *from)
 
 	return 1;
 }
+
 
 static const EVP_MD cryptodev_sha1 = {
 	NID_sha1,
@@ -962,6 +967,7 @@ static const EVP_MD cryptodev_md5 = {
 };
 
 #endif /* USE_CRYPTODEV_DIGESTS */
+
 
 static int
 cryptodev_engine_digests(ENGINE *e, const EVP_MD **digest,

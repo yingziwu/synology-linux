@@ -1,7 +1,15 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Common LSM logging functions
+ * Heavily borrowed from selinux/avc.h
+ *
+ * Author : Etienne BASSET  <etienne.basset@ensta.org>
+ *
+ * All credits to : Stephen Smalley, <sds@epoch.ncsc.mil>
+ * All BUGS to : Etienne BASSET  <etienne.basset@ensta.org>
+ */
 #ifndef _LSM_COMMON_LOGGING_
 #define _LSM_COMMON_LOGGING_
 
@@ -18,6 +26,8 @@
 #include <linux/skbuff.h>
 #include <asm/system.h>
 
+
+/* Auxiliary data to use in generating the audit record. */
 struct common_audit_data {
 	char type;
 #define LSM_AUDIT_DATA_PATH	1
@@ -63,10 +73,10 @@ struct common_audit_data {
 #endif
 		char *kmod_name;
 	} u;
-	 
+	/* this union contains LSM specific data */
 	union {
 #ifdef CONFIG_SECURITY_SMACK
-		 
+		/* SMACK data */
 		struct smack_audit_data {
 			const char *function;
 			char *subject;
@@ -76,7 +86,7 @@ struct common_audit_data {
 		} smack_audit_data;
 #endif
 #ifdef CONFIG_SECURITY_SELINUX
-		 
+		/* SELinux data */
 		struct {
 			u32 ssid;
 			u32 tsid;
@@ -84,7 +94,10 @@ struct common_audit_data {
 			u32 requested;
 			u32 audited;
 			u32 denied;
-			 
+			/*
+			 * auditdeny is a bit tricky and unintuitive.  See the
+			 * comments in avc.c for it's meaning and usage.
+			 */
 			u32 auditdeny;
 			struct av_decision *avd;
 			int result;
@@ -119,12 +132,12 @@ struct common_audit_data {
 					int type, protocol;
 					struct sock *sk;
 				} net;
-#endif  
+#endif /* MY_ABC_HERE */
 			};
 		} apparmor_audit_data;
 #endif
 	};
-	 
+	/* these callback will be implemented by a specific LSM */
 	void (*lsm_pre_audit)(struct audit_buffer *, void *);
 	void (*lsm_post_audit)(struct audit_buffer *, void *);
 };
@@ -138,6 +151,7 @@ int ipv4_skb_to_auditdata(struct sk_buff *skb,
 int ipv6_skb_to_auditdata(struct sk_buff *skb,
 		struct common_audit_data *ad, u8 *proto);
 
+/* Initialize an LSM audit data structure. */
 #define COMMON_AUDIT_DATA_INIT(_d, _t) \
 	{ memset((_d), 0, sizeof(struct common_audit_data)); \
 	 (_d)->type = LSM_AUDIT_DATA_##_t; }

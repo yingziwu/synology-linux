@@ -231,6 +231,7 @@ struct pn533_cmd_activate_response {
 	u8 gt[];
 } __packed;
 
+
 struct pn533 {
 	struct usb_device *udev;
 	struct usb_interface *interface;
@@ -640,6 +641,7 @@ struct pn533_target_type_a {
 	u8 nfcid_len;
 	u8 nfcid_data[];
 } __packed;
+
 
 #define PN533_TYPE_A_SENS_RES_NFCID1(x) ((u8)((be16_to_cpu(x) & 0x00C0) >> 6))
 #define PN533_TYPE_A_SENS_RES_SSD(x) ((u8)((be16_to_cpu(x) & 0x001F) >> 0))

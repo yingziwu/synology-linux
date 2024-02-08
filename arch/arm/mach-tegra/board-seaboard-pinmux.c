@@ -242,3 +242,4 @@ void __init ventana_pinmux_init(void)
 	update_pinmux(ventana_pinmux, ARRAY_SIZE(ventana_pinmux));
 	seaboard_common_pinmux_init();
 }
+

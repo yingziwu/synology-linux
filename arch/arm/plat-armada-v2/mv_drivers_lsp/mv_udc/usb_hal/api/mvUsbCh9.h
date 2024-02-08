@@ -79,6 +79,7 @@ disclaimer.
 #define  DEVICE_REMOTE_WAKEUP   1
 #define  DEVICE_TEST_MODE       2
 
+
 /* States of device instances on the device list */
 
 /* initial device state */

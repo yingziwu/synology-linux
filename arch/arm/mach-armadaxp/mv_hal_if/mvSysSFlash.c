@@ -120,6 +120,7 @@ MV_STATUS mvSysSflashCommandSet(MV_VOID *flashHandle, MV_U8* cmdBuff, MV_U32 cmd
 	return MV_OK;
 }
 
+
 /*******************************************************************************
 * mvSysSflashDataRead
 *
@@ -152,12 +153,14 @@ MV_STATUS mvSysSflashDataRead(MV_VOID *flashHandle, MV_U8* dataBuff, MV_U32 data
 	if (!(mvSysSflashCmd.transType & SYS_SFLASH_TRANS_START))
 		return MV_ERROR;
 
+
 	ret = mvSpiWriteThenRead (0, mvSysSflashCmd.buf, mvSysSflashCmd.bufLen,
 			dataBuff, dataLen, dummyBytes);
 	if (transType & SYS_SFLASH_TRANS_END)
 		memset(&mvSysSflashCmd,0,sizeof(mvSysSflashCmd));
 	return ret;
 }
+
 
 /*******************************************************************************
 * mvSysSflashDataWrite
@@ -195,6 +198,7 @@ MV_STATUS mvSysSflashDataWrite(MV_VOID *flashHandle, MV_U8* dataBuff, MV_U32 dat
 	return ret;
 }
 
+
 /*******************************************************************************
 * mvSysSflashFreqSet
 *
@@ -219,3 +223,4 @@ MV_STATUS mvSysSflashFreqSet(MV_VOID *flashHandle, MV_U32 freq)
 
 	return mvSpiBaudRateSet(0, freq);
 }
+

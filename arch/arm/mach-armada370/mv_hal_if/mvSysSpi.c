@@ -70,6 +70,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "spi/mvSysSpi.h"
 #include "ctrlEnv/mvCtrlEnvLib.h"
 
+
 /*******************************************************************************
 * mvSysSpiInit - Initialize the SPI subsystem
 *
@@ -92,6 +93,7 @@ MV_STATUS   mvSysSpiInit(MV_U8 spiId, MV_U32 serialBaudRate)
 
 	return mvSpiInit(spiId, serialBaudRate, &halData);
 }
+
 
 /*******************************************************************************
 * mvSysSpiMppConfig

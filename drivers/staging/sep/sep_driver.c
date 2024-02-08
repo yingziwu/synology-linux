@@ -272,6 +272,7 @@ static int sep_req_daemon_send_reply_command_handler(struct sep_device *sep)
 	return 0;
 }
 
+
 /**
  *	sep_free_dma_table_data_handler - free DMA table
  *	@sep: pointere to struct sep_device
@@ -653,6 +654,7 @@ static unsigned long sep_set_time(struct sep_device *sep)
 	struct timeval time;
 	u32 *time_addr;	/* Address of time as seen by the kernel */
 
+
 	do_gettimeofday(&time);
 
 	/* Set value in the SYSTEM MEMORY offset */
@@ -918,6 +920,7 @@ static int sep_lock_kernel_pages(struct sep_device *sep,
 		dma_map_single(&sep->pdev->dev, (void *)kernel_virt_addr,
 		data_size, DMA_BIDIRECTIONAL);
 	map_array[0].size = data_size;
+
 
 	/*
 	 * Set the start address of the first page - app data may start not at
@@ -1390,6 +1393,7 @@ static void sep_debug_print_lli_tables(struct sep_device *sep,
 			"phys lli_table_ptr->physical_address is %08lu\n",
 			(unsigned long)lli_table_ptr->bus_address);
 
+
 		table_data_size = lli_table_ptr->block_size & 0xffffff;
 		num_table_entries = (lli_table_ptr->block_size >> 24) & 0xff;
 
@@ -1407,6 +1411,7 @@ static void sep_debug_print_lli_tables(struct sep_device *sep,
 	}
 	dev_dbg(&sep->pdev->dev, "sep_debug_print_lli_tables end\n");
 }
+
 
 /**
  *	sep_prepare_empty_lli_table - create a blank LLI table
@@ -1996,6 +2001,7 @@ end_function_with_error:
 	kfree(sep->dma_res_arr[sep->nr_dcb_creat].out_map_array);
 	kfree(sep->dma_res_arr[sep->nr_dcb_creat].out_page_array);
 	kfree(lli_out_array);
+
 
 end_function_free_lli_in:
 	kfree(sep->dma_res_arr[sep->nr_dcb_creat].in_map_array);
@@ -2712,6 +2718,7 @@ static int sep_register_driver_with_fs(struct sep_device *sep)
 	return ret_val;
 }
 
+
 /**
  *	sep_probe - probe a matching PCI device
  *	@pdev: pci_device
@@ -2893,6 +2900,7 @@ static struct pci_driver sep_pci_driver = {
 	.remove = sep_remove
 };
 
+
 /**
  *	sep_init - init function
  *
@@ -2902,6 +2910,7 @@ static int __init sep_init(void)
 {
 	return pci_register_driver(&sep_pci_driver);
 }
+
 
 /**
  *	sep_exit - called to unload driver
@@ -2913,6 +2922,7 @@ static void __exit sep_exit(void)
 {
 	pci_unregister_driver(&sep_pci_driver);
 }
+
 
 module_init(sep_init);
 module_exit(sep_exit);

@@ -156,6 +156,7 @@ static int simtec_i2c_remove(struct platform_device *dev)
 	return 0;
 }
 
+
 /* device driver */
 
 /* work with hotplug and coldplug */

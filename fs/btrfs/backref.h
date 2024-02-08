@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Copyright (C) 2011 STRATO.  All rights reserved.
  *
@@ -54,6 +57,11 @@ int iterate_inodes_from_logical(u64 logical, struct btrfs_fs_info *fs_info,
 
 int paths_from_inode(u64 inum, struct inode_fs_paths *ipath);
 
+#ifdef MY_ABC_HERE
+int btrfs_find_all_roots_nodedup(struct btrfs_trans_handle *trans,
+				struct btrfs_fs_info *fs_info, u64 bytenr,
+				u64 time_seq, struct list_head *roots_no_dedup);
+#endif
 int btrfs_find_all_roots(struct btrfs_trans_handle *trans,
 				struct btrfs_fs_info *fs_info, u64 bytenr,
 				u64 time_seq, struct ulist **roots);
@@ -74,4 +82,14 @@ int btrfs_find_one_extref(struct btrfs_root *root, u64 inode_objectid,
 
 int __init btrfs_prelim_ref_init(void);
 void btrfs_prelim_ref_exit(void);
+#endif
+
+#ifdef MY_ABC_HERE
+struct u64_list {
+	u64 val1;
+	u64 val2;
+	struct list_head list;
+};
+
+void u64_list_free(struct list_head *target_list);
 #endif

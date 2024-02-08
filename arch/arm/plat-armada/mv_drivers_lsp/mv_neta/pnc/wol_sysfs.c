@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -197,3 +198,4 @@ module_init(wol_sysfs_init);
 MODULE_AUTHOR("Dmitri Epshtein");
 MODULE_DESCRIPTION("WoL for Marvell NetA");
 MODULE_LICENSE("GPL");
+

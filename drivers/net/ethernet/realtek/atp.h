@@ -16,8 +16,6 @@ struct rx_header {
 #define PAR_STATUS	1
 #define PAR_CONTROL 2
 
-enum chip_type { RTL8002, RTL8012 };
-
 #define Ctrl_LNibRead	0x08	/* LP_PSELECP */
 #define Ctrl_HNibRead	0
 #define Ctrl_LNibWrite	0x08	/* LP_PSELECP */
@@ -46,6 +44,7 @@ enum page0_regs
 
 enum eepage_regs
 { PROM_CMD = 6, PROM_DATA = 7 };	/* Note that PROM_CMD is in the "high" bits. */
+
 
 #define ISR_TxOK	0x01
 #define ISR_RxOK	0x04

@@ -228,6 +228,7 @@ struct pcicore_info {
 	 (((sih)->buscorerev >= 3) &&					\
 	  ((sih)->buscorerev <= 5)))
 
+
 /* delay needed between the mdio control/ mdiodata register data access */
 static void pr28829_delay(void)
 {

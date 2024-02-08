@@ -225,6 +225,7 @@ static void iwlagn_rx_queue_restock(struct iwl_trans *trans)
 	if (rxq->free_count <= RX_LOW_WATERMARK)
 		queue_work(trans->shrd->workqueue, &trans_pcie->rx_replenish);
 
+
 	/* If we've added more space for the firmware to place data, tell it.
 	 * Increment device's write pointer in multiples of 8. */
 	if (rxq->write_actual != (rxq->write & ~0x7)) {
@@ -947,6 +948,7 @@ void iwl_irq_tasklet(struct iwl_trans *trans)
 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
 	struct isr_statistics *isr_stats = &trans_pcie->isr_stats;
 
+
 	spin_lock_irqsave(&trans->shrd->lock, flags);
 
 	/* Ack/clear/reset pending uCode interrupts.
@@ -1174,6 +1176,7 @@ void iwl_free_isr_ict(struct iwl_trans *trans)
 	}
 }
 
+
 /*
  * allocate dram shared table, it is an aligned memory
  * block of ICT_SIZE.
@@ -1375,6 +1378,7 @@ irqreturn_t iwl_isr_ict(int irq, void *data)
 	 */
 	inta_mask = iwl_read32(bus(trans), CSR_INT_MASK);
 	iwl_write32(bus(trans), CSR_INT_MASK, 0x00000000);
+
 
 	/* Ignore interrupt if there's nothing in NIC to service.
 	 * This may be due to IRQ shared with another device,

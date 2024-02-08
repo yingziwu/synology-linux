@@ -29,6 +29,8 @@
 #include "audio/dac/mvCLAudioCodec.h"
 #include "boardEnv/mvBoardEnvLib.h"
 
+
+
 /*
  * Initialize the audio decoder.
  */
@@ -38,6 +40,7 @@ cs42l51_init(void)
     MV_AUDIO_CODEC_DEV codec_params;
     unsigned char reg_data;
     
+
     codec_params.ADCMode = MV_I2S_MODE;
     codec_params.DACDigitalIFFormat = MV_I2S_UP_TO_24_BIT;
     codec_params.twsiSlave.moreThen256 = MV_FALSE;
@@ -86,6 +89,7 @@ static MV_U8 auddec_volume_mapping[MVAUD_NUM_VOLUME_STEPS] =
 	0x11,	0x12,	0x13,	0x14,	0x15,	0x16,	0x17,	0x18
 };
 
+
 /*
  * Get the audio decoder volume for both channels.
  * 0 is lowest volume, MVAUD_NUM_VOLUME_STEPS-1 is the highest volume.
@@ -105,6 +109,7 @@ cs42l51_vol_get(MV_U8 *vol_list)
     codec_params.twsiSlave.validOffset = MV_TRUE;
 	codec_params.twsiSlave.slaveAddr.address = mvBoardA2DTwsiAddrGet();
 	codec_params.twsiSlave.slaveAddr.type = mvBoardA2DTwsiAddrTypeGet();
+
 
     for(vol_idx = 0; vol_idx < 2; vol_idx++)
     {
@@ -134,6 +139,7 @@ cs42l51_vol_get(MV_U8 *vol_list)
     return;
 }
 
+
 /*
  * Set the audio decoder volume for both channels.
  * 0 is lowest volume, MVAUD_NUM_VOLUME_STEPS-1 is the highest volume.
@@ -151,6 +157,7 @@ cs42l51_vol_set(MV_U8 *vol_list)
     codec_params.twsiSlave.slaveAddr.address = mvBoardA2DTwsiAddrGet();
     codec_params.twsiSlave.slaveAddr.type = mvBoardA2DTwsiAddrTypeGet();
 
+   
     for(vol_idx = 0; vol_idx < 2; vol_idx++)
     {
         /*printk("\tvol_list[%d] = %d.\n",vol_idx,
@@ -168,3 +175,4 @@ cs42l51_vol_set(MV_U8 *vol_list)
 
     return;
 }
+

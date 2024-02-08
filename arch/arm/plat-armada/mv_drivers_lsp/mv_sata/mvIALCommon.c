@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -41,6 +42,7 @@ disclaimer.
 #include "mvIALCommon.h"
 #include "mvIALCommonUtils.h"
 #include "mvStorageDev.h"
+
 
 MV_BOOLEAN disableNCQ = MV_FALSE;
 MV_BOOLEAN disablePM_NCQ = MV_FALSE;
@@ -86,6 +88,7 @@ static MV_BOOLEAN mvPMCommandCompletionCB(MV_SATA_ADAPTER *pSataAdapter,
                                           MV_U16 responseFlags,
                                           MV_U32 timeStamp,
                                           MV_STORAGE_DEVICE_REGISTERS *registerStruct);
+
 
 static MV_BOOLEAN mvQueuePMAccessRegisterCommand(
                                                 MV_IAL_COMMON_ADAPTER_EXTENSION* ialExt,
@@ -141,12 +144,15 @@ static MV_BOOLEAN mvIsChannelTimerExpired(
                                          MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                          MV_U8 channelIndex);
 
+
 /*Channel state machine*/
+
 
 static MV_BOOLEAN mvChannelNotConnectedStateHandler(
                                                    MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                                    MV_U8 channelIndex,
                                                    MV_SAL_ADAPTER_EXTENSION *scsiAdapterExt);
+
 
 static MV_BOOLEAN mvChannelConnectedStateHandler(
                                                 MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
@@ -170,6 +176,8 @@ static MV_BOOLEAN mvChannelPMHotPlugStateHandler(
                                                 MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                                 MV_U8 channelIndex,
                                                 MV_SAL_ADAPTER_EXTENSION *scsiAdapterExt);
+
+
 
 static void mvDrivesInfoSaveAll(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                 MV_U8 channelIndex);
@@ -198,11 +206,15 @@ static void mvDrivesInfoGetChannelRescanParams(MV_IAL_COMMON_ADAPTER_EXTENSION *
                                                MV_U16 *drivesToRemove,
                                                MV_U16 *drivesToAdd);
 
+
+
 #ifdef DISABLE_PM_SCC
 MV_BOOLEAN mvPMDisableSSC(MV_SATA_ADAPTER *pSataAdapter, MV_U8 channelIndex);
 #endif
 
 MV_BOOLEAN mvPMEnableLocking(MV_SATA_ADAPTER *pSataAdapter, MV_U8 channelIndex);
+
+
 
 /*Public functions*/
 
@@ -254,6 +266,7 @@ MV_BOOLEAN mvAdapterStartInitialization(MV_SATA_ADAPTER *pSataAdapter,
     }
     return mvAdapterStateMachine(ialExt, scsiAdapterExt);
 }
+
 
 /*******************************************************************************
 * mvRestartChannel - restart specific channel
@@ -317,6 +330,8 @@ void mvRestartChannel(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
         IALBusChangeNotify(pSataAdapter, channelIndex);
     }
 }
+
+
 
 /*******************************************************************************
 * mvPMHotPlugDetected - restart specific channel
@@ -402,6 +417,7 @@ void mvStopChannel(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
     }
 }
 
+
 /*******************************************************************************
 * mvExecuteScsiCommand - execute SCSI command
 *
@@ -461,6 +477,7 @@ MV_SCSI_COMMAND_STATUS_TYPE mvExecuteScsiCommand(MV_SATA_SCSI_CMD_BLOCK *pScb,
         return MV_SCSI_COMMAND_STATUS_QUEUED_BY_IAL;
     }
 }
+
 
 /*******************************************************************************
 * mvIALTimerCallback - IAL timer callback
@@ -529,6 +546,7 @@ void mvCommandCompletionErrorHandler(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
 
 /*Static functions*/
 
+
 static void printAtaDeviceRegisters(
                                    MV_STORAGE_DEVICE_REGISTERS *mvStorageDevRegisters)
 {
@@ -549,6 +567,8 @@ static void printAtaDeviceRegisters(
     mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG, "%20s : %04x\n","Status",
              mvStorageDevRegisters->statusRegister);
 }
+
+
 
 static void mvDrivesInfoSaveAll(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                 MV_U8 channelIndex)
@@ -589,6 +609,7 @@ static void mvDrivesInfoFlushSingleDrive(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt
     ialExt->
     IALChannelExt[channelIndex].drivesInfo.driveSerialCurrent[PMPort].serial[0] = 0;
 }
+
 
 static void mvDrivesInfoSaveSingleDrive(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                         MV_U8 channelIndex,
@@ -640,6 +661,7 @@ static void mvSetDriveReady(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                             channelIndex, PMPort, isReady);
 }
 
+
 static void mvDrivesInfoGetChannelRescanParams(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                                MV_U8 channelIndex,
                                                MV_U16 *drivesToRemove,
@@ -684,6 +706,8 @@ static void mvDrivesInfoGetChannelRescanParams(MV_IAL_COMMON_ADAPTER_EXTENSION *
         }
     }
 }
+
+
 
 /*SCSI command queue functions*/
 static void mvAddToSCSICommandQueue(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
@@ -790,6 +814,7 @@ static void mvFlushSCSICommandQueue(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
              ialExt->pSataAdapter->adapterId, channelIndex);
 }
 
+
 /*Port Multilier related functions*/
 static MV_BOOLEAN mvPMCommandCompletionCB(MV_SATA_ADAPTER *pSataAdapter,
                                           MV_U8 channelIndex,
@@ -849,6 +874,7 @@ static MV_BOOLEAN mvPMCommandCompletionCB(MV_SATA_ADAPTER *pSataAdapter,
     }
     return MV_TRUE;
 }
+
 
 static MV_BOOLEAN mvQueuePMAccessRegisterCommand(
                                                 MV_IAL_COMMON_ADAPTER_EXTENSION* ialExt,
@@ -949,6 +975,7 @@ static MV_BOOLEAN mvQueuePMAccessRegisterCommand(
     }
     return MV_TRUE;
 }
+
 
 static MV_BOOLEAN mvPMEnableCommStatusChangeBits(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                                  MV_U8 channelIndex,
@@ -1060,6 +1087,7 @@ static MV_BOOLEAN mvPMDisableAsyncNotify(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt
     MV_U32 regVal2;
     MV_SATA_ADAPTER *pSataAdapter = ialExt->pSataAdapter;
 
+
     /*PM asynchronous notification supported*/
     if (mvPMDevReadReg(pSataAdapter, channelIndex, MV_SATA_PM_CONTROL_PORT,
                        MV_SATA_GSCR_FEATURES_ENABLE_REG_NUM,
@@ -1093,6 +1121,8 @@ static MV_BOOLEAN mvPMDisableAsyncNotify(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt
 
     return MV_TRUE;
 }
+
+
 
 static MV_BOOLEAN mvConfigurePMDevice(
                                      MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
@@ -1334,6 +1364,7 @@ static MV_BOOLEAN mvConfigChannelQueuingMode(MV_IAL_COMMON_ADAPTER_EXTENSION* ia
     MV_SATA_DEVICE_TYPE     connectedDevice;
     MV_BOOLEAN              use128Entries = MV_FALSE;
 
+
     if (mvGetDisksModes(ialExt,
                         scsiAdapterExt,
                         channelIndex,
@@ -1429,6 +1460,8 @@ static MV_BOOLEAN mvConfigChannelQueuingMode(MV_IAL_COMMON_ADAPTER_EXTENSION* ia
     return MV_TRUE;
 }
 
+
+
 /*Channel related functions*/
 
 static void mvSetChannelState(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
@@ -1481,6 +1514,7 @@ static void mvSetChannelState(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
         }
     }
 }
+
 
 static MV_BOOLEAN mvStartChannelInit(MV_SATA_ADAPTER *pSataAdapter,
                                      MV_U8 channelIndex,
@@ -1661,6 +1695,7 @@ static MV_BOOLEAN mvChannelSRSTFinished(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                         MV_TRUE,
                         pDriveData->identifyBuffer);
 
+
         mvSataScsiNotifyUA(scsiAdapterExt, channelIndex, 0);
         *bIsChannelReady = MV_TRUE;
         return MV_TRUE;
@@ -1675,6 +1710,8 @@ static MV_BOOLEAN mvChannelSRSTFinished(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
     return MV_TRUE;
 }
 
+
+
 static MV_BOOLEAN mvConfigChannelDMA(
                                     MV_IAL_COMMON_ADAPTER_EXTENSION* ialExt,
                                     MV_U8 channelIndex,
@@ -1683,6 +1720,7 @@ static MV_BOOLEAN mvConfigChannelDMA(
     MV_SATA_ADAPTER *pSataAdapter = ialExt->pSataAdapter;
     mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG,"[%d %d] config queueing mode\n",
              pSataAdapter->adapterId, channelIndex);
+
 
     if (mvConfigChannelQueuingMode(ialExt,
                                    channelIndex,
@@ -1704,6 +1742,10 @@ static MV_BOOLEAN mvConfigChannelDMA(
              pSataAdapter->adapterId, channelIndex);
     return MV_TRUE;
 }
+
+
+
+
 
 static void mvSetChannelTimer(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                               MV_U8 channelIndex,
@@ -1762,6 +1804,7 @@ static MV_BOOLEAN mvChannelNotConnectedStateHandler(
     }
     return MV_TRUE;
 }
+
 
 static MV_BOOLEAN mvChannelConnectedStateHandler(
      MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
@@ -1827,6 +1870,7 @@ static MV_BOOLEAN mvChannelConnectedStateHandler(
      }
      return MV_TRUE;
 }
+
 
 MV_BOOLEAN mvChannelInSrstStateHandler(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                        MV_U8 channelIndex,
@@ -2056,6 +2100,7 @@ static MV_BOOLEAN mvPMInitDevicesStateHandler(MV_IAL_COMMON_ADAPTER_EXTENSION *i
     MV_STORAGE_DEVICE_REGISTERS *mvStorageDevRegisters = &channelExt->mvStorageDevRegisters;
     MV_BOOLEAN H2DReceived = MV_FALSE;
 
+
     mvLogMsg(MV_IAL_COMMON_LOG_ID, MV_DEBUG,"[%d %d] CHANNEL_PM_INIT_DEVICES port:%d status:%d\n",
              ialExt->pSataAdapter->adapterId, channelIndex, PMPort,
 	     channelExt->port_state);
@@ -2166,6 +2211,8 @@ static MV_BOOLEAN mvPMInitDevicesStateHandler(MV_IAL_COMMON_ADAPTER_EXTENSION *i
 
 	      return MV_TRUE;
 	 }
+
+
 
 	 if (mvStorageDevATAStartSoftResetDevice(pSataAdapter,
 						 channelIndex,
@@ -2330,6 +2377,7 @@ static MV_BOOLEAN mvChannelReadyStateHandler(
     return MV_TRUE;
 }
 
+
 static MV_BOOLEAN mvChannelPMHotPlugStateHandler(
                                                 MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
                                                 MV_U8 channelIndex,
@@ -2393,6 +2441,7 @@ static MV_BOOLEAN mvChannelStateMachine(
 
     return MV_TRUE;
 }
+
 
 static MV_BOOLEAN mvAdapterStateMachine(
                                        MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
@@ -2569,3 +2618,4 @@ static MV_BOOLEAN mvGetDisksModes(MV_IAL_COMMON_ADAPTER_EXTENSION *ialExt,
     }
     return MV_TRUE;
 }
+

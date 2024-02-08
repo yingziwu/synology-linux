@@ -77,6 +77,7 @@ static inline int verify_area(int type, const void *addr, unsigned long size)
 	return access_ok(type, addr, size) ? 0 : -EFAULT;
 }
 
+
 /*
  * The exception table consists of pairs of addresses: the first is the
  * address of an instruction that is allowed to fault, and the second is
@@ -180,6 +181,7 @@ struct __large_struct { unsigned long buf[100]; };
 		"2:\n"						\
 		"	.section	.fixup,\"ax\"\n"	\
 		"3:\n\t"					\
+		"	mov		0,%1\n"			\
 		"	mov		%3,%0\n"		\
 		"	jmp		2b\n"			\
 		"	.previous\n"				\
@@ -286,6 +288,7 @@ extern int __get_user_unknown(void);
 
 extern int __put_user_unknown(void);
 
+
 /*
  * Copy To/From Userspace
  */
@@ -372,6 +375,7 @@ unsigned long __generic_copy_to_user_nocheck(void *to, const void *from,
 	__copy_user(to, from, n);
 	return n;
 }
+
 
 #if 0
 #error "don't use - these macros don't increment to & from pointers"
@@ -477,6 +481,7 @@ extern unsigned long __generic_copy_from_user(void *, const void __user *,
 	might_sleep();					\
 	__copy_from_user_inatomic((to), (from), (n));	\
 })
+
 
 #define copy_to_user(to, from, n)   __generic_copy_to_user((to), (from), (n))
 #define copy_from_user(to, from, n) __generic_copy_from_user((to), (from), (n))

@@ -71,6 +71,7 @@ extern int fault_devs;
 
 extern char usermode_helper[];
 
+
 /* I don't remember why XCPU ...
  * This is used to wake the asender,
  * and to interrupt sending the sending task
@@ -99,6 +100,7 @@ extern char usermode_helper[];
 #define UUID_NEW_BM_OFFSET ((u64)0x0001000000000000ULL)
 
 struct drbd_conf;
+
 
 /* to shorten dev_warn(DEV, "msg"); and relatives statements */
 #define DEV (disk_to_dev(mdev->vdisk))
@@ -399,6 +401,7 @@ struct p_block_ack {
 	u32	    blksize;
 	u32	    seq_num;
 } __packed;
+
 
 struct p_block_req {
 	struct p_header80 head;
@@ -877,6 +880,7 @@ enum bm_flag {
 	/* clear is not expected while bitmap is locked for bulk operation */
 };
 
+
 /* TODO sort members for performance
  * MAYBE group them further */
 
@@ -1295,6 +1299,7 @@ extern int drbd_bmio_clear_n_write(struct drbd_conf *mdev);
 extern void drbd_go_diskless(struct drbd_conf *mdev);
 extern void drbd_ldev_destroy(struct drbd_conf *mdev);
 
+
 /* Meta data layout
    We reserve a 128MB Block (4k aligned)
    * either at the end of the backing device
@@ -1506,6 +1511,7 @@ extern int drbd_read_remote(struct drbd_conf *mdev, struct drbd_request *req);
 extern int drbd_merge_bvec(struct request_queue *q, struct bvec_merge_data *bvm, struct bio_vec *bvec);
 extern int is_valid_ar_handle(struct drbd_request *, sector_t);
 
+
 /* drbd_nl.c */
 extern void drbd_suspend_io(struct drbd_conf *mdev);
 extern void drbd_resume_io(struct drbd_conf *mdev);
@@ -1544,6 +1550,7 @@ static inline void ov_oos_print(struct drbd_conf *mdev)
 	}
 	mdev->ov_last_oos_size=0;
 }
+
 
 extern void drbd_csum_bio(struct drbd_conf *, struct crypto_hash *, struct bio *, void *);
 extern void drbd_csum_ee(struct drbd_conf *, struct crypto_hash *, struct drbd_epoch_entry *, void *);
@@ -1667,6 +1674,7 @@ extern int __drbd_set_out_of_sync(struct drbd_conf *mdev, sector_t sector,
 extern void drbd_al_apply_to_bm(struct drbd_conf *mdev);
 extern void drbd_al_shrink(struct drbd_conf *mdev);
 
+
 /* drbd_nl.c */
 
 void drbd_nl_cleanup(void);
@@ -1677,6 +1685,7 @@ void drbd_bcast_ee(struct drbd_conf *mdev,
 		const char *reason, const int dgs,
 		const char* seen_hash, const char* calc_hash,
 		const struct drbd_epoch_entry* e);
+
 
 /**
  * DOC: DRBD State macros
@@ -1768,6 +1777,7 @@ static inline int drbd_ee_has_active_page(struct drbd_epoch_entry *e)
 	return 0;
 }
 
+
 static inline void drbd_state_lock(struct drbd_conf *mdev)
 {
 	wait_event(mdev->misc_wait,
@@ -1854,6 +1864,7 @@ static inline void drbd_chk_io_error_(struct drbd_conf *mdev,
 		spin_unlock_irqrestore(&mdev->req_lock, flags);
 	}
 }
+
 
 /**
  * drbd_md_first_sector() - Returns the first sector number of the meta data area
@@ -2108,6 +2119,7 @@ static inline void inc_unacked(struct drbd_conf *mdev)
 	atomic_sub(n, &mdev->unacked_cnt);			\
 	ERR_IF_CNT_IS_NEGATIVE(unacked_cnt); } while (0)
 
+
 static inline void put_net_conf(struct drbd_conf *mdev)
 {
 	if (atomic_dec_and_test(&mdev->net_cnt))
@@ -2225,6 +2237,7 @@ static inline void drbd_get_syncer_progress(struct drbd_conf *mdev,
 		*per_mil_done = tmp;
 	}
 }
+
 
 /* this throttles on-the-fly application requests
  * according to max_buffers settings;

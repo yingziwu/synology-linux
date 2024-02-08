@@ -75,6 +75,7 @@ extern "C"			/*{ */
  MV_BOOL mvSataPhyShutdown(MV_U8 port);
 MV_BOOL mvSataPhyPowerOn(MV_U8 port);
 
+
 #ifdef __cplusplus
 
 /*}*/

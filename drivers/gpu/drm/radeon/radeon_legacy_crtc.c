@@ -76,6 +76,7 @@ static void radeon_legacy_rmx_mode_set(struct drm_crtc *crtc,
 		crtc_more_cntl |= RADEON_CRTC_H_CUTOFF_ACTIVE_EN;
 	}
 
+
 	fp_crtc_h_total_disp = ((((mode->crtc_htotal / 8) - 1) & 0x3ff)
 				| ((((mode->crtc_hdisplay / 8) - 1) & 0x1ff) << 16));
 
@@ -240,6 +241,7 @@ static void radeon_pll2_wait_for_read_update_complete(struct drm_device *dev)
 {
 	struct radeon_device *rdev = dev->dev_private;
 	int i = 0;
+
 
 	/* FIXME: Certain revisions of R300 can't recover here.  Not sure of
 	   the cause yet, but this workaround will mask the problem for now.
@@ -414,12 +416,40 @@ int radeon_crtc_do_set_base(struct drm_crtc *crtc,
 	/* Pin framebuffer & get tilling informations */
 	obj = radeon_fb->obj;
 	rbo = gem_to_radeon_bo(obj);
+retry:
 	r = radeon_bo_reserve(rbo, false);
 	if (unlikely(r != 0))
 		return r;
 	r = radeon_bo_pin(rbo, RADEON_GEM_DOMAIN_VRAM, &base);
 	if (unlikely(r != 0)) {
 		radeon_bo_unreserve(rbo);
+
+		/* On old GPU like RN50 with little vram pining can fails because
+		 * current fb is taking all space needed. So instead of unpining
+		 * the old buffer after pining the new one, first unpin old one
+		 * and then retry pining new one.
+		 *
+		 * As only master can set mode only master can pin and it is
+		 * unlikely the master client will race with itself especialy
+		 * on those old gpu with single crtc.
+		 *
+		 * We don't shutdown the display controller because new buffer
+		 * will end up in same spot.
+		 */
+		if (!atomic && fb && fb != crtc->fb) {
+			struct radeon_bo *old_rbo;
+			unsigned long nsize, osize;
+
+			old_rbo = gem_to_radeon_bo(to_radeon_framebuffer(fb)->obj);
+			osize = radeon_bo_size(old_rbo);
+			nsize = radeon_bo_size(rbo);
+			if (nsize <= osize && !radeon_bo_reserve(old_rbo, false)) {
+				radeon_bo_unpin(old_rbo);
+				radeon_bo_unreserve(old_rbo);
+				fb = NULL;
+				goto retry;
+			}
+		}
 		return -EINVAL;
 	}
 	radeon_bo_get_tiling_flags(rbo, &tiling_flags, NULL);
@@ -879,6 +909,7 @@ static void radeon_set_pll(struct drm_crtc *crtc, struct drm_display_mode *mode)
 	} else {
 		uint32_t pixclks_cntl;
 
+
 		if (is_tv) {
 			pixclks_cntl = RREG32_PLL(RADEON_PIXCLKS_CNTL);
 			radeon_legacy_tv_adjust_pll1(encoder, &htotal_cntl, &pll_ref_div,
@@ -1055,6 +1086,7 @@ static const struct drm_crtc_helper_funcs legacy_helper_funcs = {
 	.commit = radeon_crtc_commit,
 	.load_lut = radeon_crtc_load_lut,
 };
+
 
 void radeon_legacy_init_crtc(struct drm_device *dev,
 			       struct radeon_crtc *radeon_crtc)

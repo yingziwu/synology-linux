@@ -126,6 +126,7 @@ error_not_ready:
 }
 EXPORT_SYMBOL_GPL(wimax_report_rfkill_hw);
 
+
 /**
  * wimax_report_rfkill_sw - Reports changes in the software RF switch
  *
@@ -177,6 +178,7 @@ error_not_ready:
 		wimax_dev, state, result);
 }
 EXPORT_SYMBOL_GPL(wimax_report_rfkill_sw);
+
 
 /*
  * Callback for the RF Kill toggle operation
@@ -230,6 +232,7 @@ out_no_change:
 		wimax_dev, state, result);
 	return result;
 }
+
 
 /*
  * Translate from rfkill state to wimax state
@@ -336,6 +339,7 @@ error_not_ready:
 }
 EXPORT_SYMBOL(wimax_rfkill);
 
+
 /*
  * Register a new WiMAX device's RF Kill support
  *
@@ -378,6 +382,7 @@ error_rfkill_allocate:
 	return result;
 }
 
+
 /*
  * Deregister a WiMAX device's RF Kill support
  *
@@ -394,6 +399,7 @@ void wimax_rfkill_rm(struct wimax_dev *wimax_dev)
 	rfkill_destroy(wimax_dev->rfkill);
 	d_fnend(3, dev, "(wimax_dev %p)\n", wimax_dev);
 }
+
 
 /*
  * Exporting to user space over generic netlink
@@ -413,6 +419,7 @@ static const struct nla_policy wimax_gnl_rfkill_policy[WIMAX_GNL_ATTR_MAX + 1] =
 		.type = NLA_U32		/* enum wimax_rf_state */
 	},
 };
+
 
 static
 int wimax_gnl_doit_rfkill(struct sk_buff *skb, struct genl_info *info)
@@ -451,6 +458,7 @@ error_no_wimax_dev:
 	return result;
 }
 
+
 struct genl_ops wimax_gnl_rfkill = {
 	.cmd = WIMAX_GNL_OP_RFKILL,
 	.flags = GENL_ADMIN_PERM,
@@ -458,3 +466,4 @@ struct genl_ops wimax_gnl_rfkill = {
 	.doit = wimax_gnl_doit_rfkill,
 	.dumpit = NULL,
 };
+

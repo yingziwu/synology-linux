@@ -67,6 +67,7 @@ extern "C" {
 
 #define  AL_PCI_VF_BASE_ADDRESS_0           0x324
 
+
 #define AL_PCI_EXP_CAP_BASE	0x40
 #define AL_PCI_EXP_DEVCAP          4       /* Device capabilities */
 #define  AL_PCI_EXP_DEVCAP_PAYLOAD 0x07    /* Max_Payload_Size */
@@ -227,6 +228,8 @@ static inline void al_pcie_perform_flr(int (* pcie_read_config_u32)(void *handle
 	pcie_write_config_u32(handle, AL_PCI_VF_BASE_ADDRESS_0,
 			cfg_reg_store[i++]);
 }
+
+
 
 #ifdef __cplusplus
 }

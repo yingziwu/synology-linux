@@ -285,6 +285,7 @@ again:
 }
 EXPORT_SYMBOL(drm_gem_handle_create);
 
+
 /**
  * drm_gem_free_mmap_offset - release a fake mmap offset for an object
  * @obj: obj in question
@@ -634,6 +635,7 @@ void drm_gem_vm_close(struct vm_area_struct *vma)
 	mutex_unlock(&dev->struct_mutex);
 }
 EXPORT_SYMBOL(drm_gem_vm_close);
+
 
 /**
  * drm_gem_mmap - memory map routine for GEM objects

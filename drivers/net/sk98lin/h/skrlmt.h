@@ -275,6 +275,7 @@ typedef struct s_RlmtMbuf {
 } SK_RLMT_MBUF;
 #endif	/* SK_RLMT_MBUF_PRIVATE */
 
+
 #ifdef SK_LA_INFO
 typedef struct s_Rlmt_PacketInfo {
 	unsigned	PacketLength;			/* Length of packet. */
@@ -282,16 +283,20 @@ typedef struct s_Rlmt_PacketInfo {
 } SK_RLMT_PINFO;
 #endif	/* SK_LA_INFO */
 
+
 typedef struct s_RootId {
 	SK_U8		Id[8];					/* Root Bridge Id. */
 } SK_RLMT_ROOT_ID;
+
 
 typedef struct s_port {
 	SK_MAC_ADDR	CheckAddr;
 	SK_BOOL		SuspectTx;
 } SK_PORT_CHECK;
 
+
 typedef struct s_RlmtNet SK_RLMT_NET;
+
 
 typedef struct s_RlmtPort {
 
@@ -341,6 +346,7 @@ typedef struct s_RlmtPort {
 	SK_RLMT_ROOT_ID	Root;					/* Root Bridge Id. */
 } SK_RLMT_PORT;
 
+
 struct s_RlmtNet {
 
 /* ----- Public part (read-only) ----- */
@@ -375,6 +381,7 @@ struct s_RlmtNet {
 	SK_TIMER		SegTimer;			/* Timer struct. */
 };
 
+
 typedef struct s_Rlmt {
 
 /* ----- Public part (read-only) ----- */
@@ -396,10 +403,12 @@ typedef struct s_Rlmt {
 
 } SK_RLMT;
 
+
 extern	SK_MAC_ADDR	BridgeMcAddr;
 extern	SK_MAC_ADDR	SkRlmtMcAddr;
 
 /* function prototypes ********************************************************/
+
 
 #ifndef SK_KR_PROTO
 
@@ -425,6 +434,7 @@ extern	int	SkRlmtEvent(
 #error KR-style function prototypes are not yet provided.
 
 #endif	/* defined(SK_KR_PROTO)) */
+
 
 #ifdef __cplusplus
 }

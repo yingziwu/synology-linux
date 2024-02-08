@@ -219,6 +219,7 @@ static void handle_stsi_3_2_2(struct kvm_vcpu *vcpu, struct sysinfo_3_2_2 *mem)
 	for (n = mem->count - 1; n > 0 ; n--)
 		memcpy(&mem->vm[n], &mem->vm[n - 1], sizeof(mem->vm[0]));
 
+	memset(&mem->vm[0], 0, sizeof(mem->vm[0]));
 	mem->vm[0].cpus_total = cpus;
 	mem->vm[0].cpus_configured = cpus;
 	mem->vm[0].cpus_standby = 0;
@@ -349,6 +350,7 @@ static int handle_tprot(struct kvm_vcpu *vcpu)
 	if (vcpu->arch.sie_block->gpsw.mask & PSW_MASK_DAT)
 		return -EOPNOTSUPP;
 
+
 	/* we must resolve the address without holding the mmap semaphore.
 	 * This is ok since the userspace hypervisor is not supposed to change
 	 * the mapping while the guest queries the memory. Otherwise the guest
@@ -379,3 +381,4 @@ int kvm_s390_handle_e5(struct kvm_vcpu *vcpu)
 		return handle_tprot(vcpu);
 	return -EOPNOTSUPP;
 }
+

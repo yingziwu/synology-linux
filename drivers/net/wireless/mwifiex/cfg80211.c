@@ -675,6 +675,7 @@ static struct ieee80211_supported_band mwifiex_band_5ghz = {
 	.n_bitrates = ARRAY_SIZE(mwifiex_rates) + 4,
 };
 
+
 /* Supported crypto cipher suits to be advertised to cfg80211 */
 
 static const u32 mwifiex_cipher_suites[] = {
@@ -943,8 +944,9 @@ done:
 			}
 			is_scanning_required = 1;
 		} else {
-			dev_dbg(priv->adapter->dev, "info: trying to associate to %s and bssid %pM\n",
-					(char *) req_ssid.ssid, bss->bssid);
+			dev_dbg(priv->adapter->dev, "info: trying to associate to '%.*s' bssid %pM\n",
+				req_ssid.ssid_len, (char *)req_ssid.ssid,
+				bss->bssid);
 			memcpy(&priv->cfg_bssid, bss->bssid, ETH_ALEN);
 			break;
 		}
@@ -988,8 +990,8 @@ mwifiex_cfg80211_connect(struct wiphy *wiphy, struct net_device *dev,
 
 	priv->assoc_request = -EINPROGRESS;
 
-	wiphy_dbg(wiphy, "info: Trying to associate to %s and bssid %pM\n",
-	       (char *) sme->ssid, sme->bssid);
+	wiphy_dbg(wiphy, "info: Trying to associate to %.*s and bssid %pM\n",
+		  (int)sme->ssid_len, (char *)sme->ssid, sme->bssid);
 
 	ret = mwifiex_cfg80211_assoc(priv, sme->ssid_len, sme->ssid, sme->bssid,
 				     priv->bss_mode, sme->channel, sme, 0);
@@ -1025,8 +1027,8 @@ mwifiex_cfg80211_join_ibss(struct wiphy *wiphy, struct net_device *dev,
 
 	priv->ibss_join_request = -EINPROGRESS;
 
-	wiphy_dbg(wiphy, "info: trying to join to %s and bssid %pM\n",
-	       (char *) params->ssid, params->bssid);
+	wiphy_dbg(wiphy, "info: trying to join to %.*s and bssid %pM\n",
+		  params->ssid_len, (char *)params->ssid, params->bssid);
 
 	ret = mwifiex_cfg80211_assoc(priv, params->ssid_len, params->ssid,
 				params->bssid, priv->bss_mode,
@@ -1174,6 +1176,7 @@ struct net_device *mwifiex_add_virtual_intf(struct wiphy *wiphy,
 	struct mwifiex_adapter *adapter;
 	struct net_device *dev;
 	void *mdev_priv;
+	int ret;
 
 	if (!priv)
 		return ERR_PTR(-EFAULT);
@@ -1214,8 +1217,8 @@ struct net_device *mwifiex_add_virtual_intf(struct wiphy *wiphy,
 			      ether_setup, 1);
 	if (!dev) {
 		wiphy_err(wiphy, "no memory available for netdevice\n");
-		priv->bss_mode = NL80211_IFTYPE_UNSPECIFIED;
-		return ERR_PTR(-ENOMEM);
+		ret = -ENOMEM;
+		goto err_alloc_netdev;
 	}
 
 	dev_net_set(dev, wiphy_net(wiphy));
@@ -1237,16 +1240,15 @@ struct net_device *mwifiex_add_virtual_intf(struct wiphy *wiphy,
 
 	SET_NETDEV_DEV(dev, adapter->dev);
 
+	sema_init(&priv->async_sem, 1);
+	priv->scan_pending_on_block = false;
+
 	/* Register network device */
 	if (register_netdevice(dev)) {
 		wiphy_err(wiphy, "cannot register virtual network device\n");
-		free_netdev(dev);
-		priv->bss_mode = NL80211_IFTYPE_UNSPECIFIED;
-		return ERR_PTR(-EFAULT);
+		ret = -EFAULT;
+		goto err_reg_netdev;
 	}
-
-	sema_init(&priv->async_sem, 1);
-	priv->scan_pending_on_block = false;
 
 	dev_dbg(adapter->dev, "info: %s: Marvell 802.11 Adapter\n", dev->name);
 
@@ -1254,6 +1256,13 @@ struct net_device *mwifiex_add_virtual_intf(struct wiphy *wiphy,
 	mwifiex_dev_debugfs_init(priv);
 #endif
 	return dev;
+
+err_reg_netdev:
+	free_netdev(dev);
+	priv->netdev = NULL;
+err_alloc_netdev:
+	priv->bss_mode = NL80211_IFTYPE_UNSPECIFIED;
+	return ERR_PTR(ret);
 }
 EXPORT_SYMBOL_GPL(mwifiex_add_virtual_intf);
 
@@ -1279,9 +1288,6 @@ int mwifiex_del_virtual_intf(struct wiphy *wiphy, struct net_device *dev)
 
 	if (dev->reg_state == NETREG_REGISTERED)
 		unregister_netdevice(dev);
-
-	if (dev->reg_state == NETREG_UNREGISTERED)
-		free_netdev(dev);
 
 	/* Clear the priv in adapter */
 	priv->netdev = NULL;

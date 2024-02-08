@@ -413,6 +413,7 @@ static void start_pmu(void * data)
 		pmu_regs.pmnc |= 0x1;
 	}
 
+
 	/* enable the interrupts */
 	PJ4B_Write_INTENSET(pmu_regs.intenset);
 

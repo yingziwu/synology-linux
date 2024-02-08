@@ -22,6 +22,7 @@
  based tunable parameters such as whether the tray should auto-close for
  that drive. Suggestions (or patches) for this welcome!
 
+
  Revision History
  ----------------------------------
  1.00  Date Unknown -- David van Leeuwen <david@tm.tno.nl>
@@ -715,6 +716,7 @@ static int cdrom_has_defect_mgt(struct cdrom_device_info *cdi)
 	return 1;
 }
 
+
 static int cdrom_is_random_writable(struct cdrom_device_info *cdi, int *write)
 {
 	struct rwrt_feature_desc rfd;
@@ -871,6 +873,7 @@ static int cdrom_is_dvd_rw(struct cdrom_device_info *cdi)
 	switch (cdi->mmc3_profile) {
 	case 0x12:	/* DVD-RAM	*/
 	case 0x1A:	/* DVD+RW	*/
+	case 0x43:	/* BD-RE	*/
 		return 0;
 	default:
 		return 1;
@@ -1307,6 +1310,7 @@ int cdrom_number_of_slots(struct cdrom_device_info *cdi)
 	kfree(info);
 	return nslots;
 }
+
 
 /* If SLOT < 0, unload the current slot.  Otherwise, try to load SLOT. */
 static int cdrom_load_unload(struct cdrom_device_info *cdi, int slot) 
@@ -2882,7 +2886,7 @@ static noinline int mmc_ioctl_cdrom_read_data(struct cdrom_device_info *cdi,
 	if (lba < 0)
 		return -EINVAL;
 
-	cgc->buffer = kmalloc(blocksize, GFP_KERNEL);
+	cgc->buffer = kzalloc(blocksize, GFP_KERNEL);
 	if (cgc->buffer == NULL)
 		return -ENOMEM;
 

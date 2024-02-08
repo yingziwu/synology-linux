@@ -217,6 +217,7 @@ static char *kdb_read(char *buffer, size_t bufsize)
 	int diag, dtab_count;
 	int key;
 
+
 	diag = kdbgetintenv("DTABCOUNT", &dtab_count);
 	if (diag)
 		dtab_count = 30;
@@ -348,7 +349,7 @@ poll_again:
 			}
 			kdb_printf("\n");
 			for (i = 0; i < count; i++) {
-				if (kallsyms_symbol_next(p_tmp, i) < 0)
+				if (WARN_ON(!kallsyms_symbol_next(p_tmp, i)))
 					break;
 				kdb_printf("%s ", p_tmp);
 				*(p_tmp + len) = '\0';

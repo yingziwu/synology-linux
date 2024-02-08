@@ -39,6 +39,7 @@
 #define SH_FSI_FMT_DAI		(0 << 4)
 #define SH_FSI_FMT_SPDIF	(1 << 4)
 
+
 /*
  * set_rate return value
  *

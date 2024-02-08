@@ -51,6 +51,7 @@ struct
 # define DBG_CFG(args)
 #endif
 
+
 /*
  * Given a bus, device, and function number, compute resulting
  * configuration space address
@@ -346,6 +347,7 @@ tsunami_init_one_pchip(tsunami_pchip *pchip, int index)
 
 	tsunami_pci_tbi(hose, 0, -1);
 }
+
 
 void __iomem *
 tsunami_ioportmap(unsigned long addr)

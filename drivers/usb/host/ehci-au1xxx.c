@@ -14,6 +14,7 @@
 #include <linux/platform_device.h>
 #include <asm/mach-au1x00/au1000.h>
 
+
 extern int usb_disabled(void);
 
 static int au1xxx_ehci_setup(struct usb_hcd *hcd)

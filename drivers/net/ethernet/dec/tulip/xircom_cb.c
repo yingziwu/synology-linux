@@ -41,6 +41,8 @@ MODULE_DESCRIPTION("Xircom Cardbus ethernet driver");
 MODULE_AUTHOR("Arjan van de Ven <arjanv@redhat.com>");
 MODULE_LICENSE("GPL");
 
+
+
 /* IO registers on the card, offsets */
 #define CSR0	0x00
 #define CSR1	0x08
@@ -69,6 +71,7 @@ MODULE_LICENSE("GPL");
 
 static int bufferoffsets[NUMDESCRIPTORS] = {128,2048,4096,6144};
 
+
 struct xircom_private {
 	/* Send and receive buffers, kernel-addressable and dma addressable forms */
 
@@ -96,6 +99,7 @@ struct xircom_private {
 	struct pci_dev *pdev;
 	struct net_device *dev;
 };
+
 
 /* Function prototypes */
 static int xircom_probe(struct pci_dev *pdev, const struct pci_device_id *id);
@@ -130,6 +134,8 @@ static void enable_link_interrupt(struct xircom_private *card);
 static void disable_all_interrupts(struct xircom_private *card);
 static int link_status(struct xircom_private *card);
 
+
+
 static DEFINE_PCI_DEVICE_TABLE(xircom_pci_table) = {
 	{0x115D, 0x0003, PCI_ANY_ID, PCI_ANY_ID,},
 	{0,},
@@ -144,6 +150,7 @@ static struct pci_driver xircom_ops = {
 	.suspend =NULL,
 	.resume =NULL
 };
+
 
 #if defined DEBUG && DEBUG > 1
 static void print_binary(unsigned int number)
@@ -235,6 +242,7 @@ static int __devinit xircom_probe(struct pci_dev *pdev, const struct pci_device_
 
 	SET_NETDEV_DEV(dev, &pdev->dev);
 
+
 	private->dev = dev;
 	private->pdev = pdev;
 	private->io_port = pci_resource_start(pdev, 0);
@@ -278,6 +286,7 @@ rx_buf_fail:
 device_fail:
 	return -ENODEV;
 }
+
 
 /*
  xircom_remove is called on module-unload or on device-eject.
@@ -339,6 +348,7 @@ static irqreturn_t xircom_interrupt(int irq, void *dev_instance)
 				        real existing bits */
 	outl(status,card->io_port+CSR5);
 
+
 	for (i=0;i<NUMDESCRIPTORS;i++)
 		investigate_write_descriptor(dev,card,i,bufferoffsets[i]);
 	for (i=0;i<NUMDESCRIPTORS;i++)
@@ -362,6 +372,7 @@ static netdev_tx_t xircom_start_xmit(struct sk_buff *skb,
 	/* First see if we can free some descriptors */
 	for (desc=0;desc<NUMDESCRIPTORS;desc++)
 		investigate_write_descriptor(dev,card,desc,bufferoffsets[desc]);
+
 
 	nextdescriptor = (card->transmit_used +1) % (NUMDESCRIPTORS);
 	desc = card->transmit_used;
@@ -407,6 +418,9 @@ static netdev_tx_t xircom_start_xmit(struct sk_buff *skb,
 	return NETDEV_TX_BUSY;
 }
 
+
+
+
 static int xircom_open(struct net_device *dev)
 {
 	struct xircom_private *xp = netdev_priv(dev);
@@ -432,6 +446,7 @@ static int xircom_close(struct net_device *dev)
 	card = netdev_priv(dev);
 	netif_stop_queue(dev); /* we don't want new packets */
 
+
 	spin_lock_irqsave(&card->lock,flags);
 
 	disable_all_interrupts(card);
@@ -451,6 +466,7 @@ static int xircom_close(struct net_device *dev)
 
 }
 
+
 #ifdef CONFIG_NET_POLL_CONTROLLER
 static void xircom_poll_controller(struct net_device *dev)
 {
@@ -459,6 +475,7 @@ static void xircom_poll_controller(struct net_device *dev)
 	enable_irq(dev->irq);
 }
 #endif
+
 
 static void initialize_card(struct xircom_private *card)
 {
@@ -478,9 +495,11 @@ static void initialize_card(struct xircom_private *card)
 	val &= ~0x01;		/* disable Software reset */
 	outl(val, card->io_port + CSR0);
 
+
 	val = 0;		/* Value 0x00 is a safe and conservative value
 				   for the PCI configuration settings */
 	outl(val, card->io_port + CSR0);
+
 
 	disable_all_interrupts(card);
 	deactivate_receiver(card);
@@ -555,6 +574,7 @@ static void setup_descriptors(struct xircom_private *card)
 	address = card->rx_dma_handle;
 	outl(address, card->io_port + CSR3);	/* Receive descr list address */
 
+
 	/* transmit descriptors */
 	memset(card->tx_buffer, 0, 128);	/* clear the descriptors */
 
@@ -616,6 +636,7 @@ static int link_status_changed(struct xircom_private *card)
 	return 1;
 }
 
+
 /*
 transmit_active returns 1 if the transmitter on the card is
 in a non-stopped state.
@@ -669,6 +690,7 @@ static void activate_receiver(struct xircom_private *card)
 	   active, no need to do the expensive thing */
 	if ((val&2) && (receive_active(card)))
 		return;
+
 
 	val = val & ~2;		/* disable the receiver */
 	outl(val, card->io_port + CSR6);
@@ -730,6 +752,7 @@ static void deactivate_receiver(struct xircom_private *card)
 			netdev_err(card->dev, "Receiver failed to deactivate\n");
 	}
 }
+
 
 /*
 activate_transmitter enables the transmitter on the card.
@@ -816,6 +839,7 @@ static void deactivate_transmitter(struct xircom_private *card)
 	}
 }
 
+
 /*
 enable_transmit_interrupt enables the transmit interrupt
 
@@ -829,6 +853,7 @@ static void enable_transmit_interrupt(struct xircom_private *card)
 	val |= 1;				/* enable the transmit interrupt */
 	outl(val, card->io_port + CSR7);
 }
+
 
 /*
 enable_receive_interrupt enables the receive interrupt
@@ -857,6 +882,8 @@ static void enable_link_interrupt(struct xircom_private *card)
 	val = val | (1 << 27);			/* enable the link status chage interrupt */
 	outl(val, card->io_port + CSR7);
 }
+
+
 
 /*
 disable_all_interrupts disables all interrupts
@@ -908,6 +935,9 @@ static int enable_promisc(struct xircom_private *card)
 	return 1;
 }
 
+
+
+
 /*
 link_status() checks the links status and will return 0 for no link, 10 for 10mbit link and 100 for.. guess what.
 
@@ -928,6 +958,10 @@ static int link_status(struct xircom_private *card)
 
 	return 0;
 }
+
+
+
+
 
 /*
   read_mac_address() reads the MAC address from the NIC and stores it in the "dev" structure.
@@ -969,6 +1003,7 @@ static void read_mac_address(struct xircom_private *card)
 	pr_debug(" %pM\n", card->dev->dev_addr);
 }
 
+
 /*
  transceiver_voodoo() enables the external UTP plug thingy.
  it's called voodoo as I stole this code and cannot cross-reference
@@ -997,6 +1032,7 @@ static void transceiver_voodoo(struct xircom_private *card)
 	netif_start_queue(card->dev);
 }
 
+
 static void xircom_up(struct xircom_private *card)
 {
 	unsigned long flags;
@@ -1009,6 +1045,7 @@ static void xircom_up(struct xircom_private *card)
 
 	spin_lock_irqsave(&card->lock, flags);
 
+
 	enable_link_interrupt(card);
 	enable_transmit_interrupt(card);
 	enable_receive_interrupt(card);
@@ -1018,6 +1055,7 @@ static void xircom_up(struct xircom_private *card)
 	/* The card can have received packets already, read them away now */
 	for (i=0;i<NUMDESCRIPTORS;i++)
 		investigate_read_descriptor(card->dev,card,i,bufferoffsets[i]);
+
 
 	spin_unlock_irqrestore(&card->lock, flags);
 	trigger_receive(card);
@@ -1069,6 +1107,7 @@ out:
 	}
 }
 
+
 /* Bufferoffset is in BYTES */
 static void
 investigate_write_descriptor(struct net_device *dev,
@@ -1112,3 +1151,4 @@ static void __exit xircom_exit(void)
 
 module_init(xircom_init)
 module_exit(xircom_exit)
+

@@ -1,3 +1,6 @@
+#ifndef MY_ABC_HERE
+#define MY_ABC_HERE
+#endif
 /*
  * Crash information logger
  * Copyright (C) 2010 Felix Fietkau <nbd@openwrt.org>
@@ -128,6 +131,10 @@ static void crashlog_do_dump(struct kmsg_dumper *dumper,
 	if (first) {
 		crashlog_printf("Modules:");
 		list_for_each_entry(m, crashlog_modules, list) {
+#ifdef MY_ABC_HERE
+			if (m->state == MODULE_STATE_UNFORMED)
+				continue;
+#endif /* MY_ABC_HERE */
 			crashlog_printf("\t%s@%p+%x", m->name,
 			m->module_core, m->core_size,
 			m->module_init, m->init_size);
@@ -149,6 +156,7 @@ static void crashlog_do_dump(struct kmsg_dumper *dumper,
 	memcpy(buf + l1_cpy, s2 + s2_start, l2_cpy);
 	crashlog_buf->len += l1_cpy + l2_cpy;
 }
+
 
 int __init crashlog_init_fs(void)
 {

@@ -17,6 +17,7 @@
  * distribution in the file called COPYING.
  */
 
+
 #ifndef _RAR_REGISTER_H
 #define _RAR_REGISTER_H
 

@@ -69,3 +69,4 @@ static inline void irq_compat_clr_move_pending(struct irq_desc *desc) { }
 static inline void irq_compat_set_affinity(struct irq_desc *desc) { }
 static inline void irq_compat_clr_affinity(struct irq_desc *desc) { }
 #endif
+

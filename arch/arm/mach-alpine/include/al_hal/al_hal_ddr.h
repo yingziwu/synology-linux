@@ -126,6 +126,7 @@ struct al_ddr_addrmap {
 	uint8_t	cs_b0_1[2];
 };
 
+
 /* Data BIST mode */
 enum al_ddr_bist_mode {
 	/**
@@ -501,3 +502,4 @@ unsigned int al_ddr_bits_per_rank_get(
 /* *INDENT-ON* */
 /** @} end of DDR group */
 #endif
+

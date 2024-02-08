@@ -1256,6 +1256,7 @@ static void iso_bubble_handler(struct work_struct *w)
 	mutex_unlock(&pd->lock);
 }
 
+
 static int vidioc_streamon(struct file *file, void *fh,
 				enum v4l2_buf_type type)
 {
@@ -1665,3 +1666,4 @@ out:
 	pd_video_exit(pd);
 	return ret;
 }
+

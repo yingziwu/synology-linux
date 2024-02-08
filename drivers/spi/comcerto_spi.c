@@ -168,6 +168,7 @@ static int do_write_only_transfer16(void __iomem *reg_base, u16 *buf, unsigned i
     return rc;
 }
 
+
 /**
  *  * do_read_only_transfer -
  *   *
@@ -237,6 +238,8 @@ static int do_read_only_transfer16(void __iomem *reg_base, u16 *buf, unsigned in
 
     return rc;
 }
+
+
 
 int comcerto_spi_do_transfer(struct comcerto_spi *xspi, struct spi_client_conf *cconf, struct comcerto_transfer *transfer)
 {
@@ -430,6 +433,7 @@ static void comcerto_spi_hw_init(struct comcerto_spi *xspi)
     /* enable SPI bus : FIXME */
     //comcerto_gpio_ctrl(0x1 << 9, 0x1 << 9);
 
+
     /* disable SPI operation */
     writel(0, reg_base + COMCERTO_SPI_SSIENR);
 
@@ -495,6 +499,7 @@ struct spi_master *comcerto_spi_init(struct platform_device *pdev, struct resour
 	if (ret)
 		goto unmap_io;
     
+
 	ret = spi_bitbang_start(&xspi->bitbang);
 	if (ret) {
 		dev_err(dev, "spi_bitbang_start FAILED\n");
@@ -553,6 +558,7 @@ static int __devinit comcerto_spi_probe(struct platform_device *dev)
 		dev_err(&dev->dev, "Missing slave select configuration data\n");
 		return -EINVAL;
 	}
+
 
 	r = platform_get_resource(dev, IORESOURCE_MEM, dev->num_resources);
 	if (!r)

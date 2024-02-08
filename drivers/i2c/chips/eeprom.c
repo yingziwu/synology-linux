@@ -274,3 +274,4 @@ static void eeprom_exit(void)
 
 module_init(eeprom_init);
 module_exit(eeprom_exit);
+

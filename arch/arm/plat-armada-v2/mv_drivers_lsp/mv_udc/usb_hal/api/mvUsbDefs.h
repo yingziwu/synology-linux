@@ -76,6 +76,7 @@ disclaimer.
 #define  USBERR_ALLOC_DTD_BASE               (0xAA)
 #define  USBERR_CLASS_DRIVER_INSTALL         (0xAB)
 
+
 /* Pipe Types */
 #define  USB_ISOCHRONOUS_PIPE                (0x01)
 #define  USB_INTERRUPT_PIPE                  (0x02)

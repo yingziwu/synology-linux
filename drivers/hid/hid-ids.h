@@ -1,7 +1,23 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  USB HID quirks support for Linux
+ *
+ *  Copyright (c) 1999 Andreas Gal
+ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+ *  Copyright (c) 2006-2007 Jiri Kosina
+ *  Copyright (c) 2007 Paul Walmsley
+ */
+
+/*
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ */
+
 #ifndef HID_IDS_H_FILE
 #define HID_IDS_H_FILE
 
@@ -139,6 +155,8 @@
 #define USB_DEVICE_ID_ATEN_2PORTKVM	0x2204
 #define USB_DEVICE_ID_ATEN_4PORTKVM	0x2205
 #define USB_DEVICE_ID_ATEN_4PORTKVMC	0x2208
+#define USB_DEVICE_ID_ATEN_CS682	0x2213
+#define USB_DEVICE_ID_ATEN_CS692	0x8021
 
 #define USB_VENDOR_ID_ATMEL		0x03eb
 #define USB_DEVICE_ID_ATMEL_MULTITOUCH	0x211c
@@ -525,7 +543,7 @@
 #define USB_DEVICE_ID_BELKIN_UPS4       0x0912
 #define USB_DEVICE_ID_BELKIN_UPS5       0x0551
 #define USB_DEVICE_ID_BELKIN_UPS6       0x0751
-#endif  
+#endif //MY_ABC_HERE
 
 #define USB_VENDOR_ID_MICROCHIP		0x04d8
 #define USB_DEVICE_ID_PICKIT1		0x0032
@@ -548,6 +566,9 @@
 
 #define USB_VENDOR_ID_MONTEREY		0x0566
 #define USB_DEVICE_ID_GENIUS_KB29E	0x3004
+
+#define USB_VENDOR_ID_MSI		0x1770
+#define USB_DEVICE_ID_MSI_GX680R_LED_PANEL	0xff00
 
 #define USB_VENDOR_ID_NATIONAL_SEMICONDUCTOR 0x0400
 #define USB_DEVICE_ID_N_S_HARMONY	0xc359
@@ -588,6 +609,7 @@
 #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16   0x0012
 #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17   0x0013
 #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18   0x0014
+#define USB_DEVICE_ID_NTRIG_DUOSENSE 0x1500
 
 #define USB_VENDOR_ID_ONTRAK		0x0a07
 #define USB_DEVICE_ID_ONTRAK_ADU100	0x0064
@@ -631,6 +653,9 @@
 #define USB_DEVICE_ID_QUANTA_OPTICAL_TOUCH	0x3000
 #define USB_DEVICE_ID_PIXART_IMAGING_INC_OPTICAL_TOUCH_SCREEN	0x3001
 
+#define USB_VENDOR_ID_REALTEK		0x0bda
+#define USB_DEVICE_ID_REALTEK_READER	0x0152
+
 #define USB_VENDOR_ID_ROCCAT		0x1e7d
 #define USB_DEVICE_ID_ROCCAT_ARVO	0x30d4
 #define USB_DEVICE_ID_ROCCAT_KONE	0x2ced
@@ -654,6 +679,7 @@
 
 #define USB_VENDOR_ID_SONY			0x054c
 #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+#define USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE	0x0374
 #define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
 #define USB_DEVICE_ID_SONY_NAVIGATION_CONTROLLER	0x042f
 
@@ -679,6 +705,13 @@
 #define USB_VENDOR_ID_SYMBOL		0x05e0
 #define USB_DEVICE_ID_SYMBOL_SCANNER_1	0x0800
 #define USB_DEVICE_ID_SYMBOL_SCANNER_2	0x1300
+
+#define USB_VENDOR_ID_SYNAPTICS		0x06cb
+#define USB_DEVICE_ID_SYNAPTICS_LTS1	0x0af8
+#define USB_DEVICE_ID_SYNAPTICS_LTS2	0x1d10
+#define USB_DEVICE_ID_SYNAPTICS_HD	0x0ac3
+#define USB_DEVICE_ID_SYNAPTICS_QUAD_HD	0x1ac3
+#define USB_DEVICE_ID_SYNAPTICS_TP_V103	0x5710
 
 #define USB_VENDOR_ID_THRUSTMASTER	0x044f
 

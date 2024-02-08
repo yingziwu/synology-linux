@@ -60,6 +60,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
+
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -434,6 +435,7 @@ static bool iwl_is_otp_empty(struct iwl_priv *priv)
 
 	return is_empty;
 }
+
 
 /*
  * iwl_find_otp_image: find EEPROM image in OTP

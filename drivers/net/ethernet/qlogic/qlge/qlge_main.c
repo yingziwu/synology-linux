@@ -207,6 +207,7 @@ static int ql_wait_cfg(struct ql_adapter *qdev, u32 bit)
 	return -ETIMEDOUT;
 }
 
+
 /* Used to issue init control blocks to hw. Maps control block,
  * sets address, triggers download, waits for completion.
  */
@@ -1531,6 +1532,7 @@ static void ql_process_mac_rx_page(struct ql_adapter *qdev,
 	addr = lbq_desc->p.pg_chunk.va;
 	prefetch(addr);
 
+
 	/* Frame error, so drop the packet. */
 	if (ib_mac_rsp->flags2 & IB_MAC_IOCB_RSP_ERR_MASK) {
 		netif_info(qdev, drv, qdev->ndev,
@@ -1620,7 +1622,18 @@ static void ql_process_mac_rx_skb(struct ql_adapter *qdev,
 		return;
 	}
 	skb_reserve(new_skb, NET_IP_ALIGN);
+
+	pci_dma_sync_single_for_cpu(qdev->pdev,
+				    dma_unmap_addr(sbq_desc, mapaddr),
+				    dma_unmap_len(sbq_desc, maplen),
+				    PCI_DMA_FROMDEVICE);
+
 	memcpy(skb_put(new_skb, length), skb->data, length);
+
+	pci_dma_sync_single_for_device(qdev->pdev,
+				       dma_unmap_addr(sbq_desc, mapaddr),
+				       dma_unmap_len(sbq_desc, maplen),
+				       PCI_DMA_FROMDEVICE);
 	skb = new_skb;
 
 	/* Frame error, so drop the packet. */
@@ -2636,6 +2649,7 @@ static netdev_tx_t qlge_send(struct sk_buff *skb, struct net_device *ndev)
 	atomic_dec(&tx_ring->tx_count);
 	return NETDEV_TX_OK;
 }
+
 
 static void ql_free_shadow_space(struct ql_adapter *qdev)
 {

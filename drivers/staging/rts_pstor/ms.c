@@ -1202,6 +1202,7 @@ static int ms_read_status_reg(struct rtsx_chip *chip)
 	return STATUS_SUCCESS;
 }
 
+
 static int ms_read_extra_data(struct rtsx_chip *chip,
 		u16 block_addr, u8 page_num, u8 *buf, int buf_len)
 {
@@ -1343,6 +1344,7 @@ static int ms_write_extra_data(struct rtsx_chip *chip,
 	return STATUS_SUCCESS;
 }
 
+
 static int ms_read_page(struct rtsx_chip *chip, u16 block_addr, u8 page_num)
 {
 	struct ms_info *ms_card = &(chip->ms_card);
@@ -1415,6 +1417,7 @@ static int ms_read_page(struct rtsx_chip *chip, u16 block_addr, u8 page_num)
 	return STATUS_SUCCESS;
 }
 
+
 static int ms_set_bad_block(struct rtsx_chip *chip, u16 phy_blk)
 {
 	struct ms_info *ms_card = &(chip->ms_card);
@@ -1477,6 +1480,7 @@ static int ms_set_bad_block(struct rtsx_chip *chip, u16 phy_blk)
 	return STATUS_SUCCESS;
 }
 
+
 static int ms_erase_block(struct rtsx_chip *chip, u16 phy_blk)
 {
 	struct ms_info *ms_card = &(chip->ms_card);
@@ -1538,6 +1542,7 @@ ERASE_RTY:
 
 	return STATUS_SUCCESS;
 }
+
 
 static void ms_set_page_status(u16 log_blk, u8 type, u8 *extra, int extra_len)
 {
@@ -1830,6 +1835,7 @@ static int ms_copy_page(struct rtsx_chip *chip, u16 old_blk, u16 new_blk,
 
 	return STATUS_SUCCESS;
 }
+
 
 static int reset_ms(struct rtsx_chip *chip)
 {
@@ -2443,6 +2449,7 @@ BUILD_FAIL:
 	return STATUS_FAIL;
 }
 
+
 int reset_ms_card(struct rtsx_chip *chip)
 {
 	struct ms_info *ms_card = &(chip->ms_card);
@@ -2519,6 +2526,7 @@ static int mspro_set_rw_cmd(struct rtsx_chip *chip, u32 start_sec, u16 sec_cnt, 
 
 	return STATUS_SUCCESS;
 }
+
 
 void mspro_stop_seq_mode(struct rtsx_chip *chip)
 {
@@ -2904,6 +2912,7 @@ int mspro_format(struct scsi_cmnd *srb, struct rtsx_chip *chip, int short_data_l
 	TRACE_RET(chip, STATUS_FAIL);
 }
 
+
 static int ms_read_multiple_pages(struct rtsx_chip *chip, u16 phy_blk, u16 log_blk,
 		u8 start_page, u8 end_page, u8 *buf, unsigned int *index, unsigned int *offset)
 {
@@ -3248,6 +3257,7 @@ static int ms_write_multiple_pages(struct rtsx_chip *chip, u16 old_blk, u16 new_
 	return STATUS_SUCCESS;
 }
 
+
 static int ms_finish_write(struct rtsx_chip *chip, u16 old_blk, u16 new_blk,
 		u16 log_blk, u8 page_off)
 {
@@ -3562,6 +3572,7 @@ int ms_rw(struct scsi_cmnd *srb, struct rtsx_chip *chip, u32 start_sector, u16 s
 
 	return retval;
 }
+
 
 void ms_free_l2p_tbl(struct rtsx_chip *chip)
 {
@@ -4228,3 +4239,4 @@ int release_ms_card(struct rtsx_chip *chip)
 
 	return STATUS_SUCCESS;
 }
+

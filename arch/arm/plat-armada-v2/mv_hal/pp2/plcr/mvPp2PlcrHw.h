@@ -69,6 +69,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif /* __cplusplus */
 
+
 #ifdef CONFIG_MV_ETH_PP2_1
 #define MV_PP2_PLCR_NUM		48
 #else

@@ -22,6 +22,7 @@
 VpDeviceIdType gDev1Id = 4;
 VpDeviceIdType gDev2Id = 5;
 
+
 /* Calibration arrays initially filled with median values from testing boards
  * 022 and up as of April 5, 2010 */
 unsigned short gVbhCalAry[30] = {

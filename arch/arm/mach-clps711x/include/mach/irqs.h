@@ -50,3 +50,4 @@
 #define INT2_ACK_IRQS			(0x00010000)
 
 #define NR_IRQS                         30
+

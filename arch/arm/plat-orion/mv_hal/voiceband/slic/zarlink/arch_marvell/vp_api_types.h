@@ -89,6 +89,7 @@ typedef VpPktDataType* VpPktDataPtrType;
    < 0 */
 #define FORCE_SIGNED_ENUM  (-FORCE_STANDARD_C_ENUM_SIZE - 1)
 
+
 /* Define any API specific basic data type ranges (that are necessary) */
 #define VP_INT16_MAX    ((short)(~0U>>1))
 #define VP_INT16_MIN    (-VP_INT16_MAX - 1)

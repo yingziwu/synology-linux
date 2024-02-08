@@ -162,6 +162,7 @@ static void _disable_hwsup(struct clockdomain *clkdm)
 						clkdm->clktrctrl_mask);
 }
 
+
 static int omap2_clkdm_clk_enable(struct clockdomain *clkdm)
 {
 	bool hwsup = false;

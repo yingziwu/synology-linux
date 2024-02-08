@@ -127,6 +127,7 @@ struct task_struct * px_find_task_by_pid(pid_t pid)
 }
 #endif
 
+
 #if defined(LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 25))
 char * px_d_path(struct file *file, char *buf, int buflen)
 {
@@ -507,6 +508,7 @@ static int display_l1_cache_info_pj1(void)
 	return 0;
 }
 
+
 static int display_all_cache_info_pj1(void)
 {
 	display_l1_cache_info_pj1();
@@ -719,6 +721,7 @@ inline void PX_BUG(void)
 	printk("[CPA] BUG on %s %d\n", __FILE__, __LINE__);
 }
 
+
 #define PID_HASH_SIZE 100
 
 static int pid_hash_func(pid_t pid)
@@ -727,6 +730,7 @@ static int pid_hash_func(pid_t pid)
 }
 
 static struct hlist_head loaded_process_hash[PID_HASH_SIZE];
+
 
 struct loaded_process
 {
@@ -760,6 +764,7 @@ static struct loaded_process * find_loaded_process(pid_t tgid)
 
 	return NULL;
 }
+
 
 static void remove_loaded_process(struct loaded_process * proc)
 {

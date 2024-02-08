@@ -29,6 +29,7 @@
 
 #include <plat/omap34xx.h>
 
+
 #define CM_CAM_MCLK_HZ			172800000	/* Hz */
 
 /* ISP Submodules offset */
@@ -977,6 +978,7 @@
 
 #define ISPRSZ_SDR_OUTADD_ADDR_SHIFT		0
 #define ISPRSZ_SDR_OUTADD_ADDR_MASK		0xFFFFFFFF
+
 
 #define ISPRSZ_SDR_OUTOFF_OFFSET_SHIFT		0
 #define ISPRSZ_SDR_OUTOFF_OFFSET_MASK		\

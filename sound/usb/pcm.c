@@ -148,6 +148,8 @@ static int init_pitch_v1(struct snd_usb_audio *chip, int iface,
 	unsigned char data[1];
 	int err;
 
+	if (get_iface_desc(alts)->bNumEndpoints < 1)
+		return -EINVAL;
 	ep = get_endpoint(alts, 0)->bEndpointAddress;
 
 	data[0] = 1;
@@ -580,6 +582,7 @@ static int hw_rule_rate(struct snd_pcm_hw_params *params,
 	return changed;
 }
 
+
 static int hw_rule_channels(struct snd_pcm_hw_params *params,
 			    struct snd_pcm_hw_rule *rule)
 {
@@ -745,6 +748,7 @@ static int snd_usb_pcm_check_knot(struct snd_pcm_runtime *runtime,
 
 	return 0;
 }
+
 
 /*
  * set up the runtime hardware information.

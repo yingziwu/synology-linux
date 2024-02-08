@@ -42,6 +42,7 @@
 #define LCS_SCALE_NUM 33		/* Line Current Status Scale */
 #define LCS_SCALE_DEN 10		/* Line Current Status Scale */
 
+
 /*
 **
 ** VDAA Initialization/Configuration Parameter Options
@@ -64,6 +65,7 @@
 	PCLK_2_PER_BIT = 1
 }tPHCF;
 
+
 /*
 ** This defines names for the tri bit
 */
@@ -71,6 +73,7 @@
 	TRI_POS_EDGE = 0,
 	TRI_NEG_EDGE = 1
 }tTRI;
+
 
 /**
 ** This defines names for the AC impedance range
@@ -163,6 +166,7 @@
 	HYBRID_DISABLED = 0,
 	HYBRID_ENABLED  = 1
  }tHBE;
+
 
 /**
 ** Gain/Attenuation Select
@@ -268,6 +272,7 @@ typedef enum {
 	 RGDT_ACTIVE_HI = 1
  }tRPOL;
 
+
 /**
 ** This defines names for the interrupts
 */
@@ -296,6 +301,7 @@ typedef enum {
     ROVM = 64,
     RDTM = 128
 }vdaaIntMask;
+
 
 /**
 ** This defines names for the idl bit (obsolete)
@@ -389,6 +395,7 @@ enum {
     FDT_MONITOR_OFF = 0,
     FDT_MONITOR_ON
 };
+
 
 /**
 ** Offhook Speed Select
@@ -488,6 +495,7 @@ typedef enum {
     RG1_ENABLED
 }tRG1;
 
+
 /**
 ** -----------------------------
 ** CONFIGURATION DATA STRUCTURES
@@ -516,6 +524,7 @@ typedef struct {
     tPWME pwmEnable;        /* PWME Si3050 Only */
     tSPIM spim;             /* SPIM Si3050 Only */
 } vdaa_General_Cfg;
+
 
 /**
 ** (NEW) Structure for Country Presets
@@ -619,6 +628,7 @@ typedef struct {
 	tRPOL rpol;
 } vdaa_Ring_Detect_Cfg;
 
+
 /*
 ** Defines structure of interrupt data
 */
@@ -634,6 +644,7 @@ typedef struct {
 	tIDL isoDigLB;
 	tDDL digDataLB;
 } vdaa_Loopback_Cfg;
+
 
 /*
 ** Generic Flag
@@ -654,6 +665,7 @@ typedef struct {
 	tVdaaBit onhookLineMonitor;
 } vdaaRingDetectStatusType;
 
+
 typedef SiVoiceControlInterfaceType vdaaControlInterfaceType;
 typedef SiVoiceDeviceType vdaaDeviceType;
 typedef SiVoiceChanType vdaaChanType;
@@ -670,6 +682,7 @@ typedef struct {
 	uInt8 address;
 	uInt8 initValue;
 } vdaaRegInit;
+
 
 typedef enum {
    PAR_HANDSET_NOT_DETECTED = 0,
@@ -1208,6 +1221,7 @@ int Vdaa_LoopbackSetup (vdaaChanType *pVdaa, int32 preset);
 
 int Vdaa_RingDetectSetup (vdaaChanType *pVdaa,int32 preset);
 
+
 /**
  * @brief This function reads ring detect/hook status and populates the structure passed via pStatus.
  * @param[in] pVdaa - Pointer to Voice DAA channel structure
@@ -1223,6 +1237,7 @@ int Vdaa_ReadRingDetectStatus (vdaaChanType *pVdaa,vdaaRingDetectStatusType *pSt
 /** @defgroup VDAA_LINE_STATE Line state
  * @{
  */
+
 
 /**
  * @brief This function sets the Voice DAA hook status
@@ -1402,6 +1417,7 @@ int Vdaa_SWInitChan (vdaaChanType_ptr pVdaa,int32 channel,int chipType, SiVoiceD
  */
 
 int Vdaa_setChannelEnable (vdaaChanType_ptr pVdaa, int chanEn);
+
 
 /**
  * @brief

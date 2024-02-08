@@ -323,3 +323,4 @@ void sh64_unwind(struct pt_regs *regs)
 	printk("\nCall Trace:\n");
 	sh64_unwind_inner(regs);
 }
+

@@ -440,10 +440,12 @@ static int __devinit init_card(struct snd_usb_caiaqdev *dev)
 
 	err = snd_usb_caiaq_send_command(dev, EP1_CMD_GET_DEVICE_INFO, NULL, 0);
 	if (err)
-		return err;
+		goto err_kill_urb;
 
-	if (!wait_event_timeout(dev->ep1_wait_queue, dev->spec_received, HZ))
-		return -ENODEV;
+	if (!wait_event_timeout(dev->ep1_wait_queue, dev->spec_received, HZ)) {
+		err = -ENODEV;
+		goto err_kill_urb;
+	}
 
 	usb_string(usb_dev, usb_dev->descriptor.iManufacturer,
 		   dev->vendor_name, CAIAQ_USB_STR_LEN);
@@ -479,13 +481,17 @@ static int __devinit init_card(struct snd_usb_caiaqdev *dev)
 
 	setup_card(dev);
 	return 0;
+
+ err_kill_urb:
+	usb_kill_urb(&dev->ep1_in_urb);
+	return err;
 }
 
 static int __devinit snd_probe(struct usb_interface *intf,
 		     const struct usb_device_id *id)
 {
 	int ret;
-	struct snd_card *card;
+	struct snd_card *card = NULL;
 	struct usb_device *device = interface_to_usbdev(intf);
 
 	ret = create_card(device, intf, &card);
@@ -529,6 +535,7 @@ static void snd_disconnect(struct usb_interface *intf)
 	usb_reset_device(interface_to_usbdev(intf));
 }
 
+
 MODULE_DEVICE_TABLE(usb, snd_usb_id_table);
 static struct usb_driver snd_usb_driver = {
 	.name 		= MODNAME,
@@ -549,3 +556,4 @@ static void __exit snd_module_exit(void)
 
 module_init(snd_module_init)
 module_exit(snd_module_exit)
+

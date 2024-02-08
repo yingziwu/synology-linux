@@ -975,6 +975,7 @@ vortex_fifo_setwtctrl(vortex_t * vortex, int fifo, int ctrl, int priority,
 		}
     } while ((temp & FIFO_RDONLY)&&(temp & FIFO_VALID)&&(temp != 0xFFFFFFFF));
 	
+	
 	if (valid) {
 		if (temp & FIFO_VALID) {
 			temp = 0x40000;
@@ -1218,6 +1219,7 @@ static int vortex_adbdma_bufshift(vortex_t * vortex, int adbdma)
 	return delta;
 }
 
+
 static void vortex_adbdma_resetup(vortex_t *vortex, int adbdma) {
 	stream_t *dma = &vortex->dma_adb[adbdma];
 	int p, pp, i;
@@ -1442,9 +1444,8 @@ static int vortex_wtdma_bufshift(vortex_t * vortex, int wtdma)
 	int page, p, pp, delta, i;
 
 	page =
-	    (hwread(vortex->mmio, VORTEX_WTDMA_STAT + (wtdma << 2)) &
-	     WT_SUBBUF_MASK)
-	    >> WT_SUBBUF_SHIFT;
+	    (hwread(vortex->mmio, VORTEX_WTDMA_STAT + (wtdma << 2))
+	     >> WT_SUBBUF_SHIFT) & WT_SUBBUF_MASK;
 	if (dma->nr_periods >= 4)
 		delta = (page - dma->period_real) & 3;
 	else {

@@ -72,12 +72,15 @@
 #define  SPI_SLV_RFT_DEEP     SPI_SLV_FIFO_DEEP /* threshold deep*/
 #define  SPI_SLV_RFT_MSK      ((SPI_SLV_FIFO_DEEP -1) << SPI_SLV_RFT_OFFSET) /*RFT mask*/
 
+
 #define  SPI_SLV_TFT_OFFSET   6 /* Transmitter FIFO threshold in SSCR1 */
 #define  SPI_SLV_TFT_DEEP     SPI_SLV_FIFO_DEEP /* threshold deep*/
 #define  SPI_SLV_TFT_MSK      ((SPI_SLV_FIFO_DEEP -1) << SPI_SLV_TFT_OFFSET) /*RFT mask*/
 
+
 #define  SPI_SLV_TIE_OFFSET   1 /* Transmitter FIFO interrupt bit 's offset  in SSCR1 */
 #define  SPI_SLV_TIE         (1 << SPI_SLV_TIE_OFFSET) 
+
 
 #define  SPI_SLV_RIE_OFFSET   0 /* Receiver FIFO interrupt in SSCR1 */
 #define  SPI_SLV_RIE          (1 << SPI_SLV_RIE_OFFSET)

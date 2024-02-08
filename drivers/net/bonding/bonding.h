@@ -38,6 +38,9 @@
 	       netif_running(dev)			&& \
 	       netif_carrier_ok(dev))
 
+#ifndef __long_aligned
+#define __long_aligned __attribute__((aligned((sizeof(long)))))
+#endif
 /*
  * Checks whether bond is ready for transmit.
  *
@@ -56,6 +59,7 @@
 		     netif_running((slave)->dev)     && \
 		     ((slave)->link == BOND_LINK_UP) && \
 		     bond_is_active_slave(slave))
+
 
 #define USES_PRIMARY(mode)				\
 		(((mode) == BOND_MODE_ACTIVEBACKUP) ||	\
@@ -117,6 +121,7 @@
  */
 #define bond_for_each_slave(bond, pos, cnt)	\
 		bond_for_each_slave_from(bond, pos, cnt, (bond)->first_slave)
+
 
 #ifdef CONFIG_NET_POLL_CONTROLLER
 extern atomic_t netpoll_block_tx;
@@ -443,6 +448,7 @@ static inline void bond_destroy_proc_dir(struct bond_net *bn)
 {
 }
 #endif
+
 
 /* exported from bond_main.c */
 extern int bond_net_id;

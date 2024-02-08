@@ -1353,3 +1353,4 @@ int __init omap4_mux_init(struct omap_board_mux *board_subset,
 
 	return ret;
 }
+

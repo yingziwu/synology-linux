@@ -1215,6 +1215,7 @@ static int go7007_usb_probe(struct usb_interface *intf,
 				go7007_usb_read_audio_pipe_complete, go);
 		}
 
+
 	go->status = STATUS_ONLINE;
 	return 0;
 

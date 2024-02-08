@@ -225,6 +225,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_PP2_V0_CLS_LEN_CHANGE_TBL_REG	(MV_PP2_REG_BASE + 0x19A4)
 #define MV_PP2_V1_CLS_LEN_CHANGE_TBL_REG	(MV_PP2_REG_BASE + 0x880c)
 
+
 /*-------------------------------------------------------------------------------*/
 /*PPv2.1 new feature MAS 3.5*/
 #define MV_PP2_CLS_SWFWD_P2HQ_BASE_REG		(MV_PP2_REG_BASE + 0x19B0)
@@ -290,6 +291,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define FLOWID_EN				25 /*one bit */
 #define FLOWID_EN_MASK				(1 << FLOWID_EN)
+
 
 /*-------------------------------------------------------------------------------*/
 /*			 flow table structure					 */
@@ -378,6 +380,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define FLOW_SEQ_CTRL_BITS			3
 #define FLOW_SEQ_CTRL_MASK			(((1 << FLOW_SEQ_CTRL_BITS) - 1) << FLOW_SEQ_CTRL)
 #define FLOW_SEQ_CTRL_MAX			4
+
+
 
 /*----------------------------------  DWORD 2  ---------------------------------- */
 #define FLOW_FIELD0_ID				0
@@ -497,6 +501,7 @@ int mvPp2ClsSwFlowPortGet(MV_PP2_CLS_FLOW_ENTRY *fe, int *type, int *portid);
 int mvPp2ClsSwFlowEngineGet(MV_PP2_CLS_FLOW_ENTRY *fe, int *engine, int *is_last);
 int mvPp2ClsSwFlowExtraGet(MV_PP2_CLS_FLOW_ENTRY *fe, int *type, int *prio);
 
+
 /*-------------------------------------------------------------------------------*/
 /*		Classifier Top Public length change table APIs  		 */
 /*-------------------------------------------------------------------------------*/
@@ -505,6 +510,7 @@ int mvPp2ClsSwFlowExtraGet(MV_PP2_CLS_FLOW_ENTRY *fe, int *type, int *prio);
 int mvPp2ClsPktLenChangeDump(void);
 int mvPp2ClsPktLenChangeSet(int index, int length);
 int mvPp2ClsPktLenChangeGet(int index, int *length);
+
 
 /*-------------------------------------------------------------------------------*/
 /*			additional cls debug APIs				 */

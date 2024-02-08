@@ -79,6 +79,7 @@ static void __iomem *GPIO_LEVEL_MASK(struct orion_gpio_chip *ochip)
 	return ochip->base + ochip->mask_offset + GPIO_LEVEL_MASK_OFF;
 }
 
+
 static struct orion_gpio_chip orion_gpio_chips[2];
 static int orion_gpio_chip_count;
 
@@ -223,6 +224,7 @@ static int orion_gpio_to_irq(struct gpio_chip *chip, unsigned pin)
 	return ochip->secondary_irq_base + pin;
 }
 
+
 /*
  * Orion-specific GPIO API extensions.
  */
@@ -292,6 +294,7 @@ void orion_gpio_set_blink(unsigned pin, int blink)
 	spin_unlock_irqrestore(&ochip->lock, flags);
 }
 EXPORT_SYMBOL(orion_gpio_set_blink);
+
 
 /*****************************************************************************
  * Orion GPIO IRQ

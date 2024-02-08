@@ -39,6 +39,7 @@
 #define HvCallHptAddValidate		HvCallHpt + 16
 #define HvCallHptInvalidateSetSwBitsGet HvCallHpt + 18
 
+
 static inline u64 HvCallHpt_getHptAddress(void)
 {
 	return HvCall0(HvCallHptGetHptAddress);

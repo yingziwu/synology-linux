@@ -53,14 +53,20 @@
 #include <net/bluetooth/bluetooth.h>
 #include <net/bluetooth/hci_core.h>
 
+
+
 /* ======================== Module parameters ======================== */
+
 
 MODULE_AUTHOR("Marcel Holtmann <marcel@holtmann.org>");
 MODULE_DESCRIPTION("Bluetooth driver for the 3Com Bluetooth PCMCIA card");
 MODULE_LICENSE("GPL");
 MODULE_FIRMWARE("BT3CPCC.bin");
 
+
+
 /* ======================== Local structures ======================== */
+
 
 typedef struct bt3c_info_t {
 	struct pcmcia_device *p_dev;
@@ -77,10 +83,12 @@ typedef struct bt3c_info_t {
 	struct sk_buff *rx_skb;
 } bt3c_info_t;
 
+
 static int bt3c_config(struct pcmcia_device *link);
 static void bt3c_release(struct pcmcia_device *link);
 
 static void bt3c_detach(struct pcmcia_device *p_dev);
+
 
 /* Transmit states  */
 #define XMIT_SENDING  1
@@ -94,7 +102,10 @@ static void bt3c_detach(struct pcmcia_device *p_dev);
 #define RECV_WAIT_SCO_HEADER    3
 #define RECV_WAIT_DATA          4
 
+
+
 /* ======================== Special I/O functions ======================== */
+
 
 #define DATA_L   0
 #define DATA_H   1
@@ -102,11 +113,13 @@ static void bt3c_detach(struct pcmcia_device *p_dev);
 #define ADDR_H   3
 #define CONTROL  4
 
+
 static inline void bt3c_address(unsigned int iobase, unsigned short addr)
 {
 	outb(addr & 0xff, iobase + ADDR_L);
 	outb((addr >> 8) & 0xff, iobase + ADDR_H);
 }
+
 
 static inline void bt3c_put(unsigned int iobase, unsigned short value)
 {
@@ -114,11 +127,13 @@ static inline void bt3c_put(unsigned int iobase, unsigned short value)
 	outb((value >> 8) & 0xff, iobase + DATA_H);
 }
 
+
 static inline void bt3c_io_write(unsigned int iobase, unsigned short addr, unsigned short value)
 {
 	bt3c_address(iobase, addr);
 	bt3c_put(iobase, value);
 }
+
 
 static inline unsigned short bt3c_get(unsigned int iobase)
 {
@@ -129,6 +144,7 @@ static inline unsigned short bt3c_get(unsigned int iobase)
 	return value;
 }
 
+
 static inline unsigned short bt3c_read(unsigned int iobase, unsigned short addr)
 {
 	bt3c_address(iobase, addr);
@@ -136,7 +152,10 @@ static inline unsigned short bt3c_read(unsigned int iobase, unsigned short addr)
 	return bt3c_get(iobase);
 }
 
+
+
 /* ======================== Interrupt handling ======================== */
+
 
 static int bt3c_write(unsigned int iobase, int fifo_size, __u8 *buf, int len)
 {
@@ -156,6 +175,7 @@ static int bt3c_write(unsigned int iobase, int fifo_size, __u8 *buf, int len)
 	return actual;
 }
 
+
 static void bt3c_write_wakeup(bt3c_info_t *info)
 {
 	if (!info) {
@@ -173,6 +193,7 @@ static void bt3c_write_wakeup(bt3c_info_t *info)
 
 		if (!pcmcia_dev_present(info->p_dev))
 			break;
+
 
 		if (!(skb = skb_dequeue(&(info->txq)))) {
 			clear_bit(XMIT_SENDING, &(info->tx_state));
@@ -192,6 +213,7 @@ static void bt3c_write_wakeup(bt3c_info_t *info)
 
 	} while (0);
 }
+
 
 static void bt3c_receive(bt3c_info_t *info)
 {
@@ -222,6 +244,7 @@ static void bt3c_receive(bt3c_info_t *info)
 				return;
 			}
 		}
+
 
 		if (info->rx_state == RECV_WAIT_PACKET_TYPE) {
 
@@ -311,6 +334,7 @@ static void bt3c_receive(bt3c_info_t *info)
 	bt3c_io_write(iobase, 0x7006, 0x0000);
 }
 
+
 static irqreturn_t bt3c_interrupt(int irq, void *dev_inst)
 {
 	bt3c_info_t *info = dev_inst;
@@ -358,7 +382,10 @@ static irqreturn_t bt3c_interrupt(int irq, void *dev_inst)
 	return r;
 }
 
+
+
 /* ======================== HCI interface ======================== */
+
 
 static int bt3c_hci_flush(struct hci_dev *hdev)
 {
@@ -370,12 +397,14 @@ static int bt3c_hci_flush(struct hci_dev *hdev)
 	return 0;
 }
 
+
 static int bt3c_hci_open(struct hci_dev *hdev)
 {
 	set_bit(HCI_RUNNING, &(hdev->flags));
 
 	return 0;
 }
+
 
 static int bt3c_hci_close(struct hci_dev *hdev)
 {
@@ -386,6 +415,7 @@ static int bt3c_hci_close(struct hci_dev *hdev)
 
 	return 0;
 }
+
 
 static int bt3c_hci_send_frame(struct sk_buff *skb)
 {
@@ -425,16 +455,21 @@ static int bt3c_hci_send_frame(struct sk_buff *skb)
 	return 0;
 }
 
+
 static void bt3c_hci_destruct(struct hci_dev *hdev)
 {
 }
+
 
 static int bt3c_hci_ioctl(struct hci_dev *hdev, unsigned int cmd, unsigned long arg)
 {
 	return -ENOIOCTLCMD;
 }
 
+
+
 /* ======================== Card services HCI interaction ======================== */
+
 
 static int bt3c_load_firmware(bt3c_info_t *info, const unsigned char *firmware,
 			      int count)
@@ -520,6 +555,7 @@ error:
 	return err;
 }
 
+
 static int bt3c_open(bt3c_info_t *info)
 {
 	const struct firmware *firmware;
@@ -590,6 +626,7 @@ error:
 	return err;
 }
 
+
 static int bt3c_close(bt3c_info_t *info)
 {
 	struct hci_dev *hdev = info->hdev;
@@ -624,6 +661,7 @@ static int bt3c_probe(struct pcmcia_device *link)
 
 	return bt3c_config(link);
 }
+
 
 static void bt3c_detach(struct pcmcia_device *link)
 {
@@ -712,6 +750,7 @@ failed:
 	return -ENODEV;
 }
 
+
 static void bt3c_release(struct pcmcia_device *link)
 {
 	bt3c_info_t *info = link->priv;
@@ -720,6 +759,7 @@ static void bt3c_release(struct pcmcia_device *link)
 
 	pcmcia_disable_device(link);
 }
+
 
 static const struct pcmcia_device_id bt3c_ids[] = {
 	PCMCIA_DEVICE_PROD_ID13("3COM", "Bluetooth PC Card", 0xefce0a31, 0xd4ce9b02),
@@ -739,6 +779,7 @@ static int __init init_bt3c_cs(void)
 {
 	return pcmcia_register_driver(&bt3c_driver);
 }
+
 
 static void __exit exit_bt3c_cs(void)
 {

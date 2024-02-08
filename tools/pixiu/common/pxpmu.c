@@ -66,6 +66,7 @@ static prm_resource_id prm_resource[PRM_ALLOC_RES_COUNT] =
 
 #endif  /* PRM_SUPPORT */
 
+
 #ifndef PRM_SUPPORT
 static struct platform_device * pmu_dev;
 

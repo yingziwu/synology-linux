@@ -127,4 +127,5 @@ static inline void sep_wait_sram_write(struct sep_device *dev)
 	} while (!(reg_val & 1));
 }
 
+
 #endif

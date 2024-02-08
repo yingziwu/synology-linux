@@ -461,6 +461,7 @@ int nfc_register_device(struct nfc_dev *dev)
 		nfc_dbg("The userspace won't be notified that the device %s was"
 						" added", dev_name(&dev->dev));
 
+
 	return 0;
 }
 EXPORT_SYMBOL(nfc_register_device);

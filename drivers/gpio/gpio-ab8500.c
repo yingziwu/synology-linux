@@ -315,6 +315,7 @@ static void ab8500_gpio_irq_sync_unlock(unsigned int irq)
 	mutex_unlock(&ab8500_gpio->lock);
 }
 
+
 static void ab8500_gpio_irq_mask(unsigned int irq)
 {
 	struct ab8500_gpio *ab8500_gpio = get_irq_chip_data(irq);

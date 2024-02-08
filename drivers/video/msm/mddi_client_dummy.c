@@ -95,3 +95,4 @@ static int __init mddi_client_dummy_init(void)
 }
 
 module_init(mddi_client_dummy_init);
+

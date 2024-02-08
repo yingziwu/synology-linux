@@ -47,6 +47,7 @@ enum {
 #define MAX_BDESC_NUMBER (4)
 #define CTRL "eth1"
 
+
 /*
  * This structure is private to each device. It is used to pass
  * packets in and out, so there is place for a packet

@@ -34,6 +34,7 @@
 
 const char * prog_name;
 
+
 static void
 usage (void)
 {
@@ -42,6 +43,7 @@ usage (void)
 	    "       %s [-vb] file [secondary]\n", prog_name, prog_name);
     exit(1);
 }
+
 
 int
 main (int argc, char *argv[])

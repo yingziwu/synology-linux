@@ -36,6 +36,7 @@ void  mv_core_reset_command(PDomain_Port pPort);
 void mv_core_init_reset_para(PDomain_Port pPort);
 #endif
 
+
 #ifdef SUPPORT_HOT_PLUG
 void Device_SoftReset(PDomain_Port pPort, PDomain_Device pDevice)
 {
@@ -157,6 +158,7 @@ MV_U8 mvGetSataDeviceType(PDomain_Port pPort)
 }
 #endif /* SUPPORT_PM */
 
+
 MV_BOOLEAN SATA_DoSoftReset(PDomain_Port pPort, MV_U8 PMPort)
 {
 	MV_U16 tag = Tag_GetOne(&pPort->Tag_Pool);
@@ -196,6 +198,7 @@ MV_BOOLEAN SATA_DoSoftReset(PDomain_Port pPort, MV_U8 PMPort)
 		MV_REG_READ_DWORD(portMmio, PORT_CMD_ISSUE);	/* flush */
 
 		HBA_SleepMillisecond(pCore, 2);
+
 
 		reset = reset ^ 1; /*SRST CLEAR*/
 
@@ -278,8 +281,10 @@ MV_BOOLEAN SATA_SoftResetPMDevice(PDomain_Port pPort, MV_U8 portNum)
 	MV_U32 status, loop = 5000;
 //	MV_U32 PMPort;
 
+
 	if (! (SATA_DoSoftReset(pPort, portNum)) )
 		return MV_FALSE;
+
 
 	while(loop>0)
 	{
@@ -537,6 +542,7 @@ void SATA_InitPM (PDomain_Port pPort)
 		pDevice->Status = DEVICE_STATUS_NO_DEVICE;
 		pDevice->State = DEVICE_STATE_INIT_DONE;
 
+
 		/*
 		When enter hibernation, do not enable device port again
 		for saving hibernation time
@@ -716,6 +722,7 @@ void SATA_PortReset(
 		}
 	}
 
+
 	if( pCore->Total_Device_Count >= MAX_DEVICE_SUPPORTED )
 	{
 		for( i=0; i<MAX_DEVICE_PER_PORT; i++ )
@@ -825,6 +832,7 @@ void SATA_PortReset(
 	}
 	MV_DPRINT(("find device ready on port %d.\n", pPort->Id));
 
+
 #ifdef SUPPORT_PM
 	/* link error work around */
 	mvDisableIntr( portMmio, old_stat );
@@ -848,6 +856,7 @@ void SATA_PortReset(
 		tmp = MV_REG_READ_DWORD(portMmio, PORT_CMD);
 		MV_REG_WRITE_DWORD(portMmio, PORT_CMD, tmp | MV_BIT(17));
 		tmp=MV_REG_READ_DWORD(portMmio, PORT_CMD);	/* flush */
+
 
 		if(!pCore->Is_Dump) {
 			HBA_SleepMillisecond(pCore, 2000);
@@ -886,6 +895,8 @@ void SATA_PortReset(
 #endif
 
 	signature = MV_REG_READ_DWORD(pPort->Mmio_Base, PORT_SIG);
+
+
 
 	if ( signature==0xEB140101 )				/* ATAPI signature */
 	{
@@ -1147,6 +1158,8 @@ MV_BOOLEAN PATA_PortDeviceReady(PDomain_Port pPort, MV_BOOLEAN master, MV_BOOLEA
 		/* ATAPI device */
 		*isATAPI = MV_TRUE;
 
+
+
 		return MV_TRUE;	/* ATAPI is always ready. */
 	}
 
@@ -1161,6 +1174,8 @@ MV_BOOLEAN PATA_PortDeviceReady(PDomain_Port pPort, MV_BOOLEAN master, MV_BOOLEA
 			return MV_TRUE;
 		else
             return MV_FALSE;
+
+
 
 	}
 
@@ -1246,6 +1261,7 @@ void PATA_PortReset(
 		MV_DASSERT( MV_REG_READ_DWORD(portMmio, PORT_CMD_ISSUE)==0 );
 #endif
 	}
+
 
 	if ( (pCore->State!=CORE_STATE_STARTED) &&
 		 (pCore->Flag_Fastboot_Skip & FLAG_SKIP_PATA_DEVICE) )
@@ -1382,6 +1398,7 @@ void PATA_PortReset(
 				}
 			}
 		}
+
 
 		/* Set Device State for all devices first */
 		for ( i=0; i<MAX_DEVICE_PER_PORT; i++ )
@@ -1563,6 +1580,7 @@ MV_BOOLEAN mvDeviceStateMachine(
 	MV_U8 i;
 	PDomain_Port pPort = pDevice->PPort;
 
+
 	switch ( pDevice->State )
 	{
 		case DEVICE_STATE_RESET_DONE:
@@ -1684,6 +1702,7 @@ ResetController(PCore_Driver_Extension pCore)
 		MV_DASSERT(MV_FALSE);
 		ret = MV_FALSE;
 	}
+
 
 /* #if (VER_OEM==VER_OEM_ASUS) */
 	if(pCore->VS_Reg_Saved==VS_REG_SIG)
@@ -1832,6 +1851,7 @@ void SATA_ResetPort(PCore_Driver_Extension pCore, MV_U8 portId)
 		j++;
 	}
 
+
 	/* Clear SATA error */
 	tmp = MV_REG_READ_DWORD(portMmio, PORT_SCR_ERR);
 	MV_REG_WRITE_DWORD(portMmio, PORT_SCR_ERR, tmp);
@@ -1845,6 +1865,7 @@ void SATA_ResetPort(PCore_Driver_Extension pCore, MV_U8 portId)
 
 	/* set irq mask (enables interrupts) */
 	MV_REG_WRITE_DWORD(portMmio, PORT_IRQ_MASK, DEF_PORT_IRQ);
+
 
 	/* FIFO controller workaround for 6121-B0B1B2, 6111-B0B1, and 6145-A0 */
 	if (
@@ -1896,6 +1917,7 @@ void InitChip(PCore_Driver_Extension pCore)
 		else
 			SATA_ResetPort(pCore, i);
 	}
+
 
 	/* Initialize port, set uncached memory pointer. */
 	for ( i = 0; i<pCore->Port_Num; i++) {
@@ -2114,6 +2136,7 @@ static void Device_IssueIdentify(
 				);
 	MV_DASSERT( pReq->Data_Transfer_Length%2==0 );
 
+
 	/* Send this internal request */
 	Core_ModuleSendRequest(pPort->Core_Extension, pReq);
 }
@@ -2153,6 +2176,7 @@ void Device_IssueReadLogExt(
 				pReq->Data_Transfer_Length
 				);
 	MV_DASSERT( pReq->Data_Transfer_Length%2==0 );
+
 
 	/* Send this internal request */
 	Core_ModuleSendRequest(pPort->Core_Extension, pReq);
@@ -2430,6 +2454,7 @@ static void Device_IssueSetMDMAMode(
 	pReq->Data_Buffer = NULL;
 	pReq->Completion = (void(*)(MV_PVOID,PMV_Request))Core_InternalReqCallback;
 
+
 	/* Send this internal request */
 	Core_ModuleSendRequest(pPort->Core_Extension, pReq);
 }
@@ -2604,6 +2629,7 @@ static void Device_IssueSetUDMAMode(
 	pReq->Data_Buffer = NULL;
 	pReq->Completion = (void(*)(MV_PVOID,PMV_Request))Core_InternalReqCallback;
 
+
 	/* Send this internal request */
 	Core_ModuleSendRequest(pPort->Core_Extension, pReq);
 }
@@ -2626,6 +2652,7 @@ static void Device_IssueSetPIOMode(
 	/* Hardware team required us to downgrade PIO mode to zero. */
 	if ( pDevice->Device_Type&DEVICE_TYPE_ATAPI )
 		mode = 0;
+
 
 	/*
 	 * Set controller timing register for PATA port before set the device UDMA mode.

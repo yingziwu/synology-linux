@@ -70,6 +70,7 @@
 
 #define AD7291_VOLTAGE_LIMIT_COUNT	8
 
+
 /*
  * AD7291 command
  */

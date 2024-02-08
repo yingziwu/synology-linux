@@ -26,6 +26,7 @@
 #include "psb_intel_reg.h"
 #include "intel_bios.h"
 
+
 static void *find_section(struct bdb_header *bdb, int section_id)
 {
 	u8 *base = (u8 *)bdb;
@@ -137,6 +138,7 @@ static void parse_lfp_panel_data(struct drm_psb_private *dev_priv,
 	lvds_lfp_data = find_section(bdb, BDB_LVDS_LFP_DATA);
 	if (!lvds_lfp_data)
 		return;
+
 
 	entry = &lvds_lfp_data->data[lvds_options->panel_type];
 	dvo_timing = &entry->dvo_timing;

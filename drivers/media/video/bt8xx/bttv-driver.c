@@ -203,6 +203,7 @@ static void flush_request_modules(struct bttv *dev)
 #define flush_request_modules(dev)
 #endif /* CONFIG_MODULES */
 
+
 /* ----------------------------------------------------------------------- */
 /* static data                                                             */
 
@@ -797,6 +798,8 @@ static const struct v4l2_queryctrl bttv_ctls[] = {
 		.default_value = 0,
 		.type          = V4L2_CTRL_TYPE_INTEGER,
 	}
+
+
 
 };
 
@@ -2477,6 +2480,19 @@ static int bttv_g_fmt_vid_overlay(struct file *file, void *priv,
 	return 0;
 }
 
+static void bttv_get_width_mask_vid_cap(const struct bttv_format *fmt,
+					unsigned int *width_mask,
+					unsigned int *width_bias)
+{
+	if (fmt->flags & FORMAT_FLAGS_PLANAR) {
+		*width_mask = ~15; /* width must be a multiple of 16 pixels */
+		*width_bias = 8;   /* nearest */
+	} else {
+		*width_mask = ~3; /* width must be a multiple of 4 pixels */
+		*width_bias = 2;  /* nearest */
+	}
+}
+
 static int bttv_try_fmt_vid_cap(struct file *file, void *priv,
 						struct v4l2_format *f)
 {
@@ -2485,6 +2501,7 @@ static int bttv_try_fmt_vid_cap(struct file *file, void *priv,
 	struct bttv *btv = fh->btv;
 	enum v4l2_field field;
 	__s32 width, height;
+	unsigned int width_mask, width_bias;
 	int rc;
 
 	fmt = format_by_fourcc(f->fmt.pix.pixelformat);
@@ -2522,9 +2539,9 @@ static int bttv_try_fmt_vid_cap(struct file *file, void *priv,
 	width = f->fmt.pix.width;
 	height = f->fmt.pix.height;
 
+	bttv_get_width_mask_vid_cap(fmt, &width_mask, &width_bias);
 	rc = limit_scaled_size_lock(fh, &width, &height, field,
-			       /* width_mask: 4 pixels */ ~3,
-			       /* width_bias: nearest */ 2,
+			       width_mask, width_bias,
 			       /* adjust_size */ 1,
 			       /* adjust_crop */ 0);
 	if (0 != rc)
@@ -2555,6 +2572,7 @@ static int bttv_s_fmt_vid_cap(struct file *file, void *priv,
 	struct bttv_fh *fh = priv;
 	struct bttv *btv = fh->btv;
 	__s32 width, height;
+	unsigned int width_mask, width_bias;
 	enum v4l2_field field;
 
 	retval = bttv_switch_type(fh, f->type);
@@ -2569,17 +2587,16 @@ static int bttv_s_fmt_vid_cap(struct file *file, void *priv,
 	height = f->fmt.pix.height;
 	field = f->fmt.pix.field;
 
+	fmt = format_by_fourcc(f->fmt.pix.pixelformat);
+	bttv_get_width_mask_vid_cap(fmt, &width_mask, &width_bias);
 	retval = limit_scaled_size_lock(fh, &width, &height, f->fmt.pix.field,
-			       /* width_mask: 4 pixels */ ~3,
-			       /* width_bias: nearest */ 2,
+			       width_mask, width_bias,
 			       /* adjust_size */ 1,
 			       /* adjust_crop */ 1);
 	if (0 != retval)
 		return retval;
 
 	f->fmt.pix.field = field;
-
-	fmt = format_by_fourcc(f->fmt.pix.pixelformat);
 
 	/* update our state informations */
 	fh->fmt              = fmt;
@@ -2855,6 +2872,7 @@ static int bttv_streamon(struct file *file, void *priv,
 	return videobuf_streamon(bttv_queue(fh));
 }
 
+
 static int bttv_streamoff(struct file *file, void *priv,
 					enum v4l2_buf_type type)
 {
@@ -2862,6 +2880,7 @@ static int bttv_streamoff(struct file *file, void *priv,
 	struct bttv *btv = fh->btv;
 	int retval;
 	int res = bttv_resource(fh);
+
 
 	retval = videobuf_streamoff(bttv_queue(fh));
 	if (retval < 0)
@@ -4128,6 +4147,7 @@ static irqreturn_t bttv_irq(int irq, void *dev_id)
 	return IRQ_RETVAL(handled);
 }
 
+
 /* ----------------------------------------------------------------------- */
 /* initialitation                                                          */
 
@@ -4228,6 +4248,7 @@ static int __devinit bttv_register_video(struct bttv *btv)
 	bttv_unregister_video(btv);
 	return -1;
 }
+
 
 /* on OpenFirmware machines (PowerMac at least), PCI memory cycle */
 /* response on cards with no firmware is not enabled by OF */

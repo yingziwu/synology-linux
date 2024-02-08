@@ -118,6 +118,7 @@ static struct lapb_cb *lapb_create_cb(void)
 {
 	struct lapb_cb *lapb = kzalloc(sizeof(*lapb), GFP_ATOMIC);
 
+
 	if (!lapb)
 		goto out;
 

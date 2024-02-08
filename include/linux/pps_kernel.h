@@ -128,3 +128,4 @@ static inline void pps_get_ts(struct pps_event_time *ts)
 #endif /* CONFIG_NTP_PPS */
 
 #endif /* LINUX_PPS_KERNEL_H */
+

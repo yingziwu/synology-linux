@@ -88,6 +88,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define MV_ETH_EXTRA_FRAGS_NUM      2
 
+
 typedef enum
 {
     MV_ETH_SPEED_AN,
@@ -262,6 +263,7 @@ MV_STATUS mvBoardMacSpeedToEthPortSpeed(MV_BOARD_MAC_SPEED board_speed,
 /*#define UNCACHED_TX_BUFFERS*/
 /*#define UNCACHED_RX_BUFFERS*/
 
+
 /* Port attributes */
 /* Size of a Tx/Rx descriptor used in chain list data structure */
 #define ETH_RX_DESC_ALIGNED_SIZE        32
@@ -293,6 +295,7 @@ MV_STATUS mvBoardMacSpeedToEthPortSpeed(MV_BOARD_MAC_SPEED board_speed,
                (ETH_TX_DESC*)((pQueueCtrl)->pLastDescr) :                  \
                (ETH_TX_DESC*)(((MV_ULONG)(pTxDescr)) - ETH_TX_DESC_ALIGNED_SIZE)
 
+
 /* Queue specific information */
 typedef struct
 {
@@ -303,6 +306,7 @@ typedef struct
     int         resource;
     MV_BUF_INFO descBuf;
 } ETH_QUEUE_CTRL;
+
 
 /* Ethernet port specific infomation */
 typedef struct _ethPortCtrl

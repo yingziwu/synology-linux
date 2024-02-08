@@ -84,6 +84,7 @@ tal_stat_t tal_init(tal_params_t* tal_params, tal_mmp_ops_t* mmp_ops)
 	return TAL_STAT_OK;
 }
 
+
 /*---------------------------------------------------------------------------*
  * tal_pcm_tx_completion
  * Tx callback

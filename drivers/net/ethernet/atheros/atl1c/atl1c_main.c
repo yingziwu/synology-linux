@@ -348,10 +348,12 @@ static void atl1c_common_task(struct work_struct *work)
 		atl1c_check_link_status(adapter);
 }
 
+
 static void atl1c_del_timer(struct atl1c_adapter *adapter)
 {
 	del_timer_sync(&adapter->phy_config_timer);
 }
+
 
 /*
  * atl1c_tx_timeout - Respond to a Tx Hang
@@ -717,6 +719,7 @@ static int __devinit atl1c_sw_init(struct atl1c_adapter *adapter)
 	struct pci_dev	*pdev = adapter->pdev;
 	u32 revision;
 
+
 	adapter->wol = 0;
 	device_set_wakeup_enable(&pdev->dev, false);
 	adapter->link_speed = SPEED_0;
@@ -978,13 +981,12 @@ static int atl1c_setup_ring_resources(struct atl1c_adapter *adapter)
 		sizeof(struct atl1c_hw_stats) +
 		8 * 4 + 8 * 2 * num_rx_queues;
 
-	ring_header->desc = pci_alloc_consistent(pdev, ring_header->size,
-				&ring_header->dma);
+	ring_header->desc = dma_zalloc_coherent(&pdev->dev, ring_header->size,
+						&ring_header->dma, GFP_KERNEL);
 	if (unlikely(!ring_header->desc)) {
-		dev_err(&pdev->dev, "pci_alloc_consistend failed\n");
+		dev_err(&pdev->dev, "could not get memory for DMA buffer\n");
 		goto err_nomem;
 	}
-	memset(ring_header->desc, 0, ring_header->size);
 	/* init TPD ring */
 
 	tpd_ring[0].dma = roundup(ring_header->dma, 8);
@@ -1050,6 +1052,7 @@ static void atl1c_configure_des_ring(struct atl1c_adapter *adapter)
 				AT_DMA_LO_ADDR_MASK));
 	AT_WRITE_REG(hw, REG_TPD_RING_SIZE,
 			(u32)(tpd_ring[0].count & TPD_RING_SIZE_MASK));
+
 
 	/* RFD */
 	AT_WRITE_REG(hw, REG_RX_BASE_ADDR_HI,

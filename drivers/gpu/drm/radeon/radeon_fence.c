@@ -185,6 +185,7 @@ int radeon_fence_create(struct radeon_device *rdev, struct radeon_fence **fence)
 	return 0;
 }
 
+
 bool radeon_fence_signaled(struct radeon_fence *fence)
 {
 	unsigned long irq_flags;
@@ -397,6 +398,7 @@ void radeon_fence_driver_fini(struct radeon_device *rdev)
 	write_unlock_irqrestore(&rdev->fence_drv.lock, irq_flags);
 	rdev->fence_drv.initialized = false;
 }
+
 
 /*
  * Fence debugfs

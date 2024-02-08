@@ -27,6 +27,7 @@
  *
  */
  
+
 #include <linux/init.h>
 #include <linux/pci.h>
 #include <linux/module.h>
@@ -39,11 +40,13 @@
 int  hw_mutex_register (struct hw_master *pmaster);
 void hw_mutex_unregister (struct hw_master *pmaster);
 
+
 static const struct pci_device_id hw_mutex_pci_tbl[] __devinitdata = {
         { PCI_DEVICE( 0x8086, HW_MUTEX_DEV_ID), .driver_data = 0 },
         {0},
 };
 MODULE_DEVICE_TABLE(pci, hw_mutex_pci_tbl);
+
 
 static inline struct hw_master*hw_mutex_to_master(struct hw_mutex *hmutex)
 {
@@ -80,6 +83,7 @@ static inline uint8_t __hw_mutex_is_locked(struct hw_mutex *hmutex)
 	struct hw_master * pmaster = hw_mutex_to_master(hmutex);
 	return hw_mutex_read_and_test_bits(pmaster->reg_base + hw_mutex_owns[pmaster->master], BIT(hmutex->lock_name));
 }
+
 
 /*
   * __lock_hw_mutex - low level function to lock HW mutex
@@ -323,3 +327,6 @@ module_exit(hw_mutex_lld_exit);
 MODULE_DESCRIPTION("Intel(R) HW MUTEX DEVICE Driver");
 MODULE_AUTHOR("Intel Corporation");
 MODULE_LICENSE("GPL");
+
+
+

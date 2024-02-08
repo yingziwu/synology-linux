@@ -106,6 +106,7 @@ static struct ata_port_operations marvell_ops = {
 	.prereset		= marvell_pre_reset,
 };
 
+
 /**
  *	marvell_init_one - Register Marvell ATA PCI device with kernel services
  *	@pdev: PCI device to register
@@ -195,3 +196,4 @@ MODULE_DESCRIPTION("SCSI low-level driver for Marvell ATA in legacy mode");
 MODULE_LICENSE("GPL");
 MODULE_DEVICE_TABLE(pci, marvell_pci_tbl);
 MODULE_VERSION(DRV_VERSION);
+

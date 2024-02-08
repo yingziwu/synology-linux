@@ -667,6 +667,7 @@ static int wm8971_probe(struct snd_soc_codec *codec)
 	return ret;
 }
 
+
 /* power down chip */
 static int wm8971_remove(struct snd_soc_codec *codec)
 {

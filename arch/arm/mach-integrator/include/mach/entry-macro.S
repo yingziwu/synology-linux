@@ -42,3 +42,4 @@
 		bne	1002b
 1003:		/* EQ will be set if no irqs pending */
 		.endm
+

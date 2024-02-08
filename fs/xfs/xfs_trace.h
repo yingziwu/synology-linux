@@ -1,7 +1,23 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ * Copyright (c) 2009, Christoph Hellwig
+ * All Rights Reserved.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it would be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write the Free Software Foundation,
+ * Inc.,  51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ */
 #undef TRACE_SYSTEM
 #define TRACE_SYSTEM xfs
 
@@ -326,11 +342,13 @@ DEFINE_BUF_EVENT(xfs_buf_error_relse);
 DEFINE_BUF_EVENT(xfs_trans_read_buf_io);
 DEFINE_BUF_EVENT(xfs_trans_read_buf_shut);
 
+/* not really buffer traces, but the buf provides useful information */
 DEFINE_BUF_EVENT(xfs_btree_corrupt);
 DEFINE_BUF_EVENT(xfs_da_btree_corrupt);
 DEFINE_BUF_EVENT(xfs_reset_dqcounts);
 DEFINE_BUF_EVENT(xfs_inode_item_push);
 
+/* pass flags explicitly */
 DECLARE_EVENT_CLASS(xfs_buf_flags_class,
 	TP_PROTO(struct xfs_buf *bp, unsigned flags, unsigned long caller_ip),
 	TP_ARGS(bp, flags, caller_ip),
@@ -869,6 +887,7 @@ DEFINE_LOG_ITEM_EVENT(xfs_ail_pushbuf);
 DEFINE_LOG_ITEM_EVENT(xfs_ail_pushbuf_pinned);
 DEFINE_LOG_ITEM_EVENT(xfs_ail_pinned);
 DEFINE_LOG_ITEM_EVENT(xfs_ail_locked);
+
 
 DECLARE_EVENT_CLASS(xfs_file_class,
 	TP_PROTO(struct xfs_inode *ip, size_t count, loff_t offset, int flags),
@@ -1763,7 +1782,7 @@ DEFINE_DISCARD_EVENT(xfs_discard_toosmall);
 DEFINE_DISCARD_EVENT(xfs_discard_exclude);
 DEFINE_DISCARD_EVENT(xfs_discard_busy);
 
-#endif  
+#endif /* _TRACE_XFS_H */
 
 #undef TRACE_INCLUDE_PATH
 #define TRACE_INCLUDE_PATH .

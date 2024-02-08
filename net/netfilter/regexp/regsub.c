@@ -28,6 +28,7 @@
 #include "regmagic.h"
 #include <linux/string.h>
 
+
 #ifndef CHARBITS
 #define	UCHARAT(p)	((int)*(unsigned char *)(p))
 #else

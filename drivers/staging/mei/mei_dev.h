@@ -64,6 +64,11 @@ extern const uuid_le mei_wd_guid;
 extern const u8 mei_wd_state_independence_msg[3][4];
 
 /*
+ * maximum number of consecutive resets
+ */
+#define MEI_MAX_CONSEC_RESET  3
+
+/*
  * Number of File descriptors/handles
  * that can be opened to the driver.
  *
@@ -140,6 +145,7 @@ struct mei_message_data {
 	char *data;
 } __packed;
 
+
 struct mei_cl_cb {
 	struct list_head cb_list;
 	enum mei_cb_major_types major_file_operations;
@@ -177,7 +183,11 @@ struct mei_io_list {
 	int status;
 };
 
-/* MEI private device struct */
+/**
+ * mei_device - MEI private device struct
+ *
+ * @reset_count - limits the number of consecutive resets
+ */
 struct mei_device {
 	struct pci_dev *pdev;	/* pointer to pci device struct */
 	/*
@@ -224,6 +234,7 @@ struct mei_device {
 	/*
 	 * mei device  states
 	 */
+	unsigned long reset_count;
 	enum mei_states mei_state;
 	enum mei_init_clients_states init_clients_state;
 	u16 init_clients_timer;
@@ -254,6 +265,8 @@ struct mei_device {
 	u16 wd_due_counter;
 	unsigned char wd_data[MEI_START_WD_DATA_SIZE];
 
+
+
 	struct file *iamthif_file_object;
 	struct mei_cl iamthif_cl;
 	struct mei_cl_cb *iamthif_current_cb;
@@ -271,6 +284,7 @@ struct mei_device {
 	bool wd_interface_reg;
 };
 
+
 /*
  * mei init function prototypes
  */
@@ -283,6 +297,7 @@ int mei_disconnect_host_client(struct mei_device *dev, struct mei_cl *cl);
 void mei_remove_client_from_file_list(struct mei_device *dev, u8 host_client_id);
 void mei_host_init_iamthif(struct mei_device *dev);
 void mei_allocate_me_clients_storage(struct mei_device *dev);
+
 
 u8 mei_find_me_client_update_filext(struct mei_device *dev,
 				struct mei_cl *priv,
@@ -316,6 +331,8 @@ static inline bool mei_cl_cmp_id(const struct mei_cl *cl1,
 		(cl1->host_client_id == cl2->host_client_id) &&
 		(cl1->me_client_id == cl2->me_client_id);
 }
+
+
 
 /*
  * MEI Host Client Functions
@@ -418,6 +435,7 @@ static inline u32 mei_mecbrw_read(struct mei_device *dev)
 {
 	return mei_reg_read(dev, ME_CB_RW);
 }
+
 
 /*
  * mei interface function prototypes

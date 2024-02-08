@@ -12,6 +12,7 @@
 #include "proslic.h"
 #include "mvOs.h"
 
+
 /*
 ** System timer interface structure
 */
@@ -53,6 +54,7 @@ void TimerInit (systemTimer_S *pTimerObj);
 ** none
 */
 int time_DelayWrapper (void *hTimer, int timeInMs);
+
 
 /*
 ** Function: TimeElapsedWrapper

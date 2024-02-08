@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -234,6 +235,7 @@ static DEVICE_ATTR(s_flags,     S_IWUSR, pmt_show, pmt_sw_dec_store);
 static DEVICE_ATTR(s_skip,      S_IWUSR, pmt_show, pmt_sw_dec_store);
 static DEVICE_ATTR(s_jump,      S_IWUSR, pmt_show, pmt_sw_dec_store);
 
+
 static struct attribute *pmt_attrs[] = {
 	&dev_attr_help.attr,
 	&dev_attr_sw_dump.attr,
@@ -284,3 +286,4 @@ int mv_neta_pme_sysfs_exit(struct kobject *neta_kobj)
 
 	return 0;
 }
+

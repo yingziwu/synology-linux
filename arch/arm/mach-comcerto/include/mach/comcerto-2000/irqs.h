@@ -97,6 +97,7 @@
 #define IRQ_RTC_ALM		SPI_IRQ(31)
 #define IRQ_RTC_PRI		SPI_IRQ(32)
 
+
 /* Software decoded interrupts used by PCIE */
 #define COMCERTO_IRQ_MAX	SPI_IRQ(33)	
 
@@ -117,3 +118,4 @@
 #define NR_IRQS			256
 
 #endif
+

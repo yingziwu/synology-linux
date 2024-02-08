@@ -79,6 +79,7 @@
 #define VP_DBG_SEQUENCER_COLOR      dark_blue
 #define VP_DBG_CID_COLOR            bright_white
 
+
 /* Macros for displaying VpDeviceIdType and VpLineIdType values.  If you have
    defined these (in vp_api_types.h) as something other than simple integers,
    you should modify the printf format strings as needed: */

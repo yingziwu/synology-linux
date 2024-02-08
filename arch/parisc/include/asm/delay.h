@@ -4,6 +4,7 @@
 #include <asm/system.h>    /* for mfctl() */
 #include <asm/processor.h> /* for boot_cpu_data */
 
+
 /*
  * Copyright (C) 1993 Linus Torvalds
  *

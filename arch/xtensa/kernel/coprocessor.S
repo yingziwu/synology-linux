@@ -11,6 +11,7 @@
  * Copyright (C) 2003 - 2007 Tensilica Inc.
  */
 
+
 #include <linux/linkage.h>
 #include <asm/asm-offsets.h>
 #include <asm/processor.h>
@@ -67,6 +68,7 @@ ENTRY(fast_io_protect)
 		.long 0;						\
 	.endif;								\
 	.long THREAD_XTREGS_CP##x
+
 
 #define LOAD_CP_REGS(x)							\
 	.align 4;							\
@@ -174,6 +176,7 @@ ENTRY(coprocessor_load)
  *
  */
 
+
 ENTRY(coprocessor_flush)
 	entry	a1, 32
 	s32i	a0, a1, 0
@@ -220,6 +223,7 @@ ENTRY(fast_coprocessor_double)
 	wsr	a0, EXCSAVE_1
 	movi	a0, unrecoverable_exception
 	callx0	a0
+
 
 ENTRY(fast_coprocessor)
 
@@ -328,3 +332,4 @@ ENTRY(coprocessor_owner)
 	.fill XCHAL_CP_MAX, 4, 0
 
 #endif /* XTENSA_HAVE_COPROCESSORS */
+

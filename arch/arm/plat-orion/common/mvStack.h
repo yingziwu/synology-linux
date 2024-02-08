@@ -76,10 +76,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __mvStack_h__
 #define __mvStack_h__
 
+
 /* includes */
 #include "mvTypes.h"
 
+
 /* defines  */
+
 
 /* typedefs */
 /* Data structure describes general purpose Stack */

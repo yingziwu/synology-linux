@@ -1,7 +1,16 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*
+ *  linux/fs/hfsplus/inode.c
+ *
+ * Copyright (C) 2001
+ * Brad Boyer (flar@allandria.com)
+ * (C) 2003 Ardis Technologies <roman@ardistech.com>
+ *
+ * Inode handling routines
+ */
+
 #include <linux/blkdev.h>
 #include <linux/mm.h>
 #include <linux/fs.h>
@@ -133,6 +142,10 @@ static ssize_t hfsplus_direct_IO(int rw, struct kiocb *iocb,
 	ret = blockdev_direct_IO(rw, iocb, inode, iov, offset, nr_segs,
 				 hfsplus_get_block);
 
+	/*
+	 * In case of error extending write may have instantiated a few
+	 * blocks outside i_size. Trim these off again.
+	 */
 	if (unlikely((rw & WRITE) && ret < 0)) {
 		loff_t isize = i_size_read(inode);
 		loff_t end = offset + iov_length(iov, nr_segs);
@@ -230,6 +243,12 @@ static struct dentry *hfsplus_file_lookup(struct inode *dir,
 	HFSPLUS_I(dir)->rsrc_inode = inode;
 	igrab(dir);
 
+	/*
+	 * __mark_inode_dirty expects inodes to be hashed.  Since we don't
+	 * want resource fork inodes in the regular inode space, we make them
+	 * appear hashed, but do not put on any lists.  hlist_del()
+	 * will work fine and require no locking.
+	 */
 	hlist_add_fake(&inode->i_hash);
 
 	mark_inode_dirty(inode);
@@ -247,7 +266,7 @@ static void hfsplus_get_perms(struct inode *inode,
 #ifndef MY_ABC_HERE
 	mode = be16_to_cpu(perms->mode);
 #else
-	 
+	// ignore the file permission on disk to let umask working
 	mode = 0;
 #endif
 
@@ -370,8 +389,14 @@ int hfsplus_file_fsync(struct file *file, loff_t start, loff_t end,
 	mutex_lock(&syno_hfsplus_global_mutex);
 #endif
 
+	/*
+	 * Sync inode metadata into the catalog and extent trees.
+	 */
 	sync_inode_metadata(inode, 1);
 
+	/*
+	 * And explicitly write out the btrees.
+	 */
 	if (test_and_clear_bit(HFSPLUS_I_CAT_DIRTY, &hip->flags))
 		error = filemap_write_and_wait(sbi->cat_tree->inode->i_mapping);
 
@@ -448,7 +473,9 @@ struct inode *hfsplus_new_inode(struct super_block *sb, umode_t mode)
 	inode->i_uid = current_fsuid();
 	inode->i_gid = current_fsgid();
 	set_nlink(inode, 1);
-	inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+#ifdef MY_ABC_HERE
+	inode->i_create_time = inode->i_mtime = inode->i_atime = inode->i_ctime = CURRENT_TIME_SEC;
+#endif
 
 	hip = HFSPLUS_I(inode);
 	INIT_LIST_HEAD(&hip->open_dir_list);
@@ -565,7 +592,7 @@ int hfsplus_cat_read_inode(struct inode *inode, struct hfs_find_data *fd)
 		struct hfsplus_cat_folder *folder = &entry.folder;
 
 		if (fd->entrylength < sizeof(struct hfsplus_cat_folder))
-			 ;
+			/* panic? */;
 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
 					sizeof(struct hfsplus_cat_folder));
 		hfsplus_get_perms(inode, &folder->permissions, 1);
@@ -574,6 +601,9 @@ int hfsplus_cat_read_inode(struct inode *inode, struct hfs_find_data *fd)
 		inode->i_atime = hfsp_mt2ut(folder->access_date);
 		inode->i_mtime = hfsp_mt2ut(folder->content_mod_date);
 		inode->i_ctime = hfsp_mt2ut(folder->attribute_mod_date);
+#ifdef MY_ABC_HERE
+		inode->i_create_time = hfsp_mt2ut(folder->create_date);
+#endif
 		HFSPLUS_I(inode)->create_date = folder->create_date;
 		HFSPLUS_I(inode)->fs_blocks = 0;
 		inode->i_op = &hfsplus_dir_inode_operations;
@@ -582,7 +612,7 @@ int hfsplus_cat_read_inode(struct inode *inode, struct hfs_find_data *fd)
 		struct hfsplus_cat_file *file = &entry.file;
 
 		if (fd->entrylength < sizeof(struct hfsplus_cat_file))
-			 ;
+			/* panic? */;
 		hfs_bnode_read(fd->bnode, &entry, fd->entryoffset,
 					sizeof(struct hfsplus_cat_file));
 
@@ -607,6 +637,9 @@ int hfsplus_cat_read_inode(struct inode *inode, struct hfs_find_data *fd)
 		inode->i_atime = hfsp_mt2ut(file->access_date);
 		inode->i_mtime = hfsp_mt2ut(file->content_mod_date);
 		inode->i_ctime = hfsp_mt2ut(file->attribute_mod_date);
+#ifdef MY_ABC_HERE
+		inode->i_create_time = hfsp_mt2ut(file->create_date);
+#endif
 		HFSPLUS_I(inode)->create_date = file->create_date;
 	} else {
 		pr_err("bad catalog entry used to create inode\n");
@@ -628,25 +661,28 @@ int hfsplus_cat_write_inode(struct inode *inode)
 		return 0;
 
 	if (hfs_find_init(HFSPLUS_SB(main_inode->i_sb)->cat_tree, &fd))
-		 
+		/* panic? */
 		return -EIO;
 
 	if (hfsplus_find_cat(main_inode->i_sb, main_inode->i_ino, &fd))
-		 
+		/* panic? */
 		goto out;
 
 	if (S_ISDIR(main_inode->i_mode)) {
 		struct hfsplus_cat_folder *folder = &entry.folder;
 
 		if (fd.entrylength < sizeof(struct hfsplus_cat_folder))
-			 ;
+			/* panic? */;
 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
 					sizeof(struct hfsplus_cat_folder));
-		 
+		/* simple node checks? */
 		hfsplus_cat_set_perms(inode, &folder->permissions);
 		folder->access_date = hfsp_ut2mt(inode->i_atime);
 		folder->content_mod_date = hfsp_ut2mt(inode->i_mtime);
 		folder->attribute_mod_date = hfsp_ut2mt(inode->i_ctime);
+#ifdef MY_ABC_HERE
+		folder->create_date = hfsp_ut2mt(inode->i_create_time);
+#endif
 		folder->valence = cpu_to_be32(inode->i_size - 2);
 		hfs_bnode_write(fd.bnode, &entry, fd.entryoffset,
 					 sizeof(struct hfsplus_cat_folder));
@@ -661,7 +697,7 @@ int hfsplus_cat_write_inode(struct inode *inode)
 		struct hfsplus_cat_file *file = &entry.file;
 
 		if (fd.entrylength < sizeof(struct hfsplus_cat_file))
-			 ;
+			/* panic? */;
 		hfs_bnode_read(fd.bnode, &entry, fd.entryoffset,
 					sizeof(struct hfsplus_cat_file));
 		hfsplus_inode_write_fork(inode, &file->data_fork);
@@ -675,6 +711,9 @@ int hfsplus_cat_write_inode(struct inode *inode)
 		file->access_date = hfsp_ut2mt(inode->i_atime);
 		file->content_mod_date = hfsp_ut2mt(inode->i_mtime);
 		file->attribute_mod_date = hfsp_ut2mt(inode->i_ctime);
+#ifdef MY_ABC_HERE
+		file->create_date = hfsp_ut2mt(inode->i_create_time);
+#endif
 		hfs_bnode_write(fd.bnode, &entry, fd.entryoffset,
 					 sizeof(struct hfsplus_cat_file));
 	}

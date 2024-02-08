@@ -1,4 +1,35 @@
- 
+/*
+ * drivers/crypto/al_crypto_alg.c
+ *
+ * Annapurna Labs Crypto driver - ablckcipher/aead algorithms
+ *
+ * Copyright (C) 2012 Annapurna Labs Ltd.
+ *
+ * Algorithm registration code and chained scatter/gather lists
+ * handling based on caam driver.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
+
+/*
+#ifndef DEBUG
+#define DEBUG
+#endif
+*/
+
 #include "linux/export.h"
 #include "linux/crypto.h"
 #include <linux/rtnetlink.h>
@@ -21,6 +52,9 @@
 #endif
 
 #define AL_CRYPTO_CRA_PRIORITY	300
+
+
+
 
 static int ablkcipher_setkey_des(struct crypto_ablkcipher *ablkcipher,
 			     const u8 *key, unsigned int keylen);
@@ -297,6 +331,8 @@ struct al_crypto_alg {
 	struct crypto_alg crypto_alg;
 };
 
+/******************************************************************************
+ *****************************************************************************/
 static int al_crypto_cra_init(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -325,6 +361,8 @@ static int al_crypto_cra_init(struct crypto_tfm *tfm)
 	return 0;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int al_crypto_cra_init_ablkcipher(struct crypto_tfm *tfm)
 {
 	struct al_crypto_ctx *ctx = crypto_tfm_ctx(tfm);
@@ -341,6 +379,8 @@ static int al_crypto_cra_init_ablkcipher(struct crypto_tfm *tfm)
 	return 0;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int al_crypto_cra_init_aead(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -361,8 +401,11 @@ static int al_crypto_cra_init_aead(struct crypto_tfm *tfm)
 	ctx->sa.auth_type = al_crypto_alg->auth_type;
 	ctx->sa.sha2_mode = al_crypto_alg->sha2_mode;
 
+	/* Allocate SW hash for hmac long key hashing and key XOR ipad/opad
+	 * intermediate calculations
+	 */
 	if (strlen(al_crypto_alg->sw_hash_name)) {
-		 
+		/* TODO: is CRYPTO_ALG_NEED_FALLBACK needed here? */
 		sw_hash = crypto_alloc_shash(al_crypto_alg->sw_hash_name, 0,
 				CRYPTO_ALG_NEED_FALLBACK);
 		if (IS_ERR(sw_hash)) {
@@ -376,12 +419,14 @@ static int al_crypto_cra_init_aead(struct crypto_tfm *tfm)
 			AL_CRYPTO_MAX_IV_LENGTH,
 			&ctx->iv_dma_addr,
 			GFP_KERNEL);
-	 
+	/* random first IV */
 	get_random_bytes(ctx->iv, AL_CRYPTO_MAX_IV_LENGTH);
 
 	return 0;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static void al_crypto_cra_exit(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -392,6 +437,7 @@ static void al_crypto_cra_exit(struct crypto_tfm *tfm)
 
 	dev_dbg(&device->pdev->dev, "%s\n", __func__);
 
+	/* LRU list access has to be protected */
 	spin_lock_bh(&ctx->chan->prep_lock);
 	if (ctx->cache_state.cached)
 		al_crypto_cache_remove_lru(ctx->chan, &ctx->cache_state);
@@ -406,6 +452,8 @@ static void al_crypto_cra_exit(struct crypto_tfm *tfm)
 	return;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static void al_crypto_cra_exit_ablkcipher(struct crypto_tfm *tfm)
 {
 	struct al_crypto_ctx *ctx = crypto_tfm_ctx(tfm);
@@ -417,6 +465,8 @@ static void al_crypto_cra_exit_ablkcipher(struct crypto_tfm *tfm)
 	AL_CRYPTO_STATS_UNLOCK(&ctx->chan->stats_gen_lock);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static void al_crypto_cra_exit_aead(struct crypto_tfm *tfm)
 {
 	struct crypto_alg *alg = tfm->__crt_alg;
@@ -443,6 +493,8 @@ static void al_crypto_cra_exit_aead(struct crypto_tfm *tfm)
 		crypto_free_shash(ctx->sw_hash);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int ablkcipher_setkey_des(struct crypto_ablkcipher *ablkcipher,
 	     const u8 *key, unsigned int keylen)
 {
@@ -464,6 +516,9 @@ static int ablkcipher_setkey_des(struct crypto_ablkcipher *ablkcipher,
 		if (keylen != DES_KEY_SIZE)
 			return -EINVAL;
 
+		/* check for weak keys. */
+		/* Weak keys are keys that cause the encryption mode of DES
+		 * to act identically to the decryption mode of DES */
 		ret = des_ekey(tmp, key);
 		if (unlikely(ret == 0) && (*flags & CRYPTO_TFM_REQ_WEAK_KEY)) {
 			*flags |= CRYPTO_TFM_RES_WEAK_KEY;
@@ -471,10 +526,13 @@ static int ablkcipher_setkey_des(struct crypto_ablkcipher *ablkcipher,
 		}
 	}
 
+	/* TODO: optimize HAL to hold ptrs to save this memcpy */
+	/* copy the key to the sa */
 	memcpy(&ctx->sa.enc_key, key, keylen);
 
 	al_crypto_hw_sa_init(&ctx->sa, ctx->hw_sa);
 
+	/* mark the sa as not cached, will update in next xaction */
 	spin_lock_bh(&ctx->chan->prep_lock);
 	if (ctx->cache_state.cached)
 		al_crypto_cache_remove_lru(ctx->chan, &ctx->cache_state);
@@ -483,6 +541,8 @@ static int ablkcipher_setkey_des(struct crypto_ablkcipher *ablkcipher,
 	return 0;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int ablkcipher_setkey_aes(struct crypto_ablkcipher *ablkcipher,
 			     const u8 *key, unsigned int keylen)
 {
@@ -491,31 +551,40 @@ static int ablkcipher_setkey_aes(struct crypto_ablkcipher *ablkcipher,
 	dev_dbg(to_dev(ctx->chan), "%s\n", __func__);
 
 	switch (keylen) {
-	case 16:  
+	case 16: /* 128 bit */
 		ctx->sa.aes_ksize = AL_CRYPT_AES_128;
 		break;
-	case 24:  
+	case 24: /* 192 bit */
 		ctx->sa.aes_ksize = AL_CRYPT_AES_192;
 		break;
-	case 32:  
+	case 32: /* 256 bit */
 		ctx->sa.aes_ksize = AL_CRYPT_AES_256;
 		break;
-	default:  
+	default: /* Invalid key size */
 		return -EINVAL;
 		break;
 	}
 
+	/* As for now we don't support GCM or CCM modes */
 	if ((ctx->sa.enc_type == AL_CRYPT_AES_GCM) ||
 		(ctx->sa.enc_type == AL_CRYPT_AES_CCM)) {
 		BUG();
 	}
 
+	/* TODO: optimize HAL to hold ptrs to save this memcpy */
+	/* copy the key to the sa */
 	memcpy(&ctx->sa.enc_key, key, keylen);
 
+	/* Sets the counter increment to 128 bit to be aligned with the
+	 * linux implementation. We know it contradicts the NIST spec.
+	 * If and when the linux will be aligned with the spec we should fix it
+	 * too.
+	 * This variable is relevant only for CTR, GCM and CCM modes*/
 	ctx->sa.cntr_size = AL_CRYPT_CNTR_128_BIT;
 
 	al_crypto_hw_sa_init(&ctx->sa, ctx->hw_sa);
 
+	/* mark the sa as not cached, will update in next xaction */
 	spin_lock_bh(&ctx->chan->prep_lock);
 	if (ctx->cache_state.cached)
 		al_crypto_cache_remove_lru(ctx->chan, &ctx->cache_state);
@@ -524,6 +593,11 @@ static int ablkcipher_setkey_aes(struct crypto_ablkcipher *ablkcipher,
 	return 0;
 }
 
+
+/******************************************************************************
+ *****************************************************************************/
+/* DMA unmap buffers for ablkcipher request
+ */
 static inline void al_crypto_dma_unmap_ablkcipher(struct al_crypto_chan	*chan,
 		struct ablkcipher_request *req,
 		int src_nents, int dst_nents, bool src_chained,
@@ -557,6 +631,11 @@ static inline void al_crypto_dma_unmap_ablkcipher(struct al_crypto_chan	*chan,
 				DMA_TO_DEVICE);
 }
 
+/******************************************************************************
+ *****************************************************************************/
+/* Cleanup single ablkcipher request - invoked from cleanup tasklet (interrupt
+ * handler)
+ */
 void al_crypto_cleanup_single_ablkcipher(
 		struct al_crypto_chan		*chan,
 		struct al_crypto_sw_desc	*desc,
@@ -572,6 +651,8 @@ void al_crypto_cleanup_single_ablkcipher(
 	req->base.complete(&req->base, 0);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static inline void ablkcipher_update_stats(
 		struct al_crypto_transaction *xaction,
 		struct al_crypto_chan *chan)
@@ -602,6 +683,8 @@ static inline void ablkcipher_update_stats(
 				chan->stats_prep.ablkcipher_reqs_gt4096, 1);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static inline void ablkcipher_prepare_xaction_buffers(
 		struct ablkcipher_request *req,
 		struct al_crypto_sw_desc *desc)
@@ -630,6 +713,11 @@ static inline void ablkcipher_prepare_xaction_buffers(
 	xaction->dst.num = dst_idx;
 }
 
+/******************************************************************************
+ *****************************************************************************/
+/* Prepare crypto transaction to be processed by HAL and submit to HAL
+ * Grabs and releases producer lock for relevant sw ring
+ */
 static int ablkcipher_do_crypt(struct ablkcipher_request *req, bool lock)
 {
 	int idx, sgc;
@@ -652,6 +740,14 @@ static int ablkcipher_do_crypt(struct ablkcipher_request *req, bool lock)
 	else
 		dst_nents = src_nents;
 
+	/* Currently supported max sg chain length is
+	 * AL_CRYPTO_OP_MAX_DATA_BUFS(12) which is minimum of descriptors left
+	 * for data in a transaction:
+	 * tx: 31(supported by HW) - 1(metadata) - 1(sa_in) -
+	 *			1(enc_iv_in|auth_iv_in) - 1(auth_sign_in) = 27
+	 * rx: 31(supported by HW) - 1(sa_out) - 1(enc_iv_out|auth_iv_out) -
+	 *			1(next_enc_iv_out) - 1(auth_sign_out) = 27
+	 */
 	BUG_ON((src_nents > AL_CRYPTO_OP_MAX_BUFS) ||
 			(dst_nents > AL_CRYPTO_OP_MAX_BUFS));
 
@@ -701,6 +797,7 @@ static int ablkcipher_do_crypt(struct ablkcipher_request *req, bool lock)
 	desc->src_chained = src_chained;
 	desc->dst_chained = dst_chained;
 
+	/* prepare hal transaction */
 	xaction = &desc->hal_xaction;
 	memset(xaction, 0, sizeof(struct al_crypto_transaction));
 	xaction->dir = dir;
@@ -733,6 +830,7 @@ static int ablkcipher_do_crypt(struct ablkcipher_request *req, bool lock)
 
 	ablkcipher_update_stats(xaction, chan);
 
+	/* send crypto transaction to engine */
 	rc = al_crypto_dma_prepare(chan->hal_crypto, chan->idx,
 				&desc->hal_xaction);
 	if (unlikely(rc != 0)) {
@@ -757,6 +855,8 @@ static int ablkcipher_do_crypt(struct ablkcipher_request *req, bool lock)
 	return -EINPROGRESS;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 int ablkcipher_process_queue(struct al_crypto_chan *chan)
 {
 	struct crypto_async_request *async_req, *backlog;
@@ -787,6 +887,8 @@ int ablkcipher_process_queue(struct al_crypto_chan *chan)
 	return err;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int ablkcipher_encrypt(struct ablkcipher_request *req)
 {
 	struct crypto_ablkcipher *ablkcipher = crypto_ablkcipher_reqtfm(req);
@@ -800,6 +902,8 @@ static int ablkcipher_encrypt(struct ablkcipher_request *req)
 	return ablkcipher_do_crypt(req, true);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int ablkcipher_decrypt(struct ablkcipher_request *req)
 {
 	struct crypto_ablkcipher *ablkcipher = crypto_ablkcipher_reqtfm(req);
@@ -813,6 +917,8 @@ static int ablkcipher_decrypt(struct ablkcipher_request *req)
 	return ablkcipher_do_crypt(req, true);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static inline int aead_auth_setkey(struct crypto_aead *aead, const u8 *key,
 		unsigned int keylen)
 {
@@ -829,6 +935,8 @@ static inline int aead_auth_setkey(struct crypto_aead *aead, const u8 *key,
 			al_crypto_alg->sw_hash_interm_size);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 		unsigned int keylen)
 {
@@ -861,37 +969,44 @@ static int aead_setkey(struct crypto_aead *aead, const u8 *key,
 			(ctx->sa.enc_type == AL_CRYPT_AES_ECB) ||
 			(ctx->sa.enc_type == AL_CRYPT_AES_CTR)) {
 		switch (enckeylen) {
-		case 16:  
+		case 16: /* 128 bit */
 			ctx->sa.aes_ksize = AL_CRYPT_AES_128;
 			break;
-		case 24:  
+		case 24: /* 192 bit */
 			ctx->sa.aes_ksize = AL_CRYPT_AES_192;
 			break;
-		case 32:  
+		case 32: /* 256 bit */
 			ctx->sa.aes_ksize = AL_CRYPT_AES_256;
 			break;
-		default:  
+		default: /* Invalid key size */
 			return -EINVAL;
 			break;
 		}
 	} else {
-		 
+		/* Currently only AES is supported */
 		BUG();
 	}
 
 	rc = aead_auth_setkey(aead, key, authkeylen);
 
 	if (!rc) {
-		 
+		/* TODO: optimize HAL to hold ptrs to save this memcpy */
+		/* copy the key to the sa */
 		memcpy(&ctx->sa.enc_key, key + authkeylen, enckeylen);
 
 		ctx->sa.sign_after_enc = true;
 		ctx->sa.auth_after_dec = false;
 
+                /* Sets the counter increment to 128 bit to be aligned with the
+                 * linux implementation. We know it contradicts the NIST spec.
+                 * If and when the linux will be aligned with the spec we should fix it
+                 * too.
+                 * This variable is relevant only for CTR, GCM and CCM modes*/
                 ctx->sa.cntr_size = AL_CRYPT_CNTR_128_BIT;
 
 		al_crypto_hw_sa_init(&ctx->sa, ctx->hw_sa);
 
+		/* mark the sa as not cached, will update in next xaction */
 		spin_lock_bh(&ctx->chan->prep_lock);
 		if (ctx->cache_state.cached)
 			al_crypto_cache_remove_lru(ctx->chan,
@@ -905,6 +1020,8 @@ badkey:
 	return -EINVAL;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int aead_setauthsize(struct crypto_aead *aead, unsigned int authsize)
 {
 	struct al_crypto_ctx *ctx = crypto_aead_ctx(aead);
@@ -919,6 +1036,7 @@ static int aead_setauthsize(struct crypto_aead *aead, unsigned int authsize)
 
 	al_crypto_hw_sa_init(&ctx->sa, ctx->hw_sa);
 
+	/* mark the sa as not cached, will update in next xaction */
 	spin_lock_bh(&ctx->chan->prep_lock);
 	if (ctx->cache_state.cached)
 		al_crypto_cache_remove_lru(ctx->chan, &ctx->cache_state);
@@ -927,6 +1045,10 @@ static int aead_setauthsize(struct crypto_aead *aead, unsigned int authsize)
 	return 0;
 }
 
+/******************************************************************************
+ *****************************************************************************/
+/* DMA unmap buffers for aead request
+ */
 static inline void al_crypto_dma_unmap_aead(struct al_crypto_chan *chan,
 		struct aead_request *req,
 		int src_nents, int assoc_nents,	int dst_nents,
@@ -964,6 +1086,11 @@ static inline void al_crypto_dma_unmap_aead(struct al_crypto_chan *chan,
 				DMA_TO_DEVICE);
 }
 
+/******************************************************************************
+ *****************************************************************************/
+/* Cleanup single aead request - invoked from cleanup tasklet (interrupt
+ * handler)
+ */
 void al_crypto_cleanup_single_aead(
 		struct al_crypto_chan		*chan,
 		struct al_crypto_sw_desc	*desc,
@@ -983,6 +1110,8 @@ void al_crypto_cleanup_single_aead(
 	req->base.complete(&req->base, err);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static inline void aead_update_stats(struct al_crypto_transaction *xaction,
 		struct al_crypto_chan *chan)
 {
@@ -1028,7 +1157,7 @@ static inline void aead_prepare_xaction_buffers(
 
 	src_idx = 0;
 	dst_idx = 0;
-	 
+	/* add assoc buffers */
 	sg = req->assoc;
 	for (i = 0; i < desc->assoc_nents; i++) {
 		desc->src_bufs[src_idx].addr = desc->dst_bufs[dst_idx].addr =
@@ -1042,6 +1171,7 @@ static inline void aead_prepare_xaction_buffers(
 		dst_idx++;
 	}
 
+	/* map and add IV */
 	desc->src_bufs[src_idx].addr = desc->dst_bufs[dst_idx].addr =
 		xaction->enc_iv_in.addr =
 			dma_map_single(to_dev(chan), iv, ivsize,
@@ -1066,6 +1196,7 @@ static inline void aead_prepare_xaction_buffers(
 		sg_map_to_xaction_buffers(req->dst, desc->dst_bufs,
 				req->cryptlen, &dst_idx);
 
+	/* add enc+auth data */
 	xaction->auth_in_len += req->cryptlen;
 	xaction->enc_in_len = req->cryptlen;
 	xaction->src_size = xaction->auth_in_len;
@@ -1075,6 +1206,10 @@ static inline void aead_prepare_xaction_buffers(
 	xaction->dst.num = dst_idx;
 }
 
+/******************************************************************************
+ *****************************************************************************/
+/* Prepare encryption+auth transaction to be processed by HAL
+ */
 static inline void aead_prepare_xaction(enum al_crypto_dir dir,
 		struct aead_request *req,
 		struct al_crypto_sw_desc *desc,
@@ -1095,16 +1230,18 @@ static inline void aead_prepare_xaction(enum al_crypto_dir dir,
 	aead_prepare_xaction_buffers(req, desc, iv);
 
 	if (dir == AL_CRYPT_ENCRYPT) {
-		 
+		/* set signature buffer for auth */
 		sg = req->dst;
 		while (!sg_is_last(sg))
 			scatterwalk_sg_next(sg);
 
+		/* assume that auth result is not scattered */
 		BUG_ON(sg_dma_len(sg) < authsize);
 		xaction->auth_sign_out.addr =
 				sg_dma_address(sg) + sg_dma_len(sg) - authsize;
 		xaction->auth_sign_out.len = authsize;
 
+		/* get next iv for iv generation */
 		xaction->enc_next_iv_out.addr = ctx->iv_dma_addr;
 		xaction->enc_next_iv_out.len = ivsize;
 	} else {
@@ -1112,6 +1249,7 @@ static inline void aead_prepare_xaction(enum al_crypto_dir dir,
 		while (!sg_is_last(sg))
 			scatterwalk_sg_next(sg);
 
+		/* assume that auth result is not scattered */
 		BUG_ON(sg_dma_len(sg) < authsize);
 		xaction->auth_sign_in.addr =
 				sg_dma_address(sg) + sg_dma_len(sg) - authsize;
@@ -1137,6 +1275,12 @@ static inline void aead_prepare_xaction(enum al_crypto_dir dir,
 	aead_update_stats(xaction, chan);
 }
 
+/******************************************************************************
+ *****************************************************************************/
+/* Prepare aead encryption and auth dma, call hal transaction preparation
+ * function and submit the request to HAL.
+ * Grabs and releases producer lock for relevant sw ring
+ */
 static int aead_perform(enum al_crypto_dir dir, struct aead_request *req,
 		u8 *iv)
 {
@@ -1161,6 +1305,14 @@ static int aead_perform(enum al_crypto_dir dir, struct aead_request *req,
 	else
 		dst_nents = src_nents;
 
+	/* Currently supported max sg chain length is
+	 * AL_CRYPTO_OP_MAX_DATA_BUFS(12) which is minimum of descriptors left
+	 * for data in a transaction:
+	 * tx: 31(supported by HW) - 1(metadata) - 1(sa_in) -
+	 *			1(enc_iv_in|auth_iv_in) - 1(auth_sign_in) = 27
+	 * rx: 31(supported by HW) - 1(sa_out) - 1(enc_iv_out|auth_iv_out) -
+	 *			1(next_enc_iv_out) - 1(auth_sign_out) = 27
+	 */
 	BUG_ON((src_nents + assoc_nents + 1 > AL_CRYPTO_OP_MAX_BUFS) ||
 		(dst_nents + assoc_nents + 1 > AL_CRYPTO_OP_MAX_BUFS));
 
@@ -1214,6 +1366,7 @@ static int aead_perform(enum al_crypto_dir dir, struct aead_request *req,
 
 	aead_prepare_xaction(dir, req, desc, iv);
 
+	/* send crypto transaction to engine */
 	rc = al_crypto_dma_prepare(chan->hal_crypto, chan->idx,
 				&desc->hal_xaction);
 	if (unlikely(rc != 0)) {
@@ -1237,34 +1390,43 @@ static int aead_perform(enum al_crypto_dir dir, struct aead_request *req,
 	return -EINPROGRESS;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int aead_encrypt(struct aead_request *req)
 {
 	return aead_perform(AL_CRYPT_ENCRYPT, req, req->iv);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int aead_decrypt(struct aead_request *req)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(req);
 	int authsize = crypto_aead_authsize(aead);
 
+	/* req->cryptlen includes the authsize when decrypting */
 	req->cryptlen -= authsize;
 	BUG_ON(req->cryptlen < 0);
 
 	return aead_perform(AL_CRYPT_DECRYPT, req, req->iv);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static int aead_givencrypt(struct aead_givcrypt_request *req)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(&req->areq);
 	struct al_crypto_ctx *ctx = crypto_aead_ctx(aead);
 
 	memcpy(req->giv, ctx->iv, crypto_aead_ivsize(aead));
-	 
+	/* avoid consecutive packets going out with same IV */
 	*(__be64 *)req->giv ^= cpu_to_be64(req->seq);
 
 	return aead_perform(AL_CRYPT_ENCRYPT, &req->areq, req->giv);
 }
 
+/******************************************************************************
+ *****************************************************************************/
 static struct al_crypto_alg *al_crypto_alg_alloc(
 		struct al_crypto_device *device,
 		struct al_crypto_alg_template *template)
@@ -1318,6 +1480,8 @@ static struct al_crypto_alg *al_crypto_alg_alloc(
 	return t_alg;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 int al_crypto_alg_init(struct al_crypto_device *device)
 {
 	int i;
@@ -1327,6 +1491,7 @@ int al_crypto_alg_init(struct al_crypto_device *device)
 
 	atomic_set(&device->tfm_count, -1);
 
+	/* register crypto algorithms the device supports */
 	for (i = 0; i < ARRAY_SIZE(driver_algs); i++) {
 		struct al_crypto_alg *t_alg;
 
@@ -1356,6 +1521,8 @@ int al_crypto_alg_init(struct al_crypto_device *device)
 	return err;
 }
 
+/******************************************************************************
+ *****************************************************************************/
 void al_crypto_alg_terminate(struct al_crypto_device *device)
 {
 	struct al_crypto_alg *t_alg, *n;

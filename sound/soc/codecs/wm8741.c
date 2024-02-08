@@ -61,6 +61,7 @@ static const u16 wm8741_reg_defaults[WM8741_REGISTER_COUNT] = {
 	0x0002,     /* R32 - ADDITONAL_CONTROL_1 */
 };
 
+
 static int wm8741_reset(struct snd_soc_codec *codec)
 {
 	return snd_soc_write(codec, WM8741_RESET, 0);
@@ -116,7 +117,7 @@ static struct {
 };
 
 static unsigned int rates_11289[] = {
-	44100, 88235,
+	44100, 88200,
 };
 
 static struct snd_pcm_hw_constraint_list constraints_11289 = {
@@ -143,7 +144,7 @@ static struct snd_pcm_hw_constraint_list constraints_16384 = {
 };
 
 static unsigned int rates_16934[] = {
-	44100, 88235,
+	44100, 88200,
 };
 
 static struct snd_pcm_hw_constraint_list constraints_16934 = {
@@ -161,7 +162,7 @@ static struct snd_pcm_hw_constraint_list constraints_18432 = {
 };
 
 static unsigned int rates_22579[] = {
-	44100, 88235, 1764000
+	44100, 88200, 176400
 };
 
 static struct snd_pcm_hw_constraint_list constraints_22579 = {
@@ -179,13 +180,14 @@ static struct snd_pcm_hw_constraint_list constraints_24576 = {
 };
 
 static unsigned int rates_36864[] = {
-	48000, 96000, 19200
+	48000, 96000, 192000
 };
 
 static struct snd_pcm_hw_constraint_list constraints_36864 = {
 	.count	= ARRAY_SIZE(rates_36864),
 	.list	= rates_36864,
 };
+
 
 static int wm8741_startup(struct snd_pcm_substream *substream,
 			  struct snd_soc_dai *dai)
@@ -362,6 +364,7 @@ static int wm8741_set_dai_fmt(struct snd_soc_dai *codec_dai,
 	default:
 		return -EINVAL;
 	}
+
 
 	dev_dbg(codec->dev, "wm8741_set_dai_fmt:    Format=%x, Clock Inv=%x\n",
 				fmt & SND_SOC_DAIFMT_FORMAT_MASK,

@@ -17,6 +17,7 @@
 #ifndef _PNX4008_GPIO_H_
 #define _PNX4008_GPIO_H_
 
+
 /* Block numbers */
 #define GPIO_IN		(0)
 #define GPIO_OUT		(0x100)

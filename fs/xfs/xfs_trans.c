@@ -46,6 +46,7 @@
 kmem_zone_t	*xfs_trans_zone;
 kmem_zone_t	*xfs_log_item_desc_zone;
 
+
 /*
  * Various log reservation values.
  *
@@ -64,6 +65,7 @@ kmem_zone_t	*xfs_log_item_desc_zone;
  * Reservation functions here avoid a huge stack in xfs_trans_init due to
  * register overflow from temporaries in the calculations.
  */
+
 
 /*
  * In a write transaction we can allocate a maximum of 2
@@ -1586,6 +1588,7 @@ xfs_trans_commit_iclog(
 	struct xfs_log_iovec	*log_vector;
 	uint			nvec;
 
+
 	/*
 	 * Ask each log item how many log_vector entries it will
 	 * need so we can figure out how many to allocate.
@@ -1723,6 +1726,7 @@ xfs_trans_alloc_log_vecs(
 	struct xfs_log_item_desc *lidp;
 	struct xfs_log_vec	*lv = NULL;
 	struct xfs_log_vec	*ret_lv = NULL;
+
 
 	/* Bail out if we didn't find a log item.  */
 	if (list_empty(&tp->t_items)) {
@@ -1996,6 +2000,7 @@ xfs_trans_roll(
 	 * reference that we gained in xfs_trans_dup()
 	 */
 	xfs_log_ticket_put(trans->t_ticket);
+
 
 	/*
 	 * Reserve space in the log for th next transaction.

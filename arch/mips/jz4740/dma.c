@@ -68,6 +68,7 @@
 #define JZ_DMA_CTRL_ADDRESS_ERROR	BIT(2)
 #define JZ_DMA_CTRL_ENABLE		BIT(0)
 
+
 static void __iomem *jz4740_dma_base;
 static spinlock_t jz4740_dma_lock;
 

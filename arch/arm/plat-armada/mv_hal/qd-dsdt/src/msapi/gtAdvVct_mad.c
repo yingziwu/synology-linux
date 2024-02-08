@@ -100,12 +100,14 @@ GT_STATUS gvctGetAdvCableDiag_mad
         gtDelay(250);
     }
 
+
     if ( mdDiagGetAdvCableStatus(&(dev->mad_dev),port,*((MAD_ADV_VCT_MODE *)&mode),(MAD_ADV_CABLE_STATUS*)cableStatus) != MAD_OK)
     {
       DBG_INFO(("Failed to run mdDiagGetAdvCableStatus.\n"));
       gtSemGive(dev,dev->phyRegsSem);
       return GT_FALSE;
     }
+
 
     if(ppuEn != GT_FALSE)
     {
@@ -119,6 +121,7 @@ GT_STATUS gvctGetAdvCableDiag_mad
     gtSemGive(dev,dev->phyRegsSem);
     return status;
 }
+
 
 /*******************************************************************************
 * gvctGetAdvExtendedStatus_mad

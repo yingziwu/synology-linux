@@ -69,3 +69,4 @@
 #define MAX_DIVISOR_NR		3
 
 #endif /* __ASM_CPU_SH4_FREQ_H */
+

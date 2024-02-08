@@ -225,6 +225,7 @@ void mv_mux_switch_attach(int gbe_port, int preset, int vid, int tag, int switch
 		mv_mux_mgr_probe(gbe_port);
 }
 
+
 void mv_mux_eth_attach(int port, struct net_device *root, struct mv_mux_eth_ops *ops)
 {
 	/* allready attach */
@@ -338,6 +339,7 @@ int mv_mux_rx(struct sk_buff *skb, int port, struct napi_struct *napi)
 	`	*/
 		return napi_gro_receive(napi, skb);
 	}
+
 
 	return netif_receive_skb(skb);
 
@@ -598,6 +600,7 @@ struct net_device *mv_mux_netdev_alloc(char *name, int idx, MV_MUX_TAG *tag_cfg)
 
 	mux_dev = dev_get_by_name(&init_net, name);
 
+
 	if (!mux_dev) {
 		/* new net device */
 		mux_dev = alloc_netdev(sizeof(struct mux_netdev), name, ether_setup);
@@ -795,6 +798,7 @@ int mv_mux_tag_type_set(int port, int type)
 {
 	unsigned int flgs;
 	struct net_device *root;
+
 
 	if ((type < MV_TAG_TYPE_NONE) || (type >= MV_TAG_TYPE_LAST)) {
 		printk(KERN_INFO "%s: Invalid tag type %d\n", __func__, type);
@@ -1169,12 +1173,14 @@ static inline struct net_device *mv_mux_edsa_netdev_get(int port, MV_TAG *tag)
 
 /*-----------------------------------------------------------------------------------------*/
 
+
 static inline struct net_device *mv_mux_rx_netdev_get(int port, struct sk_buff *skb)
 {
 	struct net_device *dev;
 	MV_TAG tag;
 	MV_U8 *data = skb->data;
 	int tag_type = mux_eth_shadow[port].tag_type;
+
 
 	/* skb->data point to MH */
 	switch (tag_type) {
@@ -1287,6 +1293,7 @@ static inline int mv_mux_rx_tag_remove(struct net_device *dev, struct sk_buff *s
 	return shift;
 }
 
+
 /*-----------------------------------------------------------------------------------------*/
 
 static inline int mv_eth_skb_mh_add(struct sk_buff *skb, u16 mh)
@@ -1350,6 +1357,7 @@ static inline int mv_mux_tx_skb_vlan_add(struct net_device *dev, struct sk_buff 
 
 	return mv_mux_skb_vlan_add(skb, pdev->tx_tag.vlan);
 }
+
 
 /*-----------------------------------------------------------------------------------------*/
 
@@ -1427,6 +1435,7 @@ void mv_mux_netdev_print(struct net_device *mux_dev)
 
 	struct mux_netdev *pdev;
 	int tag_type;
+
 
 	if (!mux_dev) {
 		printk(KERN_ERR "%s:device in NULL.\n", __func__);

@@ -127,6 +127,7 @@ struct timex {
 #define MOD_MICRO	ADJ_MICRO
 #define MOD_NANO	ADJ_NANO
 
+
 /*
  * Status codes (timex.status)
  */
@@ -171,6 +172,20 @@ struct timex {
 #include <linux/param.h>
 
 #include <asm/timex.h>
+
+#ifndef random_get_entropy
+/*
+ * The random_get_entropy() function is used by the /dev/random driver
+ * in order to extract entropy via the relative unpredictability of
+ * when an interrupt takes places versus a high speed, fine-grained
+ * timing source or cycle counter.  Since it will be occurred on every
+ * single interrupt, it must have a very low cost/overhead.
+ *
+ * By default we use get_cycles() for this purpose, but individual
+ * architectures may override this in their asm/timex.h header file.
+ */
+#define random_get_entropy()	get_cycles()
+#endif
 
 /*
  * SHIFT_PLL is used as a dampening factor to define how much we

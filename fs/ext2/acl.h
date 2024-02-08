@@ -74,3 +74,4 @@ static inline int ext2_init_acl (struct inode *inode, struct inode *dir)
 	return 0;
 }
 #endif
+

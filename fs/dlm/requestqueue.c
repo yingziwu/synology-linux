@@ -185,3 +185,4 @@ void dlm_purge_requestqueue(struct dlm_ls *ls)
 	}
 	mutex_unlock(&ls->ls_requestqueue_mutex);
 }
+

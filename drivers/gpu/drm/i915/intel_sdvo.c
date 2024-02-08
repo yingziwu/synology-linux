@@ -52,6 +52,7 @@
 #define IS_TV_OR_LVDS(c) (c->output_flag & (SDVO_TV_MASK | SDVO_LVDS_MASK))
 #define IS_DIGITAL(c) (c->output_flag & (SDVO_TMDS_MASK | SDVO_LVDS_MASK))
 
+
 static const char *tv_format_names[] = {
 	"NTSC_M"   , "NTSC_J"  , "NTSC_443",
 	"PAL_B"    , "PAL_D"   , "PAL_G"   ,
@@ -1581,11 +1582,14 @@ static void intel_sdvo_get_lvds_modes(struct drm_connector *connector)
 	 * Assume that the preferred modes are
 	 * arranged in priority order.
 	 */
-	intel_ddc_get_modes(connector, intel_sdvo->i2c);
-	if (list_empty(&connector->probed_modes) == false)
-		goto end;
+	intel_ddc_get_modes(connector, &intel_sdvo->ddc);
 
-	/* Fetch modes from VBT */
+	/*
+	 * Fetch modes from VBT. For SDVO prefer the VBT mode since some
+	 * SDVO->LVDS transcoders can't cope with the EDID mode. Since
+	 * drm_mode_probed_add adds the mode at the head of the list we add it
+	 * last.
+	 */
 	if (dev_priv->sdvo_lvds_vbt_mode != NULL) {
 		newmode = drm_mode_duplicate(connector->dev,
 					     dev_priv->sdvo_lvds_vbt_mode);
@@ -1597,7 +1601,6 @@ static void intel_sdvo_get_lvds_modes(struct drm_connector *connector)
 		}
 	}
 
-end:
 	list_for_each_entry(newmode, &connector->probed_modes, head) {
 		if (newmode->type & DRM_MODE_TYPE_PREFERRED) {
 			intel_sdvo->sdvo_lvds_fixed_mode =
@@ -1834,6 +1837,7 @@ intel_sdvo_set_property(struct drm_connector *connector,
 set_value:
 	if (!intel_sdvo_set_value(intel_sdvo, cmd, &temp_value, 2))
 		return -EIO;
+
 
 done:
 	if (intel_sdvo->base.base.crtc) {
@@ -2300,6 +2304,7 @@ static bool intel_sdvo_tv_create_property(struct intel_sdvo *intel_sdvo,
 	for (i = 0 ; i < TV_FORMAT_NUM; i++)
 		if (format_map & (1 << i))
 			intel_sdvo_connector->tv_format_supported[intel_sdvo_connector->format_supported_num++] = i;
+
 
 	intel_sdvo_connector->tv_format =
 			drm_property_create(dev, DRM_MODE_PROP_ENUM,

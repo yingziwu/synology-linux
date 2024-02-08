@@ -139,6 +139,7 @@ static int ipoib_ib_post_receive(struct net_device *dev, int id)
 	priv->rx_sge[0].addr = priv->rx_ring[id].mapping[0];
 	priv->rx_sge[1].addr = priv->rx_ring[id].mapping[1];
 
+
 	ret = ib_post_recv(priv->qp, &priv->rx_wr, &bad_wr);
 	if (unlikely(ret)) {
 		ipoib_warn(priv, "receive failed for buf %d (%d)\n", id, ret);
@@ -972,8 +973,17 @@ static void __ipoib_ib_dev_flush(struct ipoib_dev_priv *priv,
 	}
 
 	if (level == IPOIB_FLUSH_LIGHT) {
+		int oper_up;
 		ipoib_mark_paths_invalid(dev);
+		/* Set IPoIB operation as down to prevent races between:
+		 * the flush flow which leaves MCG and on the fly joins
+		 * which can happen during that time. mcast restart task
+		 * should deal with join requests we missed.
+		 */
+		oper_up = test_and_clear_bit(IPOIB_FLAG_OPER_UP, &priv->flags);
 		ipoib_mcast_dev_flush(dev);
+		if (oper_up)
+			set_bit(IPOIB_FLAG_OPER_UP, &priv->flags);
 	}
 
 	if (level >= IPOIB_FLUSH_NORMAL)

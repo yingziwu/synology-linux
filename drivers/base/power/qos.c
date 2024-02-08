@@ -41,6 +41,7 @@
 #include <linux/mutex.h>
 #include <linux/export.h>
 
+
 static DEFINE_MUTEX(dev_pm_qos_mtx);
 
 static BLOCKING_NOTIFIER_HEAD(dev_pm_notifiers);

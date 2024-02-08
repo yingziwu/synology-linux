@@ -157,6 +157,8 @@
 #define QD_REG_TCAM_P2_DEBUG_PORT      0x1c
 #define QD_REG_TCAM_P2_ALL_HIT         0x1f
 
+
+
 /* Global 1 Registers Definition for STU,VTU,RMON,and ATU Registers */
 #define QD_REG_ATU_FID_REG        0x1
 #define QD_REG_VTU_FID_REG        0x2
@@ -176,6 +178,7 @@
 #define QD_REG_ATU_MAC_BASE        0xD
 #define QD_REG_IP_PRI_BASE        0x10
 #define QD_REG_IEEE_PRI            0x18
+
 
 /* Definitions for MIB Counter */
 #define GT_STATS_NO_OP            0x0
@@ -265,6 +268,7 @@
 #define QD_PHY_INT_CROSSOVER_CHANGED        0x40
 #define QD_PHY_INT_POLARITY_CHANGED        0x2
 #define QD_PHY_INT_JABBER            0x1
+
 
 /* Bit definition for DEVICE Interrupt */
 #define QD_DEV_INT_WATCHDOG            0x8000

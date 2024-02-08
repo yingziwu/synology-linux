@@ -217,6 +217,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define CH_TX_DELAY_OFFS	16
 #define CH_TX_DELAY_MASK	(0x3ff<<CH_RX_DELAY_OFFS)
 
+
 /*********************************/
 /*        SPI Register Map       */
 /*********************************/
@@ -293,5 +294,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define TDM_BASE_MASK		(0xffff<<TDM_BASE_OFFS)
 
 #define MV_TDM_WIN_SIZE_ALIGN	_64K
+
 
 #endif /*__INCmvTdmRegsh*/

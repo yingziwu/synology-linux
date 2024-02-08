@@ -5,6 +5,7 @@
 ** Si3217x SiVoice API Configuration Tool Version 2.1L
 */
 
+
 #ifndef SI3217X_CONSTANTS_H
 #define SI3217X_CONSTANTS_H
 
@@ -66,5 +67,7 @@ enum {
 	GEN_PARAM_FLYBACK,
 	GEN_PARAM_BUCK_BOOST
 };
+
+
 
 #endif

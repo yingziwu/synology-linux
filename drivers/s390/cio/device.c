@@ -206,6 +206,7 @@ int __init io_subchannel_init(void)
 	return ret;
 }
 
+
 /************************ device handling **************************/
 
 /*
@@ -1658,6 +1659,7 @@ __ccwdev_check_busid(struct device *dev, void *id)
 
 	return (strcmp(bus_id, dev_name(dev)) == 0);
 }
+
 
 /**
  * get_ccwdev_by_busid() - obtain device from a bus id

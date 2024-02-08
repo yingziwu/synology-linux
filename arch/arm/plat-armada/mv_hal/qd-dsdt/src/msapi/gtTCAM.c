@@ -291,6 +291,7 @@ GT_STATUS gtcamPurgyEntry
 
 }
 
+
 /*******************************************************************************
 * gtcamReadTCAMData
 *
@@ -431,6 +432,7 @@ GT_STATUS gtcamGetNextTCAMData
 
 }
 
+
 /****************************************************************************/
 /* Internal functions.                                                  */
 /****************************************************************************/
@@ -545,6 +547,7 @@ static GT_STATUS tcamSetPage2Data(GT_QD_DEV *dev, GT_TCAM_DATA *tcamDataP)
   }
   return GT_OK;
 }
+
 
 static GT_STATUS tcamGetPage0Data(GT_QD_DEV *dev, GT_TCAM_DATA *tcamDataP)
 {
@@ -709,6 +712,7 @@ static GT_STATUS waitTcamReady(GT_QD_DEV           *dev)
 #endif
     return GT_OK;
 }
+
 
 /*******************************************************************************
 * tcamOperationPerform

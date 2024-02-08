@@ -298,6 +298,7 @@ struct ov2640_win_size {
 	const struct regval_list	*regs;
 };
 
+
 struct ov2640_priv {
 	struct v4l2_subdev		subdev;
 	struct v4l2_ctrl_handler	hdl;
@@ -686,8 +687,10 @@ static int ov2640_s_ctrl(struct v4l2_ctrl *ctrl)
 
 	switch (ctrl->id) {
 	case V4L2_CID_VFLIP:
-		val = ctrl->val ? REG04_VFLIP_IMG : 0x00;
-		return ov2640_mask_set(client, REG04, REG04_VFLIP_IMG, val);
+		val = ctrl->val ? REG04_VFLIP_IMG | REG04_VREF_EN : 0x00;
+		return ov2640_mask_set(client, REG04,
+				       REG04_VFLIP_IMG | REG04_VREF_EN, val);
+		/* NOTE: REG04_VREF_EN: 1 line shift / even/odd line swap */
 	case V4L2_CID_HFLIP:
 		val = ctrl->val ? REG04_HFLIP_IMG : 0x00;
 		return ov2640_mask_set(client, REG04, REG04_HFLIP_IMG, val);
@@ -864,6 +867,7 @@ static int ov2640_s_fmt(struct v4l2_subdev *sd,
 {
 	struct i2c_client *client = v4l2_get_subdevdata(sd);
 	int ret;
+
 
 	switch (mf->code) {
 	case V4L2_MBUS_FMT_RGB565_2X8_LE:

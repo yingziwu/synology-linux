@@ -57,6 +57,7 @@ struct pt_regs {
 #define user_stack_pointer(regs)	((regs)->gr[30])
 unsigned long profile_pc(struct pt_regs *);
 
+
 #endif /* __KERNEL__ */
 
 #endif

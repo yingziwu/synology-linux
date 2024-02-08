@@ -62,8 +62,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
 
+
 #ifndef __mvBmRegs_h__
 #define __mvBmRegs_h__
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -200,6 +202,7 @@ extern "C" {
 
 #define MV_BM_ALLOC_PRIO_EN_MASK	(0x1 << 12)
 
+
 #define MV_BM_QSET_RLS_REG		(MV_PP2_REG_BASE + 0x64c8)
 
 #define MV_BM_RLS_QSET_NUM_OFFS		0
@@ -209,8 +212,10 @@ extern "C" {
 
 #define MV_BM_PRIO_CTRL_REG		(MV_PP2_REG_BASE + 0x6800)
 
+
 #define MV_BM_PRIO_IDX_REG		(MV_PP2_REG_BASE + 0x6810)
 #define MV_BM_PRIO_IDX_MASK		0xff
+
 
 #define MV_BM_CPU_QSET_REG		(MV_PP2_REG_BASE + 0x6814)
 
@@ -220,6 +225,7 @@ extern "C" {
 #define MV_BM_CPU_LONG_QSET_OFFS	8
 #define MV_BM_CPU_LONG_QSET_MASK	(0x7f << MV_BM_CPU_LONG_QSET_OFFS)
 
+
 #define MV_BM_HWF_QSET_REG		(MV_PP2_REG_BASE + 0x6818)
 
 #define MV_BM_HWF_SHORT_QSET_OFFS	0
@@ -227,6 +233,7 @@ extern "C" {
 
 #define MV_BM_HWF_LONG_QSET_OFFS	8
 #define MV_BM_HWF_LONG_QSET_MASK	(0x7f << MV_BM_HWF_LONG_QSET_OFFS)
+
 
 #define MV_BM_QSET_SET_MAX_REG		(MV_PP2_REG_BASE + 0x6820)
 
@@ -236,10 +243,12 @@ extern "C" {
 #define MV_BM_QSET_MAX_SHARED_MASK	(0xffff << MV_BM_QSET_MAX_SHARED_OFFS)
 #define MV_BM_QSET_MAX_GRNTD_MASK	(0xffff << MV_BM_QSET_MAX_GRNTD_OFFS)
 
+
 #define MV_BM_QSET_SET_CNTRS_REG	(MV_PP2_REG_BASE + 0x6824)
 
 #define MV_BM_QSET_CNTR_SHARED_OFFS	0
 #define MV_BM_QSET_CNTR_GRNTD_OFFS	16
+
 
 #define MV_BM_POOL_MAX_SHARED_REG(pool)	(MV_PP2_REG_BASE + 0x6840 + ((pool) * 4))
 #define MV_BM_POOL_MAX_SHARED_OFFS	0
@@ -253,7 +262,9 @@ extern "C" {
 #define MV_BM_V1_PKT_DROP_REG(pool)		(MV_PP2_REG_BASE + 0x7300 + 4 * (pool))
 #define MV_BM_V1_PKT_MC_DROP_REG(pool)		(MV_PP2_REG_BASE + 0x7340 + 4 * (pool))
 
+
 #define MV_BM_POOL_SHARED_STATUS(pool)		(MV_PP2_REG_BASE + 0x68c0 + ((pool) * 4))
+
 
 #ifdef __cplusplus
 }

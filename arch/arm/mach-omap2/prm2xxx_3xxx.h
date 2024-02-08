@@ -26,6 +26,7 @@
 #define OMAP34XX_PRM_REGADDR(module, reg)				\
 		OMAP2_L4_IO_ADDRESS(OMAP3430_PRM_BASE + (module) + (reg))
 
+
 /*
  * OMAP2-specific global PRM registers
  * Use __raw_{read,write}l() with these registers.
@@ -102,6 +103,7 @@
 #define OMAP3430_PRM_IRQSTATUS_MPU	OMAP34XX_PRM_REGADDR(OCP_MOD, 0x0018)
 #define OMAP3_PRM_IRQENABLE_MPU_OFFSET	0x001c
 #define OMAP3430_PRM_IRQENABLE_MPU	OMAP34XX_PRM_REGADDR(OCP_MOD, 0x001c)
+
 
 #define OMAP3_PRM_VC_SMPS_SA_OFFSET	0x0020
 #define OMAP3430_PRM_VC_SMPS_SA		OMAP34XX_PRM_REGADDR(OMAP3430_GR_MOD, 0x0020)
@@ -223,6 +225,7 @@
 
 #define OMAP3430_PRM_IRQSTATUS_IVA2			0x00f8
 #define OMAP3430_PRM_IRQENABLE_IVA2			0x00fc
+
 
 #ifndef __ASSEMBLER__
 /*
@@ -366,6 +369,7 @@ extern u32 omap3_prm_vcvp_rmw(u32 mask, u32 bits, u8 offset);
 #define OMAP_RST_DPLL3_MASK				(1 << 2)
 #define OMAP_RST_GS_MASK				(1 << 1)
 
+
 /*
  * Bits common to module-shared registers
  *
@@ -426,10 +430,12 @@ extern u32 omap3_prm_vcvp_rmw(u32 mask, u32 bits, u8 offset);
  */
 #define OMAP_LOGICRETSTATE_MASK				(1 << 2)
 
+
 /*
  * MAX_MODULE_HARDRESET_WAIT: Maximum microseconds to wait for an OMAP
  * submodule to exit hardreset
  */
 #define MAX_MODULE_HARDRESET_WAIT		10000
+
 
 #endif

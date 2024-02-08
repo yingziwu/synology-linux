@@ -312,3 +312,4 @@ void dlm_callback_resume(struct dlm_ls *ls)
 
 	log_debug(ls, "dlm_callback_resume %d", count);
 }
+

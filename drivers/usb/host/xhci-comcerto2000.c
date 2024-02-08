@@ -4,6 +4,7 @@
  * Author: Makarand Pawagi
  */
 
+
 #include <linux/platform_device.h>
 #include <linux/module.h>
 #include <linux/slab.h>
@@ -130,6 +131,7 @@ static void comcerto_usb3_phy_init(void)
         writel(0x00000801, USB3_PHY_BASE + 0x2C);
 }
 
+
 void comcerto_start_xhci(void)
 {
         u32 val;
@@ -159,6 +161,7 @@ void comcerto_start_xhci(void)
 		c2000_block_reset(COMPONENT_AXI_USB1, 1);
 
 		comcerto_usb3_phy_init();
+
 
 		/* Bring usb3 PHY out of reset */
 		c2000_block_reset(COMPONENT_USB1_PHY, 0);
@@ -197,3 +200,4 @@ void comcerto_stop_xhci(void)
 		/* Release the clock */
 		clk_put(usb3_clk);
 }
+

@@ -177,3 +177,4 @@ struct al_pcie_regs {
 #define RADM_CPLQ_HCRD_VC0_SHIFT			12
 
 #endif
+

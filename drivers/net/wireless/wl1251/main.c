@@ -334,6 +334,7 @@ static int wl1251_join(struct wl1251 *wl, u8 bss_type, u8 channel,
 	if (ret < 0)
 		goto out;
 
+
 	ret = wl1251_cmd_join(wl, bss_type, channel, beacon_interval,
 			      dtim_period);
 	if (ret < 0)
@@ -1097,6 +1098,7 @@ out:
 	mutex_unlock(&wl->mutex);
 }
 
+
 /* can't be const, mac80211 writes to this */
 static struct ieee80211_rate wl1251_rates[] = {
 	{ .bitrate = 10,
@@ -1426,6 +1428,7 @@ struct ieee80211_hw *wl1251_alloc_hw(void)
 
 	wl->state = WL1251_STATE_OFF;
 	mutex_init(&wl->mutex);
+	spin_lock_init(&wl->wl_lock);
 
 	wl->tx_mgmt_frm_rate = DEFAULT_HW_GEN_TX_RATE;
 	wl->tx_mgmt_frm_mod = DEFAULT_HW_GEN_MODULATION_TYPE;

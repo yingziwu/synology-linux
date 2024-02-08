@@ -67,6 +67,7 @@ void aa_info_message(const char *str);
 void *kvmalloc(size_t size);
 void kvfree(void *buffer);
 
+
 /* returns 0 if kref not incremented */
 static inline int kref_get_not0(struct kref *kref)
 {

@@ -83,6 +83,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern "C" {
 #endif
 
+
 #define MV_CPH_DEVICE_NAME  "cph"
 #define MV_CPH_IOCTL_MAGIC  ('C')
 
@@ -141,6 +142,7 @@ int  cph_dev_init(void);
 *       None.
 *******************************************************************************/
 void cph_dev_shutdown(void);
+
 
 #ifdef __cplusplus
 }

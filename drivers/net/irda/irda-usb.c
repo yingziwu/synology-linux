@@ -290,6 +290,7 @@ static __u8 get_turnaround_time(struct sk_buff *skb)
 		return 7;
 }
 
+
 /*------------------------------------------------------------------*/
 /*
  * Send a command to change the speed of the dongle
@@ -1082,7 +1083,7 @@ static int stir421x_patch_device(struct irda_usb_cb *self)
          * are "42101001.sb" or "42101002.sb"
          */
         sprintf(stir421x_fw_name, "4210%4X.sb",
-                self->usbdev->descriptor.bcdDevice);
+		le16_to_cpu(self->usbdev->descriptor.bcdDevice));
         ret = request_firmware(&fw, stir421x_fw_name, &self->usbdev->dev);
         if (ret < 0)
                 return ret;
@@ -1144,6 +1145,7 @@ static int stir421x_patch_device(struct irda_usb_cb *self)
         return ret;
 }
 
+
 /********************** IRDA DEVICE CALLBACKS **********************/
 /*
  * Main calls from the IrDA/Network subsystem.
@@ -1151,6 +1153,7 @@ static int stir421x_patch_device(struct irda_usb_cb *self)
  * We only deal with the IrDA side of the business, the USB side will
  * be dealt with below...
  */
+
 
 /*------------------------------------------------------------------*/
 /*

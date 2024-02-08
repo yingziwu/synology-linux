@@ -23,6 +23,7 @@
 #include "ppc32.h"
 #endif
 
+
 /*
  * Is sp valid as the address of the next kernel stack frame after prev_sp?
  * The next frame may be in a different stack area but should not go
@@ -242,7 +243,7 @@ static void perf_callchain_user_64(struct perf_callchain_entry *entry,
 	sp = regs->gpr[1];
 	perf_callchain_store(entry, next_ip);
 
-	for (;;) {
+	while (entry->nr < PERF_MAX_STACK_DEPTH) {
 		fp = (unsigned long __user *) sp;
 		if (!valid_user_sp(sp, 1) || read_user_stack_64(fp, &next_sp))
 			return;

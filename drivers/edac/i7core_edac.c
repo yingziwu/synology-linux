@@ -57,6 +57,7 @@ MODULE_PARM_DESC(use_pci_fixup, "Enable PCI fixup to seek for hidden devices");
  */
 #define MAX_SOCKET_BUSES	2
 
+
 /*
  * Alter this version for the module when modifications are made
  */
@@ -119,6 +120,7 @@ MODULE_PARM_DESC(use_pci_fixup, "Enable PCI fixup to seek for hidden devices");
 
 #define DIMM_TOP_COR_ERR(r)			(((r) >> 16) & 0x7fff)
 #define DIMM_BOT_COR_ERR(r)			((r) & 0x7fff)
+
 
 	/* OFFSETS for Devices 4,5 and 6 Function 0 */
 
@@ -205,6 +207,7 @@ struct i7core_info {
 	u32	max_dod;
 	u32	ch_map;
 };
+
 
 struct i7core_inject {
 	int	enable;
@@ -1110,6 +1113,7 @@ static ssize_t i7core_inject_enable_store(struct mem_ctl_info *mci,
 		" inject 0x%08x\n",
 		mask, pvt->inject.eccmask, injectmask);
 
+
 	return count;
 }
 
@@ -1361,14 +1365,19 @@ static int i7core_get_onedevice(struct pci_dev **prev,
 	 * is at addr 8086:2c40, instead of 8086:2c41. So, we need
 	 * to probe for the alternate address in case of failure
 	 */
-	if (dev_descr->dev_id == PCI_DEVICE_ID_INTEL_I7_NONCORE && !pdev)
+	if (dev_descr->dev_id == PCI_DEVICE_ID_INTEL_I7_NONCORE && !pdev) {
+		pci_dev_get(*prev);	/* pci_get_device will put it */
 		pdev = pci_get_device(PCI_VENDOR_ID_INTEL,
 				      PCI_DEVICE_ID_INTEL_I7_NONCORE_ALT, *prev);
+	}
 
-	if (dev_descr->dev_id == PCI_DEVICE_ID_INTEL_LYNNFIELD_NONCORE && !pdev)
+	if (dev_descr->dev_id == PCI_DEVICE_ID_INTEL_LYNNFIELD_NONCORE &&
+	    !pdev) {
+		pci_dev_get(*prev);	/* pci_get_device will put it */
 		pdev = pci_get_device(PCI_VENDOR_ID_INTEL,
 				      PCI_DEVICE_ID_INTEL_LYNNFIELD_NONCORE_ALT,
 				      *prev);
+	}
 
 	if (!pdev) {
 		if (*prev) {
@@ -1912,7 +1921,7 @@ static int i7core_mce_check_error(struct notifier_block *nb, unsigned long val,
 
 	i7_dev = get_i7core_dev(mce->socketid);
 	if (!i7_dev)
-		return NOTIFY_BAD;
+		return NOTIFY_DONE;
 
 	mci = i7_dev->mci;
 	pvt = mci->pvt_info;
@@ -1976,6 +1985,7 @@ struct memdev_dmi_entry {
 	u32 extended_size;
 	u16 conf_mem_clk_speed;
 } __attribute__((__packed__));
+
 
 /*
  * Decode the DRAM Clock Frequency, be paranoid, make sure that all

@@ -75,6 +75,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 *
 *******************************************************************************/
 
+
 #ifndef __INCmvIdmah
 #define __INCmvIdmah
 
@@ -87,6 +88,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define MV_IDMA_DESC_ALIGNMENT  0x10  /* 16bytes aligment restriction       */
 
 /* typedefs */
+
 
 /* This struct describes IDMA descriptor structure                          */
 typedef struct _mvDmaDesc {
@@ -113,3 +115,5 @@ MV_VOID mvIdmaRegs(MV_U32 chan);
 MV_STATUS mvDmaWinInit(MV_UNIT_WIN_INFO *addrWinMap);
 
 #endif /* __INCmvIdmah */
+
+

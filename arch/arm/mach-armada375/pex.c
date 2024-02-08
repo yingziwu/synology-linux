@@ -314,6 +314,7 @@ int __init mv_pex_setup(int nr, struct pci_sys_data *sys)
 	return 1;
 }
 
+
 struct pci_bus *mv_pex_scan_bus(int nr, struct pci_sys_data *sys)
 {
 	struct pci_bus *bus;

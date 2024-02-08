@@ -9,6 +9,7 @@ introductory statement regarding license alternatives, (ii) delete the two
 license alternatives that you have not elected to use and (iii) preserve the
 Marvell copyright notice above.
 
+
 ********************************************************************************
 Marvell GPL License Option
 
@@ -109,15 +110,18 @@ static int mv_gtw_phys_switch_port_to_logical_port(int switch_index, int switch_
     return -1;
 }
 
+
 /* Required to get the configuration string from the Kernel Command Line */
 int mv_gtw_cmdline_config(char *s);
 __setup("mv_net_config=", mv_gtw_cmdline_config);
+
 
 int mv_gtw_cmdline_config(char *s)
 {
     cmdline = s;
     return 1;
 }
+
 
 static int mv_gtw_check_open_bracket(char **p_net_config)
 {
@@ -129,6 +133,7 @@ static int mv_gtw_check_open_bracket(char **p_net_config)
     return -EINVAL;
 }
 
+
 static int mv_gtw_check_closing_bracket(char **p_net_config)
 {
     if (**p_net_config == ')') {
@@ -138,6 +143,7 @@ static int mv_gtw_check_closing_bracket(char **p_net_config)
     printk("Syntax error: could not find closing bracket\n");
     return -EINVAL;
 }
+
 
 static int mv_gtw_check_comma(char **p_net_config)
 {
@@ -149,6 +155,7 @@ static int mv_gtw_check_comma(char **p_net_config)
     return -EINVAL;
 }
 
+
 static int mv_gtw_is_digit(char ch)
 {
     if(((ch >= '0') && (ch <= '9')) ||
@@ -159,6 +166,7 @@ static int mv_gtw_is_digit(char ch)
 
     return -1;
 }
+
 
 static int mv_gtw_get_cmdline_mac_addr(char **p_net_config, int idx)
 {
@@ -202,6 +210,7 @@ static int mv_gtw_get_cmdline_mac_addr(char **p_net_config, int idx)
     return -EINVAL;
 }
 
+
 static void mv_gtw_update_curr_port_mask(int number, unsigned int curr_port_mask[BOARD_MAX_CASCADED_SWITCHES], int add_del_flag)
 {
 	if (add_del_flag)
@@ -209,6 +218,7 @@ static void mv_gtw_update_curr_port_mask(int number, unsigned int curr_port_mask
 	else
 	    curr_port_mask[SWITCH_PORT[number].qdSwitchNum] &= ~(1 << SWITCH_PORT[number].qdPortNum);
 }
+
 
 static int mv_gtw_get_integer(const char *str, int *num)
 {
@@ -225,6 +235,7 @@ static int mv_gtw_get_integer(const char *str, int *num)
         return -EINVAL;
     }
 }
+
 
 static int mv_gtw_get_port_mask(char **p_net_config, int idx)
 {
@@ -252,6 +263,7 @@ static int mv_gtw_get_port_mask(char **p_net_config, int idx)
             break;
         }
 
+
         if (**p_net_config == ':')
         {
 		    (*p_net_config)++;
@@ -275,6 +287,7 @@ static int mv_gtw_get_port_mask(char **p_net_config, int idx)
     printk("Syntax error while parsing port mask from command line\n");
     return -EINVAL;
 }
+
 
 static int mv_gtw_get_mtu(char **p_net_config)
 {
@@ -311,6 +324,7 @@ static int mv_gtw_get_mtu(char **p_net_config)
     return -EINVAL;
 }
 
+
 static int mv_gtw_get_if_num(char **p_net_config)
 {
     int if_num = -1;
@@ -334,6 +348,7 @@ static int mv_gtw_get_if_num(char **p_net_config)
 
     return 0;
 }
+
 
 static int mv_gtw_parse_net_config(char* cmdline)
 {
@@ -411,6 +426,7 @@ static int mv_gtw_parse_net_config(char* cmdline)
     return status;
 }
 
+
 static INLINE struct net_device*  mv_gtw_port_to_netdev_map(int switch_num, unsigned int switch_port)
 {
     int i;
@@ -429,6 +445,7 @@ static INLINE struct net_device*  mv_gtw_port_to_netdev_map(int switch_num, unsi
     }
     return NULL;
 }
+
 
 static int mv_gtw_set_port_based_vlan(int qd_num, unsigned int ports_mask)
 {
@@ -462,6 +479,7 @@ static int mv_gtw_set_port_based_vlan(int qd_num, unsigned int ports_mask)
     }
     return 0;
 }
+
 
 static int mv_gtw_set_vlan_in_vtu(int qd_num, unsigned short vlan_id, short db_num, unsigned int ports_mask, int add)
 {
@@ -512,6 +530,7 @@ static int mv_gtw_set_vlan_in_vtu(int qd_num, unsigned short vlan_id, short db_n
     ETH_DBG( ETH_DBG_LOAD|ETH_DBG_MCAST|ETH_DBG_VLAN, ("\n"));
     return 0;
 }
+
 
 int mv_gtw_set_mac_addr_to_switch(unsigned char *mac_addr, unsigned char db, unsigned int ports_mask[BOARD_MAX_CASCADED_SWITCHES], unsigned char op)
 {
@@ -571,6 +590,7 @@ int mv_gtw_set_mac_addr_to_switch(unsigned char *mac_addr, unsigned char db, uns
     return 0;
 }
 
+
 #ifdef CONFIG_MV_GTW_IGMP
 int mv_gtw_enable_igmp(void)
 {
@@ -593,6 +613,7 @@ int mv_gtw_enable_igmp(void)
     return -1;
 }
 #endif /* CONFIG_MV_GTW_IGMP */
+
 
 /* Calculate a bitmask of unused ports in a given Switch */
 /* Note: this function assumes SWITCH_PORT_CPU, SWITCH_PORT_IC and SWITCH_PORT are already initialized */
@@ -716,6 +737,7 @@ int __init mv_gtw_net_setup(int port)
     return 0;
 }
 
+
 int mv_switch_set_port_mode(int port, int switch_num)
 {
     GT_QD_DEV *qd = &qd_dev[switch_num];
@@ -752,6 +774,7 @@ int mv_switch_set_port_mode(int port, int switch_num)
 
     return 0;
 }
+
 
 int mv_gw_switch_init(int port)
 {
@@ -1101,6 +1124,7 @@ int mv_gw_switch_init(int port)
     return 0;
 }
 
+
 int mv_gtw_switch_tos_get(int port, unsigned char tos)
 {
     unsigned char   queue;
@@ -1114,6 +1138,7 @@ int mv_gtw_switch_tos_get(int port, unsigned char tos)
     return (int)queue;
 }
 
+
 int mv_gtw_switch_tos_set(int port, unsigned char tos, int queue)
 {
     int num;
@@ -1125,6 +1150,7 @@ int mv_gtw_switch_tos_set(int port, unsigned char tos, int queue)
     }
     return status;
 }
+
 
 static struct net_device* mv_gtw_main_net_dev_get(void)
 {
@@ -1141,6 +1167,7 @@ static struct net_device* mv_gtw_main_net_dev_get(void)
     }
     return NULL;
 }
+
 
 int mv_gtw_set_mac_addr( struct net_device *dev, void *p )
 {
@@ -1168,6 +1195,7 @@ int mv_gtw_set_mac_addr( struct net_device *dev, void *p )
 
     return 0;
 }
+
 
 int     mv_gtw_all_multicasts_del(int db_num)
 {
@@ -1204,6 +1232,7 @@ int     mv_gtw_all_multicasts_del(int db_num)
 
     return 0;
 }
+
 
 int     mv_gtw_promisc_set(int switch_num, struct mv_vlan_cfg *vlan_cfg, int promisc_on)
 {
@@ -1297,6 +1326,7 @@ int     mv_gtw_promisc_set(int switch_num, struct mv_vlan_cfg *vlan_cfg, int pro
     return 0;
 }
 
+
 void    mv_gtw_set_multicast_list(struct net_device *dev)
 {
     struct mv_vlan_cfg *vlan_cfg = MV_NETDEV_VLAN(dev);
@@ -1353,6 +1383,7 @@ void    mv_gtw_set_multicast_list(struct net_device *dev)
 #endif /* KERNEL_VERSION >= 2.6.34 */
     }
 }
+
 
 int mv_gtw_change_mtu(struct net_device *dev, int mtu)
 {
@@ -1420,6 +1451,7 @@ int mv_gtw_change_mtu(struct net_device *dev, int mtu)
 	return 0;
 }
 
+
 #ifdef CONFIG_MV_GTW_LINK_STATUS
 static void mv_gtw_update_link_status(int qd_num, struct net_device* dev, unsigned int p)
 {
@@ -1444,6 +1476,7 @@ static void mv_gtw_update_link_status(int qd_num, struct net_device* dev, unsign
     for (i = 0; i < num_connected_switches; i++)
         new_ports_link |= vlan_cfg->ports_link[i];
 
+
     if ( (new_ports_link == 0) && (prev_ports_link != 0) )
     {
             netif_carrier_off(dev);
@@ -1457,6 +1490,7 @@ static void mv_gtw_update_link_status(int qd_num, struct net_device* dev, unsign
         printk("%s: interface up\n", dev->name );
     }
 }
+
 
 static void mv_gtw_link_status_print(int qd_num, unsigned int port)
 {
@@ -1498,6 +1532,7 @@ static void mv_gtw_link_status_print(int qd_num, unsigned int port)
                 SWITCH_PORT[mv_gtw_phys_switch_port_to_logical_port(qd_num, port)].portStr);
     }
 }
+
 
 static irqreturn_t mv_gtw_link_interrupt_handler(int irq , void *dev_id)
 {
@@ -1582,12 +1617,14 @@ static irqreturn_t mv_gtw_link_interrupt_handler(int irq , void *dev_id)
     return IRQ_HANDLED;
 }
 
+
 static void mv_gtw_link_timer_function(unsigned long data)
 {
     /* The parameters are not used anyway */
     mv_gtw_link_interrupt_handler(switch_irq[SWITCH_0], NULL);
 }
 #endif /* CONFIG_MV_GTW_LINK_STATUS */
+
 
 int mv_gtw_start( struct net_device *dev )
 {
@@ -1678,6 +1715,7 @@ int mv_gtw_start( struct net_device *dev )
     return 0;
 }
 
+
 int mv_gtw_stop( struct net_device *dev )
 {
     mv_eth_priv		    *priv = MV_ETH_PRIV(dev);
@@ -1732,6 +1770,7 @@ int mv_gtw_stop( struct net_device *dev )
     }
     return 0;
 }
+
 
 /***********************************************************
  * gtw_init_complete --                                    *
@@ -1806,6 +1845,7 @@ int  __init mv_gtw_init_complete(mv_eth_priv* priv)
     return 0;
 }
 
+
 void    mv_gtw_status_print(void)
 {
     mv_eth_priv         *priv = gtw_config.priv;
@@ -1843,6 +1883,7 @@ void    mv_gtw_status_print(void)
         }
     }
 }
+
 
 int     mv_gtw_switch_port_add(struct net_device* dev, int port)
 {
@@ -1940,6 +1981,7 @@ int     mv_gtw_switch_port_add(struct net_device* dev, int port)
     return 0;
 }
 
+
 int     mv_gtw_switch_port_del(struct net_device* dev, int port)
 {
     struct mv_vlan_cfg  *vlan_cfg = MV_NETDEV_VLAN(dev);
@@ -2032,6 +2074,7 @@ int     mv_gtw_switch_port_del(struct net_device* dev, int port)
     return 0;
 }
 
+
 short mv_gtw_net_device_get(int switch_num, int switch_port)
 {
 	int i;
@@ -2048,6 +2091,7 @@ short mv_gtw_net_device_get(int switch_num, int switch_port)
 	printk("%s: Device not found\n", __FUNCTION__);
 	return -1;
 }
+
 
 int mv_gtw_set_vtu(int port, int tag, int add)
 {
@@ -2091,6 +2135,7 @@ int mv_gtw_set_vtu(int port, int tag, int add)
 	printk("VLAN tag %d is now %sset for port %d.\n", tag, add ? "" : "un", port);
 	return MV_OK;
 }
+
 
 #define QD_FMT "%10lu %10lu %10lu %10lu %10lu %10lu %10lu\n"
 #define QD_CNT(c,f) c[0].f, c[1].f, c[2].f, c[3].f, c[4].f, c[5].f, c[6].f

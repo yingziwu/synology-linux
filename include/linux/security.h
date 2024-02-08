@@ -1659,6 +1659,7 @@ extern int security_module_enable(struct security_operations *ops);
 extern int register_security(struct security_operations *ops);
 extern void __init security_fixup_ops(struct security_operations *ops);
 
+
 /* Security operations */
 int security_ptrace_access_check(struct task_struct *child, unsigned int mode);
 int security_ptrace_traceme(struct task_struct *parent);
@@ -2386,7 +2387,7 @@ static inline int security_task_prctl(int option, unsigned long arg2,
 				      unsigned long arg4,
 				      unsigned long arg5)
 {
-	return cap_task_prctl(option, arg2, arg3, arg3, arg5);
+	return cap_task_prctl(option, arg2, arg3, arg4, arg5);
 }
 
 static inline void security_task_to_inode(struct task_struct *p, struct inode *inode)
@@ -3058,3 +3059,4 @@ static inline void free_secdata(void *secdata)
 #endif /* CONFIG_SECURITY */
 
 #endif /* ! __LINUX_SECURITY_H */
+

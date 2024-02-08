@@ -80,6 +80,7 @@
 
 #define CSC_PCCMDCR	0xf1	/* PC card mode and DMA control register */
 
+
 /*
 ** PC Card indexed register space:
 */
@@ -94,6 +95,7 @@
 #define PCC_MWEAR_1_Hi	0x5B	/* memory window 1 stop address high register */
 #define PCC_MWAOR_1_Lo	0x5C	/* memory window 1 address offset low register */
 #define PCC_MWAOR_1_Hi	0x5D	/* memory window 1 address offset high register */
+
 
 /*
 ** Access to SC4x0's Chip Setup and Control (CSC)
@@ -122,6 +124,7 @@ static inline unsigned char getpcc(int reg)
 	outb(reg, PCC_INDEX);
 	return(inb(PCC_DATA));
 }
+
 
 /*
 ************************************************************
@@ -167,6 +170,7 @@ static void dnpc_map_flash(unsigned long flash_base, unsigned long flash_size)
 	setcsc(CSC_CR, getcsc(CSC_CR) & ~0x2);
 }
 
+
 /*
 ************************************************************
 ** Disable access to DIL/NetPC's flash by mapping it into
@@ -184,6 +188,8 @@ static void dnpc_unmap_flash(void)
 	/* now disable PC Card indexed register space again */
 	setcsc(CSC_CR, getcsc(CSC_CR) & ~0x2);
 }
+
+
 
 /*
 ************************************************************
@@ -236,6 +242,8 @@ static void adnp_set_vpp(struct map_info *not_used, int on)
 	}
 	spin_unlock_irq(&dnpc_spin);
 }
+
+
 
 #define DNP_WINDOW_SIZE		0x00200000	/*  DNP flash size is 2MiB  */
 #define ADNP_WINDOW_SIZE	0x00400000	/* ADNP flash size is 4MiB */
@@ -336,6 +344,7 @@ static struct mtd_partition higlvl_partition_info[]=
 
 #define NUM_HIGHLVL_PARTITIONS ARRAY_SIZE(higlvl_partition_info)
 
+
 static int dnp_adnp_probe(void)
 {
 	char *biosid, rc = -1;
@@ -351,6 +360,7 @@ static int dnp_adnp_probe(void)
 	iounmap((void *)biosid);
 	return(rc);
 }
+
 
 static int __init init_dnpc(void)
 {

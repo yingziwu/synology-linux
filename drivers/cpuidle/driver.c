@@ -40,6 +40,7 @@ static void __cpuidle_register_driver(struct cpuidle_driver *drv)
 	}
 }
 
+
 /**
  * cpuidle_register_driver - registers a driver
  * @drv: the driver

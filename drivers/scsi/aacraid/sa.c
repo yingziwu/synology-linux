@@ -142,6 +142,7 @@ static void aac_sa_notify_adapter(struct aac_dev *dev, u32 event)
 	}
 }
 
+
 /**
  *	sa_sync_cmd	-	send a command and wait
  *	@dev: Adapter
@@ -412,3 +413,4 @@ error_iounmap:
 
 	return -1;
 }
+

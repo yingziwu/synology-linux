@@ -432,6 +432,7 @@ static inline enum wl_prio_t cfqq_prio(struct cfq_queue *cfqq)
 	return BE_WORKLOAD;
 }
 
+
 static enum wl_type_t cfqq_type(struct cfq_queue *cfqq)
 {
 	if (!cfq_cfqq_sync(cfqq))

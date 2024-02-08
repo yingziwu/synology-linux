@@ -222,6 +222,8 @@ int show_interrupts(struct seq_file *p, void *v)
 	return 0;
 }
 
+
+
 /*
 ** The following form a "set": Virtual IRQ, Transaction Address, Trans Data.
 ** Respectively, these map to IRQ region+EIRR, Processor HPA, EIRR bit.
@@ -286,6 +288,7 @@ int txn_alloc_irq(unsigned int bits_wide)
 	return -1;
 }
 
+
 unsigned long txn_affinity_addr(unsigned int irq, int cpu)
 {
 #ifdef CONFIG_SMP
@@ -295,6 +298,7 @@ unsigned long txn_affinity_addr(unsigned int irq, int cpu)
 
 	return per_cpu(cpu_data, cpu).txn_addr;
 }
+
 
 unsigned long txn_alloc_addr(unsigned int virt_irq)
 {
@@ -314,6 +318,7 @@ unsigned long txn_alloc_addr(unsigned int virt_irq)
 	return txn_affinity_addr(virt_irq, next_cpu);
 }
 
+
 unsigned int txn_alloc_data(unsigned int virt_irq)
 {
 	return virt_irq - CPU_IRQ_BASE;
@@ -331,8 +336,8 @@ void do_cpu_irq_mask(struct pt_regs *regs)
 	struct pt_regs *old_regs;
 	unsigned long eirr_val;
 	int irq, cpu = smp_processor_id();
-#ifdef CONFIG_SMP
 	struct irq_desc *desc;
+#ifdef CONFIG_SMP
 	cpumask_t dest;
 #endif
 
@@ -345,8 +350,12 @@ void do_cpu_irq_mask(struct pt_regs *regs)
 		goto set_out;
 	irq = eirr_to_irq(eirr_val);
 
-#ifdef CONFIG_SMP
+	/* Filter out spurious interrupts, mostly from serial port at bootup */
 	desc = irq_to_desc(irq);
+	if (unlikely(!desc->action))
+		goto set_out;
+
+#ifdef CONFIG_SMP
 	cpumask_copy(&dest, desc->irq_data.affinity);
 	if (irqd_is_per_cpu(&desc->irq_data) &&
 	    !cpu_isset(smp_processor_id(), dest)) {
@@ -415,3 +424,4 @@ void __init init_IRQ(void)
         set_eiem(cpu_eiem);	/* EIEM : enable all external intr */
 
 }
+

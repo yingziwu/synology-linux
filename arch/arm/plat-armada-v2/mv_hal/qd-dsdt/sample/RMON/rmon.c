@@ -13,6 +13,7 @@
 
 #include "msSample.h"
 
+
 /*
  * This sample is for every device that support RMON counter.
 */
@@ -101,6 +102,7 @@ GT_STATUS sampleGetRMONCounter(GT_QD_DEV *dev)
 	return GT_OK;
 }
 
+
 /*
  * This sample is for 88E6183
 */
@@ -166,6 +168,8 @@ GT_STATUS sampleGetRMONCounter2(GT_QD_DEV *dev)
 	return GT_OK;
 }
 
+
+
 /*
  * This sample is for 88E6093, 88E6095, 88E6185, and 88E6065
 */
@@ -204,6 +208,7 @@ void sampleDisplayCounter3(GT_STATS_COUNTER_SET3 *statsCounter)
 	MSG_PRINT(("Collisions      %08i    ", statsCounter->Collisions));
 	MSG_PRINT(("Late            %08i   \n", statsCounter->Late));
 }
+
 
 /*
  * This sample is for 88E6093, 88E6095, 88E6185, and 88E6065

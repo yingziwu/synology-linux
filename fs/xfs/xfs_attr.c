@@ -842,6 +842,8 @@ out:
 	return(error);
 }
 
+
+
 /*========================================================================
  * External routines when attribute list is inside the inode
  *========================================================================*/
@@ -879,6 +881,7 @@ xfs_attr_shortform_addname(xfs_da_args_t *args)
 	xfs_attr_shortform_add(args, forkoff);
 	return(0);
 }
+
 
 /*========================================================================
  * External routines when attribute list is one block
@@ -1199,6 +1202,7 @@ xfs_attr_leaf_list(xfs_attr_list_context_t *context)
 	xfs_da_brelse(NULL, bp);
 	return XFS_ERROR(error);
 }
+
 
 /*========================================================================
  * External routines when attribute list size > XFS_LBSIZE(mp).
@@ -1930,6 +1934,7 @@ xfs_attr_node_list(xfs_attr_list_context_t *context)
 	xfs_da_brelse(NULL, bp);
 	return(0);
 }
+
 
 /*========================================================================
  * External routines for manipulating out-of-line attribute values.

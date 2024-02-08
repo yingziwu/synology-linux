@@ -225,6 +225,10 @@ int drm_setmaster_ioctl(struct drm_device *dev, void *data,
 	if (!file_priv->minor->master &&
 	    file_priv->minor->master != file_priv->master) {
 		mutex_lock(&dev->struct_mutex);
+		if (!file_priv->allowed_master) {
+			ret = drm_new_set_master(dev, file_priv);
+			goto out_unlock;
+		}
 		file_priv->minor->master = drm_master_get(file_priv->master);
 		file_priv->is_master = 1;
 		if (dev->driver->master_set) {
@@ -234,10 +238,11 @@ int drm_setmaster_ioctl(struct drm_device *dev, void *data,
 				drm_master_put(&file_priv->minor->master);
 			}
 		}
+	out_unlock:
 		mutex_unlock(&dev->struct_mutex);
 	}
 
-	return 0;
+	return ret;
 }
 
 int drm_dropmaster_ioctl(struct drm_device *dev, void *data,
@@ -296,6 +301,8 @@ int drm_fill_in_dev(struct drm_device *dev,
 			goto error_out_unreg;
 	}
 
+
+
 	retcode = drm_ctxbitmap_init(dev);
 	if (retcode) {
 		DRM_ERROR("Cannot allocate memory for context bitmap.\n");
@@ -317,6 +324,7 @@ int drm_fill_in_dev(struct drm_device *dev,
 	drm_lastclose(dev);
 	return retcode;
 }
+
 
 /**
  * Get a secondary minor number.
@@ -382,6 +390,7 @@ int drm_get_minor(struct drm_device *dev, struct drm_minor **minor, int type)
 
 	DRM_DEBUG("new minor assigned %d\n", minor_id);
 	return 0;
+
 
 err_g2:
 	if (new_minor->type == DRM_MINOR_LEGACY)

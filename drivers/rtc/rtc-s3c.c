@@ -248,6 +248,7 @@ static int s3c_rtc_getalarm(struct device *dev, struct rtc_wkalrm *alrm)
 		 1900 + alm_tm->tm_year, alm_tm->tm_mon, alm_tm->tm_mday,
 		 alm_tm->tm_hour, alm_tm->tm_min, alm_tm->tm_sec);
 
+
 	/* decode the alarm enable field */
 
 	if (alm_en & S3C2410_RTCALM_SECEN)

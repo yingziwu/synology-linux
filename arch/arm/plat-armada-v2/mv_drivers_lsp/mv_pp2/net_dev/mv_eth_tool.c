@@ -1,7 +1,34 @@
 #ifndef MY_ABC_HERE
 #define MY_ABC_HERE
 #endif
- 
+/*******************************************************************************
+Copyright (C) Marvell International Ltd. and its affiliates
+
+This software file (the "File") is owned and distributed by Marvell
+International Ltd. and/or its affiliates ("Marvell") under the following
+alternative licensing terms.  Once you have made an election to distribute the
+File under one of the following license alternatives, please (i) delete this
+introductory statement regarding license alternatives, (ii) delete the two
+license alternatives that you have not elected to use and (iii) preserve the
+Marvell copyright notice above.
+
+
+********************************************************************************
+Marvell GPL License Option
+
+If you received this File from Marvell, you may opt to use, redistribute and/or
+modify this File in accordance with the terms and conditions of the General
+Public License Version 2, June 1991 (the "GPL License"), a copy of which is
+available along with the File in the license.txt file or by writing to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 or
+on the worldwide web at http://www.gnu.org/licenses/gpl.txt.
+
+THE FILE IS DISTRIBUTED AS-IS, WITHOUT WARRANTY OF ANY KIND, AND THE IMPLIED
+WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE ARE EXPRESSLY
+DISCLAIMED.  The GPL License provides additional details about this warranty
+disclaimer.
+*******************************************************************************/
+
 #include <linux/kernel.h>
 #include <linux/version.h>
 #include <linux/netdevice.h>
@@ -30,6 +57,7 @@
 #include "prs/mvPp2Prs.h"
 
 #include "wol/mvPp2Wol.h"
+
 
 #define MV_ETH_TOOL_AN_TIMEOUT	5000
 
@@ -89,13 +117,13 @@ static const struct mv_pp2_tool_stats mv_pp2_tool_cpu_strings_stats[] = {
 	{"poll_exit", MV_ETH_TOOL_STAT(stats.poll_exit)},
 	{"tx_done_timer_event", MV_ETH_TOOL_STAT(stats.tx_done_timer_event)},
 	{"tx_done_timer_add", MV_ETH_TOOL_STAT(stats.tx_done_timer_add)},
-#endif  
+#endif /* CONFIG_MV_ETH_STATS_DEBUG */
 };
 
 static const struct mv_pp2_tool_stats mv_pp2_tool_rx_queue_strings_stats[] = {
 #ifdef CONFIG_MV_PP2_STAT_DBG
 	{"rxq", MV_ETH_TOOL_STAT(stats.rxq)},
-#endif  
+#endif /* CONFIG_MV_PP2_STAT_DBG */
 };
 
 static const struct mv_pp2_tool_stats mv_pp2_tool_tx_queue_strings_stats[] = {
@@ -119,6 +147,7 @@ static const struct mv_pp2_tool_stats mv_pp2_tool_tx_queue_strings_stats[] = {
 
 #define MV_ETH_TOOL_STATS_LEN		\
 	(MV_ETH_TOOL_GLOBAL_STATS_LEN + MV_ETH_TOOL_CPU_STATS_LEN + MV_ETH_TOOL_QUEUE_STATS_LEN)
+
 
 #ifdef MY_ABC_HERE
 extern spinlock_t          mii_lock;
@@ -155,6 +184,20 @@ static int syno_set_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
 	return 0;
 }
 
+/******************************************************************************
+* mv_eth_tool_read_phy_reg
+* Description:
+*	Marvell PHY register read (includes page number)
+* INPUT:
+*	phy_addr	PHY address
+*	page		PHY register page (region)
+*	reg		PHY register number (offset)
+* OUTPUT
+*	val		PHY register value
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 #define MV_ETH_TOOL_PHY_PAGE_ADDR_REG	22
 int mv_eth_tool_read_phy_reg(int phy_addr, u16 page, u16 reg, u16 *val)
 {
@@ -162,7 +205,7 @@ int mv_eth_tool_read_phy_reg(int phy_addr, u16 page, u16 reg, u16 *val)
 	MV_STATUS 	status = 0;
 
 	spin_lock_irqsave(&mii_lock, flags);
-	 
+	/* setup register address page first */
 	if (!mvEthPhyRegWrite(phy_addr, MV_ETH_TOOL_PHY_PAGE_ADDR_REG, page)) {
 		status = mvEthPhyRegRead(phy_addr, reg, val);
 	}
@@ -171,13 +214,28 @@ int mv_eth_tool_read_phy_reg(int phy_addr, u16 page, u16 reg, u16 *val)
 	return status;
 }
 
+/******************************************************************************
+* mv_eth_tool_write_phy_reg
+* Description:
+*	Marvell PHY register write (includes page number)
+* INPUT:
+*	phy_addr	PHY address
+*	page		PHY register page (region)
+*	reg		PHY register number (offset)
+*	data		Data to be written into PHY register
+* OUTPUT
+*	None
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_eth_tool_write_phy_reg(int phy_addr, u16 page, u16 reg, u16 data)
 {
 	unsigned long   flags;
 	MV_STATUS 	status = 0;
 
 	spin_lock_irqsave(&mii_lock, flags);
-	 
+	/* setup register address page first */
 	if (!mvEthPhyRegWrite(phy_addr, MV_ETH_TOOL_PHY_PAGE_ADDR_REG,
 						(unsigned int)page)) {
 		status = mvEthPhyRegWrite(phy_addr, reg, data);
@@ -187,7 +245,18 @@ int mv_eth_tool_write_phy_reg(int phy_addr, u16 page, u16 reg, u16 data)
 	return status;
 }
 #endif
- 
+/******************************************************************************
+* mv_pp2_eth_tool_get_settings
+* Description:
+*	ethtool get standard port settings
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	cmd		command (settings)
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *cmd)
 {
 	struct eth_port 	*priv = MV_ETH_PRIV(netdev);
@@ -211,7 +280,7 @@ int mv_pp2_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *
 	mvGmacLinkStatus(priv->port, &status);
 
 	if (status.linkup != MV_TRUE) {
-		 
+		/* set to Unknown */
 		cmd->speed  = priv->speed_cfg;
 		cmd->duplex = priv->duplex_cfg;
 	} else {
@@ -237,7 +306,7 @@ int mv_pp2_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *
 	cmd->port = PORT_MII;
 	cmd->phy_address = phy_addr;
 	cmd->transceiver = XCVR_INTERNAL;
-	 
+	/* check if speed and duplex are AN */
 	mvGmacSpeedDuplexGet(priv->port, &speed, &duplex);
 	if (speed == MV_ETH_SPEED_AN && duplex == MV_ETH_DUPLEX_AN) {
 		cmd->lp_advertising = cmd->advertising = 0;
@@ -267,6 +336,19 @@ int mv_pp2_eth_tool_get_settings(struct net_device *netdev, struct ethtool_cmd *
 	return 0;
 }
 
+
+/******************************************************************************
+* mv_pp2_eth_tool_restore_settings
+* Description:
+*	restore saved speed/dublex/an settings
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_restore_settings(struct net_device *netdev)
 {
 	struct eth_port 	*priv = MV_ETH_PRIV(netdev);
@@ -313,7 +395,7 @@ int mv_pp2_eth_tool_restore_settings(struct net_device *netdev)
 		err = mvGmacSpeedDuplexSet(priv->port, MV_ETH_SPEED_AN, MV_ETH_DUPLEX_AN);
 		if (!err)
 			err = mvEthPhyAdvertiseSet(phy_addr, priv->advertise_cfg);
-		 
+		/* Restart AN on PHY enables it */
 		if (!err) {
 			err = mvEthPhyRestartAN(phy_addr, MV_ETH_TOOL_AN_TIMEOUT);
 			if (err == MV_TIMEOUT) {
@@ -336,6 +418,21 @@ int mv_pp2_eth_tool_restore_settings(struct net_device *netdev)
 	return err;
 }
 
+
+
+/******************************************************************************
+* mv_pp2_eth_tool_set_settings
+* Description:
+*	ethtool set standard port settings
+* INPUT:
+*	netdev		Network device structure pointer
+*	cmd		command (settings)
+* OUTPUT
+*	None
+* RETURN:
+*	0 for success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_set_settings(struct net_device *dev, struct ethtool_cmd *cmd)
 {
 	struct eth_port *priv = MV_ETH_PRIV(dev);
@@ -366,6 +463,18 @@ int mv_pp2_eth_tool_set_settings(struct net_device *dev, struct ethtool_cmd *cmd
 	return err;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_regs_len
+* Description:
+*	ethtool get registers array length
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	registers array length
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_get_regs_len(struct net_device *netdev)
 {
 #define MV_ETH_TOOL_REGS_LEN 42
@@ -373,6 +482,18 @@ int mv_pp2_eth_tool_get_regs_len(struct net_device *netdev)
 	return (MV_ETH_TOOL_REGS_LEN * sizeof(uint32_t));
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_wol
+* Description:
+*	ethtool get WOL information
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	wolinfo		WOL info
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_wol(struct net_device *netdev,
 			 struct ethtool_wolinfo *wolinfo)
 {
@@ -395,6 +516,19 @@ void mv_pp2_eth_tool_get_wol(struct net_device *netdev,
 		wolinfo->wolopts |= WAKE_MAGIC;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_set_wol
+* Description:
+*	ethtool set WOL
+* INPUT:
+*	netdev		Network device structure pointer
+*	wolinfo		WOL settings
+* OUTPUT
+*	None
+* RETURN:
+*	None
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_set_wol(struct net_device *netdev,
 			 struct ethtool_wolinfo *wolinfo)
 {
@@ -409,24 +543,26 @@ int mv_pp2_eth_tool_set_wol(struct net_device *netdev,
 	if (wolinfo->wolopts & (WAKE_PHY | WAKE_MCAST | WAKE_BCAST | WAKE_MAGICSECURE))
 		return -EOPNOTSUPP;
 
+	/* these settings will always override what we currently have */
 	priv->wol = 0;
-	 
+	/* Clearn all settings before if have */
 	ret = mvPp2WolWakeup();
 	if (ret)
 		return ret;
 
 	if (wolinfo->wolopts & WAKE_UCAST) {
 		priv->wol |= MV_PP2_WOL_UCAST_MASK;
-		 
+		/* Enable WoL Ucast event */
 		ret = mvPp2WolUcastEventSet(WOL_EVENT_EN);
 		if (ret)
 			return ret;
 	}
 
 	if (wolinfo->wolopts & WAKE_ARP) {
-		 
+		/* Even port num use ARP0; Odd port num use ARP1 */
 		priv->wol |= MV_PP2_WOL_ARP_IP_MASK((priv->port) % MV_PP2_WOL_ARP_IP_NUM);
-		 
+		/* Set WoL ARP Address; TODO */
+		/* Enable WoL ARP event */
 		ret = mvPp2WolArpEventSet((priv->port) % MV_PP2_WOL_ARP_IP_NUM, WOL_EVENT_EN);
 		if (ret)
 			return ret;
@@ -434,11 +570,11 @@ int mv_pp2_eth_tool_set_wol(struct net_device *netdev,
 
 	if (wolinfo->wolopts & WAKE_MAGIC) {
 		priv->wol |= MV_PP2_WOL_MAGIC_PTRN_MASK;
-		 
+		/* Set Magic MAC, the MAC of the last port configured by ethtool will be the Magic MAC */
 		ret = mvPp2WolMagicDaSet(netdev->dev_addr);
 		if (ret)
 			return ret;
-		 
+		/* Enable WoL Magic event */
 		ret = mvPp2WolMagicEventSet(WOL_EVENT_EN);
 		if (ret)
 			return ret;
@@ -447,6 +583,19 @@ int mv_pp2_eth_tool_set_wol(struct net_device *netdev,
 	return 0;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_drvinfo
+* Description:
+*	ethtool get driver information
+* INPUT:
+*	netdev		Network device structure pointer
+*	info		driver information
+* OUTPUT
+*	info		driver information
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_drvinfo(struct net_device *netdev,
 			     struct ethtool_drvinfo *info)
 {
@@ -459,6 +608,20 @@ void mv_pp2_eth_tool_get_drvinfo(struct net_device *netdev,
 	info->eedump_len = 0;
 }
 
+
+/******************************************************************************
+* mv_pp2_eth_tool_get_regs
+* Description:
+*	ethtool get registers array
+* INPUT:
+*	netdev		Network device structure pointer
+*	regs		registers information
+* OUTPUT
+*	p		registers array
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_regs(struct net_device *netdev,
 			  struct ethtool_regs *regs, void *p)
 {
@@ -474,6 +637,7 @@ void mv_pp2_eth_tool_get_regs(struct net_device *netdev,
 
 	regs->version = priv->plat_data->ctrl_rev;
 
+	/* ETH port registers */
 	regs_buff[0]  = MV_32BIT_BE(MV_REG_READ(ETH_GMAC_CTRL_0_REG(priv->port)));
 	regs_buff[1]  = MV_32BIT_BE(MV_REG_READ(ETH_GMAC_CTRL_1_REG(priv->port)));
 	regs_buff[2]  = MV_32BIT_BE(MV_REG_READ(ETH_GMAC_CTRL_2_REG(priv->port)));
@@ -491,6 +655,20 @@ void mv_pp2_eth_tool_get_regs(struct net_device *netdev,
 	regs_buff[41] = MV_32BIT_BE(MV_REG_READ(ETH_PORT_ISR_SUM_MASK_REG(priv->port)));
 }
 
+
+
+/******************************************************************************
+* mv_pp2_eth_tool_nway_reset
+* Description:
+*	ethtool restart auto negotiation
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_nway_reset(struct net_device *netdev)
 {
 	struct eth_port *priv = MV_ETH_PRIV(netdev);
@@ -508,6 +686,19 @@ int mv_pp2_eth_tool_nway_reset(struct net_device *netdev)
 	return 0;
 }
 
+
+/******************************************************************************
+* mv_pp2_eth_tool_get_link
+* Description:
+*	ethtool get link status
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	0 if link is down, 1 if link is up
+*
+*******************************************************************************/
 u32 mv_pp2_eth_tool_get_link(struct net_device *netdev)
 {
 	struct eth_port     *pp = MV_ETH_PRIV(netdev);
@@ -520,22 +711,37 @@ u32 mv_pp2_eth_tool_get_link(struct net_device *netdev)
 #ifdef CONFIG_MV_INCLUDE_PON
 	if (MV_PP2_IS_PON_PORT(pp->port))
 		return mv_pon_link_status(NULL);
-#endif  
+#endif /* CONFIG_MV_PON */
 
 	return mvGmacPortIsLinkUp(pp->port);
 }
 
+
+/******************************************************************************
+* mv_pp2_eth_tool_get_coalesce
+* Description:
+*	ethtool get RX/TX coalesce parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	cmd		Coalesce parameters
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_get_coalesce(struct net_device *netdev,
 			     struct ethtool_coalesce *cmd)
 {
 	struct eth_port *pp = MV_ETH_PRIV(netdev);
-	 
+	/* get coal parameters only for rxq=0, txp=txq=0 !!!
+	   notice that if you use ethtool to set coal, then all queues have the same value */
 	cmd->rx_coalesce_usecs = pp->rx_time_coal_cfg;
 	cmd->rx_max_coalesced_frames = pp->rx_pkts_coal_cfg;
 #ifdef CONFIG_MV_PP2_TXDONE_ISR
 	cmd->tx_max_coalesced_frames = pp->tx_pkts_coal_cfg;
 #endif
 
+	/* Adaptive RX coalescing parameters */
 	cmd->rx_coalesce_usecs_low = pp->rx_time_low_coal_cfg;
 	cmd->rx_coalesce_usecs_high = pp->rx_time_high_coal_cfg;
 	cmd->pkt_rate_low = pp->pkt_rate_low_cfg;
@@ -548,12 +754,26 @@ int mv_pp2_eth_tool_get_coalesce(struct net_device *netdev,
 	return 0;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_set_coalesce
+* Description:
+*	ethtool set RX/TX coalesce parameters
+* INPUT:
+*	netdev		Network device structure pointer
+*	cmd		Coalesce parameters
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_set_coalesce(struct net_device *netdev,
 			     struct ethtool_coalesce *cmd)
 {
 	struct eth_port *pp = MV_ETH_PRIV(netdev);
 	int rxq;
 
+	/* can't set rx coalesce with both 0 pkts and 0 usecs,  tx coalesce supports only pkts */
 	if (!cmd->rx_coalesce_usecs && !cmd->rx_max_coalesced_frames)
 		return -EPERM;
 #ifdef CONFIG_MV_PP2_TXDONE_ISR
@@ -580,6 +800,7 @@ int mv_pp2_eth_tool_set_coalesce(struct net_device *netdev,
 #endif
 	pp->tx_pkts_coal_cfg = cmd->tx_max_coalesced_frames;
 
+	/* Adaptive RX coalescing parameters */
 	pp->rx_time_low_coal_cfg = cmd->rx_coalesce_usecs_low;
 	pp->rx_time_high_coal_cfg = cmd->rx_coalesce_usecs_high;
 	pp->rx_pkts_low_coal_cfg = cmd->rx_max_coalesced_frames_low;
@@ -590,6 +811,7 @@ int mv_pp2_eth_tool_set_coalesce(struct net_device *netdev,
 	if (cmd->rate_sample_interval > 0)
 		pp->rate_sample_cfg = cmd->rate_sample_interval;
 
+	/* check if adaptive rx is on - reset rate calculation parameters */
 	if (!pp->rx_adaptive_coal_cfg && cmd->use_adaptive_rx_coalesce) {
 		pp->rx_timestamp = jiffies;
 		pp->rx_rate_pkts = 0;
@@ -599,6 +821,19 @@ int mv_pp2_eth_tool_set_coalesce(struct net_device *netdev,
 	return 0;
 }
 
+
+/******************************************************************************
+* mv_pp2_eth_tool_get_ringparam
+* Description:
+*	ethtool get ring parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	ring		Ring paranmeters
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_ringparam(struct net_device *netdev,
 				struct ethtool_ringparam *ring)
 {
@@ -609,6 +844,18 @@ void mv_pp2_eth_tool_get_ringparam(struct net_device *netdev,
 	ring->tx_pending = priv->txq_ctrl[0].txq_size;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_set_ringparam
+* Description:
+*	ethtool set ring parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	ring		Ring paranmeters
+* RETURN:
+*	None
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_set_ringparam(struct net_device *netdev,
 				 struct ethtool_ringparam *ring)
 {
@@ -620,8 +867,10 @@ int mv_pp2_eth_tool_set_ringparam(struct net_device *netdev,
 
 	rxq_size = MV_ALIGN_UP(ring->rx_pending, 16);
 
+	/* Set minimum of 32, to save space for HWF as well */
 	txq_size = MV_ALIGN_UP(ring->tx_pending, 32);
-	 
+	/* Set HWF size to half of total TXQ size */
+
 	if (netif_running(netdev))
 		netdev_running = 1;
 
@@ -637,14 +886,14 @@ int mv_pp2_eth_tool_set_ringparam(struct net_device *netdev,
 #else
 	hwf_size = txq_size/2;
 #endif
-	 
+	/* relevant only for ppv2.1 */
 	swf_size = hwf_size - (nr_cpu_ids * priv->txq_ctrl[0].rsvd_chunk);
 
 	if (txq_size != priv->txq_ctrl[0].txq_size)
 		for (txp = 0; txp < priv->txp_num; txp++)
 			for (txq = 0; txq < CONFIG_MV_PP2_TXQ; txq++) {
 				mv_pp2_ctrl_txq_size_set(priv->port, txp, txq, txq_size);
-				 
+				/* swf_size is ignored if ppv2.0 */
 				mv_pp2_ctrl_txq_limits_set(priv->port, txp, txq, hwf_size, swf_size);
 			}
 
@@ -654,6 +903,18 @@ int mv_pp2_eth_tool_set_ringparam(struct net_device *netdev,
 	return 0;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_pauseparam
+* Description:
+*	ethtool get pause parameters
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	pause		Pause paranmeters
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_pauseparam(struct net_device *netdev,
 				struct ethtool_pauseparam *pause)
 {
@@ -685,6 +946,22 @@ void mv_pp2_eth_tool_get_pauseparam(struct net_device *netdev,
 		pause->tx_pause = 1;
 }
 
+
+
+
+/******************************************************************************
+* mv_pp2_eth_tool_set_pauseparam
+* Description:
+*	ethtool configure pause parameters
+* INPUT:
+*	netdev		Network device structure pointer
+*	pause		Pause paranmeters
+* OUTPUT
+*	None
+* RETURN:
+*	0 on success
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_set_pauseparam(struct net_device *netdev,
 				struct ethtool_pauseparam *pause)
 {
@@ -698,20 +975,20 @@ int mv_pp2_eth_tool_set_pauseparam(struct net_device *netdev,
 		return -EOPNOTSUPP;
 	}
 
-	if (pause->rx_pause && pause->tx_pause) {  
-		if (pause->autoneg) {  
+	if (pause->rx_pause && pause->tx_pause) { /* Enable FC */
+		if (pause->autoneg) { /* autoneg enable */
 			status = mvGmacFlowCtrlSet(port, MV_ETH_FC_AN_SYM);
-		} else {  
+		} else { /* autoneg disable */
 			status = mvGmacFlowCtrlSet(port, MV_ETH_FC_ENABLE);
 		}
-	} else if (!pause->rx_pause && !pause->tx_pause) {  
-		if (pause->autoneg) {  
+	} else if (!pause->rx_pause && !pause->tx_pause) { /* Disable FC */
+		if (pause->autoneg) { /* autoneg enable */
 			status = mvGmacFlowCtrlSet(port, MV_ETH_FC_AN_NO);
-		} else {  
+		} else { /* autoneg disable */
 			status = mvGmacFlowCtrlSet(port, MV_ETH_FC_DISABLE);
 		}
 	}
-	 
+	/* Only symmetric change for RX and TX flow control is allowed */
 	if (status == MV_OK) {
 		phy_addr = priv->plat_data->phy_addr;
 		status = mvEthPhyRestartAN(phy_addr, MV_ETH_TOOL_AN_TIMEOUT);
@@ -722,6 +999,19 @@ int mv_pp2_eth_tool_set_pauseparam(struct net_device *netdev,
 	return 0;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_strings
+* Description:
+*	ethtool get strings (used for statistics and self-test descriptions)
+* INPUT:
+*	netdev		Network device structure pointer
+*	stringset	strings parameters
+* OUTPUT
+*	data		output data
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_strings(struct net_device *netdev,
 			     uint32_t stringset, uint8_t *data)
 {
@@ -731,7 +1021,9 @@ void mv_pp2_eth_tool_get_strings(struct net_device *netdev,
 
 	switch (stringset) {
 	case ETH_SS_TEST:
-		 
+		/*
+		memcpy(data, *mv_pp2_tool_gstrings_test,
+		       MV_ETH_TOOL_TEST_LEN*ETH_GSTRING_LEN); */
 		break;
 	case ETH_SS_STATS:
 		for (i = 0; i < MV_ETH_TOOL_GLOBAL_STATS_LEN; i++) {
@@ -759,6 +1051,19 @@ void mv_pp2_eth_tool_get_strings(struct net_device *netdev,
 	}
 }
 
+
+/******************************************************************************
+* mv_pp2_eth_tool_get_stats_count
+* Description:
+*	ethtool get statistics count (number of stat. array entries)
+* INPUT:
+*	netdev		Network device structure pointer
+* OUTPUT
+*	None
+* RETURN:
+*	statistics count
+*
+*******************************************************************************/
 int mv_pp2_eth_tool_get_stats_count(struct net_device *netdev)
 {
 	return 0;
@@ -775,6 +1080,19 @@ static int mv_pp2_eth_tool_get_rxnfc(struct net_device *dev, struct ethtool_rxnf
 	return 0;
 }
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_ethtool_stats
+* Description:
+*	ethtool get statistics
+* INPUT:
+*	netdev		Network device structure pointer
+*	stats		stats parameters
+* OUTPUT
+*	data		output data
+* RETURN:
+*	None
+*
+*******************************************************************************/
 void mv_pp2_eth_tool_get_ethtool_stats(struct net_device *netdev,
 				   struct ethtool_stats *stats, uint64_t *data)
 {
@@ -817,11 +1135,37 @@ void mv_pp2_eth_tool_get_ethtool_stats(struct net_device *netdev,
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0)
- 
+/******************************************************************************
+* mv_pp2_eth_tool_set_phys_id
+* Description:
+*	ethtool set indicator state for physical identification
+* INPUT:
+*	netdev		Network device structure pointer
+*	state		indicator state for physical identification
+* OUTPUT
+*	None
+* RETURN:
+*	Set results
+*
+*******************************************************************************/
 static int mv_pp2_eth_tool_set_phys_id(struct net_device *netdev,
 			     enum ethtool_phys_id_state state)
 {
-	 
+	/* we can only set Blink Duty Cycle and Blink Duration for Blink1 and Blink0
+	we can not set LED blink stae
+	0 = Blink Duty Cycle_0: 25% ON, 75% OFF.
+	1 = Blink Duty Cycle_1: 50% ON, 50% OFF.
+	2 = Blink Duty Cycle_2: 50% ON, 50% OFF.
+	3 = Blink Duty Cycle_3: 75% ON, 25% OFF.
+
+	0 = 1 x Core Clock: (Core_clock_period*2200*1)*1,000,000
+	1 = 2 x Core Clock: (Core_clock_period*2200*2)*1,000,000
+	2 = 4 x Core Clock: (Core_clock_period*2200*4)*1,000,000
+	3 = 8 x Core Clock: (Core_clock_period*2200*8)*1,000,000
+	4 = 16 x Core Clock: (Core_clock_period*2200*16)*1,000,000
+	5 = 32 x Core Clock: (Core_clock_period*2200*32)*1,000,000
+	6 = 64 x Core Clock: (Core_clock_period*2200*64)*1,000,000
+	*/
 	switch (state) {
 	case ETHTOOL_ID_ACTIVE:
 		return 2;
@@ -839,16 +1183,55 @@ static int mv_pp2_eth_tool_set_phys_id(struct net_device *netdev,
 	return 0;
 }
 #else
- 
+/******************************************************************************
+* mv_pp2_eth_tool_phys_id
+* Description:
+*	ethtool set indicator state for physical identification
+* INPUT:
+*	netdev		Network device structure pointer
+*	state		indicator state for physical identification
+* OUTPUT
+*	None
+* RETURN:
+*	Set results
+*
+*******************************************************************************/
 static int mv_pp2_eth_tool_phys_id(struct net_device *netdev,
 			     uint32_t data)
 {
-	 
+	/* we can only set Blink Duty Cycle and Blink Duration for Blink1 and Blink0
+	we can not set LED blink stae
+	0 = Blink Duty Cycle_0: 25% ON, 75% OFF.
+	1 = Blink Duty Cycle_1: 50% ON, 50% OFF.
+	2 = Blink Duty Cycle_2: 50% ON, 50% OFF.
+	3 = Blink Duty Cycle_3: 75% ON, 25% OFF.
+
+	0 = 1 x Core Clock: (Core_clock_period*2200*1)*1,000,000
+	1 = 2 x Core Clock: (Core_clock_period*2200*2)*1,000,000
+	2 = 4 x Core Clock: (Core_clock_period*2200*4)*1,000,000
+	3 = 8 x Core Clock: (Core_clock_period*2200*8)*1,000,000
+	4 = 16 x Core Clock: (Core_clock_period*2200*16)*1,000,000
+	5 = 32 x Core Clock: (Core_clock_period*2200*32)*1,000,000
+	6 = 64 x Core Clock: (Core_clock_period*2200*64)*1,000,000
+	*/
 	return -EOPNOTSUPP;
 }
 
 #endif
 
+/******************************************************************************
+* mv_pp2_eth_tool_get_sset_count
+* Description:
+*	ethtool get stringset count
+* INPUT:
+*	netdev		Network device structure pointer
+*	sset		stringset
+* OUTPUT
+*	None
+* RETURN:
+*	stringset length
+*
+*******************************************************************************/
 static int mv_pp2_eth_tool_get_sset_count(struct net_device *netdev, int sset)
 {
 	switch (sset) {
@@ -877,11 +1260,12 @@ const struct ethtool_ops mv_pp2_eth_tool_ops = {
 	.set_pauseparam				= mv_pp2_eth_tool_set_pauseparam,
 	.get_strings				= mv_pp2_eth_tool_get_strings,
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(2, 6, 32)
-	.get_stats_count			= mv_pp2_eth_tool_get_stats_count, 
+	.get_stats_count			= mv_pp2_eth_tool_get_stats_count,/*TODO: complete implementation */
 #endif
-	.get_ethtool_stats			= mv_pp2_eth_tool_get_ethtool_stats, 
-	 
-	.get_rxnfc				= mv_pp2_eth_tool_get_rxnfc, 
+	.get_ethtool_stats			= mv_pp2_eth_tool_get_ethtool_stats,/*TODO: complete implementation */
+	/*.get_rxfh_indir			= mv_pp2_eth_tool_get_rxfh_indir,
+	.set_rxfh_indir				= mv_pp2_eth_tool_set_rxfh_indir, */
+	.get_rxnfc				= mv_pp2_eth_tool_get_rxnfc,/*TODO new implementation*/
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0)
 	.set_phys_id				= mv_pp2_eth_tool_set_phys_id,
 #else
