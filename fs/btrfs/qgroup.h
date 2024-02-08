@@ -71,10 +71,8 @@ struct btrfs_qgroup_operation {
 #endif /* MY_ABC_HERE */
 };
 
-int btrfs_quota_enable(struct btrfs_trans_handle *trans,
-		       struct btrfs_fs_info *fs_info);
-int btrfs_quota_disable(struct btrfs_trans_handle *trans,
-			struct btrfs_fs_info *fs_info);
+int btrfs_quota_enable(struct btrfs_fs_info *fs_info);
+int btrfs_quota_disable(struct btrfs_fs_info *fs_info);
 int btrfs_qgroup_rescan(struct btrfs_fs_info *fs_info);
 void btrfs_qgroup_rescan_resume(struct btrfs_fs_info *fs_info);
 int btrfs_qgroup_wait_for_completion(struct btrfs_fs_info *fs_info);
@@ -135,5 +133,11 @@ void assert_qgroups_uptodate(struct btrfs_trans_handle *trans);
 int btrfs_verify_qgroup_counts(struct btrfs_fs_info *fs_info, u64 qgroupid,
 			       u64 rfer, u64 excl);
 #endif
+
+#ifdef MY_ABC_HERE
+extern u64 qgroup_soft_limit;
+int __init qgroup_netlink_init(void);
+void qgroup_netlink_exit(void);
+#endif /* MY_ABC_HERE */
 
 #endif /* __BTRFS_QGROUP__ */

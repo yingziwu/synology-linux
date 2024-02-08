@@ -250,6 +250,7 @@ struct btrfs_ioctl_fs_info_args {
 #define BTRFS_FEATURE_INCOMPAT_RAID56		(1ULL << 7)
 #define BTRFS_FEATURE_INCOMPAT_SKINNY_METADATA	(1ULL << 8)
 #define BTRFS_FEATURE_INCOMPAT_NO_HOLES		(1ULL << 9)
+#define BTRFS_FEATURE_INCOMPAT_METADATA_UUID	(1ULL << 10)
 
 struct btrfs_ioctl_feature_flags {
 	__u64 compat_flags;
@@ -304,12 +305,13 @@ struct btrfs_ioctl_balance_args {
 
 	struct btrfs_balance_progress stat;	/* out */
 
-#ifdef MY_ABC_HERE
-	__u64 unused[71];			/* pad to 1k */
+#if defined(MY_ABC_HERE) || defined(MY_ABC_HERE)
+	__u64 unused[70];			/* pad to 1k */
+	__u64 key_offset;				/* out */ /* for quick balance */
 	__u64 total_chunk_used;			/* out */ /* for dry run */
 #else
 	__u64 unused[72];			/* pad to 1k */
-#endif /* SYNO_BTRFS_BALANCE_DRY_RUN */
+#endif /* defined(MY_ABC_HERE) || defined(MY_ABC_HERE) */
 };
 
 #define BTRFS_INO_LOOKUP_PATH_MAX 4080
@@ -392,6 +394,10 @@ struct btrfs_ioctl_clone_range_args {
 #define BTRFS_CLONE_RANGE_V2_AUTO_REWRITE_SRC (1 << 0)
 #define BTRFS_CLONE_RANGE_V2_AUTO_REWRITE_DST (1 << 1)
 
+#ifdef MY_ABC_HERE
+#define BTRFS_CLONE_RANGE_V2_SKIP_CHECK_COMPR_DIR (1 << 2)
+#endif /* MY_ABC_HERE */
+
 struct btrfs_ioctl_syno_clone_range_args_v2 {
 	__s64 src_fd;
 	/*
@@ -425,6 +431,7 @@ struct btrfs_ioctl_syno_clone_range_args_v2 {
 #define BTRFS_DEFRAG_RANGE_SYNO_DEFRAG  (1ULL << 2)
 #define BTRFS_DEFRAG_RANGE_PRINT_STDOUT (1ULL << 3)
 #define BTRFS_DEFRAG_RANGE_SKIP_FAST_SNAPSHOT_CHECK  (1ULL << 4)
+#define BTRFS_DEFRAG_RANGE_SKIP_CROSS_REF_CHECK  (1ULL << 7)
 #endif /* MY_ABC_HERE */
 struct btrfs_ioctl_defrag_range_args {
 	/* start of the defrag operation */
@@ -1275,5 +1282,24 @@ int btrfs_list_hardlinks(struct btrfs_list_hardlinks_args *args);
 #define BTRFS_IOC_CKSUMFAILED_FILES_GET _IOR(BTRFS_IOCTL_MAGIC, 254, \
 		                            struct btrfs_ioctl_cksumfailed_files_args)
 #endif
+
+#ifdef MY_ABC_HERE
+enum {
+	QGROUP_NL_C_UNSPEC,
+	QGROUP_NL_C_OVER_LIMIT,
+	QGROUP_NL_C_UNDER_LIMIT,
+	__QGROUP_NL_C_MAX,
+};
+#define QGROUP_NL_C_MAX (__QGROUP_NL_C_MAX - 1)
+
+enum {
+	QGROUP_NL_A_FSID,
+	QGROUP_NL_A_SUBVOL_ID,
+	QGROUP_NL_A_QUOTA_LIMIT,
+	QGROUP_NL_A_QUOTA_USED,
+	__QGROUP_NL_A_MAX,
+};
+#define QGROUP_NL_A_MAX (__QGROUP_NL_A_MAX - 1)
+#endif /* MY_ABC_HERE */
 
 #endif /* _UAPI_LINUX_BTRFS_H */

@@ -112,7 +112,7 @@ static int test_find_delalloc(void)
 	 * |--- delalloc ---|
 	 * |---  search  ---|
 	 */
-	set_extent_delalloc(&tmp, 0, 4095, NULL, GFP_NOFS);
+	set_extent_delalloc(&tmp, 0, 4095, 0, NULL, GFP_NOFS);
 	start = 0;
 	end = 0;
 	found = find_lock_delalloc_range(inode, &tmp, locked_page, &start,
@@ -143,7 +143,7 @@ static int test_find_delalloc(void)
 		test_msg("Couldn't find the locked page\n");
 		goto out_bits;
 	}
-	set_extent_delalloc(&tmp, 4096, max_bytes - 1, NULL, GFP_NOFS);
+	set_extent_delalloc(&tmp, 4096, max_bytes - 1, 0, NULL, GFP_NOFS);
 	start = test_start;
 	end = 0;
 	found = find_lock_delalloc_range(inode, &tmp, locked_page, &start,
@@ -198,7 +198,7 @@ static int test_find_delalloc(void)
 	 *
 	 * We are re-using our test_start from above since it works out well.
 	 */
-	set_extent_delalloc(&tmp, max_bytes, total_dirty - 1, NULL, GFP_NOFS);
+	set_extent_delalloc(&tmp, max_bytes, total_dirty - 1, 0, NULL, GFP_NOFS);
 	start = test_start;
 	end = 0;
 	found = find_lock_delalloc_range(inode, &tmp, locked_page, &start,
@@ -278,7 +278,7 @@ static int __test_eb_bitmaps(unsigned long *bitmap, struct extent_buffer *eb,
 	unsigned long i, x;
 
 	memset(bitmap, 0, len);
-	memset_extent_buffer(eb, 0, 0, len);
+	memzero_extent_buffer(eb, 0, len);
 	if (memcmp_extent_buffer(eb, bitmap, 0, len) != 0) {
 		test_msg("Bitmap was not zeroed\n");
 		return -EINVAL;

@@ -598,6 +598,7 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 				      struct extent_buffer *eb, int slot,
 				      struct btrfs_key *key)
 {
+	struct btrfs_drop_extents_args drop_args = { 0 };
 	int found_type;
 	u64 extent_end;
 	u64 start = key->offset;
@@ -682,7 +683,10 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 	btrfs_release_path(path);
 
 	/* drop any overlapping extents */
-	ret = btrfs_drop_extents(trans, root, inode, start, extent_end, 1);
+	drop_args.start = start;
+	drop_args.end = extent_end;
+	drop_args.drop_cache = true;
+	ret = btrfs_drop_extents(trans, root, inode, &drop_args);
 	if (ret)
 		goto out;
 
@@ -865,7 +869,7 @@ static noinline int replay_one_extent(struct btrfs_trans_handle *trans,
 			goto out;
 	}
 
-	inode_add_bytes(inode, nbytes);
+	btrfs_update_inode_bytes(BTRFS_I(inode), nbytes, drop_args.bytes_found);
 	ret = btrfs_update_inode(trans, root, inode);
 out:
 	if (inode)
@@ -4103,6 +4107,7 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 			  struct btrfs_path *path,
 			  struct btrfs_log_ctx *ctx)
 {
+	struct btrfs_drop_extents_args drop_args = { 0 };
 	struct btrfs_root *log = root->log_root;
 	struct btrfs_file_extent_item *fi;
 	struct extent_buffer *leaf;
@@ -4111,7 +4116,6 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 	u64 extent_offset = em->start - em->orig_start;
 	u64 block_len;
 	int ret;
-	int extent_inserted = 0;
 
 	ret = log_extent_csums(trans, BTRFS_I(inode), root, em);
 	if (ret)
@@ -4119,17 +4123,16 @@ static int log_one_extent(struct btrfs_trans_handle *trans,
 
 	btrfs_init_map_token(&token);
 
-	ret = __btrfs_drop_extents(trans, log, inode, path, em->start,
-#ifdef MY_ABC_HERE
-				   em->start + em->len, NULL, NULL, NULL, NULL, 0, 1,
-#else
-				   em->start + em->len, NULL, 0, 1,
-#endif /* MY_ABC_HERE */
-				   sizeof(*fi), &extent_inserted);
+	drop_args.path = path;
+	drop_args.start = em->start;
+	drop_args.end = em->start + em->len;
+	drop_args.replace_extent = true;
+	drop_args.extent_item_size = sizeof(*fi);
+	ret = btrfs_drop_extents(trans, log, inode, &drop_args);
 	if (ret)
 		return ret;
 
-	if (!extent_inserted) {
+	if (!drop_args.extent_inserted) {
 		key.objectid = btrfs_ino(inode);
 		key.type = BTRFS_EXTENT_DATA_KEY;
 		key.offset = em->start;

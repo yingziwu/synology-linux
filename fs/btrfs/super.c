@@ -65,6 +65,9 @@
 #include "free-space-cache.h"
 #include "backref.h"
 #include "tests/btrfs-tests.h"
+#ifdef MY_ABC_HERE
+#include "qgroup.h"
+#endif /* MY_ABC_HERE */
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/btrfs.h>
@@ -1279,7 +1282,7 @@ int btrfs_sync_fs(struct super_block *sb, int wait)
 	struct btrfs_fs_info *fs_info = btrfs_sb(sb);
 	struct btrfs_root *root = fs_info->tree_root;
 
-	trace_btrfs_sync_fs(wait);
+	trace_btrfs_sync_fs(fs_info, wait);
 
 	if (!wait) {
 		filemap_flush(fs_info->btree_inode->i_mapping);
@@ -1836,6 +1839,13 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 		if (ret)
 			goto restore;
 	} else {
+#ifdef MY_ABC_HERE
+		if (btrfs_super_compat_ro_flags(fs_info->super_copy) & ~BTRFS_FEATURE_COMPAT_RO_SUPP) {
+			btrfs_err(fs_info, "cannot mount read-write because of unsupported optional features");
+			ret = -EINVAL;
+			goto restore;
+		}
+#endif /* MY_ABC_HERE */
 		if (test_bit(BTRFS_FS_STATE_ERROR, &root->fs_info->fs_state)) {
 			btrfs_err(fs_info,
 				"Remounting read-write after error is not allowed");
@@ -1861,9 +1871,12 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
 			goto restore;
 		}
 
+#ifdef MY_ABC_HERE
+#else /* MY_ABC_HERE */
 		ret = btrfs_cleanup_fs_roots(fs_info);
 		if (ret)
 			goto restore;
+#endif /* MY_ABC_HERE */
 
 		/* recover relocation */
 		mutex_lock(&fs_info->cleaner_mutex);
@@ -2089,7 +2102,7 @@ static int btrfs_statfs(struct dentry *dentry, struct kstatfs *buf)
 	u64 total_used = 0;
 	u64 total_free_data = 0;
 	int bits = dentry->d_sb->s_blocksize_bits;
-	__be32 *fsid = (__be32 *)fs_info->fsid;
+	__be32 *fsid = (__be32 *)fs_info->fs_devices->fsid;
 	int ret;
 #ifdef MY_ABC_HERE
 	u64 total_metadata = 0;
@@ -2652,6 +2665,12 @@ static int __init init_btrfs_fs(void)
 	if (err)
 		goto free_delayed_ref;
 
+#ifdef MY_ABC_HERE
+	err = qgroup_netlink_init();
+	if (err)
+		goto free_btrfs_interface;
+#endif /* MY_ABC_HERE */
+
 	btrfs_init_lockdep();
 
 	btrfs_print_mod_info();
@@ -2671,6 +2690,10 @@ static int __init init_btrfs_fs(void)
 	return 0;
 
 unregister_ioctl:
+#ifdef MY_ABC_HERE
+	qgroup_netlink_exit();
+free_btrfs_interface:
+#endif /* MY_ABC_HERE */
 	btrfs_interface_exit();
 free_prelim_ref:
 	btrfs_prelim_ref_exit();
@@ -2698,6 +2721,9 @@ free_hash:
 
 static void __exit exit_btrfs_fs(void)
 {
+#ifdef MY_ABC_HERE
+	qgroup_netlink_exit();
+#endif /* MY_ABC_HERE */
 	btrfs_destroy_cachep();
 	btrfs_delayed_ref_exit();
 	btrfs_auto_defrag_exit();
